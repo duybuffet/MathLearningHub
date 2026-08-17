@@ -1,0 +1,232 @@
+{
+  "id": "area4_propositional-logic",
+  "title": "Logic mệnh đề (Propositional Logic)",
+  "area": 4,
+  "unit": "a4u1",
+  "order": 1,
+  "icon": "logic",
+  "tagline": "Logic mệnh đề là ngôn ngữ của máy tính — mọi câu lệnh if, mọi cổng logic, mọi mệnh đề SQL WHERE đều được xây từ AND, OR, NOT.",
+  "readTime": "~18 min",
+  "prerequisites": [],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Logic mệnh đề (propositional logic) là hệ thống suy luận đúng/sai của toán học — và cũng là nền tảng của mọi chương trình máy tính. Mỗi **mệnh đề (proposition)** là một phát biểu có thể đúng (True / 1) hoặc sai (False / 0), không có giá trị nào khác.\n\nTại sao CS cần điều này? Vì **mọi điều kiện trong code** đều là mệnh đề logic:\n- `if (age >= 18 && !isBanned)` — AND (&&) và NOT (!)\n- `WHERE active = 1 OR role = 'admin'` — OR trong SQL\n- Cổng logic AND/OR/NOT trong mạch điện tử (circuit)\n\nHiểu logic mệnh đề = hiểu cách máy tính ra quyết định ở cấp độ cơ bản nhất."
+    },
+    {
+      "type": "analogy",
+      "title": "Mệnh đề như công tắc điện",
+      "content": "Hãy nghĩ mỗi mệnh đề như một **công tắc điện**: bật (True) hoặc tắt (False).\n\n- **AND (∧)**: cả hai công tắc bật thì đèn sáng — giống nối tiếp.\n- **OR (∨)**: ít nhất một công tắc bật thì đèn sáng — giống song song.\n- **NOT (¬)**: đảo trạng thái — bật thành tắt, tắt thành bật.\n\nMạch điện tử (transistors, logic gates) hoạt động chính xác theo nguyên lý này. Toàn bộ CPU của bạn — mấy tỉ transistors — chỉ là sự kết hợp phức tạp của ba phép tính đơn giản này."
+    },
+    {
+      "type": "formula",
+      "title": "Các phép toán logic cơ bản",
+      "latex": "\\lnot p \\quad p \\land q \\quad p \\lor q \\quad p \\Rightarrow q \\quad p \\Leftrightarrow q",
+      "reading": "đọc là: NOT p; p AND q; p OR q; p kéo theo q (if p then q); p tương đương q.",
+      "symbols": [
+        { "sym": "\\lnot p", "meaning": "NOT p — phủ định: đảo True↔False" },
+        { "sym": "p \\land q", "meaning": "p AND q — hội: True khi cả hai đều True" },
+        { "sym": "p \\lor q", "meaning": "p OR q — tuyển: True khi ít nhất một True" },
+        { "sym": "p \\Rightarrow q", "meaning": "p implies q — kéo theo: chỉ False khi p=True, q=False" },
+        { "sym": "p \\Leftrightarrow q", "meaning": "p iff q — tương đương: True khi p và q cùng giá trị" }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Bảng chân trị (Truth Table) — công cụ kiểm tra mọi trường hợp",
+      "content": "Bảng chân trị liệt kê **tất cả tổ hợp** giá trị đầu vào và kết quả. Với n biến → $2^n$ hàng.\n\n**AND (∧) và OR (∨):**\n\n| $p$ | $q$ | $p \\land q$ | $p \\lor q$ |\n|-----|-----|-------------|------------|\n| T | T | T | T |\n| T | F | F | T |\n| F | T | F | T |\n| F | F | F | F |\n\n**NOT (¬) và Implication (⇒):**\n\n| $p$ | $q$ | $\\lnot p$ | $p \\Rightarrow q$ |\n|-----|-----|-----------|-------------------|\n| T | T | F | T |\n| T | F | F | F |\n| F | T | T | T |\n| F | F | T | T |\n\nHàng đáng ngạc nhiên nhất: khi p=False, `p⇒q` luôn True — \"nếu mặt trời mọc ở hướng Tây thì 1+1=3\" là True trong logic hình thức vì điều kiện không bao giờ xảy ra."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: phân tích điều kiện if trong code",
+      "problem": "Code có điều kiện: `if (isLoggedIn && (isAdmin || hasPermission))`. Khi nào điều kiện này True?",
+      "steps": [
+        { "text": "Đặt: p = isLoggedIn, q = isAdmin, r = hasPermission.", "rule": "Đặt biến mệnh đề cho từng điều kiện" },
+        { "text": "Biểu thức: $p \\land (q \\lor r)$.", "rule": "Dịch code → ký hiệu logic" },
+        { "text": "AND yêu cầu cả hai vế True. Vậy cần p = True.", "isCommonMistake": true, "rule": "isLoggedIn phải True — nếu chưa đăng nhập, phần còn lại không quan trọng" },
+        { "text": "Và $(q \\lor r)$ = True, tức là isAdmin=True HOẶC hasPermission=True (hoặc cả hai)." },
+        { "text": "Kết luận: chỉ True khi đã đăng nhập VÀ (là admin HOẶC có quyền)." }
+      ],
+      "result": "True khi isLoggedIn=True và (isAdmin=True hoặc hasPermission=True)"
+    },
+    {
+      "type": "formula",
+      "title": "Các luật logic quan trọng (De Morgan & phân phối)",
+      "latex": "\\lnot(p \\land q) = \\lnot p \\lor \\lnot q \\qquad \\lnot(p \\lor q) = \\lnot p \\land \\lnot q",
+      "reading": "đọc là: NOT(p AND q) = (NOT p) OR (NOT q); NOT(p OR q) = (NOT p) AND (NOT q). Đây là luật De Morgan.",
+      "symbols": [
+        { "sym": "\\lnot(p \\land q)", "meaning": "phủ định của AND — đảo thành OR của các phủ định" },
+        { "sym": "\\lnot(p \\lor q)", "meaning": "phủ định của OR — đảo thành AND của các phủ định" }
+      ],
+      "caption": "Luật De Morgan: khi phủ định một biểu thức hợp/tuyển, đảo dấu phép toán và phủ định từng vế."
+    },
+    {
+      "type": "explanation",
+      "title": "De Morgan trong code — tối ưu điều kiện",
+      "content": "Lập trình viên dùng De Morgan liên tục khi đảo điều kiện:\n\n```\n// Gốc: không cho phép nếu KHÔNG đăng nhập VÀ KHÔNG phải admin\nif (!isLoggedIn && !isAdmin) { deny(); }\n\n// Đảo điều kiện (De Morgan): cho phép nếu đăng nhập HOẶC là admin\nif (isLoggedIn || isAdmin) { allow(); }\n```\n\nHai đoạn code trên **tương đương nhau** — ¬(¬p ∧ ¬q) = p ∨ q theo De Morgan.\n\nTrong SQL WHERE clause:\n```sql\n-- Tìm user không active VÀ không phải admin:\nWHERE NOT active AND NOT is_admin\n-- Tương đương với phủ định của:\nWHERE active OR is_admin\n```"
+    },
+    {
+      "type": "diagram",
+      "title": "Mạch logic từ biểu thức (p ∧ q) ∨ (¬p ∧ r)",
+      "mermaid": "graph LR\n    P[p] --> AND1[AND]\n    Q[q] --> AND1\n    P --> NOT1[NOT]\n    NOT1 --> AND2[AND]\n    R[r] --> AND2\n    AND1 --> OR1[OR]\n    AND2 --> OR1\n    OR1 --> OUT[Output]",
+      "caption": "Biểu thức logic (p∧q)∨(¬p∧r) tương ứng trực tiếp với mạch logic: mỗi phép toán là một cổng logic (gate). Thiết kế mạch số là ứng dụng trực tiếp của logic mệnh đề."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: kiểm tra tautology bằng bảng chân trị",
+      "problem": "Kiểm tra xem $p \\lor \\lnot p$ có phải tautology (luôn True) không.",
+      "steps": [
+        { "text": "Lập bảng chân trị cho tất cả giá trị của p." },
+        { "text": "p=True: $\\lnot p$ = False, $p \\lor \\lnot p$ = True ∨ False = **True**.", "rule": "OR True với bất kỳ = True" },
+        { "text": "p=False: $\\lnot p$ = True, $p \\lor \\lnot p$ = False ∨ True = **True**.", "rule": "OR với True = True" },
+        { "text": "Mọi hàng đều True → đây là tautology.", "isCommonMistake": true, "rule": "Cần kiểm tra TẤT CẢ hàng — không chỉ một hàng đại diện" }
+      ],
+      "result": "$p \\lor \\lnot p$ là tautology — luôn True, dù p là True hay False."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp với Implication (⇒):** Nhiều người nghĩ \"p⇒q\" giống như \"p nguyên nhân dẫn đến q\". KHÔNG phải. Trong logic hình thức, `p⇒q` chỉ sai khi p=True và q=False. Khi p=False, kéo theo luôn True — bất kể q là gì. Điều này hay gây nhầm lẫn khi viết điều kiện ngược (contrapositive): ¬q⇒¬p tương đương p⇒q, nhưng q⇒p thì KHÔNG."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Mệnh đề (proposition) là phát biểu True/False — nền tảng của mọi điều kiện trong code.",
+        "Ba phép toán cơ bản: NOT (¬), AND (∧), OR (∨) — tương ứng !, &&, || trong code.",
+        "Bảng chân trị liệt kê mọi trường hợp: n biến → $2^n$ hàng.",
+        "Luật De Morgan: ¬(p∧q) = ¬p∨¬q; ¬(p∨q) = ¬p∧¬q — dùng khi đảo điều kiện trong code.",
+        "Implication p⇒q chỉ False khi p=True và q=False — đừng nhầm với quan hệ nhân-quả."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-pl-and",
+      "type": "definition",
+      "front": "$p \\land q$ (AND) khi nào True?",
+      "back": "Chỉ True khi **cả hai** p và q đều True. Một trong hai False → kết quả False."
+    },
+    {
+      "id": "fc-pl-demorgan1",
+      "type": "formula",
+      "front": "Luật De Morgan 1: $\\lnot(p \\land q) = ?$",
+      "back": "$\\lnot p \\lor \\lnot q$ — NOT của AND biến thành OR của các NOT. Dùng khi đảo điều kiện `&&` trong code."
+    },
+    {
+      "id": "fc-pl-demorgan2",
+      "type": "formula",
+      "front": "Luật De Morgan 2: $\\lnot(p \\lor q) = ?$",
+      "back": "$\\lnot p \\land \\lnot q$ — NOT của OR biến thành AND của các NOT."
+    },
+    {
+      "id": "fc-pl-implication",
+      "type": "concept",
+      "front": "Khi nào $p \\Rightarrow q$ là False?",
+      "back": "Chỉ khi p=True và q=False. Khi p=False, kéo theo luôn True (\"vacuously true\")."
+    },
+    {
+      "id": "fc-pl-tautology",
+      "type": "definition",
+      "front": "Tautology là gì? Cho ví dụ.",
+      "back": "Mệnh đề **luôn True** với mọi giá trị biến. Ví dụ: $p \\lor \\lnot p$ (luật loại trừ trung gian)."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-pl-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Lập bảng chân trị cho $\\lnot p \\land q$ với mọi tổ hợp p, q.",
+      "hints": [
+        "Có 2 biến → 4 hàng trong bảng.",
+        "Tính ¬p trước, rồi AND với q."
+      ],
+      "solutionSteps": [
+        { "text": "p=T, q=T: ¬p=F, F∧T = **F**.", "rule": "NOT trước, rồi AND" },
+        { "text": "p=T, q=F: ¬p=F, F∧F = **F**." },
+        { "text": "p=F, q=T: ¬p=T, T∧T = **T**." },
+        { "text": "p=F, q=F: ¬p=T, T∧F = **F**.", "isCommonMistake": true, "rule": "AND yêu cầu cả hai True — T∧F = F, không phải T" }
+      ],
+      "answer": "Chỉ True khi p=False và q=True.",
+      "commonMistake": "Quên tính NOT trước AND — thứ tự ưu tiên: ¬ > ∧ > ∨.",
+      "relatedFlashcard": "fc-pl-and"
+    },
+    {
+      "id": "ex-pl-apply-1",
+      "difficulty": "apply",
+      "prompt": "Áp dụng De Morgan để đơn giản hóa: `!(isExpired || isDeleted)` trong code JavaScript thành dạng không có dấu `!` bao ngoài.",
+      "hints": [
+        "¬(p ∨ q) = ?",
+        "Áp dụng De Morgan: đảo phép toán OR thành AND, phủ định từng vế."
+      ],
+      "solutionSteps": [
+        { "text": "Đặt p = isExpired, q = isDeleted. Biểu thức là ¬(p ∨ q).", "rule": "Nhận dạng cấu trúc De Morgan" },
+        { "text": "De Morgan: ¬(p ∨ q) = ¬p ∧ ¬q.", "rule": "Luật De Morgan 2" },
+        { "text": "Dịch ngược: !isExpired && !isDeleted.", "isCommonMistake": true, "rule": "OR đảo thành AND — lỗi hay gặp là đổi OR thành OR, không đổi phép toán" }
+      ],
+      "answer": "`!isExpired && !isDeleted`",
+      "commonMistake": "Viết `!isExpired || !isDeleted` — quên đổi || thành &&.",
+      "relatedFlashcard": "fc-pl-demorgan2"
+    },
+    {
+      "id": "ex-pl-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Một hệ thống xác thực có quy tắc: \"User được phép truy cập nếu là admin, HOẶC (đã xác minh email VÀ tài khoản chưa bị khoá)\". Viết biểu thức logic, rồi tìm điều kiện phủ định (khi nào bị từ chối).",
+      "hints": [
+        "Đặt A=isAdmin, E=emailVerified, L=isLocked.",
+        "Biểu thức gốc: A ∨ (E ∧ ¬L).",
+        "Phủ định: ¬(A ∨ (E ∧ ¬L)) — áp dụng De Morgan."
+      ],
+      "solutionSteps": [
+        { "text": "Biểu thức cho phép: $A \\lor (E \\land \\lnot L)$.", "rule": "Dịch yêu cầu thành logic" },
+        { "text": "Phủ định (từ chối): $\\lnot(A \\lor (E \\land \\lnot L))$." },
+        { "text": "De Morgan ngoài: $\\lnot A \\land \\lnot(E \\land \\lnot L)$.", "rule": "¬(p∨q) = ¬p∧¬q" },
+        { "text": "De Morgan trong: $\\lnot(E \\land \\lnot L) = \\lnot E \\lor L$.", "rule": "¬(p∧q) = ¬p∨¬q" },
+        { "text": "Kết quả: $\\lnot A \\land (\\lnot E \\lor L)$ — bị từ chối khi không phải admin VÀ (email chưa xác minh HOẶC tài khoản bị khoá).", "isCommonMistake": true, "rule": "Phải áp dụng De Morgan ở cả hai cấp — lỗi hay gặp là chỉ áp dụng một lần" }
+      ],
+      "answer": "Bị từ chối: $\\lnot A \\land (\\lnot E \\lor L)$, tức là `!isAdmin && (!emailVerified || isLocked)`.",
+      "commonMistake": "Chỉ áp dụng De Morgan một lần, bỏ qua De Morgan cho vế trong.",
+      "relatedFlashcard": "fc-pl-demorgan1"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-pl-1",
+      "type": "mcq",
+      "question": "Mệnh đề $p \\land q$ có giá trị True khi nào?",
+      "options": [
+        "Khi ít nhất một trong p, q là True",
+        "Chỉ khi cả p lẫn q đều True",
+        "Khi p là True, bất kể q",
+        "Khi p là False và q là True"
+      ],
+      "correct": 1,
+      "explanation": "AND (∧) chỉ True khi **cả hai** vế True. Ngay khi một vế False, kết quả là False."
+    },
+    {
+      "id": "q-pl-2",
+      "type": "mcq",
+      "question": "Theo luật De Morgan, $\\lnot(p \\lor q)$ tương đương với?",
+      "options": [
+        "$\\lnot p \\lor \\lnot q$",
+        "$\\lnot p \\land \\lnot q$",
+        "$p \\land q$",
+        "$\\lnot p \\lor q$"
+      ],
+      "correct": 1,
+      "explanation": "De Morgan: ¬(p∨q) = ¬p∧¬q. Phủ định OR → AND của các phủ định. Đây là lý do `!(a||b)` tương đương `!a && !b` trong code."
+    },
+    {
+      "id": "q-pl-3",
+      "type": "mcq",
+      "question": "$p \\Rightarrow q$ là False khi nào?",
+      "options": [
+        "Khi p=False và q=False",
+        "Khi p=False và q=True",
+        "Khi p=True và q=False",
+        "Khi p=True và q=True"
+      ],
+      "correct": 2,
+      "explanation": "Implication p⇒q chỉ False khi p=True nhưng q=False — điều kiện xảy ra nhưng kết quả không như hứa. Khi p=False, kéo theo luôn True (không vi phạm lời hứa vì điều kiện không xảy ra)."
+    }
+  ]
+}

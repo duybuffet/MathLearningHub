@@ -1,0 +1,288 @@
+{
+  "areas": [
+    {
+      "id": "area1",
+      "title": "Đại số & Hàm số",
+      "titleEn": "Algebra & Functions",
+      "icon": "function",
+      "units": [
+        {
+          "id": "a1u1",
+          "title": "Nền tảng: Số & Hàm số (Numbers & Functions)",
+          "topics": [
+            {
+              "slug": "powers-and-roots",
+              "title": "Lũy thừa & Căn (Powers & Roots)",
+              "file": "area1/powers-and-roots.json"
+            },
+            {
+              "slug": "linear-quadratic-functions",
+              "title": "Hàm bậc nhất & bậc hai (Linear & Quadratic)",
+              "file": "area1/linear-quadratic-functions.json"
+            },
+            {
+              "slug": "reading-graphs",
+              "title": "Đọc đồ thị hàm số (Reading Graphs)",
+              "file": "area1/reading-graphs.json"
+            }
+          ]
+        },
+        {
+          "id": "a1u2",
+          "title": "Logarit & Hàm mũ (Logarithm & Exponential)",
+          "topics": [
+            {
+              "slug": "logarithms",
+              "title": "Logarit (Logarithms)",
+              "file": "area1/logarithms.json"
+            },
+            {
+              "slug": "exponential-log-functions",
+              "title": "Hàm mũ & Hàm log (Exponential & Log)",
+              "file": "area1/exponential-log-functions.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "area2",
+      "title": "Giải tích nhẹ",
+      "titleEn": "Calculus-lite",
+      "icon": "curve",
+      "units": [
+        {
+          "id": "a2u1",
+          "title": "Giới hạn & Liên tục (Limits & Continuity)",
+          "topics": [
+            {
+              "slug": "limits",
+              "title": "Giới hạn (Limits)",
+              "file": "area2/limits.json"
+            },
+            {
+              "slug": "continuity",
+              "title": "Tính liên tục (Continuity)",
+              "file": "area2/continuity.json"
+            }
+          ]
+        },
+        {
+          "id": "a2u2",
+          "title": "Đạo hàm & Tích phân (Derivatives & Integrals)",
+          "topics": [
+            {
+              "slug": "derivatives",
+              "title": "Đạo hàm (Derivatives)",
+              "file": "area2/derivatives.json"
+            },
+            {
+              "slug": "integrals-basics",
+              "title": "Tích phân cơ bản (Integrals)",
+              "file": "area2/integrals-basics.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "area3",
+      "title": "Đại số tuyến tính",
+      "titleEn": "Linear Algebra",
+      "icon": "matrix",
+      "units": [
+        {
+          "id": "a3u1",
+          "title": "Vector & Ma trận (Vectors & Matrices)",
+          "topics": [
+            {
+              "slug": "vectors",
+              "title": "Vector (Vectors)",
+              "file": "area3/vectors.json"
+            },
+            {
+              "slug": "matrices-operations",
+              "title": "Ma trận & phép toán (Matrix Operations)",
+              "file": "area3/matrices-operations.json"
+            },
+            {
+              "slug": "matrix-multiplication",
+              "title": "Nhân ma trận (Matrix Multiplication)",
+              "file": "area3/matrix-multiplication.json"
+            }
+          ]
+        },
+        {
+          "id": "a3u2",
+          "title": "Hệ & Biến đổi (Systems & Transforms)",
+          "topics": [
+            {
+              "slug": "determinant-inverse",
+              "title": "Định thức & Nghịch đảo (Determinant & Inverse)",
+              "file": "area3/determinant-inverse.json"
+            },
+            {
+              "slug": "linear-systems",
+              "title": "Hệ phương trình tuyến tính (Linear Systems)",
+              "file": "area3/linear-systems.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "area4",
+      "title": "Toán rời rạc",
+      "titleEn": "Discrete Math",
+      "icon": "logic",
+      "units": [
+        {
+          "id": "a4u1",
+          "title": "Logic & Tập hợp (Logic & Sets)",
+          "topics": [
+            {
+              "slug": "propositional-logic",
+              "title": "Logic mệnh đề (Propositional Logic)",
+              "file": "area4/propositional-logic.json"
+            },
+            {
+              "slug": "sets-relations-functions",
+              "title": "Tập hợp, quan hệ, hàm (Sets, Relations, Functions)",
+              "file": "area4/sets-relations-functions.json"
+            }
+          ]
+        },
+        {
+          "id": "a4u2",
+          "title": "Đếm & Đệ quy (Counting & Recursion)",
+          "topics": [
+            {
+              "slug": "induction",
+              "title": "Quy nạp (Induction)",
+              "file": "area4/induction.json"
+            },
+            {
+              "slug": "combinatorics",
+              "title": "Tổ hợp & đếm (Combinatorics)",
+              "file": "area4/combinatorics.json"
+            },
+            {
+              "slug": "recurrences",
+              "title": "Quan hệ đệ quy (Recurrences)",
+              "file": "area4/recurrences.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "area5",
+      "title": "Xác suất & Thống kê",
+      "titleEn": "Probability & Statistics",
+      "icon": "dice",
+      "units": [
+        {
+          "id": "a5u1",
+          "title": "Xác suất (Probability)",
+          "topics": [
+            {
+              "slug": "basic-probability",
+              "title": "Xác suất cơ bản (Basic Probability)",
+              "file": "area5/basic-probability.json"
+            },
+            {
+              "slug": "random-variables",
+              "title": "Biến ngẫu nhiên (Random Variables)",
+              "file": "area5/random-variables.json"
+            },
+            {
+              "slug": "expectation-variance",
+              "title": "Kỳ vọng & Phương sai (Expectation & Variance)",
+              "file": "area5/expectation-variance.json"
+            }
+          ]
+        },
+        {
+          "id": "a5u2",
+          "title": "Suy luận (Inference)",
+          "topics": [
+            {
+              "slug": "bayes-theorem",
+              "title": "Định lý Bayes (Bayes' Theorem)",
+              "file": "area5/bayes-theorem.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "area6",
+      "title": "Đồ thị",
+      "titleEn": "Graph Theory",
+      "icon": "graph",
+      "units": [
+        {
+          "id": "a6u1",
+          "title": "Cơ bản (Fundamentals)",
+          "topics": [
+            {
+              "slug": "graph-basics",
+              "title": "Đỉnh, cạnh, biểu diễn (Vertices, Edges, Representations)",
+              "file": "area6/graph-basics.json"
+            },
+            {
+              "slug": "graph-traversal",
+              "title": "Duyệt đồ thị (Traversal: BFS/DFS)",
+              "file": "area6/graph-traversal.json"
+            },
+            {
+              "slug": "trees",
+              "title": "Cây (Trees)",
+              "file": "area6/trees.json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "area7",
+      "title": "Toán cho Thuật toán",
+      "titleEn": "Math for Algorithms",
+      "icon": "sigma",
+      "units": [
+        {
+          "id": "a7u1",
+          "title": "Phân tích độ phức tạp (Complexity Analysis)",
+          "topics": [
+            {
+              "slug": "big-o-asymptotics",
+              "title": "Big-O & Tiệm cận (Big-O & Asymptotics)",
+              "file": "area7/big-o-asymptotics.json"
+            },
+            {
+              "slug": "recurrences-master-theorem",
+              "title": "Đệ quy & Định lý thợ (Master Theorem)",
+              "file": "area7/recurrences-master-theorem.json"
+            }
+          ]
+        },
+        {
+          "id": "a7u2",
+          "title": "Số học (Number Theory)",
+          "topics": [
+            {
+              "slug": "modular-arithmetic",
+              "title": "Số học modular (Modular Arithmetic)",
+              "file": "area7/modular-arithmetic.json"
+            },
+            {
+              "slug": "gcd-primes",
+              "title": "GCD & Số nguyên tố (GCD & Primes)",
+              "file": "area7/gcd-primes.json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

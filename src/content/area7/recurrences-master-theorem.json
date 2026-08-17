@@ -1,0 +1,215 @@
+{
+  "id": "area7_recurrences-master-theorem",
+  "title": "Đệ quy & Định lý thợ (Recurrences & Master Theorem)",
+  "area": 7,
+  "unit": "a7u1",
+  "order": 2,
+  "icon": "sigma",
+  "tagline": "Định lý thợ (Master Theorem) cho phép giải ngay phương trình đệ quy chia-để-trị mà không cần khai triển thủ công — công cụ phân tích merge sort, binary search, quick sort.",
+  "readTime": "~20 min",
+  "prerequisites": ["area7_big-o-asymptotics"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Merge sort chia mảng đôi, giải quyết hai nửa đệ quy, rồi merge lại trong O(n). Độ phức tạp của nó được mô tả bởi phương trình đệ quy (recurrence relation): `T(n) = 2T(n/2) + O(n)`. Nhưng đây là phương trình đệ quy — T(n) được định nghĩa qua chính T(n/2)! Làm sao giải ra O(n log n)?\n\n**Định lý thợ (Master Theorem)** là công thức sẵn có để giải loại đệ quy này tức thì — không cần khai triển nhiều cấp, không cần vẽ cây đệ quy. Nắm được định lý này, bạn có thể phân tích hầu hết mọi thuật toán chia-để-trị trong vài giây."
+    },
+    {
+      "type": "analogy",
+      "title": "Công trưởng và đội thợ",
+      "content": "Hình dung bạn là công trưởng, nhận một công việc cỡ n. Bạn:\n1. Chia thành **a** công việc nhỏ hơn, mỗi cái cỡ **n/b**.\n2. Thuê **a** đội thợ làm các phần đó (đệ quy).\n3. Tự mình tổng hợp kết quả — tốn `f(n)` công.\n\nCâu hỏi: **Ai tốn nhiều công hơn — các đội thợ hay bạn (tổng hợp)?**\n- Nếu đội thợ tốn áp đảo → T(n) = chi phí đội thợ.\n- Nếu tổng hợp tốn áp đảo → T(n) = f(n).\n- Nếu cân bằng → T(n) = f(n) × log n.\n\nĐây chính xác là ba trường hợp của Master Theorem!"
+    },
+    {
+      "type": "formula",
+      "title": "Dạng tổng quát của đệ quy chia-để-trị",
+      "latex": "T(n) = a\\,T\\!\\left(\\frac{n}{b}\\right) + f(n)",
+      "reading": "đọc là: T(n) = a lần T(n/b) cộng với f(n), trong đó a ≥ 1 và b > 1.",
+      "symbols": [
+        { "sym": "a", "meaning": "số bài toán con (subproblems). Ví dụ: merge sort a=2, binary search a=1." },
+        { "sym": "b", "meaning": "hệ số chia kích thước. Ví dụ: chia đôi thì b=2." },
+        { "sym": "f(n)", "meaning": "chi phí ngoài đệ quy (combine/split step). Ví dụ: merge O(n), binary search O(1)." },
+        { "sym": "T(n)", "meaning": "tổng chi phí thuật toán với đầu vào kích thước n." }
+      ],
+      "caption": "Phương trình này mô tả mọi thuật toán chia-để-trị theo ba tham số a, b, f(n)."
+    },
+    {
+      "type": "formula",
+      "title": "Master Theorem — Ba trường hợp",
+      "latex": "\\text{Let } p = \\log_b a. \\text{ If } f(n) = O(n^{p-\\varepsilon}) \\Rightarrow T = \\Theta(n^p). \\text{ If } f(n) = \\Theta(n^p) \\Rightarrow T = \\Theta(n^p \\log n). \\text{ If } f(n) = \\Omega(n^{p+\\varepsilon}) \\Rightarrow T = \\Theta(f(n)).",
+      "reading": "đọc là: tính p = log_b(a). So sánh f(n) với n^p. Nếu f nhỏ hơn → đệ quy thắng (T = n^p). Nếu bằng → tie, nhân thêm log (T = n^p log n). Nếu f lớn hơn → combine thắng (T = f(n)).",
+      "symbols": [
+        { "sym": "p = \\log_b a", "meaning": "số mũ 'nhánh đệ quy' — chi phí của cây đệ quy nếu không có combine." },
+        { "sym": "\\varepsilon", "meaning": "số dương nhỏ tùy ý — xác nhận f(n) thực sự nhỏ/lớn hơn n^p về bậc." },
+        { "sym": "\\Theta", "meaning": "chặn hai chiều — mô tả bậc chính xác (cả trên lẫn dưới)." }
+      ],
+      "caption": "Ba trường hợp tương ứng: đệ quy thắng, hòa nhau, combine thắng."
+    },
+    {
+      "type": "explanation",
+      "title": "Cách dùng Master Theorem — quy trình 4 bước",
+      "content": "**Bước 1:** Xác định a, b, f(n) từ đệ quy T(n) = aT(n/b) + f(n).\n\n**Bước 2:** Tính p = log_b(a).\n\n**Bước 3:** So sánh f(n) với n^p:\n- f(n) = O(n^{p-ε}) cho ε > 0 → Case 1: T(n) = Θ(nᵖ)\n- f(n) = Θ(n^p) → Case 2: T(n) = Θ(nᵖ log n)\n- f(n) = Ω(n^{p+ε}) cho ε > 0 → Case 3: T(n) = Θ(f(n))\n\n**Bước 4:** Áp dụng kết quả.\n\n**Ghi nhớ nhanh:** 'Ai mạnh hơn thắng. Ngang nhau thì nhân log.'"
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 1: Merge Sort — T(n) = 2T(n/2) + n",
+      "problem": "Giải T(n) = 2T(n/2) + n (đây là đệ quy của merge sort).",
+      "steps": [
+        { "text": "Xác định: a = 2, b = 2, f(n) = n.", "rule": "Nhận dạng tham số a, b, f(n)" },
+        { "text": "Tính p = log_b(a) = log₂(2) = 1.", "rule": "Tính p = log_b(a)" },
+        { "text": "So sánh: n^p = n¹ = n. f(n) = n = Θ(n¹) = Θ(nᵖ) → Case 2 (bằng nhau).", "rule": "So sánh f(n) với n^p" },
+        { "text": "Áp dụng Case 2: T(n) = Θ(nᵖ log n) = Θ(n¹ log n) = Θ(n log n).", "isCommonMistake": true, "rule": "Case 2 phải nhân THÊM log n — lỗi hay gặp là dừng ở Θ(n)" }
+      ],
+      "result": "Merge Sort: $T(n) = \\Theta(n \\log n)$."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 2: Binary Search — T(n) = T(n/2) + 1",
+      "problem": "Giải T(n) = T(n/2) + 1 (đây là đệ quy của binary search).",
+      "steps": [
+        { "text": "Xác định: a = 1, b = 2, f(n) = 1 = n⁰.", "rule": "Nhận dạng: chỉ có 1 bài toán con, chia đôi, combine O(1)" },
+        { "text": "Tính p = log₂(1) = 0.", "rule": "log₂(1) = 0 vì 2⁰ = 1" },
+        { "text": "So sánh: n^p = n⁰ = 1. f(n) = 1 = Θ(1) = Θ(nᵖ) → Case 2.", "rule": "f(n) bằng n^p → Case 2" },
+        { "text": "T(n) = Θ(n⁰ log n) = Θ(log n).", "isCommonMistake": true, "rule": "Nhớ n⁰ = 1, nên Θ(n⁰ log n) = Θ(log n) — không phải Θ(n log n)" }
+      ],
+      "result": "Binary Search: $T(n) = \\Theta(\\log n)$."
+    },
+    {
+      "type": "explanation",
+      "title": "Ví dụ thêm: Quick Sort và Strassen Matrix",
+      "content": "**Quick Sort** (trường hợp trung bình): T(n) = 2T(n/2) + n → giống merge sort → Θ(n log n). Nhưng worst case (pivot tệ): T(n) = T(n-1) + n → không dùng Master Theorem được vì dạng T(n-1) chứ không phải T(n/b).\n\n**Strassen Matrix Multiplication**: T(n) = 7T(n/2) + n².\n- p = log₂(7) ≈ 2.81\n- f(n) = n² = n^{2.0}\n- So sánh: 2 < 2.81 → f(n) = O(n^{p-ε}) → Case 1 → T(n) = Θ(n^{log₂7}) ≈ Θ(n^{2.81})\n\nĐây là lý do Strassen nhanh hơn phép nhân ma trận thông thường O(n³)!"
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Khi nào KHÔNG dùng được Master Theorem?**\n\n1. Khi đệ quy có dạng T(n) = T(n-1) + f(n) (trừ, không phải chia) — ví dụ: quick sort worst case.\n2. Khi chia không đều: T(n) = T(n/3) + T(2n/3) + n — cần Akra-Bazzi theorem hoặc vẽ cây đệ quy.\n3. Khi f(n) và n^p bằng nhau NHƯNG f(n) có thêm nhân tử log — Case 2 mở rộng.\n\nTrong thực tế phỏng vấn, nếu không nhận ra dạng Master Theorem, hãy vẽ cây đệ quy (recursion tree) — an toàn hơn."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Đệ quy chia-để-trị có dạng T(n) = aT(n/b) + f(n), với a bài toán con cỡ n/b và combine f(n).",
+        "Master Theorem: tính p = log_b(a), so sánh f(n) với n^p — ai thắng thì T theo người đó; ngang nhau → nhân thêm log n.",
+        "Merge sort: a=2, b=2, p=1, f=n → Case 2 → Θ(n log n).",
+        "Binary search: a=1, b=2, p=0, f=1 → Case 2 → Θ(log n).",
+        "Master Theorem không áp dụng cho dạng T(n-1) hoặc chia không đều — cần recursion tree."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-rec-form",
+      "type": "formula",
+      "front": "Dạng đệ quy chia-để-trị tổng quát là gì?",
+      "back": "$T(n) = a\\,T(n/b) + f(n)$ — a bài toán con, mỗi cái cỡ n/b, combine tốn f(n)."
+    },
+    {
+      "id": "fc-rec-p",
+      "type": "formula",
+      "front": "Trong Master Theorem, p = ?",
+      "back": "$p = \\log_b a$ — số mũ quan trọng để so sánh với f(n)."
+    },
+    {
+      "id": "fc-rec-merge",
+      "type": "concept",
+      "front": "Merge sort: a=?, b=?, f(n)=? → Big-O?",
+      "back": "a=2, b=2, f(n)=n. p=log₂2=1. f(n)=Θ(n^p) → Case 2 → Θ(n log n)."
+    },
+    {
+      "id": "fc-rec-binary",
+      "type": "concept",
+      "front": "Binary search: a=?, b=?, f(n)=? → Big-O?",
+      "back": "a=1, b=2, f(n)=1. p=log₂1=0. f(n)=Θ(n^p) → Case 2 → Θ(log n)."
+    },
+    {
+      "id": "fc-rec-cases",
+      "type": "concept",
+      "front": "Ba trường hợp Master Theorem: khi nào T=Θ(nᵖ), Θ(nᵖ log n), Θ(f(n))?",
+      "back": "Case 1: f(n) < n^p (đệ quy thắng) → Θ(nᵖ). Case 2: f(n) = n^p (hòa) → Θ(nᵖ log n). Case 3: f(n) > n^p (combine thắng) → Θ(f(n))."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-rec-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Xác định a, b, f(n) và giải bằng Master Theorem: $T(n) = 4T(n/2) + n$.",
+      "hints": [
+        "a = 4, b = 2, f(n) = n.",
+        "p = log₂(4) = ?",
+        "So sánh f(n) = n với n^p."
+      ],
+      "solutionSteps": [
+        { "text": "a=4, b=2, f(n)=n. Tính p = log₂(4) = 2.", "rule": "Nhận dạng tham số, tính p" },
+        { "text": "n^p = n². f(n) = n = n¹ = O(n^{2-1}) = O(n^{p-1}) → Case 1 (f nhỏ hơn n^p).", "rule": "So sánh f(n) với n^p" },
+        { "text": "Case 1: T(n) = Θ(n^p) = Θ(n²).", "isCommonMistake": true, "rule": "Case 1 → kết quả là Θ(n^p), KHÔNG nhân log — lỗi hay gặp là viết Θ(n² log n)" }
+      ],
+      "answer": "T(n) = Θ(n²)",
+      "commonMistake": "Nhầm sang Case 2, viết Θ(n² log n) dù f(n) < n^p.",
+      "relatedFlashcard": "fc-rec-cases"
+    },
+    {
+      "id": "ex-rec-apply-1",
+      "difficulty": "apply",
+      "prompt": "Giải: $T(n) = 3T(n/3) + n$. Đây là đệ quy của thuật toán nào trong thực tế?",
+      "hints": [
+        "a = 3, b = 3 — chia làm 3 phần bằng nhau.",
+        "p = log₃(3) = ?",
+        "Ternary search (tương tự binary search nhưng chia 3) có dạng này."
+      ],
+      "solutionSteps": [
+        { "text": "a=3, b=3, f(n)=n. p = log₃(3) = 1.", "rule": "log₃(3) = 1 vì 3¹ = 3" },
+        { "text": "n^p = n¹ = n. f(n) = n = Θ(n^p) → Case 2.", "rule": "f(n) = Θ(n^p) → Case 2" },
+        { "text": "T(n) = Θ(n^p log n) = Θ(n log n).", "isCommonMistake": false, "rule": "Case 2: nhân thêm log n" }
+      ],
+      "answer": "T(n) = Θ(n log n). Ví dụ: quick sort trung bình, merge sort.",
+      "commonMistake": "Nhầm b=3 làm khác với b=2 về kết quả — thực ra Θ(n log n) không phụ thuộc cơ số log trong Big-O.",
+      "relatedFlashcard": "fc-rec-merge"
+    },
+    {
+      "id": "ex-rec-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Thuật toán Karatsuba nhân số nguyên lớn có đệ quy $T(n) = 3T(n/2) + n$. Tính Big-O và so sánh với nhân thông thường $O(n^2)$.",
+      "hints": [
+        "a=3, b=2 → p = log₂(3) ≈ ?",
+        "log₂(3) ≈ 1.585 (vì 2^1.585 ≈ 3).",
+        "So sánh f(n)=n với n^{1.585}."
+      ],
+      "solutionSteps": [
+        { "text": "a=3, b=2, f(n)=n. p = log₂(3) ≈ 1.585.", "rule": "log₂(3) ≈ 1.585 — không phải số nguyên đẹp" },
+        { "text": "n^p = n^{1.585}. f(n) = n = n^1 = O(n^{1.585 - 0.585}) → Case 1 (f nhỏ hơn n^p).", "rule": "1 < 1.585, nên f(n) = O(n^{p-ε}) với ε ≈ 0.585" },
+        { "text": "T(n) = Θ(n^{log₂3}) ≈ Θ(n^{1.585}) — nhanh hơn nhân thông thường Θ(n²) vì 1.585 < 2.", "isCommonMistake": true, "rule": "Đừng làm tròn log₂3 thành 2 — sự khác biệt 1.585 vs 2 là ý nghĩa toàn bộ thuật toán" }
+      ],
+      "answer": "T(n) = Θ(n^{log₂3}) ≈ Θ(n^{1.585}), nhanh hơn O(n²) của nhân thông thường.",
+      "commonMistake": "Làm tròn n^{1.585} thành n² — mất đi lý do Karatsuba được phát minh.",
+      "relatedFlashcard": "fc-rec-p"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-rec-1",
+      "type": "mcq",
+      "question": "Trong đệ quy T(n) = 2T(n/4) + 1, giá trị p = log_b(a) là bao nhiêu?",
+      "options": ["p = 1", "p = 1/2", "p = 2", "p = 4"],
+      "correct": 1,
+      "explanation": "p = log₄(2) = 1/2 (vì 4^{1/2} = 2). Vậy n^p = √n."
+    },
+    {
+      "id": "q-rec-2",
+      "type": "mcq",
+      "question": "Merge sort có đệ quy T(n) = 2T(n/2) + n. Kết quả Master Theorem là?",
+      "options": ["Θ(n)", "Θ(n²)", "Θ(n log n)", "Θ(log n)"],
+      "correct": 2,
+      "explanation": "p = log₂2 = 1. f(n) = n = Θ(n^p) → Case 2 → Θ(n log n)."
+    },
+    {
+      "id": "q-rec-3",
+      "type": "mcq",
+      "question": "Khi nào Master Theorem KHÔNG áp dụng được?",
+      "options": [
+        "T(n) = 2T(n/2) + n log n",
+        "T(n) = T(n-1) + n",
+        "T(n) = 4T(n/2) + n²",
+        "T(n) = T(n/3) + 1"
+      ],
+      "correct": 1,
+      "explanation": "T(n) = T(n-1) + n có dạng T(n-1) (trừ 1), không phải T(n/b) (chia). Master Theorem chỉ áp dụng cho đệ quy chia."
+    }
+  ]
+}

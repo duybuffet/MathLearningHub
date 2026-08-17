@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens — "Chalkboard" theme (distinct from cs-learning-hub) ──
+   Dark chalkboard-green surface, warm chalk-white text, pastel chalk accents.
+   Token NAMES are kept stable (accent-orange/green/blue/purple) so components
+   cascade automatically; only the VALUES are remapped to chalk pastels. */
+:root {
+  --bg-primary: #12211d; /* chalkboard green */
+  --bg-card: #1b2e28;
+  --bg-panel: #16261f;
+  --bg-code: #0e1a16;
+  --text-primary: #f2efe6; /* chalk white (warm) */
+  --text-secondary: #b9c9c0;
+  --text-muted: #7d938a;
+  --accent-orange: #ffe08a; /* chalk yellow — primary accent */
+  --accent-green: #7fded1; /* chalk mint — success / read */
+  --accent-blue: #8ac6ff; /* chalk blue */
+  --accent-purple: #ff9ecb; /* chalk pink */
+  --border: rgba(242, 239, 230, 0.1);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-primary);
+  /* faint chalk-dust texture: two soft radial smudges over the board */
+  background-image:
+    radial-gradient(
+      ellipse at 20% 0%,
+      rgba(255, 255, 255, 0.035),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse at 90% 100%,
+      rgba(127, 222, 209, 0.05),
+      transparent 55%
+    );
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin chalk scrollbars to match theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-muted) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 8px;
+}
+
+/* ── KaTeX overrides: chalk-white math, allow horizontal scroll ── */
+.katex {
+  color: var(--text-primary);
+  font-size: 1.05em;
+}
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}

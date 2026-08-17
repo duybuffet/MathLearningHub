@@ -1,0 +1,211 @@
+{
+  "id": "area3_matrices-operations",
+  "title": "Ma trận & phép toán (Matrix Operations)",
+  "area": 3,
+  "unit": "a3u1",
+  "order": 2,
+  "icon": "matrix",
+  "tagline": "Ma trận là bảng số hình chữ nhật — biểu diễn ảnh, bộ dữ liệu, phép biến hình, và trọng số mạng nơ-ron trong một cấu trúc thống nhất.",
+  "readTime": "~14 min",
+  "prerequisites": ["area3_vectors"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Ma trận (matrix) là bảng số có m hàng và n cột. Nghe đơn giản, nhưng ma trận xuất hiện ở khắp nơi trong CS:\n\n- **Ảnh số (digital image):** một ảnh xám 28×28 pixel là ma trận 28×28, mỗi ô chứa giá trị độ sáng 0–255.\n- **Dữ liệu bảng:** DataFrame trong pandas là ma trận — mỗi hàng là một mẫu, mỗi cột là một đặc trưng (feature).\n- **Biến hình đồ họa (graphics transform):** xoay, phóng to, dịch chuyển một hình trong game/animation đều là nhân ma trận.\n- **Trọng số mạng nơ-ron:** mỗi layer trong neural network là một ma trận trọng số — forward pass chính là nhân ma trận.\n\nThành thạo ma trận = nắm được ngôn ngữ chính của machine learning và computer graphics."
+    },
+    {
+      "type": "analogy",
+      "title": "Ma trận như bảng tính Excel có siêu năng lực",
+      "content": "Hãy nghĩ ma trận như một bảng Excel: có hàng và cột, mỗi ô chứa một số. Nhưng khác Excel ở chỗ: bạn có thể **cộng, trừ, nhân** các bảng với nhau theo quy tắc toán học chặt chẽ, và kết quả mang ý nghĩa hình học và dữ liệu sâu sắc.\n\nVí dụ một ma trận 2×3 (2 hàng, 3 cột):\n\n| | Cột 1 | Cột 2 | Cột 3 |\n|---|---|---|---|\n| **Hàng 1** | 1 | 2 | 3 |\n| **Hàng 2** | 4 | 5 | 6 |\n\nKý hiệu: A[1][2] = 3 (hàng 1, cột 2). Trong Python/NumPy: `A[0][2]` (index từ 0)."
+    },
+    {
+      "type": "formula",
+      "title": "Ký hiệu ma trận",
+      "latex": "A = \\begin{bmatrix} a_{11} & a_{12} & \\cdots & a_{1n} \\\\ a_{21} & a_{22} & \\cdots & a_{2n} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{m1} & a_{m2} & \\cdots & a_{mn} \\end{bmatrix}_{m \\times n}",
+      "reading": "đọc là: A là ma trận m × n (m hàng, n cột), phần tử tại hàng i cột j ký hiệu là aᵢⱼ.",
+      "symbols": [
+        { "sym": "m \\times n", "meaning": "kích thước ma trận: m hàng, n cột (đọc 'm by n')" },
+        { "sym": "a_{ij}", "meaning": "phần tử tại hàng i, cột j (index từ 1 trong toán học, từ 0 trong code)" },
+        { "sym": "A^T", "meaning": "ma trận chuyển vị (transpose): đổi hàng thành cột" }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Cộng/trừ ma trận và nhân vô hướng",
+      "content": "**Cộng/trừ ma trận:** chỉ thực hiện được khi hai ma trận cùng kích thước. Cộng từng phần tử tương ứng.\n\nVí dụ $A + B$ với $A, B$ cùng là $2\\times2$:\n\n| | | | | |\n|---|---|---|---|---|\n| A | 1  2 | + | B | 5  6 |\n|   | 3  4 |   |   | 7  8 |\n\nKết quả A + B:\n\n| 6 | 8 |\n|---|---|\n| 10 | 12 |\n\n**Nhân vô hướng (scalar):** nhân mọi phần tử với cùng một số. $3 \\times A$ sẽ nhân mọi phần tử của A với 3.\n\n**Chuyển vị (transpose) $A^T$:** hàng thành cột, cột thành hàng. Ma trận $2\\times3$ transposed thành $3\\times2$. Trong NumPy: `A.T`."
+    },
+    {
+      "type": "formula",
+      "title": "Cộng ma trận và chuyển vị",
+      "latex": "(A + B)_{ij} = a_{ij} + b_{ij} \\qquad (A^T)_{ij} = a_{ji}",
+      "reading": "đọc là: phần tử (i,j) của A+B bằng tổng phần tử (i,j) tương ứng; phần tử (i,j) của chuyển vị bằng phần tử (j,i) của ma trận gốc.",
+      "symbols": [
+        { "sym": "(A+B)_{ij}", "meaning": "phần tử hàng i cột j của tổng A+B" },
+        { "sym": "a_{ji}", "meaning": "hàng và cột đổi chỗ — đó là ý nghĩa của transpose" },
+        { "sym": "A = A^T", "meaning": "ma trận đối xứng (symmetric matrix) — hay gặp trong covariance matrix" }
+      ]
+    },
+    {
+      "type": "diagram",
+      "title": "Ảnh số là ma trận — pipeline xử lý ảnh",
+      "mermaid": "graph TD\n    A[\"Ảnh xám 4×4 pixels\\n(ma trận 4×4 giá trị 0-255)\"] --> B[\"Phép toán ma trận\\n(thêm độ sáng: A + 50)\"] --> C[\"Ảnh sáng hơn\\n(cộng scalar vào toàn bộ)\"]  \n    A --> D[\"Lật ảnh ngang\\n(Transpose hoặc flip cột)\"] --> E[\"Ảnh mirror\"]\n    A --> F[\"Chuẩn hóa: A / 255\"] --> G[\"Feature matrix\\n(giá trị 0.0 - 1.0 cho ML)\"]",
+      "caption": "Mọi phép xử lý ảnh cơ bản đều là phép toán ma trận. Deep learning image models làm hàng nghìn phép toán như vậy."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 1: Cộng ma trận và nhân scalar",
+      "problem": "Cho $A = \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}$ và $B = \\begin{bmatrix} 5 & 0 \\\\ -1 & 2 \\end{bmatrix}$. Tính $A + B$ và $2A$.",
+      "steps": [
+        { "text": "$A + B$: cộng từng phần tử tương ứng.", "rule": "Cộng ma trận cùng kích thước" },
+        { "text": "$A + B = \\begin{bmatrix} 1+5 & 2+0 \\\\ 3+(-1) & 4+2 \\end{bmatrix} = \\begin{bmatrix} 6 & 2 \\\\ 2 & 6 \\end{bmatrix}$." },
+        { "text": "$2A$: nhân mọi phần tử với 2.", "rule": "Nhân scalar" },
+        { "text": "$2A = \\begin{bmatrix} 2 & 4 \\\\ 6 & 8 \\end{bmatrix}$." },
+        { "text": "Lỗi phổ biến: cộng kích thước khác nhau — ví dụ A là 2×2 và B là 2×3 sẽ báo lỗi (shape mismatch).", "isCommonMistake": true, "rule": "Cộng ma trận yêu cầu kích thước GIỐNG HỆT nhau" }
+      ],
+      "result": "$A+B = \\begin{bmatrix} 6 & 2 \\\\ 2 & 6 \\end{bmatrix}$, $2A = \\begin{bmatrix} 2 & 4 \\\\ 6 & 8 \\end{bmatrix}$"
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 2: Chuyển vị (Transpose)",
+      "problem": "Cho $A = \\begin{bmatrix} 1 & 2 & 3 \\\\ 4 & 5 & 6 \\end{bmatrix}$ (kích thước 2×3). Tính $A^T$.",
+      "steps": [
+        { "text": "Chuyển vị: đổi hàng thành cột. Hàng 1 của A = [1,2,3] → Cột 1 của $A^T$.", "rule": "$(A^T)_{ij} = a_{ji}$" },
+        { "text": "$A^T = \\begin{bmatrix} 1 & 4 \\\\ 2 & 5 \\\\ 3 & 6 \\end{bmatrix}$ — kích thước 3×2.", "rule": "Transpose đổi kích thước m×n thành n×m" },
+        { "text": "Lỗi hay gặp: nhầm hàng 2 của A là cột 1 của $A^T$ — phải đúng cột 2 của $A^T$.", "isCommonMistake": true, "rule": "$(A^T)_{ij} = A_{ji}$ — i và j đổi chỗ" }
+      ],
+      "result": "$A^T = \\begin{bmatrix} 1 & 4 \\\\ 2 & 5 \\\\ 3 & 6 \\end{bmatrix}$ (kích thước 3×2)"
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Điều kiện cộng/trừ:** Hai ma trận phải có **đúng cùng kích thước** (cùng số hàng VÀ cùng số cột). Trong NumPy, nếu kích thước không khớp sẽ gặp lỗi `ValueError: operands could not be broadcast together`. Broadcasting (phát sóng) là tính năng đặc biệt của NumPy, không phải phép toán ma trận tiêu chuẩn — cẩn thận khi dùng."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Ma trận m×n là bảng số m hàng n cột; phần tử aᵢⱼ ở hàng i, cột j.",
+        "Cộng/trừ: phải cùng kích thước, cộng từng phần tử tương ứng.",
+        "Nhân scalar: nhân toàn bộ phần tử với cùng một số.",
+        "Chuyển vị $A^T$: đổi hàng thành cột — ma trận m×n thành n×m.",
+        "Ứng dụng trực tiếp: ảnh số, DataFrame ML, biến hình đồ họa, trọng số neural network."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-mat-def",
+      "type": "definition",
+      "front": "Ma trận m×n là gì?",
+      "back": "Bảng số hình chữ nhật gồm m hàng và n cột. Phần tử $a_{ij}$ ở hàng i, cột j."
+    },
+    {
+      "id": "fc-mat-add",
+      "type": "formula",
+      "front": "Điều kiện để cộng hai ma trận A và B?",
+      "back": "A và B phải có **cùng kích thước** (cùng số hàng m và cột n). Kết quả: $(A+B)_{ij} = a_{ij} + b_{ij}$."
+    },
+    {
+      "id": "fc-mat-transpose",
+      "type": "formula",
+      "front": "Chuyển vị $A^T$ là gì?",
+      "back": "$(A^T)_{ij} = a_{ji}$ — đổi hàng thành cột. Ma trận m×n transposed thành n×m. NumPy: `A.T`."
+    },
+    {
+      "id": "fc-mat-image",
+      "type": "concept",
+      "front": "Ảnh xám 28×28 pixels biểu diễn thế nào bằng ma trận?",
+      "back": "Ma trận $28 \\times 28$ — mỗi phần tử là giá trị độ sáng 0 (đen) đến 255 (trắng). MNIST dataset dùng định dạng này."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-mat-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Cho $A = \\begin{bmatrix} 2 & -1 \\\\ 0 & 3 \\end{bmatrix}$ và $B = \\begin{bmatrix} 1 & 4 \\\\ -2 & 1 \\end{bmatrix}$. Tính $A - B$ và $A^T$.",
+      "hints": [
+        "Trừ ma trận: trừ từng phần tử tương ứng.",
+        "Transpose: hàng 1 thành cột 1, hàng 2 thành cột 2."
+      ],
+      "solutionSteps": [
+        { "text": "$A - B = \\begin{bmatrix} 2-1 & -1-4 \\\\ 0-(-2) & 3-1 \\end{bmatrix} = \\begin{bmatrix} 1 & -5 \\\\ 2 & 2 \\end{bmatrix}$.", "rule": "Trừ từng phần tử" },
+        { "text": "$A^T = \\begin{bmatrix} 2 & 0 \\\\ -1 & 3 \\end{bmatrix}$ — hàng thành cột.", "rule": "Transpose: $(A^T)_{ij} = a_{ji}$" }
+      ],
+      "answer": "$A-B = \\begin{bmatrix} 1 & -5 \\\\ 2 & 2 \\end{bmatrix}$, $A^T = \\begin{bmatrix} 2 & 0 \\\\ -1 & 3 \\end{bmatrix}$",
+      "commonMistake": "Đổi cột thay vì đổi hàng khi transpose — nhớ: $(A^T)_{ij} = a_{ji}$, i và j hoán đổi.",
+      "relatedFlashcard": "fc-mat-transpose"
+    },
+    {
+      "id": "ex-mat-apply-1",
+      "difficulty": "apply",
+      "prompt": "Ảnh xám 3×3 pixels có giá trị như sau:\n\n| 100 | 150 | 200 |\n|---|---|---|\n| 50 | 100 | 150 |\n| 0 | 50 | 100 |\n\nViết ma trận này và tính ma trận sau khi (a) tăng độ sáng thêm 50, (b) chuẩn hóa về [0,1] bằng cách chia 255.",
+      "hints": [
+        "Tăng độ sáng = cộng scalar 50 vào toàn bộ ma trận.",
+        "Chuẩn hóa = nhân với 1/255 (hoặc chia cho 255)."
+      ],
+      "solutionSteps": [
+        { "text": "Ma trận gốc $A = \\begin{bmatrix} 100 & 150 & 200 \\\\ 50 & 100 & 150 \\\\ 0 & 50 & 100 \\end{bmatrix}$.", "rule": "Biểu diễn ảnh số dạng ma trận" },
+        { "text": "(a) $A + 50 = \\begin{bmatrix} 150 & 200 & 250 \\\\ 100 & 150 & 200 \\\\ 50 & 100 & 150 \\end{bmatrix}$.", "rule": "Cộng scalar" },
+        { "text": "(b) $A / 255 \\approx \\begin{bmatrix} 0.39 & 0.59 & 0.78 \\\\ 0.20 & 0.39 & 0.59 \\\\ 0 & 0.20 & 0.39 \\end{bmatrix}$.", "rule": "Nhân scalar (1/255)" },
+        { "text": "Lỗi hay gặp với chuẩn hóa: quên chia cho 255, dùng 256 hoặc 254 — luôn dùng 255 (giá trị tối đa).", "isCommonMistake": true, "rule": "Giá trị pixel tối đa = 255 (8-bit color)" }
+      ],
+      "answer": "Tăng sáng: cộng 50 vào mỗi phần tử. Chuẩn hóa: chia mỗi phần tử cho 255.",
+      "commonMistake": "Quên rằng phép cộng scalar phân phối đều — không cần làm từng ô, NumPy xử lý tự động.",
+      "relatedFlashcard": "fc-mat-image"
+    },
+    {
+      "id": "ex-mat-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Trong ML, một dataset có 5 mẫu và 3 đặc trưng (features). Ta biểu diễn bằng ma trận $X$ kích thước $5\\times3$. Để tính covariance matrix, ta cần tính $X^T X$. Kích thước của $X^T$ là bao nhiêu? Và $X^T X$ là bao nhiêu? Giải thích ý nghĩa.",
+      "hints": [
+        "$X$ là $5\\times3$ → $X^T$ là $?\\times?$",
+        "Để nhân hai ma trận được, số cột của ma trận trái = số hàng của ma trận phải.",
+        "$X^T X$: $(3\\times5) \\times (5\\times3) = ?$"
+      ],
+      "solutionSteps": [
+        { "text": "$X$ kích thước $5\\times3$ → $X^T$ kích thước $3\\times5$ (transposed).", "rule": "Transpose đổi m×n thành n×m" },
+        { "text": "$X^T X$: $(3\\times5) \\cdot (5\\times3)$ — số cột $X^T$ = số hàng $X$ = 5, hợp lệ.", "rule": "Điều kiện nhân ma trận: cột trái = hàng phải" },
+        { "text": "Kết quả $X^T X$ kích thước $3\\times3$ — ma trận vuông (square matrix).", "rule": "Kích thước kết quả: hàng trái × cột phải" },
+        { "text": "$X^T X$ là covariance matrix của features — phần tử (i,j) là inner product của feature i và feature j. PCA dùng ma trận này.", "isCommonMistake": false }
+      ],
+      "answer": "$X^T$ là $3\\times5$; $X^T X$ là $3\\times3$ — covariance matrix của 3 features.",
+      "commonMistake": "Nhầm thứ tự: $XX^T$ (5×5) ≠ $X^TX$ (3×3) — thứ tự nhân ma trận QUAN TRỌNG.",
+      "relatedFlashcard": "fc-mat-transpose"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-mat-1",
+      "type": "mcq",
+      "question": "Ma trận $A$ có kích thước $3\\times4$. $A^T$ có kích thước bao nhiêu?",
+      "options": ["3×4", "4×3", "4×4", "3×3"],
+      "correct": 1,
+      "explanation": "Transpose đổi hàng thành cột: $3\\times4$ → $4\\times3$."
+    },
+    {
+      "id": "q-mat-2",
+      "type": "mcq",
+      "question": "Điều kiện để tính $A + B$ là gì?",
+      "options": [
+        "A và B phải là ma trận vuông",
+        "A và B phải có cùng số hàng (m)",
+        "A và B phải có đúng cùng kích thước m×n",
+        "Số cột của A phải bằng số hàng của B"
+      ],
+      "correct": 2,
+      "explanation": "Cộng ma trận yêu cầu ĐỒNG KÍCH THƯỚC: cùng m hàng VÀ cùng n cột. (Điều kiện 'cột A = hàng B' là điều kiện của nhân ma trận, không phải cộng.)"
+    },
+    {
+      "id": "q-mat-3",
+      "type": "mcq",
+      "question": "Trong NumPy, `A.T` thực hiện phép toán gì?",
+      "options": [
+        "Tính determinant (định thức) của A",
+        "Tính transpose (chuyển vị) của A",
+        "Nhân A với chính nó",
+        "Tính inverse (nghịch đảo) của A"
+      ],
+      "correct": 1,
+      "explanation": "`A.T` là chuyển vị — hàng thành cột. Determinant: `np.linalg.det(A)`. Inverse: `np.linalg.inv(A)`."
+    }
+  ]
+}

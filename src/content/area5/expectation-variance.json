@@ -1,0 +1,228 @@
+{
+  "id": "area5_expectation-variance",
+  "title": "Kỳ vọng & Phương sai (Expectation & Variance)",
+  "area": 5,
+  "unit": "a5u1",
+  "order": 3,
+  "icon": "dice",
+  "tagline": "Kỳ vọng cho biết giá trị \"trung bình\" dài hạn; phương sai đo độ \"dao động\". Cả hai cốt lõi để phân tích thuật toán trung bình.",
+  "readTime": "~18 min",
+  "prerequisites": ["area5_random-variables"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Biết phân phối của biến ngẫu nhiên X là tốt, nhưng thường ta chỉ cần hai con số tóm tắt: **kỳ vọng (expectation/mean)** và **phương sai (variance)**.\n\n**Kỳ vọng E[X]** trả lời: \"Nếu lặp lại thử nghiệm rất nhiều lần, giá trị trung bình của X là bao nhiêu?\" — đây chính là **thời gian chạy trung bình (average-case)** trong phân tích thuật toán.\n\n**Phương sai Var(X)** trả lời: \"Kết quả có dao động nhiều quanh trung bình không?\" — độ phân tán lớn nghĩa là đôi khi chậm đột biến, cần dùng **tail bound** để kiểm soát.\n\nVí dụ CS ngay lập tức: Quicksort có E[comparisons] = O(n log n) — đây là kết quả từ kỳ vọng, không phải worst-case."
+    },
+    {
+      "type": "analogy",
+      "title": "Kỳ vọng như \"điểm trung bình học kỳ\" dự đoán",
+      "content": "Bạn có 3 đề thi với xác suất ra đề và điểm số tương ứng:\n\n| Đề | Xác suất | Điểm dự kiến |\n|---|---|---|\n| Dễ | 0.4 | 9 điểm |\n| Trung bình | 0.4 | 7 điểm |\n| Khó | 0.2 | 4 điểm |\n\nĐiểm kỳ vọng = 0.4 × 9 + 0.4 × 7 + 0.2 × 4 = 3.6 + 2.8 + 0.8 = **7.2 điểm**.\n\nĐây là **bình quân gia quyền (weighted average)** theo xác suất — đúng là ý nghĩa của E[X]. Nếu thi nhiều lần với cùng phân phối đề, điểm trung bình dần tiến về 7.2."
+    },
+    {
+      "type": "formula",
+      "title": "Kỳ vọng của biến ngẫu nhiên rời rạc",
+      "latex": "E[X] = \\sum_{k} k \\cdot P(X = k)",
+      "reading": "đọc là: \"kỳ vọng của X bằng tổng của mỗi giá trị k nhân với xác suất X nhận giá trị k\".",
+      "symbols": [
+        { "sym": "E[X]", "meaning": "kỳ vọng (expectation / mean / expected value) của X" },
+        { "sym": "k", "meaning": "một giá trị cụ thể mà X có thể nhận" },
+        { "sym": "P(X=k)", "meaning": "xác suất X nhận giá trị k (từ PMF)" },
+        { "sym": "\\sum_k", "meaning": "tổng trên tất cả giá trị k có thể" }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Tính tuyến tính của kỳ vọng — vũ khí mạnh nhất",
+      "content": "**Linearity of Expectation** là một trong những công cụ mạnh nhất trong phân tích probabilistic:\n\n> E[X + Y] = E[X] + E[Y] **luôn đúng**, kể cả khi X và Y không độc lập!\n\nVí dụ CS: Insertion sort trên n phần tử. Gọi X_i = số comparisons để chèn phần tử thứ i. Tổng comparisons = X_1 + X_2 + ... + X_n. E[tổng] = E[X_1] + E[X_2] + ... + E[X_n]. Ta chỉ cần tính kỳ vọng từng X_i riêng lẻ — không cần biết chúng có độc lập hay không!\n\nĐây là lý do nhiều bài toán phân tích thuật toán trở nên thanh lịch hơn nhiều khi dùng indicator random variables."
+    },
+    {
+      "type": "formula",
+      "title": "Phương sai và Độ lệch chuẩn",
+      "latex": "\\text{Var}(X) = E[(X - \\mu)^2] = E[X^2] - (E[X])^2 \\qquad \\sigma = \\sqrt{\\text{Var}(X)}",
+      "reading": "đọc là: \"phương sai bằng kỳ vọng bình phương độ lệch; bằng E[X²] trừ E[X] bình phương\". Độ lệch chuẩn σ là căn bậc 2 của phương sai.",
+      "symbols": [
+        { "sym": "\\mu", "meaning": "ký hiệu khác của E[X] — giá trị trung bình" },
+        { "sym": "E[(X-\\mu)^2]", "meaning": "kỳ vọng bình phương khoảng cách đến trung bình" },
+        { "sym": "E[X^2] - (E[X])^2", "meaning": "công thức tính tắt — thường dễ tính hơn" },
+        { "sym": "\\sigma", "meaning": "độ lệch chuẩn — cùng đơn vị với X, dễ diễn giải hơn phương sai" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Hai phân phối cùng kỳ vọng nhưng phương sai khác nhau",
+      "functions": [
+        { "fn": "exp(-(x^2) / 0.5) * 0.8", "color": "#7fded1" },
+        { "fn": "exp(-(x^2) / 8) * 0.2", "color": "#ff9ecb" }
+      ],
+      "xDomain": [-5, 5],
+      "yDomain": [0, 1],
+      "caption": "Cả hai đường cùng tập trung tại x=0 (E[X]=0), nhưng đường xanh (phương sai nhỏ) tập trung hơn còn đường hồng (phương sai lớn) trải rộng hơn. Trong CS: phương sai lớn = thời gian chạy không ổn định, đôi khi chậm đột biến (outlier)."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: E[X] và Var(X) của tung xúc xắc",
+      "problem": "X = số chấm khi tung xúc xắc 6 mặt công bằng. Tính E[X] và Var(X).",
+      "steps": [
+        { "text": "PMF: P(X=k) = 1/6 cho k ∈ {1,2,3,4,5,6}.", "rule": "Xúc xắc công bằng — mọi kết quả như nhau" },
+        { "text": "E[X] = Σk × (1/6) = (1+2+3+4+5+6)/6 = 21/6 = 3.5.", "rule": "Công thức kỳ vọng" },
+        { "text": "E[X²] = (1²+2²+3²+4²+5²+6²)/6 = (1+4+9+16+25+36)/6 = 91/6 ≈ 15.17.", "rule": "Tính E[X²] riêng" },
+        { "text": "Var(X) = E[X²] − (E[X])² = 91/6 − (3.5)² = 15.167 − 12.25 = 2.917.", "isCommonMistake": true, "rule": "Lỗi hay gặp: tính (E[X])² = (3.5)² = 12.25, không phải 3.5" }
+      ],
+      "result": "E[X] = 3.5, Var(X) ≈ 2.92, σ ≈ 1.71"
+    },
+    {
+      "type": "explanation",
+      "title": "Kỳ vọng của Binomial và Geometric",
+      "content": "Hai phân phối quan trọng nhất trong CS có công thức kỳ vọng đơn giản:\n\n| Phân phối | E[X] | Var(X) |\n|---|---|---|\n| Binomial(n, p) | np | np(1−p) |\n| Geometric(p) | 1/p | (1−p)/p² |\n\n**Binomial:** n=100 request, p=0.01 lỗi → E[lỗi] = 100×0.01 = 1 lỗi trung bình.\n\n**Geometric:** retry với p=0.8 thành công → E[số lần thử] = 1/0.8 = 1.25 lần trung bình.\n\n**Quicksort CS insight:** Số comparisons của randomized quicksort là biến ngẫu nhiên. Dùng linearity of expectation và indicator variables chứng minh được E[comparisons] = 2n ln n ≈ 1.39 × n log₂n. Đây là cơ sở của O(n log n) average case."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ CS: E[comparisons] của randomized quicksort (simplified)",
+      "problem": "Mảng 4 phần tử {1,2,3,4}. Pivot chọn ngẫu nhiên đều. Tính E[số comparisons] bằng indicator variables: X_{ij} = 1 nếu i và j được compare.",
+      "steps": [
+        { "text": "Định nghĩa X_{ij} = 1 nếu phần tử i và j được compare, 0 nếu không. Tổng comparisons = Σ_{i<j} X_{ij}.", "rule": "Indicator random variable — mỗi cặp (i,j) tạo một biến 0/1" },
+        { "text": "E[tổng] = Σ_{i<j} E[X_{ij}] = Σ_{i<j} P(i và j được compare).", "rule": "Linearity of expectation — không cần các X_{ij} độc lập" },
+        { "text": "P(i và j được compare) = 2/(j−i+1): trong j−i+1 phần tử từ i đến j, nếu pivot là i hoặc j thì chúng được compare, ngược lại bị tách sang subtree khác.", "rule": "Xác suất so sánh trực tiếp" },
+        { "text": "Với n=4: E[comparisons] = 2/2 + 2/3 + 2/4 + 2/3 + 2/4 + 2/2 ≈ 1 + 0.67 + 0.5 + 0.67 + 0.5 + 1 = 4.34.", "isCommonMistake": true, "rule": "Lỗi hay gặp: quên các cặp (i,j) với j−i > 1 cũng có xác suất nhỏ hơn 1" }
+      ],
+      "result": "E[comparisons] ≈ 4.34 với n=4. Công thức tổng quát: E = 2(n+1)H_n − 4n ≈ 2n ln n"
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**E[X] ≠ giá trị thường gặp nhất!** Kỳ vọng là trung bình có trọng số — không phải mode (giá trị phổ biến nhất) cũng không phải median. Ví dụ: xúc xắc E[X]=3.5 nhưng không bao giờ ra 3.5. Trong CS: E[thời gian] = 1ms có thể ẩn chứa 0.1% trường hợp 1000ms — phương sai lớn là vấn đề nghiêm trọng cho SLA."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "E[X] = Σk·P(X=k) — trung bình dài hạn, không nhất thiết là giá trị có thể xảy ra.",
+        "Linearity: E[X+Y] = E[X]+E[Y] luôn đúng, kể cả khi X,Y không độc lập — công cụ mạnh nhất trong phân tích thuật toán.",
+        "Var(X) = E[X²] − (E[X])² — đo độ phân tán. Phương sai lớn = kết quả không ổn định.",
+        "Binomial(n,p): E=np, Var=np(1-p). Geometric(p): E=1/p, Var=(1-p)/p².",
+        "CS ứng dụng: E[comparisons quicksort] = O(n log n) chứng minh bằng indicator variables và linearity of expectation."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-ev-expectation",
+      "type": "formula",
+      "front": "Công thức kỳ vọng E[X] của biến ngẫu nhiên rời rạc?",
+      "back": "E[X] = Σk · P(X=k) — tổng mỗi giá trị nhân với xác suất của nó. Đây là trung bình có trọng số theo xác suất."
+    },
+    {
+      "id": "fc-ev-linearity",
+      "type": "concept",
+      "front": "Linearity of expectation là gì và tại sao mạnh?",
+      "back": "E[X+Y] = E[X]+E[Y] luôn đúng, kể cả khi X,Y KHÔNG độc lập. Cho phép phân tích bài toán phức tạp thành tổng các bài toán đơn giản hơn."
+    },
+    {
+      "id": "fc-ev-variance",
+      "type": "formula",
+      "front": "Công thức tính tắt của phương sai Var(X)?",
+      "back": "Var(X) = E[X²] − (E[X])². Thường dễ tính hơn E[(X−μ)²]. Độ lệch chuẩn σ = √Var(X)."
+    },
+    {
+      "id": "fc-ev-binomial-ev",
+      "type": "formula",
+      "front": "Kỳ vọng và phương sai của Binomial(n,p)?",
+      "back": "E[X] = np. Var(X) = np(1−p). Ví dụ: 100 request, p=0.01 lỗi → E[lỗi]=1, Var=0.99."
+    },
+    {
+      "id": "fc-ev-quicksort",
+      "type": "concept",
+      "front": "Tại sao quicksort có expected O(n log n) comparisons?",
+      "back": "Dùng indicator variables X_{ij}=1 nếu phần tử i và j được compare. P(compare) = 2/(j−i+1). E[tổng] = Σ 2/(j−i+1) = 2n H_n ≈ 2n ln n = O(n log n)."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-ev-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "X có PMF: P(X=0)=0.5, P(X=1)=0.3, P(X=2)=0.2. Tính E[X].",
+      "hints": [
+        "E[X] = Σk × P(X=k).",
+        "Tính từng số hạng: 0×0.5, 1×0.3, 2×0.2."
+      ],
+      "solutionSteps": [
+        { "text": "E[X] = 0×0.5 + 1×0.3 + 2×0.2.", "rule": "Công thức kỳ vọng" },
+        { "text": "= 0 + 0.3 + 0.4 = 0.7.", "rule": "Tính số học" }
+      ],
+      "answer": "E[X] = 0.7",
+      "commonMistake": "Tính trung bình đơn giản (0+1+2)/3 = 1 — không tính trọng số theo xác suất.",
+      "relatedFlashcard": "fc-ev-expectation"
+    },
+    {
+      "id": "ex-ev-apply-1",
+      "difficulty": "apply",
+      "prompt": "Server xử lý request với thời gian X (ms): P(X=1)=0.7, P(X=5)=0.2, P(X=20)=0.1. Tính E[X] và nhận xét về SLA nếu yêu cầu thời gian trung bình < 3ms.",
+      "hints": [
+        "E[X] = 1×0.7 + 5×0.2 + 20×0.1.",
+        "So sánh E[X] với 3ms."
+      ],
+      "solutionSteps": [
+        { "text": "E[X] = 1×0.7 + 5×0.2 + 20×0.1 = 0.7 + 1.0 + 2.0 = 3.7ms.", "rule": "Công thức kỳ vọng" },
+        { "text": "E[X] = 3.7ms > 3ms: vi phạm SLA!", "rule": "So sánh với ngưỡng" },
+        { "text": "10% request mất 20ms kéo trung bình lên cao — cần tối ưu trường hợp chậm.", "isCommonMistake": true, "rule": "Lỗi hay gặp: nghĩ 70% request < 3ms nên SLA đạt — SLA đo E[X], không phải median" }
+      ],
+      "answer": "E[X] = 3.7ms — vi phạm SLA, dù 70% request chỉ mất 1ms",
+      "commonMistake": "Nhầm SLA trung bình với percentile — median và mean khác nhau khi phân phối lệch.",
+      "relatedFlashcard": "fc-ev-expectation"
+    },
+    {
+      "id": "ex-ev-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "[CS Challenge] Quicksort chọn pivot ngẫu nhiên từ n phần tử. Gọi X = số lần pivot rơi vào 'good split' (25%-75% phần tử ở mỗi phía). P(good split) = 0.5. Dùng Geometric: (a) E[số lần chọn pivot đến khi có good split]? (b) Với n=1000 và log₂(1000)≈10 level recursion, E[tổng pivot chọn] ≈ ?",
+      "hints": [
+        "X ~ Geometric(p=0.5). E[X] = 1/0.5.",
+        "Mỗi level recursion cần 1 good split. Có ~log₂(n) level.",
+        "Dùng linearity: E[tổng] = (số level) × E[pivot/level]."
+      ],
+      "solutionSteps": [
+        { "text": "X ~ Geometric(p=0.5). E[X] = 1/p = 1/0.5 = 2 lần chọn pivot trung bình đến khi good split.", "rule": "Kỳ vọng Geometric" },
+        { "text": "Số level recursion ≈ log₂(n) = log₂(1000) ≈ 10.", "rule": "Chia để trị: mỗi good split giảm kích thước bài toán còn max 75%" },
+        { "text": "E[tổng pivot] ≈ 2 × 10 = 20 lần chọn pivot cho toàn bộ.", "rule": "Linearity of expectation qua các level" },
+        { "text": "Mỗi lần chọn pivot, compare với ~n phần tử → E[tổng comparisons] = O(n × 2 × log n) = O(n log n).", "isCommonMistake": true, "rule": "Lỗi hay gặp: nghĩ worst-case O(n²) là average case — không phải, với pivot random thì expected O(n log n)" }
+      ],
+      "answer": "(a) E[pivot đến good split] = 2 lần; (b) E[total] ≈ 20 lần → O(n log n) average comparisons",
+      "commonMistake": "Nhầm O(n²) worst-case với average-case — quicksort expected O(n log n) với random pivot.",
+      "relatedFlashcard": "fc-ev-quicksort"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-ev-1",
+      "type": "mcq",
+      "question": "X ~ Binomial(n=20, p=0.3). E[X] = ?",
+      "options": ["3", "6", "8", "0.3"],
+      "correct": 1,
+      "explanation": "E[X] = np = 20 × 0.3 = 6. Binomial(n,p) đơn giản: kỳ vọng = số thử nghiệm × xác suất thành công."
+    },
+    {
+      "id": "q-ev-2",
+      "type": "mcq",
+      "question": "E[X+Y] = E[X] + E[Y] đúng trong trường hợp nào?",
+      "options": [
+        "Chỉ khi X và Y độc lập",
+        "Chỉ khi X và Y có cùng phân phối",
+        "Luôn luôn đúng",
+        "Chỉ khi E[X] và E[Y] đều hữu hạn và X,Y không tương quan"
+      ],
+      "correct": 2,
+      "explanation": "Linearity of expectation luôn đúng — đây là tính chất đặc biệt của kỳ vọng. KHÔNG cần X,Y độc lập hay bất kỳ điều kiện nào khác."
+    },
+    {
+      "id": "q-ev-3",
+      "type": "mcq",
+      "question": "Phương sai Var(X) = 0 có nghĩa là gì?",
+      "options": [
+        "X luôn bằng 0",
+        "X là hằng số (không có sự ngẫu nhiên)",
+        "E[X] = 0",
+        "X và Y độc lập"
+      ],
+      "correct": 1,
+      "explanation": "Var(X) = E[(X−μ)²] = 0 khi và chỉ khi X = μ với xác suất 1. Nghĩa là X không dao động — nó luôn nhận một giá trị cố định (deterministic)."
+    }
+  ]
+}

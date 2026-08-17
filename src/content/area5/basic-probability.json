@@ -1,0 +1,217 @@
+{
+  "id": "area5_basic-probability",
+  "title": "Xác suất cơ bản (Basic Probability)",
+  "area": 5,
+  "unit": "a5u1",
+  "order": 1,
+  "icon": "dice",
+  "tagline": "Xác suất đo lường \"khả năng xảy ra\" — nền tảng để hiểu hashing collisions, load balancing và các thuật toán ngẫu nhiên.",
+  "readTime": "~15 min",
+  "prerequisites": [],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Xác suất (probability) trả lời câu hỏi: **\"Sự kiện này xảy ra với khả năng bao nhiêu?\"** Thay vì nói \"có thể\" hay \"khó xảy ra\", xác suất cho ta một con số cụ thể từ 0 đến 1.\n\nTrong CS, xác suất xuất hiện ở khắp nơi: khi bạn hỏi \"hai key khác nhau có bị hash vào cùng bucket không?\" (hashing collision), hay \"request có bị dồn vào cùng server không?\" (load balancing). Hiểu xác suất cơ bản giúp bạn phân tích độ tin cậy và hiệu năng của hệ thống."
+    },
+    {
+      "type": "analogy",
+      "title": "Xác suất như \"tỷ lệ thắng\" trong trò chơi công bằng",
+      "content": "Hãy tưởng tượng bạn tung một đồng xu công bằng. Có 2 kết quả có thể: Heads hoặc Tails. Mỗi kết quả như nhau. Xác suất ra Heads = 1 trên 2 = 0.5.\n\nNguyên tắc tổng quát: nếu có **n kết quả bằng nhau** và **k kết quả là \"thắng\"**, thì xác suất thắng = k/n.\n\nVí dụ tung xúc xắc 6 mặt, hỏi xác suất ra số chẵn? Số chẵn gồm {2, 4, 6} = 3 kết quả, tổng có 6 → xác suất = 3/6 = 1/2.\n\nTrong hash table với 100 bucket và 1 key ngẫu nhiên: xác suất key rơi vào bucket cụ thể = 1/100 = 0.01."
+    },
+    {
+      "type": "formula",
+      "title": "Công thức xác suất cổ điển",
+      "latex": "P(A) = \\frac{|A|}{|\\Omega|}",
+      "reading": "đọc là: \"xác suất của sự kiện A bằng số kết quả thuận lợi chia tổng số kết quả có thể\".",
+      "symbols": [
+        { "sym": "P(A)", "meaning": "xác suất của sự kiện A, giá trị trong [0, 1]" },
+        { "sym": "|A|", "meaning": "số kết quả thuận lợi cho A" },
+        { "sym": "|\\Omega|", "meaning": "tổng số kết quả có thể trong không gian mẫu Ω" }
+      ],
+      "caption": "Áp dụng được khi tất cả kết quả có khả năng xảy ra như nhau (equally likely outcomes)."
+    },
+    {
+      "type": "explanation",
+      "title": "Không gian mẫu và sự kiện",
+      "content": "**Không gian mẫu (sample space) Ω** là tập hợp tất cả kết quả có thể. Ví dụ tung 1 xúc xắc: Ω = {1, 2, 3, 4, 5, 6}.\n\n**Sự kiện (event) A** là một tập con của Ω. Ví dụ A = \"ra số lẻ\" = {1, 3, 5}.\n\nMỗi phần tử của Ω gọi là **kết quả (outcome)**. Trong hashing, Ω = tập tất cả bucket, sự kiện A = \"key rơi vào bucket 7\".\n\nBa trường hợp đặc biệt:\n- P(Ω) = 1: điều gì đó luôn xảy ra\n- P(∅) = 0: sự kiện không thể xảy ra\n- 0 ≤ P(A) ≤ 1 luôn đúng"
+    },
+    {
+      "type": "formula",
+      "title": "Quy tắc bù (Complement Rule)",
+      "latex": "P(A^c) = 1 - P(A)",
+      "reading": "đọc là: \"xác suất sự kiện KHÔNG xảy ra bằng 1 trừ xác suất nó xảy ra\".",
+      "symbols": [
+        { "sym": "A^c", "meaning": "phần bù của A — tập tất cả kết quả không thuộc A" },
+        { "sym": "1 - P(A)", "meaning": "vì A và Aᶜ cùng nhau phủ hết Ω" }
+      ],
+      "caption": "Rất hữu dụng khi tính xác suất 'ít nhất một' hay 'không có lỗi nào'."
+    },
+    {
+      "type": "graph",
+      "title": "Xác suất tích lũy: P(≥1 collision) với n keys và m buckets",
+      "functions": [
+        { "fn": "1 - exp(-x^2 / 200)", "color": "#ffe08a" }
+      ],
+      "xDomain": [0, 30],
+      "yDomain": [0, 1],
+      "caption": "Xác suất có ít nhất 1 collision khi n keys hash vào m=100 bucket (birthday paradox approximation). Với chỉ ~12 keys, xác suất đã vượt 50%! Đây là lý do hash table cần resize sớm."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: xác suất không có hash collision",
+      "problem": "Hash table có m=10 bucket. Chèn 3 key ngẫu nhiên. Xác suất không có collision nào là bao nhiêu?",
+      "steps": [
+        { "text": "Key 1 vào bucket bất kỳ: 10/10 = 1 (luôn thành công, bucket trống).", "rule": "Kết quả đầu tiên không thể collision" },
+        { "text": "Key 2 phải vào bucket khác key 1: 9 bucket còn trống / 10 bucket = 9/10.", "rule": "Xác suất điều kiện — bucket đã bị chiếm bởi key 1" },
+        { "text": "Key 3 phải vào bucket khác cả hai: 8/10.", "isCommonMistake": true, "rule": "Mỗi key mới giảm đi 1 bucket trống — lỗi hay gặp là dùng 9/10 lần nữa" },
+        { "text": "P(không collision) = 1 × 9/10 × 8/10 = 72/100 = 0.72.", "rule": "Nhân xác suất các sự kiện độc lập liên tiếp" }
+      ],
+      "result": "P(không collision) = 0.72 → P(có ít nhất 1 collision) = 1 − 0.72 = **0.28**"
+    },
+    {
+      "type": "explanation",
+      "title": "Liên hệ CS: Load Balancing và Random Algorithms",
+      "content": "**Load balancing:** Nếu mỗi request được gửi ngẫu nhiên đến 1 trong n server, P(request đến server cụ thể) = 1/n. Với n=10 server và 1000 request, mỗi server kỳ vọng nhận ~100 request — phân phối đều.\n\n**Randomized algorithms:** Randomized quicksort chọn pivot ngẫu nhiên. P(chọn đúng pivot median) trong nửa giữa = 1/2 → mỗi lần chọn có 50% cơ hội là pivot \"tốt\". Phân tích xác suất giúp chứng minh thuật toán chạy O(n log n) trung bình.\n\n**Hashing and birthday paradox:** Với m bucket và n keys, xác suất có collision ≈ n²/(2m). Với n=√(2m), xác suất collision ~ 63%! Đây là lý do cryptographic hash cần m phải **rất lớn**."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: xác suất sự kiện hợp (Union)",
+      "problem": "Server A có P(down) = 0.1, Server B có P(down) = 0.05. Giả sử độc lập, P(ít nhất một server down) = bao nhiêu?",
+      "steps": [
+        { "text": "Dùng quy tắc bù: P(ít nhất 1 down) = 1 − P(cả hai đều up).", "rule": "Complement rule — dễ hơn tính trực tiếp" },
+        { "text": "P(A up) = 1 − 0.1 = 0.9. P(B up) = 1 − 0.05 = 0.95.", "rule": "Complement rule cho từng server" },
+        { "text": "P(cả hai up) = 0.9 × 0.95 = 0.855.", "rule": "Nhân xác suất — vì A và B độc lập" },
+        { "text": "P(ít nhất 1 down) = 1 − 0.855 = 0.145.", "isCommonMistake": true, "rule": "Lỗi hay gặp: cộng 0.1+0.05=0.15 (sai vì double-count trường hợp cả hai down)" }
+      ],
+      "result": "P(ít nhất 1 server down) = **14.5%**"
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Bẫy hay gặp — Addition Rule:** P(A hoặc B) ≠ P(A) + P(B) trừ khi A và B **xung khắc** (mutually exclusive, không thể cùng xảy ra). Công thức đúng: P(A ∪ B) = P(A) + P(B) − P(A ∩ B). Nếu bỏ số hạng giao, bạn đang đếm trùng!"
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Xác suất P(A) ∈ [0,1]: đo \"khả năng\" sự kiện A xảy ra.",
+        "Công thức cổ điển: P(A) = (số kết quả thuận lợi) / (tổng số kết quả), khi mọi kết quả như nhau.",
+        "Quy tắc bù: P(Aᶜ) = 1 − P(A) — rất mạnh khi hỏi 'ít nhất một'.",
+        "P(A ∪ B) = P(A) + P(B) − P(A ∩ B): phải trừ phần giao để tránh đếm trùng.",
+        "CS ứng dụng: hashing collision, load balancing, randomized algorithm analysis đều cần xác suất cơ bản."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-prob-def",
+      "type": "definition",
+      "front": "Xác suất cổ điển P(A) là gì?",
+      "back": "P(A) = |A| / |Ω| — số kết quả thuận lợi chia tổng kết quả (khi mọi kết quả như nhau)."
+    },
+    {
+      "id": "fc-prob-complement",
+      "type": "formula",
+      "front": "Quy tắc bù: P(Aᶜ) = ?",
+      "back": "P(Aᶜ) = 1 − P(A). Dùng khi tính xác suất 'ít nhất một' hay 'không có lỗi nào'."
+    },
+    {
+      "id": "fc-prob-union",
+      "type": "formula",
+      "front": "P(A ∪ B) = ? (công thức đúng)",
+      "back": "P(A) + P(B) − P(A ∩ B). Phải trừ giao để tránh đếm trùng. Bằng P(A)+P(B) chỉ khi A và B xung khắc."
+    },
+    {
+      "id": "fc-prob-birthday",
+      "type": "concept",
+      "front": "Birthday paradox trong hashing là gì?",
+      "back": "Với m bucket, chỉ cần ~√(2m) keys là xác suất collision ≥ 50%. Ví dụ m=365 → ~23 keys là đủ."
+    },
+    {
+      "id": "fc-prob-range",
+      "type": "concept",
+      "front": "Xác suất có thể nhận giá trị nào?",
+      "back": "Luôn nằm trong [0, 1]. P=0: không thể xảy ra. P=1: chắc chắn xảy ra. P=0.5: 50/50."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-prob-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Tung xúc xắc 6 mặt. Xác suất ra số lớn hơn 4 là bao nhiêu?",
+      "hints": [
+        "Số nào lớn hơn 4 trong {1,2,3,4,5,6}?",
+        "|Ω| = 6. Đếm kết quả thuận lợi."
+      ],
+      "solutionSteps": [
+        { "text": "Ω = {1,2,3,4,5,6}, |Ω| = 6.", "rule": "Xác định không gian mẫu" },
+        { "text": "Kết quả thuận lợi: {5, 6} → |A| = 2.", "rule": "Xác định sự kiện" },
+        { "text": "P(A) = 2/6 = 1/3 ≈ 0.333.", "rule": "Công thức xác suất cổ điển" }
+      ],
+      "answer": "1/3 ≈ 0.333",
+      "commonMistake": "Đếm nhầm {4, 5, 6} = 3 (bao gồm cả 4, nhưng đề hỏi lớn HƠN 4, không phải lớn hơn hoặc bằng).",
+      "relatedFlashcard": "fc-prob-def"
+    },
+    {
+      "id": "ex-prob-apply-1",
+      "difficulty": "apply",
+      "prompt": "Một hệ thống có 3 component độc lập, mỗi cái có xác suất hỏng là 0.02. Xác suất hệ thống KHÔNG bị hỏng component nào?",
+      "hints": [
+        "P(component i không hỏng) = 1 − 0.02 = 0.98.",
+        "Ba component độc lập → nhân xác suất."
+      ],
+      "solutionSteps": [
+        { "text": "P(component i hoạt động) = 1 − 0.02 = 0.98.", "rule": "Complement rule" },
+        { "text": "P(cả 3 hoạt động) = 0.98 × 0.98 × 0.98 = 0.98³.", "rule": "Nhân xác suất sự kiện độc lập" },
+        { "text": "0.98³ = 0.941192 ≈ 0.941.", "isCommonMistake": true, "rule": "Lỗi hay gặp: cộng 1-3×0.02=0.94 thay vì nhân lũy thừa" }
+      ],
+      "answer": "≈ 0.941 (94.1%)",
+      "commonMistake": "Dùng 1 − 3×0.02 = 0.94 (xấp xỉ đúng với p nhỏ, nhưng không chính xác).",
+      "relatedFlashcard": "fc-prob-complement"
+    },
+    {
+      "id": "ex-prob-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "[CS Challenge] Bạn thiết kế hash table với m=1000 bucket và dùng uniform random hash. Sau khi chèn n=40 keys, xác suất có ÍT NHẤT MỘT collision xấp xỉ bao nhiêu? (Dùng công thức xấp xỉ birthday: P(collision) ≈ 1 − e^(−n(n−1)/(2m)))",
+      "hints": [
+        "n=40, m=1000. Tính n(n-1)/(2m) trước.",
+        "n(n-1) = 40×39 = 1560. Chia 2×1000 = 2000.",
+        "e^(−0.78) ≈ ?"
+      ],
+      "solutionSteps": [
+        { "text": "Tính exponent: n(n−1)/(2m) = 40×39/(2×1000) = 1560/2000 = 0.78.", "rule": "Birthday paradox approximation formula" },
+        { "text": "P(không collision) ≈ e^(−0.78) ≈ 0.458.", "rule": "Taylor approximation — chính xác khi n << m" },
+        { "text": "P(ít nhất 1 collision) = 1 − 0.458 ≈ 0.542.", "rule": "Complement rule" },
+        { "text": "Kết quả: với chỉ 40 keys / 1000 bucket, đã có >50% khả năng collision!", "isCommonMistake": true, "rule": "Lỗi trực giác: nghĩ cần đến 500 keys mới collision (nhầm với 50% bucket filled)" }
+      ],
+      "answer": "≈ 54.2% — birthday paradox làm collision xảy ra sớm hơn trực giác",
+      "commonMistake": "Nghĩ 40/1000 = 4% bucket dùng nên collision ít. Thực ra mỗi key mới có 39 key cũ để đụng.",
+      "relatedFlashcard": "fc-prob-birthday"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-prob-1",
+      "type": "mcq",
+      "question": "Tung đồng xu 2 lần. P(ra Heads cả 2 lần) = ?",
+      "options": ["1/2", "1/3", "1/4", "3/4"],
+      "correct": 2,
+      "explanation": "Ω = {HH, HT, TH, TT}, |Ω|=4. Kết quả thuận lợi: {HH} → P = 1/4. Hoặc: 1/2 × 1/2 = 1/4 (độc lập)."
+    },
+    {
+      "id": "q-prob-2",
+      "type": "mcq",
+      "question": "P(A) = 0.3, P(B) = 0.4, A và B xung khắc. P(A ∪ B) = ?",
+      "options": ["0.12", "0.58", "0.70", "0.12"],
+      "correct": 2,
+      "explanation": "A và B xung khắc → P(A ∩ B) = 0. Vậy P(A ∪ B) = 0.3 + 0.4 = 0.7."
+    },
+    {
+      "id": "q-prob-3",
+      "type": "mcq",
+      "question": "Hash table có 50 bucket. Sau bao nhiêu key thì xác suất collision vượt 50% (dùng √(2m) ≈ √100)?",
+      "options": ["Khoảng 5 keys", "Khoảng 10 keys", "Khoảng 25 keys", "Khoảng 50 keys"],
+      "correct": 1,
+      "explanation": "Birthday paradox: ~√(2×50) = √100 = 10 keys. Chỉ cần 10 keys trong 50 bucket là collision hơn 50%."
+    }
+  ]
+}

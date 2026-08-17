@@ -1,0 +1,208 @@
+{
+  "id": "area1_logarithms",
+  "title": "Logarit (Logarithms)",
+  "area": 1,
+  "unit": "a1u2",
+  "order": 4,
+  "icon": "function",
+  "tagline": "Logarit trả lời câu hỏi \"mũ mấy?\" — nền tảng để hiểu độ phức tạp (Big-O) và vì sao tìm kiếm nhị phân nhanh.",
+  "readTime": "~15 min",
+  "prerequisites": ["area1_powers-and-roots", "area1_reading-graphs"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Logarit (logarithm) nghe \"toán học\" nhưng ý tưởng cực đơn giản: nó là **phép toán ngược của lũy thừa (exponentiation)**. Lũy thừa hỏi \"2 mũ 5 là bao nhiêu?\" (đáp: 32). Logarit hỏi ngược lại: \"2 mũ **mấy** thì ra 32?\" (đáp: 5).\n\nVì sao dân CS phải nắm chắc logarit? Vì nó xuất hiện khắp nơi: tìm kiếm nhị phân (binary search) chạy trong `O(log n)`, cây cân bằng (balanced tree) cao `log n`, chia để trị (divide & conquer) đệ quy `log n` lần. Hiểu logarit = hiểu vì sao các thuật toán này nhanh."
+    },
+    {
+      "type": "analogy",
+      "title": "Logarit là \"số lần chia đôi\"",
+      "content": "Hình dung bạn có 32 trang sách và chơi trò đoán số kiểu tìm kiếm nhị phân: mỗi lần loại bỏ nửa số trang. 32 → 16 → 8 → 4 → 2 → 1. Bạn chia đôi **5 lần** là còn 1 trang. Con số 5 đó chính là `log₂(32)`.\n\nĐó là trực giác cốt lõi: **`log₂(n)` = số lần chia đôi n để về 1**. Vì thế binary search trên n phần tử chỉ tốn khoảng `log₂(n)` bước — với 1 triệu phần tử, chỉ ~20 bước."
+    },
+    {
+      "type": "formula",
+      "title": "Định nghĩa logarit",
+      "latex": "\\log_b(x) = y \\iff b^y = x",
+      "reading": "đọc là: \"log cơ số b của x bằng y khi và chỉ khi b mũ y bằng x\".",
+      "symbols": [
+        { "sym": "b", "meaning": "cơ số (base), b > 0 và b ≠ 1. CS hay dùng b = 2." },
+        { "sym": "x", "meaning": "số cần lấy log, phải dương (x > 0)." },
+        { "sym": "y", "meaning": "kết quả — chính là số mũ cần tìm." }
+      ],
+      "caption": "Logarit và lũy thừa là hai chiều của cùng một quan hệ."
+    },
+    {
+      "type": "formula",
+      "title": "Ba quy tắc phải thuộc",
+      "latex": "\\log_b(xy) = \\log_b x + \\log_b y \\quad\\;\\; \\log_b\\!\\frac{x}{y} = \\log_b x - \\log_b y \\quad\\;\\; \\log_b(x^k) = k\\log_b x",
+      "reading": "đọc là: log của tích = tổng log; log của thương = hiệu log; log của lũy thừa = số mũ nhân với log.",
+      "caption": "Logarit biến nhân→cộng, chia→trừ, lũy thừa→nhân. Đây là lý do nó nén được những con số khổng lồ."
+    },
+    {
+      "type": "graph",
+      "title": "Đồ thị hàm log₂(x) tăng rất chậm",
+      "functions": [
+        { "fn": "log(x) / log(2)", "color": "#f5a623" }
+      ],
+      "xDomain": [0, 32],
+      "yDomain": [-2, 6],
+      "caption": "log₂(x) tăng chậm dần: x tăng gấp đôi thì y chỉ +1. Đây là hình ảnh trực quan của độ phức tạp O(log n) — vì sao thuật toán log rất nhanh kể cả với n cực lớn."
+    },
+    {
+      "type": "explanation",
+      "title": "Đổi cơ số (change of base) — mẹo dùng máy tính",
+      "content": "Máy tính thường chỉ có `ln` (log tự nhiên, cơ số e) và `log` (cơ số 10). Muốn tính `log₂(x)` ta dùng công thức đổi cơ số. Trong CS, hằng số khi đổi cơ số chỉ là hệ số nhân, nên trong Big-O ta viết gọn `O(log n)` mà **không cần ghi cơ số** — vì `log₂ n` và `log₁₀ n` chỉ khác nhau một hằng số."
+    },
+    {
+      "type": "formula",
+      "title": "Công thức đổi cơ số",
+      "latex": "\\log_b x = \\frac{\\ln x}{\\ln b} = \\frac{\\log_{10} x}{\\log_{10} b}",
+      "reading": "đọc là: log cơ số b của x bằng ln x chia ln b (hoặc log10 x chia log10 b)."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: tính log₂(32)",
+      "problem": "Tính $\\log_2(32)$.",
+      "steps": [
+        { "text": "Đặt câu hỏi ngược: \"2 mũ mấy thì ra 32?\"", "rule": "Định nghĩa logarit" },
+        { "text": "Phân tích 32 thành lũy thừa của 2: $32 = 2^5$.", "rule": "Nhận dạng lũy thừa" },
+        { "text": "Vậy số mũ là 5 → $\\log_2(32) = 5$." }
+      ],
+      "result": "$\\log_2(32) = 5$"
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: dùng quy tắc để rút gọn",
+      "problem": "Tính $\\log_2(8 \\times 4)$ mà không nhân ra trước.",
+      "steps": [
+        { "text": "Áp dụng quy tắc tích: $\\log_2(8\\times4) = \\log_2 8 + \\log_2 4$.", "rule": "log của tích = tổng log" },
+        { "text": "$\\log_2 8 = 3$ (vì $2^3=8$) và $\\log_2 4 = 2$ (vì $2^2=4$)." },
+        { "text": "Cộng lại: $3 + 2 = 5$.", "isCommonMistake": true, "rule": "Cộng, KHÔNG nhân — lỗi hay gặp là nhân 3×2=6" }
+      ],
+      "result": "$\\log_2(32) = 5$ — khớp với ví dụ trên."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp:** `log(x + y)` KHÔNG bằng `log x + log y`. Quy tắc tổng chỉ áp dụng cho **tích** bên trong log: `log(x·y) = log x + log y`. Với phép cộng bên trong log thì không có công thức rút gọn."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Logarit là phép ngược của lũy thừa: $\\log_b x = y \\iff b^y = x$.",
+        "Trực giác CS: $\\log_2 n$ = số lần chia đôi n để về 1 → nền tảng của binary search & cây cân bằng.",
+        "Ba quy tắc: tích→tổng, thương→hiệu, lũy thừa→nhân hệ số.",
+        "Đồ thị log tăng rất chậm → O(log n) cực nhanh kể cả n lớn.",
+        "Trong Big-O không cần ghi cơ số vì đổi cơ số chỉ khác một hằng số."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-log-def",
+      "type": "definition",
+      "front": "Định nghĩa: $\\log_b x = y$ nghĩa là gì?",
+      "back": "$b^y = x$ — logarit là số mũ y để b mũ y ra x. (\"b mũ mấy thì ra x?\")"
+    },
+    {
+      "id": "fc-log-intuition",
+      "type": "concept",
+      "front": "Trực giác CS của $\\log_2 n$ là gì?",
+      "back": "Số lần chia đôi n để về 1. Vì thế binary search tốn ~$\\log_2 n$ bước."
+    },
+    {
+      "id": "fc-log-product",
+      "type": "formula",
+      "front": "Quy tắc log của một tích: $\\log_b(xy) = ?$",
+      "back": "$\\log_b x + \\log_b y$ — nhân bên trong biến thành cộng."
+    },
+    {
+      "id": "fc-log-change-base",
+      "type": "formula",
+      "front": "Công thức đổi cơ số: $\\log_b x = ?$",
+      "back": "$\\dfrac{\\ln x}{\\ln b}$ — chia hai log cùng cơ số bất kỳ."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-log-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Tính $\\log_2(16)$.",
+      "hints": ["Hỏi: 2 mũ mấy thì ra 16?", "$16 = 2^?$"],
+      "solutionSteps": [
+        { "text": "2 mũ 4 = 16.", "rule": "Định nghĩa logarit" },
+        { "text": "Vậy $\\log_2(16) = 4$." }
+      ],
+      "answer": "4",
+      "commonMistake": "Nhầm với $\\log_{10}$ (ra ~1.2) — đề hỏi cơ số 2.",
+      "relatedFlashcard": "fc-log-def"
+    },
+    {
+      "id": "ex-log-apply-1",
+      "difficulty": "apply",
+      "prompt": "Dùng quy tắc log, tính $\\log_2(4 \\times 8)$ mà không nhân 4×8 trước.",
+      "hints": ["Quy tắc tích: log(xy) = log x + log y.", "$\\log_2 4 = 2$, $\\log_2 8 = 3$."],
+      "solutionSteps": [
+        { "text": "$\\log_2(4\\times8) = \\log_2 4 + \\log_2 8$.", "rule": "log của tích = tổng log" },
+        { "text": "= 2 + 3.", "isCommonMistake": true, "rule": "CỘNG hai log, không nhân" },
+        { "text": "= 5." }
+      ],
+      "answer": "5",
+      "commonMistake": "Nhân 2×3=6 thay vì cộng 2+3=5.",
+      "relatedFlashcard": "fc-log-product"
+    },
+    {
+      "id": "ex-log-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Một mảng có 1000 phần tử đã sắp xếp. Binary search cần tối đa khoảng bao nhiêu bước? Vì sao?",
+      "hints": [
+        "Số bước ≈ số lần chia đôi 1000 để về 1.",
+        "Tức là $\\lceil \\log_2 1000 \\rceil$.",
+        "$2^{10} = 1024 > 1000$."
+      ],
+      "solutionSteps": [
+        { "text": "Binary search mỗi bước loại nửa mảng → số bước ≈ $\\log_2 n$.", "rule": "Trực giác log = số lần chia đôi" },
+        { "text": "$\\log_2 1000 \\approx 9.97$ vì $2^{10} = 1024$." },
+        { "text": "Làm tròn lên: tối đa ~10 bước.", "isCommonMistake": true, "rule": "Làm tròn LÊN (ceil) vì cần đủ bước" }
+      ],
+      "answer": "~10 bước (vì $2^{10}=1024 \\ge 1000$).",
+      "commonMistake": "Trả lời 1000 (nghĩ phải duyệt hết) — bỏ qua sức mạnh chia đôi của log.",
+      "relatedFlashcard": "fc-log-intuition"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-log-1",
+      "type": "mcq",
+      "question": "$\\log_2(64)$ bằng bao nhiêu?",
+      "options": ["5", "6", "7", "8"],
+      "correct": 1,
+      "explanation": "$2^6 = 64$, nên $\\log_2(64) = 6$."
+    },
+    {
+      "id": "q-log-2",
+      "type": "mcq",
+      "question": "Quy tắc nào ĐÚNG?",
+      "options": [
+        "$\\log(x+y) = \\log x + \\log y$",
+        "$\\log(xy) = \\log x + \\log y$",
+        "$\\log(xy) = \\log x \\cdot \\log y$",
+        "$\\log(x^k) = (\\log x)^k$"
+      ],
+      "correct": 1,
+      "explanation": "Chỉ log của TÍCH mới bằng tổng log. Log của tổng không rút gọn được."
+    },
+    {
+      "id": "q-log-3",
+      "type": "mcq",
+      "question": "Vì sao binary search là $O(\\log n)$?",
+      "options": [
+        "Vì nó duyệt qua mọi phần tử",
+        "Vì mỗi bước loại bỏ một nửa số phần tử còn lại",
+        "Vì mảng phải có kích thước là lũy thừa của 2",
+        "Vì nó dùng đệ quy"
+      ],
+      "correct": 1,
+      "explanation": "Mỗi bước chia đôi không gian tìm kiếm → số bước ≈ số lần chia đôi n = $\\log_2 n$."
+    }
+  ]
+}

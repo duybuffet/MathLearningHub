@@ -1,0 +1,251 @@
+{
+  "id": "area2_derivatives",
+  "title": "Đạo hàm (Derivatives)",
+  "area": 2,
+  "unit": "a2u2",
+  "order": 3,
+  "icon": "curve",
+  "tagline": "Đạo hàm đo tốc độ thay đổi — slope của tiếp tuyến. Trong ML, đây chính là gradient dẫn đường cho gradient descent.",
+  "readTime": "~18 min",
+  "prerequisites": ["area2_limits"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Đạo hàm (derivative) trả lời câu hỏi: **\"Hàm số thay đổi nhanh như thế nào tại một điểm?\"** — hay nói cách khác, đây là **độ dốc (slope) của tiếp tuyến** tại điểm đó.\n\nTrực giác đơn giản: nếu bạn đang leo núi và muốn biết dốc hiện tại đứng hay thoải, đạo hàm cho bạn biết điều đó tại từng bước.\n\nVì sao dân CS/ML cần đạo hàm? Vì **gradient descent** — thuật toán huấn luyện mạng neural — hoàn toàn dựa vào đạo hàm. Mỗi lần cập nhật trọng số, model đi theo hướng *ngược dốc* (negative gradient) để giảm loss. Không có đạo hàm, không có deep learning."
+    },
+    {
+      "type": "analogy",
+      "title": "Đạo hàm = độ dốc tức thời",
+      "content": "Hình dung bạn lái xe và nhìn đồng hồ tốc độ. Tại một thời điểm nhất định, đồng hồ hiển thị 60 km/h — đó là **vận tốc tức thời (instantaneous speed)**, chính là đạo hàm của quãng đường theo thời gian.\n\nVề mặt đồ thị: đạo hàm của f tại x=a là **slope của đường thẳng tiếp xúc đồ thị tại điểm (a, f(a))**.\n\n- Đạo hàm > 0: hàm đang tăng (dốc lên)\n- Đạo hàm < 0: hàm đang giảm (dốc xuống)\n- Đạo hàm = 0: hàm đang ở cực trị — đỉnh hoặc đáy\n\nTrong gradient descent: chúng ta tìm điểm có đạo hàm = 0 (minimum của loss)."
+    },
+    {
+      "type": "formula",
+      "title": "Định nghĩa đạo hàm qua giới hạn",
+      "latex": "f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}",
+      "reading": "đọc là: f phẩy của x bằng giới hạn khi h tiến về 0 của (f(x+h) trừ f(x)) chia h. Đây là slope của dây cung khi dây cung co lại thành tiếp tuyến.",
+      "symbols": [
+        { "sym": "f'(x)", "meaning": "đạo hàm của f tại x (đọc: f phẩy x). Ký hiệu khác: df/dx, Df." },
+        { "sym": "h", "meaning": "bước nhảy nhỏ trên trục x, tiến về 0" },
+        { "sym": "f(x+h) - f(x)", "meaning": "thay đổi của f (Δy)" },
+        { "sym": "\\frac{\\Delta y}{h}", "meaning": "tỷ lệ thay đổi trung bình → tốc độ tức thời khi h→0" }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Các quy tắc đạo hàm thường dùng",
+      "content": "Thay vì tính giới hạn mỗi lần, ta dùng các quy tắc:\n\n- **Hằng số:** $\\frac{d}{dx}[c] = 0$ — hằng số không đổi, slope = 0\n- **Lũy thừa:** $\\frac{d}{dx}[x^n] = n \\cdot x^{n-1}$ — quy tắc mũ (power rule)\n- **Tổng:** $\\frac{d}{dx}[f+g] = f' + g'$ — đạo hàm phân phối qua phép cộng\n- **Nhân hằng:** $\\frac{d}{dx}[cf] = c \\cdot f'$ — hằng số nhân ra ngoài\n\nVí dụ nhanh: $\\frac{d}{dx}[3x^2 + 5x + 2] = 6x + 5 + 0 = 6x + 5$"
+    },
+    {
+      "type": "formula",
+      "title": "Quy tắc lũy thừa (Power Rule)",
+      "latex": "\\frac{d}{dx}\\left[x^n\\right] = n \\cdot x^{n-1}",
+      "reading": "đọc là: đạo hàm của x mũ n bằng n nhân x mũ (n trừ 1). Kéo số mũ xuống, giảm số mũ đi 1.",
+      "symbols": [
+        { "sym": "n", "meaning": "số mũ (có thể là số thực bất kỳ, không chỉ số nguyên)" },
+        { "sym": "n \\cdot x^{n-1}", "meaning": "số mũ kéo xuống thành hệ số, số mũ giảm 1" },
+        { "sym": "\\frac{d}{dx}", "meaning": "ký hiệu 'lấy đạo hàm theo x' (của Leibniz)" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "f(x) = x² và tiếp tuyến tại x = 1",
+      "functions": [
+        { "fn": "x^2", "color": "#ffe08a" },
+        { "fn": "2*x - 1", "color": "#7fded1" }
+      ],
+      "xDomain": [-2, 3],
+      "yDomain": [-1, 6],
+      "caption": "Vàng: f(x) = x². Xanh: tiếp tuyến tại x=1, phương trình y = 2x−1 (slope = f'(1) = 2). Đạo hàm tại x=1 chính là slope của đường thẳng tiếp xúc đồ thị — đây là ý nghĩa hình học cốt lõi."
+    },
+    {
+      "type": "explanation",
+      "title": "Gradient Descent — ứng dụng đạo hàm trong ML",
+      "content": "Trong huấn luyện mạng neural, ta có một **hàm loss** L(w) đo độ sai lệch của model theo trọng số w. Mục tiêu: tìm w làm L nhỏ nhất.\n\n**Gradient descent** thực hiện điều này bằng cách lặp:\n$$w_{\\text{new}} \\leftarrow w_{\\text{old}} - \\alpha \\cdot L'(w_{\\text{old}})$$\n\n- $L'(w)$ là đạo hàm (gradient) của loss — cho biết dốc theo hướng nào\n- $\\alpha$ (learning rate) là bước đi nhỏ\n- Dấu trừ: đi *ngược chiều* dốc để tìm cực tiểu\n\nĐây chính là ý nghĩa của \"đi ngược dốc để giảm loss\": đạo hàm dương → giảm w; đạo hàm âm → tăng w; đạo hàm ≈ 0 → đã đến minimum."
+    },
+    {
+      "type": "formula",
+      "title": "Bước cập nhật Gradient Descent",
+      "latex": "w \\leftarrow w - \\alpha \\cdot \\frac{dL}{dw}",
+      "reading": "đọc là: trọng số mới bằng trọng số cũ trừ learning rate nhân với đạo hàm của loss theo w. Đi ngược dốc một bước nhỏ.",
+      "symbols": [
+        { "sym": "w", "meaning": "trọng số (weight) của model cần tối ưu" },
+        { "sym": "\\alpha", "meaning": "learning rate — bước đi nhỏ (thường 0.001 đến 0.1)" },
+        { "sym": "dL/dw", "meaning": "gradient — đạo hàm của hàm loss theo w" },
+        { "sym": "-\\alpha \\cdot dL/dw", "meaning": "di chuyển ngược chiều dốc (negative gradient)" }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 1: tính đạo hàm bằng quy tắc mũ",
+      "problem": "Tính $f'(x)$ và $f'(3)$ với $f(x) = 4x^3 - 2x^2 + x - 7$.",
+      "steps": [
+        { "text": "Áp dụng quy tắc mũ từng số hạng: $\\frac{d}{dx}[4x^3] = 4 \\cdot 3x^2 = 12x^2$.", "rule": "Power rule: nx^(n-1)" },
+        { "text": "$\\frac{d}{dx}[-2x^2] = -2 \\cdot 2x = -4x$. $\\frac{d}{dx}[x] = 1$. $\\frac{d}{dx}[-7] = 0$.", "rule": "Power rule + hằng số có đạo hàm = 0" },
+        { "text": "Cộng lại: $f'(x) = 12x^2 - 4x + 1$.", "isCommonMistake": false },
+        { "text": "Tại x=3: $f'(3) = 12(9) - 4(3) + 1 = 108 - 12 + 1 = 97$. Slope của đồ thị tại x=3 là 97 (rất dốc).", "isCommonMistake": true, "rule": "Đừng nhầm f'(3) với f(3) — đạo hàm tại 3 là slope, không phải giá trị hàm!" }
+      ],
+      "result": "$f'(x) = 12x^2 - 4x + 1$; $f'(3) = 97$"
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 2: gradient descent thủ công một bước",
+      "problem": "Hàm loss $L(w) = w^2 - 4w + 5$. Xuất phát từ $w_0 = 0$, learning rate $\\alpha = 0.1$. Tính $w$ sau một bước gradient descent.",
+      "steps": [
+        { "text": "Tính đạo hàm: $L'(w) = 2w - 4$.", "rule": "Power rule + quy tắc tổng" },
+        { "text": "Tại $w_0 = 0$: $L'(0) = 2(0) - 4 = -4$. Gradient âm → loss đang dốc xuống khi w tăng → cần tăng w.", "rule": "Gradient âm → đi theo chiều tăng w để giảm loss" },
+        { "text": "$w_1 = w_0 - \\alpha \\cdot L'(w_0) = 0 - 0.1 \\cdot (-4) = 0 + 0.4 = 0.4$.", "rule": "Bước cập nhật gradient descent" },
+        { "text": "Sai lầm hay gặp: cộng gradient thay vì trừ. Phải TRỪ gradient (đi ngược dốc). $w_1 = w_0 - \\alpha \\cdot L'$ chứ không phải $+$.", "isCommonMistake": true, "rule": "Gradient descent = đi NGƯỢC dốc = TRỪ gradient" },
+        { "text": "Kiểm tra: minimum của L là tại $L'(w^*)=0$ → $2w^*-4=0$ → $w^*=2$. Ta đang tiến đúng hướng từ 0 lên 0.4 (về phía 2)." }
+      ],
+      "result": "$w_1 = 0.4$. Sau một bước, trọng số dịch chuyển từ 0 về phía minimum (w=2)."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp trong gradient descent:** Nhầm dấu — cộng gradient thay vì trừ. Quy tắc: $w \\leftarrow w - \\alpha \\cdot f'(w)$ (dấu TRỪ). Nếu dùng dấu cộng, model sẽ leo dốc lên thay vì xuống, loss tăng thay vì giảm. Đây là bug kinh điển khi implement từ đầu."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Đạo hàm f'(x) = slope của tiếp tuyến tại x = tốc độ thay đổi tức thời.",
+        "Power rule: $\\frac{d}{dx}[x^n] = nx^{n-1}$ — quy tắc mũ đơn giản nhất.",
+        "f'(x) > 0: hàm tăng; f'(x) < 0: hàm giảm; f'(x) = 0: cực trị.",
+        "Gradient descent: $w \\leftarrow w - \\alpha \\cdot f'(w)$ — đi ngược dốc để giảm loss.",
+        "Dấu MINUS trong gradient descent quan trọng — đi NGƯỢC chiều gradient."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-deriv-def",
+      "type": "definition",
+      "front": "Đạo hàm $f'(x)$ có ý nghĩa hình học là gì?",
+      "back": "Slope của đường thẳng tiếp xúc đồ thị f tại điểm x — tức là tốc độ thay đổi tức thời của f tại x."
+    },
+    {
+      "id": "fc-deriv-power",
+      "type": "formula",
+      "front": "Quy tắc mũ (power rule): $\\frac{d}{dx}[x^n] = ?$",
+      "back": "$n \\cdot x^{n-1}$ — kéo số mũ xuống thành hệ số, giảm số mũ đi 1. Ví dụ: $\\frac{d}{dx}[x^3] = 3x^2$."
+    },
+    {
+      "id": "fc-deriv-sign",
+      "type": "concept",
+      "front": "f'(x) > 0, f'(x) < 0, f'(x) = 0 có nghĩa gì?",
+      "back": "> 0: hàm đang tăng (dốc lên). < 0: hàm đang giảm (dốc xuống). = 0: điểm cực trị (đỉnh hoặc đáy) — gradient descent tìm điểm này."
+    },
+    {
+      "id": "fc-deriv-gd",
+      "type": "formula",
+      "front": "Công thức cập nhật Gradient Descent?",
+      "back": "$w \\leftarrow w - \\alpha \\cdot \\frac{dL}{dw}$. Dấu MINUS: đi ngược chiều gradient. $\\alpha$ là learning rate."
+    },
+    {
+      "id": "fc-deriv-limit",
+      "type": "formula",
+      "front": "Định nghĩa đạo hàm qua giới hạn?",
+      "back": "$f'(x) = \\lim_{h\\to 0}\\frac{f(x+h)-f(x)}{h}$ — slope của dây cung khi khoảng cách h co về 0."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-deriv-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Tính đạo hàm $f'(x)$ với $f(x) = 5x^4 - 3x^2 + 2x - 1$.",
+      "hints": [
+        "Áp dụng power rule cho từng số hạng.",
+        "Đạo hàm của hằng số = 0."
+      ],
+      "solutionSteps": [
+        { "text": "$\\frac{d}{dx}[5x^4] = 5 \\cdot 4x^3 = 20x^3$.", "rule": "Power rule" },
+        { "text": "$\\frac{d}{dx}[-3x^2] = -3 \\cdot 2x = -6x$. $\\frac{d}{dx}[2x] = 2$. $\\frac{d}{dx}[-1] = 0$.", "rule": "Power rule + hằng số" },
+        { "text": "$f'(x) = 20x^3 - 6x + 2$.", "isCommonMistake": false },
+        { "text": "Sai lầm hay gặp: $\\frac{d}{dx}[5x^4] = 5x^3$ (quên nhân số mũ 4 xuống).", "isCommonMistake": true, "rule": "Power rule: NHÂN số mũ vào trước, rồi giảm số mũ" }
+      ],
+      "answer": "$f'(x) = 20x^3 - 6x + 2$",
+      "commonMistake": "Quên nhân hệ số số mũ: viết 5x³ thay vì 20x³.",
+      "relatedFlashcard": "fc-deriv-power"
+    },
+    {
+      "id": "ex-deriv-apply-1",
+      "difficulty": "apply",
+      "prompt": "Tìm điểm cực trị của $f(x) = x^2 - 6x + 9$ bằng cách đặt đạo hàm = 0.",
+      "hints": [
+        "Tính f'(x) trước.",
+        "Giải phương trình f'(x) = 0.",
+        "Kiểm tra: f'' (đạo hàm cấp 2) > 0 → cực tiểu."
+      ],
+      "solutionSteps": [
+        { "text": "$f'(x) = 2x - 6$.", "rule": "Power rule" },
+        { "text": "Đặt $f'(x) = 0$: $2x - 6 = 0 \\Rightarrow x = 3$.", "rule": "Cực trị tại điểm f'=0" },
+        { "text": "f''(x) = 2 > 0 → đây là cực tiểu (parabola hướng lên).", "isCommonMistake": false },
+        { "text": "Giá trị cực tiểu: f(3) = 9 − 18 + 9 = 0. Điểm cực tiểu: (3, 0).", "isCommonMistake": false },
+        { "text": "Sai lầm hay gặp: sau khi tìm x=3, không kiểm tra xem đó là cực tiểu hay cực đại.", "isCommonMistake": true, "rule": "Luôn kiểm tra f'' hoặc bảng dấu để xác định loại cực trị" }
+      ],
+      "answer": "Cực tiểu tại x=3, f(3)=0.",
+      "commonMistake": "Không kiểm tra đó là cực tiểu hay cực đại — f'(x)=0 chỉ là điều kiện cần.",
+      "relatedFlashcard": "fc-deriv-sign"
+    },
+    {
+      "id": "ex-deriv-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Hàm loss $L(w) = (w - 3)^2 + 2$. Thực hiện 3 bước gradient descent từ $w_0 = 0$, learning rate $\\alpha = 0.5$. Tính $w_1, w_2, w_3$ và cho biết model đang hội tụ về đâu?",
+      "hints": [
+        "Khai triển rồi tính L'(w), hoặc nhận ra $L(w) = (w-3)^2 + 2$ là parabola.",
+        "Công thức chain rule đơn giản: nếu $L = (u)^2$ và $u = w-3$ thì $L' = 2(w-3) \\cdot 1 = 2w-6$.",
+        "Áp dụng $w_{n+1} = w_n - 0.5 \\cdot L'(w_n)$ lặp 3 lần."
+      ],
+      "solutionSteps": [
+        { "text": "$L'(w) = 2(w-3)$.", "rule": "Chain rule cơ bản: đạo hàm (w-3)² = 2(w-3)·1" },
+        { "text": "Bước 1: $L'(0) = 2(0-3) = -6$. $w_1 = 0 - 0.5(-6) = 0 + 3 = 3$.", "rule": "Gradient descent update" },
+        { "text": "Bước 2: $L'(3) = 2(3-3) = 0$. $w_2 = 3 - 0.5(0) = 3$.", "isCommonMistake": false },
+        { "text": "Bước 3: tương tự, $w_3 = 3$. Model đã hội tụ sau đúng 1 bước!", "isCommonMistake": false },
+        { "text": "Sai lầm hay gặp với learning rate: nếu $\\alpha = 1.5$ (quá lớn), $w_1 = 0 - 1.5(-6) = 9$ (vượt qua minimum). Model không hội tụ mà dao động.", "isCommonMistake": true, "rule": "Learning rate quá lớn → không hội tụ. Quá nhỏ → hội tụ chậm. Cần cân bằng." }
+      ],
+      "answer": "$w_1 = 3, w_2 = 3, w_3 = 3$. Model hội tụ về $w^* = 3$ (minimum của L). Với learning rate vừa phải, hội tụ nhanh.",
+      "commonMistake": "Chọn learning rate quá lớn hoặc nhầm dấu (dùng + thay vì −) dẫn đến phân kỳ.",
+      "relatedFlashcard": "fc-deriv-gd"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-deriv-1",
+      "type": "mcq",
+      "question": "$\\frac{d}{dx}[3x^4 - 2x + 5]$ bằng bao nhiêu?",
+      "options": [
+        "$12x^3 - 2$",
+        "$12x^3 - 2x$",
+        "$3x^3 - 2$",
+        "$12x^4 - 2$"
+      ],
+      "correct": 0,
+      "explanation": "$\\frac{d}{dx}[3x^4] = 12x^3$; $\\frac{d}{dx}[-2x] = -2$; $\\frac{d}{dx}[5] = 0$. Cộng lại: $12x^3 - 2$."
+    },
+    {
+      "id": "q-deriv-2",
+      "type": "mcq",
+      "question": "Trong gradient descent, tại sao ta TRỪ gradient thay vì cộng?",
+      "options": [
+        "Vì gradient luôn âm",
+        "Vì ta muốn đi về phía minimum — ngược chiều dốc lên",
+        "Vì learning rate đã âm sẵn",
+        "Để đảm bảo trọng số không vượt quá 1"
+      ],
+      "correct": 1,
+      "explanation": "Gradient chỉ hướng tăng nhanh nhất của hàm. Để giảm loss, ta đi NGƯỢC hướng đó (negative gradient). Nên cập nhật: $w \\leftarrow w - \\alpha \\cdot \\nabla L$."
+    },
+    {
+      "id": "q-deriv-3",
+      "type": "mcq",
+      "question": "Nếu $f'(a) = 0$ và $f''(a) > 0$, điểm $x = a$ là gì?",
+      "options": [
+        "Cực đại (local maximum)",
+        "Điểm uốn (inflection point)",
+        "Cực tiểu (local minimum)",
+        "Điểm gián đoạn"
+      ],
+      "correct": 2,
+      "explanation": "$f'(a)=0$ là điều kiện cần của cực trị. $f''(a) > 0$ → hàm lõm lên → cực tiểu. Đây là điểm gradient descent đang cố tìm."
+    }
+  ]
+}

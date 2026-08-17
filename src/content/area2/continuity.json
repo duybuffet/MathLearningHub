@@ -1,0 +1,228 @@
+{
+  "id": "area2_continuity",
+  "title": "Tính liên tục (Continuity)",
+  "area": 2,
+  "unit": "a2u1",
+  "order": 2,
+  "icon": "curve",
+  "tagline": "Hàm liên tục là hàm bạn có thể vẽ mà không nhấc bút — không có bước nhảy, không có lỗ hổng.",
+  "readTime": "~12 min",
+  "prerequisites": ["area2_limits"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Tính liên tục (continuity) là khái niệm mô tả những hàm số \"mượt mà\" — không có bước nhảy đột ngột, không có lỗ hổng, không có chỗ phá vỡ đột biến. Kiểm tra nhanh: **nếu bạn có thể vẽ đồ thị từ đầu đến cuối mà không nhấc bút khỏi giấy, hàm đó liên tục.**\n\nVì sao dân CS cần quan tâm? Hàm số liên tục an toàn hơn để xử lý số học: không bị bùng nổ đột ngột, không bị sai số lan tràn bất ngờ. Trong học máy (ML), gradient descent (thuật toán tối ưu) chỉ hoạt động tốt khi hàm loss đủ mượt. Trong đồ họa máy tính, nội suy (interpolation) giữa hai điểm giả định tính liên tục."
+    },
+    {
+      "type": "analogy",
+      "title": "\"Vẽ không nhấc bút\" — kiểm tra trực quan",
+      "content": "Hãy so sánh hai hàm sau:\n\n**Hàm liên tục:** Nhiệt độ ngoài trời theo giờ — tuy thay đổi nhưng thay đổi mượt mà, không có bước nhảy.\n\n**Hàm không liên tục:** Giá cước taxi theo km — từ 0–5 km giá A, từ 5 km trở lên giá B (bước nhảy tại x=5).\n\nTrong lập trình, bạn hay gặp hàm không liên tục mà không nhận ra: hàm `floor()`, `ceil()`, `if-else` rẽ nhánh cứng, ngưỡng (threshold) trong classifier. Những hàm này khó tối ưu hơn bằng gradient-based methods."
+    },
+    {
+      "type": "formula",
+      "title": "Ba điều kiện để hàm liên tục tại điểm c",
+      "latex": "f \\text{ continuous at } c \\iff \\begin{cases} (1)\\; f(c) \\text{ defined} \\\\ (2)\\; \\lim_{x\\to c} f(x) \\text{ exists} \\\\ (3)\\; \\lim_{x\\to c} f(x) = f(c) \\end{cases}",
+      "reading": "đọc là: f liên tục tại c khi và chỉ khi: (1) f(c) có giá trị, (2) giới hạn tại c tồn tại, (3) giới hạn bằng giá trị hàm tại c.",
+      "symbols": [
+        { "sym": "f(c)", "meaning": "giá trị của hàm tại điểm c — phải xác định (không có lỗ hổng)" },
+        { "sym": "\\lim_{x\\to c} f(x)", "meaning": "giới hạn của hàm khi x tiến về c — phải tồn tại" },
+        { "sym": "\\lim = f(c)", "meaning": "điều kiện quyết định: giới hạn phải khớp với giá trị hàm" }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Ba loại gián đoạn phổ biến",
+      "content": "Hàm bị **gián đoạn (discontinuous)** khi một trong ba điều kiện trên vi phạm:\n\n1. **Gián đoạn điểm (removable)**: Hàm có lỗ hổng tại c (không xác định tại c), nhưng giới hạn tồn tại. Ví dụ: $\\frac{x^2-1}{x-1}$ tại x=1. Có thể \"vá\" bằng cách định nghĩa lại f(c).\n\n2. **Gián đoạn nhảy (jump)**: Hàm xác định ở cả hai phía nhưng có bước nhảy — giới hạn từ trái ≠ giới hạn từ phải. Ví dụ: hàm dấu (sign function), `floor()`, `ceil()`.\n\n3. **Gián đoạn vô cực**: Hàm → ±∞ tại một điểm, ví dụ $1/x$ tại x=0.\n\nTrong thực tế CS, gián đoạn nhảy là loại phổ biến nhất và gây vấn đề nhất cho gradient descent."
+    },
+    {
+      "type": "graph",
+      "title": "Hàm liên tục vs hàm có bước nhảy",
+      "functions": [
+        { "fn": "x^2 / 4", "color": "#7fded1" },
+        { "fn": "sign(x)", "color": "#ff9ecb" }
+      ],
+      "xDomain": [-3, 3],
+      "yDomain": [-2, 3],
+      "caption": "Xanh: x²/4 — liên tục, mượt mà. Hồng: hàm dấu (sign function) — bước nhảy tại x=0. Hàm dấu là ví dụ điển hình của activation function cứng (hard threshold) trong ML sơ khai — người ta phải dùng sigmoid hay ReLU thay thế vì chúng mượt hơn."
+    },
+    {
+      "type": "explanation",
+      "title": "Tính liên tục và ổn định số học trong CS",
+      "content": "Trong tính toán số (numerical computing), tính liên tục quan trọng vì:\n\n- **Nội suy (interpolation)**: Nếu bạn biết f(a) và f(b), và f liên tục trên [a,b], bạn có thể ước lượng f(c) giữa a và b một cách tin cậy. Không có tính liên tục, nội suy tuyến tính vô nghĩa.\n\n- **Gradient descent**: Thuật toán này cần tính đạo hàm (slope) của hàm loss. Nếu hàm có bước nhảy, đạo hàm không tồn tại tại điểm đó — gradient descent bị kẹt.\n\n- **Định lý giá trị trung gian (Intermediate Value Theorem)**: Nếu f liên tục trên [a,b] và f(a) < 0 < f(b), thì **tồn tại c trong (a,b) sao cho f(c) = 0**. Đây là nền tảng của thuật toán tìm nghiệm nhị phân (binary search for roots)."
+    },
+    {
+      "type": "formula",
+      "title": "Định lý giá trị trung gian (IVT)",
+      "latex": "f \\text{ continuous on } [a,b],\\; f(a) < k < f(b) \\implies \\exists\\, c \\in (a,b): f(c) = k",
+      "reading": "đọc là: nếu f liên tục trên đoạn [a,b] và k là giá trị nằm giữa f(a) và f(b), thì tồn tại ít nhất một điểm c trong (a,b) mà f(c) bằng k.",
+      "symbols": [
+        { "sym": "[a,b]", "meaning": "đoạn kín từ a đến b" },
+        { "sym": "\\exists c", "meaning": "tồn tại ít nhất một c" },
+        { "sym": "k", "meaning": "bất kỳ giá trị nào nằm giữa f(a) và f(b)" }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 1: kiểm tra tính liên tục tại một điểm",
+      "problem": "Kiểm tra hàm $f(x) = \\frac{x^2 - 4}{x - 2}$ có liên tục tại $x = 2$ không?",
+      "steps": [
+        { "text": "Điều kiện 1: f(2) = (4−4)/(2−2) = 0/0 — **không xác định**. Vi phạm điều kiện 1.", "rule": "Kiểm tra f(c) xác định" },
+        { "text": "Tuy nhiên, rút gọn: $\\frac{x^2-4}{x-2} = \\frac{(x-2)(x+2)}{x-2} = x+2$ với x≠2.", "rule": "Phân tích nhân tử để rút gọn" },
+        { "text": "$\\lim_{x\\to 2}(x+2) = 4$ — giới hạn tồn tại.", "rule": "Điều kiện 2 thỏa" },
+        { "text": "Nhưng f(2) không xác định → hàm **gián đoạn điểm** tại x=2.", "isCommonMistake": true, "rule": "Gián đoạn điểm (removable): có thể vá bằng cách đặt f(2)=4" }
+      ],
+      "result": "Hàm KHÔNG liên tục tại x=2 (gián đoạn điểm). Nhưng giới hạn tại đó tồn tại và bằng 4."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 2: IVT để tìm nghiệm",
+      "problem": "Hàm $f(x) = x^3 - x - 2$ có nghiệm nào trong khoảng (1, 2) không? Dùng IVT để lý luận.",
+      "steps": [
+        { "text": "f(1) = 1 − 1 − 2 = −2 < 0. f(2) = 8 − 2 − 2 = 4 > 0.", "rule": "Tính f tại hai đầu mút" },
+        { "text": "f là đa thức → liên tục trên mọi đoạn, kể cả [1, 2].", "rule": "Đa thức luôn liên tục" },
+        { "text": "Vì f(1) < 0 < f(2) và f liên tục → theo IVT, tồn tại c ∈ (1,2) sao cho f(c) = 0.", "rule": "Định lý giá trị trung gian" },
+        { "text": "Sai lầm hay gặp: nghĩ cần phải tìm chính xác c. IVT chỉ đảm bảo sự *tồn tại* — tìm c chính xác cần phương pháp khác (ví dụ: binary search).", "isCommonMistake": true, "rule": "IVT = định lý tồn tại, không phải phương pháp tìm nghiệm" }
+      ],
+      "result": "Có — tồn tại ít nhất một nghiệm trong (1, 2). (Nghiệm thực sự ≈ 1.5214)"
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp:** Giới hạn tồn tại KHÔNG đủ để kết luận hàm liên tục. Bạn cần kiểm tra cả 3 điều kiện: (1) f(c) xác định, (2) giới hạn tồn tại, (3) chúng bằng nhau. Ví dụ: $f(x) = x+1$ nhưng $f(2) = 5$ (định nghĩa riêng) — giới hạn = 3 nhưng f(2) = 5 → gián đoạn dù giới hạn tồn tại."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Hàm liên tục tại c ⟺ f(c) xác định, giới hạn tồn tại, và giới hạn = f(c).",
+        "Kiểm tra trực quan: vẽ đồ thị không nhấc bút → liên tục.",
+        "Ba loại gián đoạn: điểm (removable), nhảy (jump), vô cực.",
+        "Định lý IVT: hàm liên tục đảm bảo mọi giá trị trung gian đều đạt được — nền tảng của binary search nghiệm.",
+        "Gradient descent cần hàm loss đủ mượt (liên tục và có đạo hàm) — đây là lý do ReLU thắng hard threshold."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-cont-def",
+      "type": "definition",
+      "front": "Ba điều kiện để hàm f liên tục tại c?",
+      "back": "(1) f(c) xác định. (2) $\\lim_{x\\to c} f(x)$ tồn tại. (3) $\\lim_{x\\to c} f(x) = f(c)$. Phải thỏa cả ba."
+    },
+    {
+      "id": "fc-cont-intuition",
+      "type": "concept",
+      "front": "Cách kiểm tra trực quan hàm liên tục là gì?",
+      "back": "\"Vẽ đồ thị từ đầu đến cuối mà không nhấc bút\" — không có bước nhảy, không có lỗ hổng, không có điểm đứt."
+    },
+    {
+      "id": "fc-cont-ivt",
+      "type": "definition",
+      "front": "Định lý giá trị trung gian (IVT) phát biểu gì?",
+      "back": "Nếu f liên tục trên [a,b] và f(a) < k < f(b), thì tồn tại c ∈ (a,b) sao cho f(c) = k. Đặc biệt: nếu f(a) và f(b) khác dấu, tồn tại nghiệm trong (a,b)."
+    },
+    {
+      "id": "fc-cont-types",
+      "type": "concept",
+      "front": "Ba loại gián đoạn phổ biến?",
+      "back": "(1) Điểm (removable): lỗ hổng tại c, giới hạn có. (2) Nhảy (jump): bước nhảy đột ngột, $\\lim$ từ trái ≠ từ phải. (3) Vô cực: hàm → ±∞ tại c."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-cont-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Hàm $f(x) = \\frac{1}{x-3}$ có liên tục tại $x = 3$ không? Tại sao?",
+      "hints": [
+        "Kiểm tra điều kiện 1: f(3) có xác định không?",
+        "Tử số = 1 (không đổi), mẫu số = 0 khi x = 3."
+      ],
+      "solutionSteps": [
+        { "text": "f(3) = 1/(3−3) = 1/0 — **không xác định** (chia cho 0).", "rule": "Điều kiện 1 vi phạm" },
+        { "text": "Khi x→3⁺, f(x)→+∞; khi x→3⁻, f(x)→−∞. Giới hạn không tồn tại.", "isCommonMistake": false },
+        { "text": "Sai lầm hay gặp: nghĩ giới hạn bằng ∞ và hàm 'tiếp tục được'. Vô cực không phải giá trị thực — giới hạn không tồn tại.", "isCommonMistake": true, "rule": "∞ không phải số thực — giới hạn = ∞ nghĩa là giới hạn KHÔNG tồn tại" }
+      ],
+      "answer": "Không liên tục tại x=3 — gián đoạn vô cực. f(3) không xác định và giới hạn không tồn tại.",
+      "commonMistake": "Nói giới hạn = ∞ nên hàm 'tiếp tục'. Vô cực không phải giá trị giới hạn hữu hạn.",
+      "relatedFlashcard": "fc-cont-def"
+    },
+    {
+      "id": "ex-cont-apply-1",
+      "difficulty": "apply",
+      "prompt": "Kiểm tra hàm $g(x) = \\begin{cases} x^2 & x < 1 \\\\ 2 & x = 1 \\\\ x + 1 & x > 1 \\end{cases}$ có liên tục tại $x = 1$ không?",
+      "hints": [
+        "Kiểm tra điều kiện 1: g(1) = ?",
+        "Tính giới hạn từ phía trái (x < 1): dùng nhánh x².",
+        "Tính giới hạn từ phía phải (x > 1): dùng nhánh x+1."
+      ],
+      "solutionSteps": [
+        { "text": "Điều kiện 1: g(1) = 2 ✓ (xác định).", "rule": "Điều kiện 1" },
+        { "text": "Giới hạn trái: $\\lim_{x\\to 1^-} x^2 = 1$. Giới hạn phải: $\\lim_{x\\to 1^+}(x+1) = 2$.", "rule": "Tính giới hạn một phía" },
+        { "text": "Giới hạn trái (1) ≠ giới hạn phải (2) → giới hạn hai phía KHÔNG tồn tại.", "isCommonMistake": false },
+        { "text": "Điều kiện 2 vi phạm → hàm KHÔNG liên tục tại x=1 (gián đoạn nhảy).", "isCommonMistake": true, "rule": "Giới hạn hai phía phải bằng nhau mới tồn tại — không thể tồn tại khi hai phía khác nhau" }
+      ],
+      "answer": "Không liên tục — gián đoạn nhảy tại x=1 (giới hạn từ trái = 1 ≠ giới hạn từ phải = 2).",
+      "commonMistake": "Thấy g(1)=2 xác định nên kết luận liên tục — cần kiểm tra giới hạn từ cả hai phía.",
+      "relatedFlashcard": "fc-cont-types"
+    },
+    {
+      "id": "ex-cont-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Trong gradient descent, tại sao hàm activation ReLU $f(x) = \\max(0, x)$ được dùng thay cho hàm dấu $\\text{sign}(x)$ (= −1 nếu x<0, 1 nếu x>0)? Phân tích từ góc độ tính liên tục và đạo hàm.",
+      "hints": [
+        "Kiểm tra hàm dấu: có liên tục tại x=0 không? Giới hạn từ trái và phải là gì?",
+        "Kiểm tra ReLU: có liên tục tại x=0 không?",
+        "Gradient descent cần tính đạo hàm (slope). Đạo hàm tồn tại đòi hỏi gì?"
+      ],
+      "solutionSteps": [
+        { "text": "Hàm dấu tại x=0: giới hạn trái → −1, giới hạn phải → 1. Gián đoạn nhảy → đạo hàm không tồn tại tại x=0.", "rule": "Gián đoạn nhảy = không có đạo hàm" },
+        { "text": "ReLU tại x=0: giới hạn trái = 0, giới hạn phải = 0, f(0) = 0. Cả 3 điều kiện liên tục thỏa → ReLU liên tục tại x=0.", "rule": "Kiểm tra 3 điều kiện liên tục" },
+        { "text": "Gradient descent cập nhật trọng số theo: $w \\leftarrow w - \\alpha \\cdot f'(w)$. Nếu f' không tồn tại, thuật toán không biết di chuyển theo hướng nào.", "isCommonMistake": false },
+        { "text": "Sai lầm hay gặp: nghĩ ReLU mượt hoàn toàn. Thực ra ReLU không khả vi tại x=0 (bẻ góc), nhưng liên tục → có thể dùng subgradient. Hàm dấu thì không có subgradient hữu dụng.", "isCommonMistake": true, "rule": "Liên tục không đồng nghĩa khả vi — nhưng không liên tục chắc chắn không khả vi" }
+      ],
+      "answer": "Hàm dấu bị gián đoạn nhảy tại x=0 → đạo hàm không tồn tại → gradient descent không hoạt động. ReLU liên tục tại mọi điểm → có thể tính gradient gần như ở khắp nơi → phù hợp cho backpropagation.",
+      "commonMistake": "Nghĩ điều quan trọng là 'hàm có giá trị tại 0' — điều quan trọng thực sự là hàm có giới hạn bằng giá trị tại 0 (liên tục) để đạo hàm tồn tại.",
+      "relatedFlashcard": "fc-cont-ivt"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-cont-1",
+      "type": "mcq",
+      "question": "Hàm $f(x) = \\frac{x^2 - 9}{x - 3}$ tại $x = 3$ có loại gián đoạn nào?",
+      "options": [
+        "Gián đoạn nhảy (jump)",
+        "Gián đoạn vô cực",
+        "Gián đoạn điểm (removable) — có thể vá",
+        "Hàm liên tục tại x=3"
+      ],
+      "correct": 2,
+      "explanation": "Rút gọn: $(x^2-9)/(x-3) = x+3$ với x≠3. Giới hạn khi x→3 là 6. Chỉ cần định nghĩa lại f(3)=6 là hàm liên tục → gián đoạn điểm (removable)."
+    },
+    {
+      "id": "q-cont-2",
+      "type": "mcq",
+      "question": "Hàm $g(x) = \\lfloor x \\rfloor$ (floor — làm tròn xuống) có liên tục tại $x = 2$ không?",
+      "options": [
+        "Có, vì g(2) = 2 xác định",
+        "Không, vì g(2) không xác định",
+        "Không, vì giới hạn từ trái (→1.999...) ≠ giới hạn từ phải (= 2)",
+        "Có, vì giới hạn từ phải = g(2) = 2"
+      ],
+      "correct": 2,
+      "explanation": "Khi x→2⁻ (từ trái, ví dụ 1.9, 1.99), floor(x)=1. Khi x→2⁺ hoặc x=2, floor(x)=2. Giới hạn từ trái (1) ≠ giới hạn từ phải (2) → gián đoạn nhảy tại mọi số nguyên."
+    },
+    {
+      "id": "q-cont-3",
+      "type": "mcq",
+      "question": "Định lý IVT đảm bảo điều gì cho $f(x) = x^3 - 2$ trên đoạn $[1, 2]$?",
+      "options": [
+        "f có đúng một nghiệm trong (1, 2)",
+        "f đạt giá trị 0 tại ít nhất một điểm trong (1, 2)",
+        "f liên tục nên không có nghiệm",
+        "f(1) và f(2) cùng dấu nên không có nghiệm trong (1,2)"
+      ],
+      "correct": 1,
+      "explanation": "f(1) = −1 < 0 và f(2) = 6 > 0. f là đa thức nên liên tục. IVT đảm bảo tồn tại c ∈ (1,2) với f(c) = 0. (IVT chỉ đảm bảo sự tồn tại, không đảm bảo duy nhất.)"
+    }
+  ]
+}

@@ -1,0 +1,217 @@
+{
+  "id": "area4_recurrences",
+  "title": "Quan hệ đệ quy (Recurrences)",
+  "area": 4,
+  "unit": "a4u2",
+  "order": 5,
+  "icon": "logic",
+  "tagline": "T(n) = 2T(n/2) + n — một công thức ngắn gọn giải thích vì sao Merge Sort là O(n log n) và Master Theorem là dao Swiss Army của CS.",
+  "readTime": "~18 min",
+  "prerequisites": ["area4_induction"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Quan hệ đệ quy (recurrence relation) là phương trình mô tả một hàm theo giá trị nhỏ hơn của chính nó. Trong CS, đây là công cụ chính để **phân tích độ phức tạp của thuật toán đệ quy**.\n\nKhi bạn viết Merge Sort:\n```python\ndef merge_sort(arr):          # T(n)\n    if len(arr) <= 1: return arr   # O(1)\n    mid = len(arr) // 2\n    left = merge_sort(arr[:mid])  # T(n/2)\n    right = merge_sort(arr[mid:]) # T(n/2)\n    return merge(left, right)      # O(n)\n```\n\nHàm thời gian: $T(n) = 2T(n/2) + n$. Giải recurrence này → $T(n) = O(n \\log n)$.\n\nĐây là cầu nối giữa code đệ quy và phân tích Big-O."
+    },
+    {
+      "type": "analogy",
+      "title": "Recurrence như đệ quy tài chính — lãi kép",
+      "content": "Hãy nghĩ recurrence như **tài khoản lãi kép**: số tiền hôm nay phụ thuộc vào số tiền hôm qua cộng lãi.\n\n$T(n) = 2T(n/2) + n$ giống như:\n- Bạn có một vấn đề cỡ n\n- Chia thành 2 vấn đề con cỡ n/2 (mỗi cái tốn $T(n/2)$)\n- Sau khi giải xong, gộp lại tốn thêm n bước\n\nCây đệ quy giúp ta **visualize** quá trình này: mỗi cấp cây tốn n công việc, có $\\log_2 n$ cấp → tổng $n \\log n$.\n\nĐây cũng là intuition của **chia để trị (divide & conquer)**: chia nhỏ, giải, gộp lại."
+    },
+    {
+      "type": "diagram",
+      "title": "Cây đệ quy của T(n) = 2T(n/2) + n",
+      "mermaid": "graph TD\n    T[\"T(n) — chi phí merge: n\"] --> TL[\"T(n/2) — merge: n/2\"]\n    T --> TR[\"T(n/2) — merge: n/2\"]\n    TL --> TLL[\"T(n/4) — merge: n/4\"]\n    TL --> TLR[\"T(n/4) — merge: n/4\"]\n    TR --> TRL[\"T(n/4) — merge: n/4\"]\n    TR --> TRR[\"T(n/4) — merge: n/4\"]\n    TLL --> B1[\"...\"]\n    TLR --> B2[\"...\"]\n    TRL --> B3[\"...\"]\n    TRR --> B4[\"Base: T(1)=O(1)\"]",
+      "caption": "Cây đệ quy: mỗi cấp có tổng công việc = n (n ở cấp 0, n/2+n/2=n ở cấp 1, ...). Số cấp = log₂n. Tổng = n × log₂n = O(n log n)."
+    },
+    {
+      "type": "formula",
+      "title": "Master Theorem — giải nhanh recurrences dạng chia để trị",
+      "latex": "T(n) = aT\\!\\left(\\frac{n}{b}\\right) + f(n) \\quad\\Rightarrow\\quad T(n) = \\begin{cases} \\Theta(n^{\\log_b a}) & f(n) = O(n^{\\log_b a - \\varepsilon}) \\\\ \\Theta(n^{\\log_b a} \\log n) & f(n) = \\Theta(n^{\\log_b a}) \\\\ \\Theta(f(n)) & f(n) = \\Omega(n^{\\log_b a + \\varepsilon}) \\end{cases}",
+      "reading": "đọc là: với T(n) = aT(n/b) + f(n), so sánh f(n) với n^(log_b a): nếu f nhỏ hơn → bị chi phối bởi lá cây; nếu bằng → nhân thêm log n; nếu f lớn hơn → chi phí chính ở gốc.",
+      "symbols": [
+        { "sym": "a", "meaning": "số bài toán con (số nhánh chia ra)" },
+        { "sym": "b", "meaning": "hệ số thu nhỏ (chia n cho b)" },
+        { "sym": "f(n)", "meaning": "chi phí công việc tại mỗi nút (không tính đệ quy)" },
+        { "sym": "n^{\\log_b a}", "meaning": "\"watershed\" — ngưỡng so sánh giữa chi phí đệ quy và gộp" }
+      ],
+      "caption": "Master Theorem cho phép đọc ngay Big-O từ recurrence mà không cần giải từng bước."
+    },
+    {
+      "type": "explanation",
+      "title": "Áp dụng Master Theorem — bảng tra nhanh",
+      "content": "| Thuật toán | Recurrence | a, b, f(n) | $n^{\\log_b a}$ | Kết quả |\n|------------|------------|------------|----------------|----------|\n| Merge Sort | $T(n)=2T(n/2)+n$ | a=2,b=2,f=n | $n^1=n$ | Case 2: $O(n\\log n)$ |\n| Binary Search | $T(n)=T(n/2)+1$ | a=1,b=2,f=1 | $n^0=1$ | Case 2: $O(\\log n)$ |\n| Strassen Matrix | $T(n)=7T(n/2)+n^2$ | a=7,b=2,f=n² | $n^{\\log_2 7}\\approx n^{2.81}$ | Case 1: $O(n^{2.81})$ |\n| Linear scan | $T(n)=T(n-1)+1$ | (không dạng divide) | — | $O(n)$ bằng telescoping |\n\n**Case 2 (f=n^(log_b a)) là phổ biến nhất** — khi chi phí gộp và chi phí đệ quy \"cân bằng\" → thêm log n vào."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: giải T(n) = 2T(n/2) + n (Merge Sort)",
+      "problem": "Giải recurrence $T(n) = 2T(n/2) + n$ với $T(1) = 1$.",
+      "steps": [
+        { "text": "Nhận dạng dạng Master Theorem: a=2, b=2, f(n)=n.", "rule": "So khớp với T(n) = aT(n/b) + f(n)" },
+        { "text": "Tính ngưỡng: $n^{\\log_b a} = n^{\\log_2 2} = n^1 = n$.", "rule": "Tính n^(log_b a)" },
+        { "text": "So sánh f(n)=n với ngưỡng n^1=n: chúng bằng nhau → Case 2.", "isCommonMistake": true, "rule": "Phải so sánh chính xác — lỗi hay gặp là nhầm case vì không tính n^(log_b a)" },
+        { "text": "Case 2: $T(n) = \\Theta(n^{\\log_b a} \\log n) = \\Theta(n \\log n)$." }
+      ],
+      "result": "$T(n) = \\Theta(n \\log n)$ — Merge Sort là $O(n \\log n)$."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: giải T(n) = T(n-1) + 1 (vòng lặp tuyến tính)",
+      "problem": "Giải $T(n) = T(n-1) + 1$ với $T(0) = 0$ bằng phương pháp telescoping (khai triển).",
+      "steps": [
+        { "text": "Khai triển: $T(n) = T(n-1) + 1 = (T(n-2)+1)+1 = T(n-2)+2$.", "rule": "Telescoping: thay T(n-1) bằng định nghĩa của nó" },
+        { "text": "Tiếp tục: $T(n) = T(n-k) + k$.", "isCommonMistake": true, "rule": "Phải nhận ra pattern sau vài bước — lỗi hay gặp là khai triển mãi không nhận ra quy luật" },
+        { "text": "Khi $k=n$: $T(n) = T(0) + n = 0 + n = n$." },
+        { "text": "Kiểm tra: một vòng lặp đơn giản duyệt n phần tử chạy trong O(n). ✓" }
+      ],
+      "result": "$T(n) = O(n)$ — mỗi bước tốn O(1), n bước → tổng O(n)."
+    },
+    {
+      "type": "formula",
+      "title": "Phương pháp telescoping (khai triển)",
+      "latex": "T(n) = T(n-1) + f(n) \\implies T(n) = T(0) + \\sum_{i=1}^{n} f(i)",
+      "reading": "đọc là: khai triển đệ quy T(n) = T(n-1) + f(n) cho đến T(0) — tổng tất cả chi phí f(i) từ i=1 đến n.",
+      "symbols": [
+        { "sym": "f(i)", "meaning": "chi phí tại bước thứ i (phần không đệ quy)" },
+        { "sym": "\\sum_{i=1}^{n} f(i)", "meaning": "tổng chi phí qua tất cả các bước" }
+      ],
+      "caption": "Telescoping dùng khi recurrence có dạng T(n) = T(n-c) + f(n) — bài toán nhỏ lại theo bước cố định, không phải chia đôi."
+    },
+    {
+      "type": "explanation",
+      "title": "Recurrence trong thực tế — Fibonacci và DP",
+      "content": "**Fibonacci** là recurrence cổ điển: $F(n) = F(n-1) + F(n-2)$, $F(0)=0$, $F(1)=1$.\n\nĐệ quy ngây thơ: $T(n) = T(n-1) + T(n-2) + O(1)$ → giải gần như $T(n) = O(\\phi^n)$ với $\\phi \\approx 1.618$ (golden ratio) — **exponential!**\n\n```python\n# Ngây thơ: O(φ^n) — rất chậm\ndef fib_slow(n): return fib_slow(n-1) + fib_slow(n-2)\n\n# DP (memoization): O(n) — giải recurrence bằng bảng\ncache = {}\ndef fib_dp(n):\n    if n in cache: return cache[n]\n    cache[n] = fib_dp(n-1) + fib_dp(n-2)\n    return cache[n]\n```\n\nDP = giải recurrence từ dưới lên, lưu kết quả tránh tính lại. Mỗi bài DP đều có một recurrence ẩn."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp — nhầm case Master Theorem:** Case 1 yêu cầu f(n) THỰC SỰ nhỏ hơn n^(log_b a) theo nghĩa Big-O với ε > 0. f(n) = n^(log_b a) / log n vẫn là Case 2 mở rộng (không phải Case 1). Luôn tính n^(log_b a) trước rồi mới so sánh — đừng đoán mò."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Recurrence T(n) = aT(n/b) + f(n) mô tả độ phức tạp của thuật toán chia để trị.",
+        "Cây đệ quy: mỗi cấp tính tổng chi phí → nhân với số cấp (log_b n) → Big-O.",
+        "Master Theorem: so sánh f(n) với n^(log_b a) → Case 1/2/3 cho kết quả ngay.",
+        "Telescoping: khai triển T(n)=T(n-1)+f(n) → tổng f(i) từ 1 đến n.",
+        "DP = giải recurrence từ dưới lên với memoization — cắt O(2^n) xuống O(n) hoặc O(n²)."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-rec-master",
+      "type": "formula",
+      "front": "Master Theorem: $T(n)=2T(n/2)+n$ thuộc case nào? Kết quả?",
+      "back": "a=2, b=2, f=n, $n^{\\log_2 2}=n$. f(n)=n^1=n → **Case 2**: $T(n)=\\Theta(n\\log n)$. Đây là Merge Sort."
+    },
+    {
+      "id": "fc-rec-tree",
+      "type": "concept",
+      "front": "Cây đệ quy giúp giải recurrence như thế nào?",
+      "back": "Vẽ cây đệ quy → tính **tổng chi phí mỗi cấp** → nhân với **số cấp** ($\\log_b n$). Với T(n)=2T(n/2)+n: mỗi cấp tốn n → tổng n×log₂n."
+    },
+    {
+      "id": "fc-rec-bsearch",
+      "type": "formula",
+      "front": "Binary search có recurrence gì? Kết quả Big-O?",
+      "back": "$T(n)=T(n/2)+O(1)$. a=1, b=2, f=1, $n^{\\log_2 1}=n^0=1$. Case 2: $T(n)=\\Theta(\\log n)$."
+    },
+    {
+      "id": "fc-rec-fib",
+      "type": "concept",
+      "front": "Vì sao Fibonacci đệ quy ngây thơ là O(φ^n) nhưng DP là O(n)?",
+      "back": "Đệ quy ngây thơ tính lại kết quả nhiều lần (exponential subtree). DP memoize: mỗi F(k) chỉ tính **một lần** → O(n) tổng cộng."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-rec-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Xác định a, b, f(n) cho recurrence $T(n) = 3T(n/3) + n$. Tính $n^{\\log_b a}$ và áp dụng Master Theorem.",
+      "hints": [
+        "a = số bài toán con = 3.",
+        "b = hệ số chia = 3.",
+        "f(n) = phần không đệ quy = n.",
+        "Tính log₃(3) = ?"
+      ],
+      "solutionSteps": [
+        { "text": "a=3, b=3, f(n)=n.", "rule": "Nhận dạng các tham số" },
+        { "text": "$n^{\\log_b a} = n^{\\log_3 3} = n^1 = n$.", "rule": "Tính ngưỡng" },
+        { "text": "f(n)=n = $n^1$ → bằng ngưỡng → **Case 2**.", "isCommonMistake": true, "rule": "Phải tính n^(log_b a) trước — lỗi hay gặp là đoán case ngay không tính ngưỡng" },
+        { "text": "Kết quả: $T(n) = \\Theta(n \\log n)$." }
+      ],
+      "answer": "$T(n) = \\Theta(n \\log n)$ — tương tự Merge Sort dù chia thành 3 phần.",
+      "commonMistake": "Nghĩ chia 3 phần sẽ nhanh hơn chia 2 phần — nhưng kết quả cùng O(n log n).",
+      "relatedFlashcard": "fc-rec-master"
+    },
+    {
+      "id": "ex-rec-apply-1",
+      "difficulty": "apply",
+      "prompt": "Giải $T(n) = T(n/2) + 1$ bằng cách khai triển (cây đệ quy). Đây là recurrence của thuật toán nào?",
+      "hints": [
+        "Khai triển: T(n) = T(n/2)+1 = T(n/4)+1+1 = T(n/4)+2.",
+        "Sau k lần: T(n) = T(n/2^k) + k.",
+        "Dừng khi n/2^k = 1, tức k = log₂n."
+      ],
+      "solutionSteps": [
+        { "text": "Khai triển: $T(n) = T(n/2)+1 = T(n/4)+2 = \\cdots = T(n/2^k)+k$.", "rule": "Telescoping: thay T(n/2) bằng định nghĩa" },
+        { "text": "Base case: khi $n/2^k = 1 \\Rightarrow k = \\log_2 n$.", "rule": "Tìm k khi đạt base case" },
+        { "text": "$T(n) = T(1) + \\log_2 n = O(1) + \\log_2 n = O(\\log n)$.", "isCommonMistake": true, "rule": "T(1) = O(1) (base case) — lỗi hay gặp là quên cộng T(1)" }
+      ],
+      "answer": "$T(n) = O(\\log n)$ — đây là recurrence của Binary Search.",
+      "commonMistake": "Khai triển sai: T(n) = T(n-1)+1 thay vì T(n/2)+1 — nhầm cắt tuyến tính với chia đôi.",
+      "relatedFlashcard": "fc-rec-bsearch"
+    },
+    {
+      "id": "ex-rec-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Thuật toán QuickSort (trung bình): $T(n) = 2T(n/2) + n$. Thuật toán tìm max bằng đệ quy chia đôi: $T(n) = 2T(n/2) + O(1)$. (a) Áp dụng Master Theorem cho từng thuật toán. (b) Giải thích tại sao chúng cho kết quả khác nhau dù cùng 2T(n/2).",
+      "hints": [
+        "Cả hai: a=2, b=2, n^(log₂2) = n.",
+        "QuickSort: f(n)=n. Tìm max: f(n)=O(1).",
+        "So sánh f(n) với n: f=n → Case 2; f=1 < n → Case 1."
+      ],
+      "solutionSteps": [
+        { "text": "Cả hai: a=2, b=2, $n^{\\log_2 2} = n$.", "rule": "Tính ngưỡng chung" },
+        { "text": "QuickSort: f(n)=n = ngưỡng → **Case 2**: $T(n) = \\Theta(n \\log n)$.", "rule": "Case 2: f = Θ(n^log_b a)" },
+        { "text": "Tìm max: f(n)=O(1) = O(n^0) nhỏ hơn ngưỡng n với ε=1 → **Case 1**: $T(n) = \\Theta(n^{\\log_2 2}) = \\Theta(n)$.", "isCommonMistake": true, "rule": "Lỗi hay gặp: cùng 2T(n/2) nên nghĩ kết quả giống nhau — thực ra f(n) quyết định case" },
+        { "text": "Lý giải: merge/partition O(n) đủ đắt để cộng thêm log n. Chỉ so sánh O(1) thì chi phí đệ quy lá cây thống trị → O(n) tổng." }
+      ],
+      "answer": "QuickSort O(n log n), tìm max O(n). Phần chi phí ngoài đệ quy f(n) quyết định case — không chỉ cấu trúc chia.",
+      "commonMistake": "Nghĩ cùng 2T(n/2) → cùng kết quả. Sai — f(n) hoàn toàn thay đổi case.",
+      "relatedFlashcard": "fc-rec-master"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-rec-1",
+      "type": "mcq",
+      "question": "Recurrence $T(n) = 2T(n/2) + n$ (Merge Sort) theo Master Theorem cho kết quả?",
+      "options": ["$O(n)$", "$O(n \\log n)$", "$O(n^2)$", "$O(\\log n)$"],
+      "correct": 1,
+      "explanation": "a=2, b=2, f=n, $n^{\\log_2 2}=n$. f(n)=n=ngưỡng → Case 2: $T(n)=\\Theta(n\\log n)$."
+    },
+    {
+      "id": "q-rec-2",
+      "type": "mcq",
+      "question": "Cây đệ quy giúp giải recurrence bằng cách nào?",
+      "options": [
+        "Tính chi phí mỗi nút lá",
+        "Tính tổng chi phí mỗi cấp rồi cộng tất cả các cấp",
+        "Chỉ nhìn vào chi phí gốc",
+        "Đếm số nút trong cây"
+      ],
+      "correct": 1,
+      "explanation": "Cây đệ quy: tính tổng chi phí mỗi cấp (thường bằng n hoặc hằng số) → nhân với số cấp (log_b n) → Big-O tổng."
+    },
+    {
+      "id": "q-rec-3",
+      "type": "mcq",
+      "question": "Fibonacci đệ quy ngây thơ có T(n) = T(n-1) + T(n-2) + O(1). Độ phức tạp xấp xỉ?",
+      "options": ["$O(n)$", "$O(n^2)$", "$O(n \\log n)$", "$O(\\phi^n)$ với $\\phi \\approx 1.618$"],
+      "correct": 3,
+      "explanation": "$T(n) = T(n-1)+T(n-2)$ → nghiệm tỉ lệ với $\\phi^n$ (golden ratio). DP cắt xuống O(n) bằng cách tránh tính lại."
+    }
+  ]
+}

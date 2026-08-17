@@ -1,0 +1,231 @@
+{
+  "id": "area2_limits",
+  "title": "Giới hạn (Limits)",
+  "area": 2,
+  "unit": "a2u1",
+  "order": 1,
+  "icon": "curve",
+  "tagline": "Giới hạn (limit) hỏi \"hàm số tiến về đâu khi x tiến về một điểm?\" — nền tảng để hiểu Big-O và vì sao ta bỏ hằng số trong tiệm cận.",
+  "readTime": "~15 min",
+  "prerequisites": [],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Giới hạn (limit) là một trong những ý tưởng cốt lõi của giải tích. Nhưng bạn không cần chứng minh epsilon-delta phức tạp — ý tưởng thực sự rất đơn giản: **\"Khi x tiến gần đến một giá trị, hàm số f(x) tiến về đâu?\"**\n\nVí dụ: bạn đang lái xe tiến về một thành phố. Bạn chưa đến đó, nhưng quỹ đạo của bạn cho thấy bạn *sẽ đến đâu*. Giới hạn là câu trả lời cho quỹ đạo đó.\n\nTrong CS, giới hạn xuất hiện ngay khi phân tích Big-O: khi n→∞, biểu thức `(3n² + 5n)/n²` tiến về 3 — đó là lý do ta viết gọn `O(n²)` và bỏ hằng số."
+    },
+    {
+      "type": "analogy",
+      "title": "Giống như dự đoán điểm đến từ hướng đi",
+      "content": "Hãy tưởng tượng bạn nhìn một chiếc xe trên xa lộ từ xa: bạn không biết xe có dừng hẳn hay không, nhưng nhìn vào **hướng và quỹ đạo** của nó, bạn có thể dự đoán nó đang đến gần điểm nào.\n\nTương tự, với giới hạn: thay vì tính *chính xác* f(x) tại x=c (đôi khi hàm không xác định tại đó!), ta hỏi: \"Khi x tiến *rất gần* c — từ cả hai phía — thì f(x) tiến về giá trị nào?\"\n\nBảng giá trị ví dụ cho f(x) = (x²−1)/(x−1) khi x→1:\n\n| x | 0.9 | 0.99 | 0.999 | → | 1.001 | 1.01 | 1.1 |\n|---|---|---|---|---|---|---|---|\n| f(x) | 1.9 | 1.99 | 1.999 | → | 2.001 | 2.01 | 2.1 |\n\nDù tại x=1 hàm không xác định (mẫu = 0), nhưng giới hạn của nó rõ ràng là **2**."
+    },
+    {
+      "type": "formula",
+      "title": "Ký hiệu giới hạn",
+      "latex": "\\lim_{x \\to c} f(x) = L",
+      "reading": "đọc là: \"giới hạn của f(x) khi x tiến đến c bằng L\".",
+      "symbols": [
+        { "sym": "x \\to c", "meaning": "x tiến gần c (nhưng không nhất thiết bằng c)" },
+        { "sym": "f(x)", "meaning": "hàm số đang xét" },
+        { "sym": "L", "meaning": "giá trị giới hạn — f(x) tiến đến L" },
+        { "sym": "\\lim", "meaning": "ký hiệu limit (từ tiếng Latin 'limes' = ranh giới)" }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Giới hạn khi n→∞ và Big-O",
+      "content": "Trong phân tích thuật toán, ta thường xét giới hạn khi n→∞ (n tiến đến vô cực). Đây là cơ sở toán học của ký hiệu Big-O:\n\n- `lim(n→∞) 1/n = 0` → hằng số nhỏ dần về 0, bỏ đi được\n- `lim(n→∞) (3n² + 5n) / n² = 3` → chỉ bậc cao nhất còn lại\n- `lim(n→∞) log(n) / n = 0` → log n tăng chậm hơn n rất nhiều\n\nKhi ta nói `O(n²)` thay vì `O(3n² + 5n)`, chúng ta đang áp dụng đúng logic giới hạn này: khi n lớn, các số hạng nhỏ hơn \"biến mất\" so với số hạng thống trị."
+    },
+    {
+      "type": "graph",
+      "title": "Đồ thị f(x) = (x²−1)/(x−1) — lỗ hổng tại x=1",
+      "functions": [
+        { "fn": "(x^2 - 1) / (x - 1)", "color": "#ffe08a" }
+      ],
+      "xDomain": [-1, 4],
+      "yDomain": [-1, 5],
+      "caption": "Hàm số này bằng (x+1) với mọi x≠1, nhưng không xác định tại x=1. Tuy nhiên giới hạn khi x→1 vẫn tồn tại và bằng 2. Đây là điểm mấu chốt: giới hạn quan tâm đến *xu hướng tiến về*, không phải *giá trị tại điểm đó*."
+    },
+    {
+      "type": "formula",
+      "title": "Giới hạn khi x→∞ (tiệm cận)",
+      "latex": "\\lim_{n \\to \\infty} \\frac{1}{n} = 0 \\qquad \\lim_{n \\to \\infty} \\frac{3n^2 + 5n}{n^2} = 3",
+      "reading": "đọc là: \"khi n tiến đến vô cực, 1/n tiến về 0\"; và \"(3n² + 5n)/n² tiến về 3\".",
+      "symbols": [
+        { "sym": "n \\to \\infty", "meaning": "n tăng không giới hạn (vô cực)" },
+        { "sym": "1/n \\to 0", "meaning": "1/n ngày càng nhỏ hơn, tiến về 0" },
+        { "sym": "3n^2 / n^2", "meaning": "số hạng bậc thấp hơn biến mất, còn lại hệ số 3" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Minh họa 1/n → 0 khi n→∞",
+      "functions": [
+        { "fn": "1/x", "color": "#7fded1" },
+        { "fn": "1/x^2", "color": "#ff9ecb" }
+      ],
+      "xDomain": [0.5, 20],
+      "yDomain": [-0.1, 2],
+      "caption": "Cả 1/n (xanh) và 1/n² (hồng) đều tiến về 0 khi n→∞, nhưng 1/n² tiến nhanh hơn. Trong Big-O, cả hai đều là O(1/n) và O(1/n²) tương ứng — các hằng số nhân không ảnh hưởng đến bậc."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 1: tính giới hạn bằng bảng giá trị",
+      "problem": "Ước lượng $\\lim_{x \\to 2} (x^2 - x)$ bằng bảng giá trị.",
+      "steps": [
+        { "text": "Thử các giá trị x gần 2: x = 1.9, 1.99, 1.999, 2.001, 2.01, 2.1.", "rule": "Tiếp cận giới hạn từ hai phía" },
+        { "text": "Tính f(x) = x²−x: f(1.9)=1.71, f(1.99)=1.9701, f(1.999)=1.997001, f(2.001)=2.003001, f(2.01)=2.0301, f(2.1)=2.31." },
+        { "text": "Từ cả hai phía, f(x) đều tiến về 2. Vậy giới hạn bằng 2.", "rule": "Giới hạn từ trái = giới hạn từ phải → giới hạn tồn tại" },
+        { "text": "Kiểm tra: f(2) = 4−2 = 2. Hàm liên tục tại x=2 nên giới hạn = giá trị hàm.", "isCommonMistake": true, "rule": "Không phải lúc nào cũng được thay thẳng x=c vào — chỉ khi hàm liên tục tại c" }
+      ],
+      "result": "$\\lim_{x \\to 2} (x^2 - x) = 2$"
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 2: Big-O từ góc nhìn giới hạn",
+      "problem": "Chứng minh bằng trực giác giới hạn rằng $5n^2 + 100n$ có bậc $O(n^2)$.",
+      "steps": [
+        { "text": "Chia tử và mẫu cho $n^2$: $\\frac{5n^2 + 100n}{n^2} = 5 + \\frac{100}{n}$.", "rule": "Chia cho số hạng thống trị" },
+        { "text": "Lấy giới hạn khi n→∞: $\\lim_{n\\to\\infty}\\left(5 + \\frac{100}{n}\\right) = 5 + 0 = 5$.", "rule": "lim(1/n) = 0 khi n→∞" },
+        { "text": "Giới hạn là hằng số (5), không phụ thuộc n → $5n^2+100n$ tăng *đúng theo bậc* $n^2$.", "isCommonMistake": true, "rule": "Đừng nhầm: $5n^2+100n$ KHÔNG phải $O(n^3)$ hay $O(n)$ — giới hạn xác định bậc chính xác" }
+      ],
+      "result": "$5n^2 + 100n = O(n^2)$ vì $\\lim_{n\\to\\infty}\\frac{5n^2+100n}{n^2} = 5$ (hằng số hữu hạn dương)"
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp:** Giới hạn $\\lim_{x\\to c} f(x)$ KHÔNG nhất thiết bằng $f(c)$. Hàm có thể *không xác định tại c* (như (x²−1)/(x−1) tại x=1) nhưng giới hạn vẫn tồn tại. Ngược lại, hàm có thể xác định tại c nhưng giới hạn ≠ f(c) (hàm bị gián đoạn). Hai khái niệm này khác nhau và sẽ được làm rõ trong bài Tính liên tục."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Giới hạn hỏi: \"f(x) tiến về đâu khi x tiến về c?\" — không cần hàm xác định tại c.",
+        "Đọc giới hạn qua bảng giá trị: kiểm tra cả từ trái lẫn từ phải.",
+        "Khi n→∞: 1/n→0, hằng số biến mất, số hạng bậc cao thống trị — đây là nền tảng của Big-O.",
+        "$\\lim_{n\\to\\infty} \\frac{f(n)}{g(n)} = \\text{const}$ → f và g cùng bậc (O notation).",
+        "Giới hạn ≠ giá trị tại điểm đó — chỉ bằng nhau khi hàm liên tục (bài tiếp theo)."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-lim-def",
+      "type": "definition",
+      "front": "Giới hạn $\\lim_{x\\to c} f(x) = L$ nghĩa là gì?",
+      "back": "Khi x tiến gần c (từ cả hai phía), f(x) tiến gần L tùy ý. f không nhất thiết xác định tại c."
+    },
+    {
+      "id": "fc-lim-infinity",
+      "type": "formula",
+      "front": "$\\lim_{n\\to\\infty} \\frac{1}{n} = ?$",
+      "back": "$0$ — khi n tăng không giới hạn, 1/n nhỏ dần về 0. Đây là lý do hằng số bậc thấp biến mất trong Big-O."
+    },
+    {
+      "id": "fc-lim-bigo",
+      "type": "concept",
+      "front": "Giới hạn liên quan đến Big-O như thế nào?",
+      "back": "Nếu $\\lim_{n\\to\\infty} \\frac{f(n)}{g(n)} = c$ (hằng số dương hữu hạn) thì f và g cùng bậc tăng trưởng: $f = O(g)$ và $g = O(f)$."
+    },
+    {
+      "id": "fc-lim-table",
+      "type": "concept",
+      "front": "Cách đơn giản nhất để ước lượng giới hạn là gì?",
+      "back": "Lập bảng giá trị: thử x tiến dần về c từ cả hai phía và quan sát f(x) tiến về đâu."
+    },
+    {
+      "id": "fc-lim-vs-value",
+      "type": "concept",
+      "front": "Giới hạn tại c có luôn bằng f(c) không?",
+      "back": "Không. Giới hạn có thể tồn tại dù f không xác định tại c. Chúng bằng nhau chỉ khi hàm liên tục tại c (bài tiếp theo)."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-lim-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Dùng bảng giá trị, ước lượng $\\lim_{x \\to 3} (2x + 1)$.",
+      "hints": [
+        "Thử x = 2.9, 2.99, 2.999, 3.001, 3.01, 3.1.",
+        "Tính 2x+1 cho mỗi giá trị trên."
+      ],
+      "solutionSteps": [
+        { "text": "x = 2.9 → f = 6.8; x = 2.99 → f = 6.98; x = 2.999 → f = 6.998.", "rule": "Tiếp cận từ phía trái" },
+        { "text": "x = 3.001 → f = 7.002; x = 3.01 → f = 7.02; x = 3.1 → f = 7.2.", "rule": "Tiếp cận từ phía phải" },
+        { "text": "Cả hai phía đều tiến về 7. Giới hạn = 7.", "isCommonMistake": false },
+        { "text": "Kiểm tra: f(3) = 7. Hàm tuyến tính luôn liên tục, giới hạn = giá trị hàm.", "isCommonMistake": true, "rule": "Hàm tuyến tính: giới hạn = giá trị hàm. Nhưng không phải lúc nào cũng vậy!" }
+      ],
+      "answer": "7",
+      "commonMistake": "Chỉ thử từ một phía (ví dụ chỉ từ trái) — phải kiểm tra cả hai phía để xác nhận giới hạn tồn tại.",
+      "relatedFlashcard": "fc-lim-table"
+    },
+    {
+      "id": "ex-lim-apply-1",
+      "difficulty": "apply",
+      "prompt": "Tính $\\lim_{x \\to 1} \\frac{x^2 - 1}{x - 1}$ (không dùng bảng giá trị).",
+      "hints": [
+        "Tại x=1, tử = 0 và mẫu = 0 — không thể thay thẳng.",
+        "Phân tích nhân tử: $x^2 - 1 = (x-1)(x+1)$.",
+        "Rút gọn (x-1) ở tử và mẫu."
+      ],
+      "solutionSteps": [
+        { "text": "Nhận thấy tại x=1: tử = 0, mẫu = 0 → dạng 0/0, cần rút gọn.", "rule": "Nhận dạng dạng vô định 0/0" },
+        { "text": "Phân tích: $x^2 - 1 = (x-1)(x+1)$.", "rule": "Hằng đẳng thức a²−b² = (a−b)(a+b)" },
+        { "text": "$\\frac{x^2-1}{x-1} = \\frac{(x-1)(x+1)}{x-1} = x+1$ với $x \\neq 1$.", "isCommonMistake": false },
+        { "text": "$\\lim_{x\\to 1}(x+1) = 1+1 = 2$.", "rule": "Sau khi rút gọn, thay x=c vào hàm rút gọn" },
+        { "text": "Sai lầm hay gặp: thay x=1 vào trực tiếp $\\frac{1-1}{1-1} = \\frac{0}{0}$ và báo 'không xác định'.", "isCommonMistake": true, "rule": "Dạng 0/0 cần rút gọn trước, KHÔNG phải kết luận giới hạn không tồn tại" }
+      ],
+      "answer": "2",
+      "commonMistake": "Thay x=1 vào và kết luận 0/0 = 'không xác định'. Phải rút gọn trước rồi mới lấy giới hạn.",
+      "relatedFlashcard": "fc-lim-def"
+    },
+    {
+      "id": "ex-lim-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Dùng giới hạn, giải thích tại sao trong Big-O ta có thể nói $T(n) = 3n^2 + 10n + 500$ là $O(n^2)$ mà bỏ qua hoàn toàn $10n$ và $500$. Tính $\\lim_{n\\to\\infty} T(n)/n^2$ để minh chứng.",
+      "hints": [
+        "Chia T(n) cho n² để xem T(n) lớn đến đâu so với n².",
+        "Dùng: $\\lim_{n\\to\\infty} \\frac{c}{n} = 0$ và $\\lim_{n\\to\\infty} \\frac{c}{n^2} = 0$.",
+        "Giới hạn hữu hạn dương → cùng bậc tăng trưởng."
+      ],
+      "solutionSteps": [
+        { "text": "$\\frac{T(n)}{n^2} = \\frac{3n^2 + 10n + 500}{n^2} = 3 + \\frac{10}{n} + \\frac{500}{n^2}$.", "rule": "Chia từng số hạng cho n²" },
+        { "text": "Lấy giới hạn: $\\lim_{n\\to\\infty}\\left(3 + \\frac{10}{n} + \\frac{500}{n^2}\\right) = 3 + 0 + 0 = 3$.", "rule": "1/n→0 và 1/n²→0 khi n→∞" },
+        { "text": "Giới hạn = 3 (hằng số dương hữu hạn) → T(n) tăng *đúng theo bậc* n².", "isCommonMistake": false },
+        { "text": "Sai lầm hay gặp: nghĩ rằng 500 'lớn' so với 3n² khi n nhỏ → phải nhớ Big-O quan tâm n→∞, không phải n nhỏ.", "isCommonMistake": true, "rule": "Big-O là tiệm cận (asymptotic) — chỉ có ý nghĩa khi n đủ lớn" }
+      ],
+      "answer": "$\\lim_{n\\to\\infty} T(n)/n^2 = 3$ → $T(n) = O(n^2)$. Các số hạng $10n$ và $500$ biến mất vì tốc độ tăng của chúng thua xa $n^2$.",
+      "commonMistake": "Nghĩ T(n) = O(n²+n) hoặc giữ lại 10n — trong Big-O chỉ giữ số hạng bậc cao nhất.",
+      "relatedFlashcard": "fc-lim-bigo"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-lim-1",
+      "type": "mcq",
+      "question": "$\\lim_{x \\to 2} \\frac{x^2 - 4}{x - 2}$ bằng bao nhiêu?",
+      "options": ["0", "2", "4", "Không tồn tại"],
+      "correct": 2,
+      "explanation": "Phân tích $x^2-4 = (x-2)(x+2)$, rút gọn còn $x+2$. Khi x→2, $x+2 \\to 4$."
+    },
+    {
+      "id": "q-lim-2",
+      "type": "mcq",
+      "question": "$\\lim_{n \\to \\infty} \\frac{5n^3 + 2n^2}{n^3}$ bằng bao nhiêu?",
+      "options": ["2", "5", "7", "Vô cực"],
+      "correct": 1,
+      "explanation": "Chia từng số hạng: $5 + 2/n$. Khi n→∞, $2/n→0$, còn lại 5."
+    },
+    {
+      "id": "q-lim-3",
+      "type": "mcq",
+      "question": "Nếu $\\lim_{n\\to\\infty} f(n)/g(n) = 7$ (hằng số dương hữu hạn), điều này có nghĩa là gì trong Big-O?",
+      "options": [
+        "f(n) = O(1)",
+        "f(n) tăng chậm hơn g(n) 7 lần",
+        "f(n) và g(n) cùng bậc tăng trưởng: $f = \\Theta(g)$",
+        "g(n) = O(f(n)) nhưng f(n) ≠ O(g(n))"
+      ],
+      "correct": 2,
+      "explanation": "Giới hạn hữu hạn dương → f và g cùng bậc. Cả hai đều big-O của nhau (ký hiệu $\\Theta$)."
+    }
+  ]
+}

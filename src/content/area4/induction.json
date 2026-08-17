@@ -1,0 +1,220 @@
+{
+  "id": "area4_induction",
+  "title": "Quy nạp (Induction)",
+  "area": 4,
+  "unit": "a4u2",
+  "order": 3,
+  "icon": "logic",
+  "tagline": "Quy nạp là cách chứng minh điều gì đó đúng cho vô số trường hợp bằng đúng hai bước — giống như dãy domino đổ vô tận.",
+  "readTime": "~16 min",
+  "prerequisites": ["area4_propositional-logic"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Quy nạp toán học (mathematical induction) là kỹ thuật chứng minh mạnh mẽ nhất trong toán rời rạc. Ý tưởng: để chứng minh một mệnh đề P(n) đúng với **mọi số tự nhiên n**, bạn chỉ cần làm hai việc:\n1. Chứng minh P(1) đúng (base case)\n2. Chứng minh \"nếu P(k) đúng thì P(k+1) cũng đúng\" (inductive step)\n\nTại sao CS cần quy nạp?\n- **Chứng minh vòng lặp đúng** (loop invariant): tại mỗi bước lặp, biến duy trì tính chất nào đó.\n- **Chứng minh hàm đệ quy đúng**: base case + recursive step = đúng cấu trúc quy nạp.\n- **Phân tích độ phức tạp**: chứng minh T(n) = O(n log n) qua recurrence."
+    },
+    {
+      "type": "analogy",
+      "title": "Dãy domino — hiểu quy nạp trong 30 giây",
+      "content": "Tưởng tượng một dãy domino xếp thẳng hàng:\n\n1. **Base case**: viên domino đầu tiên đổ (P(1) đúng).\n2. **Inductive step**: mỗi viên domino đổ sẽ kéo viên kế tiếp đổ (P(k) đúng → P(k+1) đúng).\n\nKết luận: **tất cả** domino sẽ đổ — dù có bao nhiêu viên đi nữa.\n\nĐây chính xác là quy nạp toán học. Base case = \"domino đầu tiên đổ\". Inductive step = \"cơ chế lan truyền\". Kết hợp lại → mệnh đề đúng với MỌI n.\n\nHàm đệ quy trong code cũng theo đúng cấu trúc này:\n```python\ndef factorial(n):\n    if n == 0: return 1      # base case\n    return n * factorial(n-1) # inductive step\n```"
+    },
+    {
+      "type": "formula",
+      "title": "Cấu trúc chứng minh quy nạp",
+      "latex": "\\underbrace{P(1)}_\\text{base case} \\quad\\land\\quad \\underbrace{\\forall k \\ge 1:\\; P(k) \\Rightarrow P(k+1)}_\\text{inductive step} \\quad\\Longrightarrow\\quad \\underbrace{\\forall n \\ge 1:\\; P(n)}_\\text{conclusion}",
+      "reading": "đọc là: nếu P(1) đúng VÀ (với mọi k, P(k) đúng kéo theo P(k+1) đúng), thì P(n) đúng với mọi n.",
+      "symbols": [
+        { "sym": "P(n)", "meaning": "mệnh đề phụ thuộc n cần chứng minh" },
+        { "sym": "\\forall", "meaning": "với mọi — \"for all\"" },
+        { "sym": "P(k)", "meaning": "giả thiết quy nạp (induction hypothesis) — giả sử đúng với k" },
+        { "sym": "P(k+1)", "meaning": "điều cần chứng minh trong bước quy nạp" }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: chứng minh tổng 1+2+...+n = n(n+1)/2",
+      "problem": "Chứng minh $\\sum_{i=1}^{n} i = \\dfrac{n(n+1)}{2}$ bằng quy nạp.",
+      "steps": [
+        { "text": "**Base case (n=1):** Vế trái = 1. Vế phải = 1×2/2 = 1. ✓", "rule": "Kiểm tra base case bằng cách thay n=1" },
+        { "text": "**Giả thiết quy nạp:** Giả sử đúng với n=k, tức là $\\sum_{i=1}^{k} i = \\frac{k(k+1)}{2}$.", "rule": "Induction hypothesis — giả sử P(k) đúng" },
+        { "text": "**Inductive step:** Cần chứng minh P(k+1), tức là $\\sum_{i=1}^{k+1} i = \\frac{(k+1)(k+2)}{2}$." },
+        { "text": "Vế trái = $\\sum_{i=1}^{k} i + (k+1) = \\frac{k(k+1)}{2} + (k+1)$ (dùng giả thiết quy nạp).", "isCommonMistake": true, "rule": "Phải dùng GIẢ THIẾT quy nạp để rút gọn — lỗi hay gặp là cố tính lại từ đầu" },
+        { "text": "$= (k+1)\\left(\\frac{k}{2} + 1\\right) = (k+1) \\cdot \\frac{k+2}{2} = \\frac{(k+1)(k+2)}{2}$. ✓ P(k+1) đúng." }
+      ],
+      "result": "$\\displaystyle\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$ đúng với mọi $n \\ge 1$."
+    },
+    {
+      "type": "explanation",
+      "title": "Loop invariant — quy nạp ẩn trong vòng lặp",
+      "content": "Mỗi vòng lặp trong code có một **loop invariant** — tính chất đúng trước và sau mỗi lần lặp. Đây chính là quy nạp!\n\n```python\n# Tính tổng 1..n\ntotal = 0\nfor i in range(1, n+1):\n    total += i\n    # Invariant: total = 1 + 2 + ... + i = i*(i+1)/2\n```\n\nChứng minh loop invariant = chứng minh quy nạp:\n- **Base case**: trước vòng lặp đầu, total=0 (tổng rỗng = 0). ✓\n- **Inductive step**: nếu total = i*(i+1)/2 trước bước i+1, sau khi cộng thêm (i+1): total = i*(i+1)/2 + (i+1) = (i+1)(i+2)/2. ✓\n\nKhi interviewer hỏi \"chứng minh vòng lặp này đúng\" — đây là câu trả lời."
+    },
+    {
+      "type": "diagram",
+      "title": "Cấu trúc đệ quy = cấu trúc quy nạp",
+      "mermaid": "graph TD\n    F5[\"factorial(5)\"] --> F4[\"factorial(4)\"]\n    F4 --> F3[\"factorial(3)\"]\n    F3 --> F2[\"factorial(2)\"]\n    F2 --> F1[\"factorial(1)\"]\n    F1 --> BC[\"base case: return 1\"]\n    BC --> R1[\"return 1×1 = 1\"]\n    R1 --> R2[\"return 2×1 = 2\"]\n    R2 --> R3[\"return 3×2 = 6\"]\n    R3 --> R4[\"return 4×6 = 24\"]\n    R4 --> R5[\"return 5×24 = 120\"]",
+      "caption": "Cây đệ quy của factorial(5). Đi xuống = bước quy nạp (chia nhỏ vấn đề). Chạm đáy = base case. Đi lên = tổng hợp kết quả. Chứng minh đệ quy đúng = chứng minh bằng quy nạp."
+    },
+    {
+      "type": "formula",
+      "title": "Quy nạp mạnh (Strong Induction)",
+      "latex": "\\left[P(1) \\land \\forall k:\\; \\bigl(P(1) \\land P(2) \\land \\cdots \\land P(k)\\bigr) \\Rightarrow P(k+1)\\right] \\Rightarrow \\forall n:\\; P(n)",
+      "reading": "đọc là: giả sử P đúng với MỌI giá trị từ 1 đến k (không chỉ k), thì kết luận P(k+1) đúng. Mạnh hơn quy nạp thường vì dùng được toàn bộ lịch sử.",
+      "symbols": [
+        { "sym": "P(1) \\land \\cdots \\land P(k)", "meaning": "giả thiết quy nạp mạnh: đúng với MỌI giá trị 1,2,...,k" }
+      ],
+      "caption": "Quy nạp mạnh dùng khi bước k+1 cần dùng nhiều kết quả trước đó, không chỉ k. Ví dụ: chứng minh mọi số > 1 đều có phân tích thừa số nguyên tố."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: chứng minh số mũ 2^n > n",
+      "problem": "Chứng minh $2^n > n$ với mọi $n \\ge 1$.",
+      "steps": [
+        { "text": "**Base case (n=1):** $2^1 = 2 > 1$. ✓", "rule": "Base case" },
+        { "text": "**Giả thiết quy nạp:** Giả sử $2^k > k$ (đúng với n=k)." },
+        { "text": "**Inductive step:** Cần chứng minh $2^{k+1} > k+1$." },
+        { "text": "$2^{k+1} = 2 \\cdot 2^k > 2k$ (vì $2^k > k$ theo giả thiết).", "rule": "Nhân hai vế của giả thiết với 2" },
+        { "text": "$2k \\ge k+1$ khi $k \\ge 1$ (vì $k \\ge 1 \\Rightarrow k-1 \\ge 0$). Vậy $2^{k+1} > 2k \\ge k+1$. ✓", "isCommonMistake": true, "rule": "Phải chứng minh 2k ≥ k+1 — lỗi hay gặp là bỏ qua bước so sánh trung gian này" }
+      ],
+      "result": "$2^n > n$ với mọi $n \\ge 1$. Đây cũng giải thích tại sao $O(n)$ luôn tốt hơn $O(2^n)$."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp — circular reasoning:** Trong bước quy nạp, bạn được phép DÙNG giả thiết P(k), không được GIẢ SỬ P(k+1) đúng rồi suy ngược. Cấu trúc đúng: \"Giả sử P(k). Suy ra P(k+1).\" Cấu trúc sai: \"Giả sử P(k+1)...\" — đó là logic vòng tròn."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Quy nạp = domino: base case (viên đầu đổ) + inductive step (mỗi viên kéo viên sau) → mọi viên đổ.",
+        "Cấu trúc: (1) Chứng minh P(1). (2) Giả sử P(k), chứng minh P(k+1).",
+        "Loop invariant = quy nạp ẩn: tính chất đúng trước/sau mỗi bước lặp.",
+        "Hàm đệ quy = quy nạp: base case là điều kiện dừng, recursive step là inductive step.",
+        "Quy nạp mạnh: giả thiết đúng với mọi 1..k — dùng khi k+1 phụ thuộc nhiều giá trị trước."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-ind-structure",
+      "type": "concept",
+      "front": "Hai bước của quy nạp toán học là gì?",
+      "back": "1. **Base case**: chứng minh P(1) đúng.\n2. **Inductive step**: giả sử P(k) đúng, chứng minh P(k+1) đúng.\nKết luận: P(n) đúng với mọi n."
+    },
+    {
+      "id": "fc-ind-domino",
+      "type": "concept",
+      "front": "Trực giác domino của quy nạp là gì?",
+      "back": "Base case = viên domino đầu đổ. Inductive step = mỗi viên kéo viên sau. Kết quả: **tất cả** domino đổ — dù bao nhiêu viên."
+    },
+    {
+      "id": "fc-ind-invariant",
+      "type": "concept",
+      "front": "Loop invariant là gì và liên hệ với quy nạp?",
+      "back": "Tính chất đúng **trước và sau mỗi bước lặp**. Chứng minh invariant = chứng minh bằng quy nạp: base (trước vòng lặp) + step (bước lặp giữ invariant)."
+    },
+    {
+      "id": "fc-ind-strong",
+      "type": "definition",
+      "front": "Quy nạp mạnh (strong induction) khác quy nạp thường ở chỗ nào?",
+      "back": "Giả thiết mạnh hơn: giả sử P đúng với **mọi** 1, 2, ..., k (không chỉ k). Dùng khi bước k+1 cần nhiều kết quả trước đó."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-ind-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Kiểm tra base case và inductive step cho mệnh đề: $\\sum_{i=1}^{n} 2i = n(n+1)$. Chứng minh base case với n=1.",
+      "hints": [
+        "Vế trái khi n=1: chỉ có số hạng i=1, tức là 2×1=2.",
+        "Vế phải khi n=1: 1×(1+1)=2."
+      ],
+      "solutionSteps": [
+        { "text": "n=1: Vế trái = 2×1 = 2.", "rule": "Thay n=1 vào tổng" },
+        { "text": "n=1: Vế phải = 1×(1+1) = 2.", "rule": "Thay n=1 vào công thức" },
+        { "text": "2 = 2 ✓ — base case thỏa mãn.", "isCommonMistake": true, "rule": "Phải kiểm tra CẢ HAI vế bằng nhau — không chỉ tính một vế" }
+      ],
+      "answer": "Base case n=1: VT=2, VP=2 ✓",
+      "commonMistake": "Chỉ tính vế phải mà không tính vế trái để so sánh.",
+      "relatedFlashcard": "fc-ind-structure"
+    },
+    {
+      "id": "ex-ind-apply-1",
+      "difficulty": "apply",
+      "prompt": "Chứng minh bằng quy nạp: $2^n \\ge n+1$ với mọi $n \\ge 1$.",
+      "hints": [
+        "Base case: n=1, kiểm tra 2^1 ≥ 1+1.",
+        "Inductive step: giả sử 2^k ≥ k+1. Nhân hai vế với 2.",
+        "Cần chứng minh 2^(k+1) ≥ (k+1)+1 = k+2."
+      ],
+      "solutionSteps": [
+        { "text": "Base case n=1: $2^1=2 \\ge 2 = 1+1$ ✓.", "rule": "Base case" },
+        { "text": "Giả thiết quy nạp: giả sử $2^k \\ge k+1$.", "rule": "Induction hypothesis" },
+        { "text": "$2^{k+1} = 2 \\cdot 2^k \\ge 2(k+1) = 2k+2$.", "rule": "Nhân hai vế giả thiết với 2" },
+        { "text": "$2k+2 \\ge k+2$ khi $k \\ge 0$ (vì $k \\ge 0$). Vậy $2^{k+1} \\ge k+2 = (k+1)+1$ ✓.", "isCommonMistake": true, "rule": "Phải so sánh 2k+2 với k+2 — bước hay bị bỏ qua" }
+      ],
+      "answer": "$2^n \\ge n+1$ với mọi $n \\ge 1$. Điều này xác nhận $2^n$ tăng nhanh hơn tuyến tính.",
+      "commonMistake": "Bỏ qua bước so sánh 2k+2 ≥ k+2, kết luận vội.",
+      "relatedFlashcard": "fc-ind-structure"
+    },
+    {
+      "id": "ex-ind-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Hàm đệ quy Python tính `power(base, n)` (base^n):\n```python\ndef power(b, n):\n    if n == 0: return 1\n    return b * power(b, n-1)\n```\nDùng quy nạp để chứng minh `power(b, n) = b^n` với mọi n ≥ 0.",
+      "hints": [
+        "Base case: n=0, power(b,0) = 1 = b^0. ✓",
+        "Inductive step: giả sử power(b,k) = b^k.",
+        "power(b, k+1) = b * power(b, k) = b * b^k = b^(k+1)."
+      ],
+      "solutionSteps": [
+        { "text": "**Base case (n=0):** power(b,0) = 1 (từ code). Và $b^0 = 1$ theo định nghĩa. ✓", "rule": "Base case = điều kiện dừng đệ quy" },
+        { "text": "**Giả thiết quy nạp:** Giả sử power(b,k) = $b^k$ với một k ≥ 0.", "rule": "Induction hypothesis" },
+        { "text": "**Inductive step:** power(b, k+1) = b * power(b, k) (từ code).", "rule": "Mở rộng theo định nghĩa đệ quy" },
+        { "text": "= b * $b^k$ (dùng giả thiết quy nạp) = $b^{k+1}$ ✓.", "isCommonMistake": true, "rule": "Phải cite giả thiết quy nạp tường minh — lỗi hay gặp là dùng kết quả mà không justify" }
+      ],
+      "answer": "power(b,n) = b^n với mọi n≥0. Cấu trúc hàm đệ quy = cấu trúc quy nạp.",
+      "commonMistake": "Bỏ qua base case n=0 (hay nhầm với n=1 vì 1^anything=1).",
+      "relatedFlashcard": "fc-ind-invariant"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-ind-1",
+      "type": "mcq",
+      "question": "Trong chứng minh quy nạp, \"giả thiết quy nạp\" (induction hypothesis) là gì?",
+      "options": [
+        "Giả sử P(n) đúng với MỌI n",
+        "Giả sử P(k) đúng với một k cụ thể, để suy ra P(k+1)",
+        "Chứng minh P(1) đúng",
+        "Kết luận cuối cùng của chứng minh"
+      ],
+      "correct": 1,
+      "explanation": "Giả thiết quy nạp = giả sử P(k) đúng (cho một k cố định). Từ đó suy ra P(k+1) — đây là inductive step. Không được giả sử P(n) đúng với mọi n ngay từ đầu."
+    },
+    {
+      "id": "q-ind-2",
+      "type": "mcq",
+      "question": "Điều kiện dừng (base case) của hàm đệ quy tương ứng với bước nào trong quy nạp?",
+      "options": [
+        "Inductive step",
+        "Induction hypothesis",
+        "Base case của quy nạp",
+        "Kết luận"
+      ],
+      "correct": 2,
+      "explanation": "Điều kiện dừng đệ quy = base case của quy nạp (viên domino đầu tiên). Thân đệ quy (recursive call) = inductive step."
+    },
+    {
+      "id": "q-ind-3",
+      "type": "mcq",
+      "question": "Khi nào nên dùng quy nạp mạnh (strong induction) thay vì quy nạp thường?",
+      "options": [
+        "Khi muốn chứng minh nhanh hơn",
+        "Khi bước k+1 cần dùng kết quả của nhiều bước trước (không chỉ k)",
+        "Khi base case là n=0 thay vì n=1",
+        "Khi mệnh đề liên quan đến bất đẳng thức"
+      ],
+      "correct": 1,
+      "explanation": "Quy nạp mạnh dùng khi bước k+1 phụ thuộc vào P(1), P(2), ..., P(k) — không chỉ P(k). Ví dụ: chứng minh tồn tại phân tích thừa số nguyên tố."
+    }
+  ]
+}

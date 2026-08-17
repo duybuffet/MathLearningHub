@@ -1,0 +1,213 @@
+{
+  "id": "area4_combinatorics",
+  "title": "Tổ hợp & đếm (Combinatorics)",
+  "area": 4,
+  "unit": "a4u2",
+  "order": 4,
+  "icon": "logic",
+  "tagline": "Đếm chính xác số trường hợp là nền tảng phân tích độ phức tạp — brute force O(n!), backtracking, birthday paradox đều từ tổ hợp.",
+  "readTime": "~18 min",
+  "prerequisites": ["area4_sets-relations-functions"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Tổ hợp (combinatorics) là nghệ thuật **đếm thông minh** — đếm mà không liệt kê từng cái một. Nghe đơn giản, nhưng đây là nền tảng của:\n- **Độ phức tạp thuật toán**: bao nhiêu trạng thái cần xét? (brute force password là $26^8$ trường hợp)\n- **Probability & hashing**: birthday paradox — vì sao hash collision xảy ra sớm hơn tưởng\n- **Backtracking & DP**: bao nhiêu nhánh trong cây tìm kiếm?\n- **Cryptography**: không gian key 2^128 có bao nhiêu khả năng?\n\nHai khái niệm cốt lõi: **hoán vị (permutation)** = quan tâm thứ tự; **tổ hợp (combination)** = không quan tâm thứ tự."
+    },
+    {
+      "type": "analogy",
+      "title": "Hoán vị vs tổ hợp — mật khẩu vs tổ bài",
+      "content": "**Hoán vị** (permutation): chọn 3 người từ 5 để **xếp hàng** (người đứng trước, giữa, sau khác nhau = thứ tự quan trọng). Mật khẩu '123' ≠ '321'.\n\n**Tổ hợp** (combination): chọn 3 người từ 5 để **thành lập nhóm** (không phân biệt trưởng-phó-thành viên = thứ tự không quan trọng). Nhóm {A,B,C} = {C,A,B}.\n\nQuy tắc nhớ nhanh: **\"P\" – password, thứ tự quan trọng. \"C\" – committee (ủy ban), thứ tự không quan trọng.**\n\nVí dụ CS: sắp xếp 10 tiến trình theo thứ tự ưu tiên = P(10,10)=10!. Chọn 3 server từ 10 để backup = C(10,3)."
+    },
+    {
+      "type": "formula",
+      "title": "Quy tắc đếm cơ bản",
+      "latex": "\\text{Product (AND): } |A \\times B| = |A| \\cdot |B| \\qquad \\text{Sum (OR): } |A \\cup B| = |A| + |B| \\;\\;(\\text{if } A \\cap B = \\emptyset)",
+      "reading": "đọc là: quy tắc nhân — chọn một việc từ A VÀ một việc từ B có |A|×|B| cách; quy tắc cộng — chọn một việc từ A HOẶC B (không giao nhau) có |A|+|B| cách.",
+      "symbols": [
+        { "sym": "|A \\times B|", "meaning": "số cặp (a,b) với a∈A, b∈B — quy tắc nhân/product rule" },
+        { "sym": "|A \\cup B|", "meaning": "quy tắc cộng/sum rule — khi A và B rời nhau (disjoint)" }
+      ],
+      "caption": "Hai quy tắc này là nền tảng mọi bài đếm. Mật khẩu 8 ký tự (chữ+số): 36^8 cách (quy tắc nhân 8 lần)."
+    },
+    {
+      "type": "formula",
+      "title": "Hoán vị và tổ hợp",
+      "latex": "P(n,k) = \\frac{n!}{(n-k)!} \\qquad\\qquad C(n,k) = \\binom{n}{k} = \\frac{n!}{k!(n-k)!}",
+      "reading": "đọc là: P(n,k) — số cách chọn k phần tử từ n và SẮP XẾP có thứ tự; C(n,k) — số cách chọn k phần tử từ n KHÔNG xét thứ tự.",
+      "symbols": [
+        { "sym": "n!", "meaning": "giai thừa: n! = n×(n-1)×...×1. 0! = 1 theo quy ước." },
+        { "sym": "P(n,k)", "meaning": "permutation: số hoán vị k phần tử từ n" },
+        { "sym": "\\binom{n}{k}", "meaning": "binomial coefficient (\"n chọn k\") — số tổ hợp" },
+        { "sym": "k!", "meaning": "chia k! để loại các hoán vị của nhóm đã chọn (thứ tự không quan trọng)" }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Bảng so sánh hoán vị vs tổ hợp trong CS",
+      "content": "| Tình huống | Công thức | Ví dụ CS |\n|------------|-----------|----------|\n| Sắp xếp n phần tử | $n!$ | Độ phức tạp brute-force TSP trên n thành phố |\n| Chọn k từ n, thứ tự quan trọng | $P(n,k)$ | Xếp hạng top-3 server theo latency |\n| Chọn k từ n, không cần thứ tự | $\\binom{n}{k}$ | Chọn 3 feature để A/B test từ 10 feature |\n| Mật khẩu dài k từ bảng chữ n ký tự | $n^k$ | Password attack space: $26^8 \\approx 2 \\times 10^{11}$ |\n| Số tập con của tập n phần tử | $2^n$ | Tổng số subsets = số trạng thái DP bitmask |\n\n**Birthday paradox**: với n người, xác suất hai người sinh cùng ngày > 50% khi n ≈ 23. Tại sao? Vì cần đếm số cặp: $\\binom{n}{2} = \\frac{n(n-1)}{2}$, và với n=23: 253 cặp vs 365 ngày. Hash collision xảy ra tương tự: chỉ cần ~$\\sqrt{\\text{size}}$ item để collision probability > 50%."
+    },
+    {
+      "type": "diagram",
+      "title": "Cây đếm mật khẩu 2 ký tự từ {A,B,C}",
+      "mermaid": "graph TD\n    Start[Bắt đầu] --> A1[Ký tự 1: A]\n    Start --> B1[Ký tự 1: B]\n    Start --> C1[Ký tự 1: C]\n    A1 --> AA[AA]\n    A1 --> AB[AB]\n    A1 --> AC[AC]\n    B1 --> BA[BA]\n    B1 --> BB[BB]\n    B1 --> BC2[BC]\n    C1 --> CA[CA]\n    C1 --> CB[CB]\n    C1 --> CC[CC]",
+      "caption": "Với 3 ký tự, mật khẩu dài 2 có 3×3=9 cách (quy tắc nhân). Nếu không lặp (injective): P(3,2)=3×2=6 cách. Cây quyết định này là cấu trúc của backtracking."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: đếm complexity brute force password crack",
+      "problem": "Attacker brute-force mật khẩu gồm 8 ký tự, mỗi ký tự là chữ thường (26) hoặc số (10). Mất bao nhiêu lần thử trong trường hợp xấu nhất? Nếu thử 10^9 lần/giây, mất bao lâu?",
+      "steps": [
+        { "text": "Mỗi vị trí có 26+10=36 lựa chọn. Mật khẩu dài 8 → $36^8$ tổ hợp.", "rule": "Quy tắc nhân: n^k với k vị trí độc lập" },
+        { "text": "$36^8 = 2{,}821{,}109{,}907{,}456 \\approx 2.8 \\times 10^{12}$ trường hợp.", "isCommonMistake": true, "rule": "Phải dùng lũy thừa, không phải nhân — lỗi hay gặp là tính 36×8=288" },
+        { "text": "Thời gian = $2.8 \\times 10^{12}$ / $10^9$ = khoảng **2800 giây ≈ 47 phút** worst case." },
+        { "text": "Thêm chữ HOA (26): $62^8 \\approx 2.2 \\times 10^{14}$ → ~61 giờ. Thêm ký tự đặc biệt (~32): $94^8 \\approx 6 \\times 10^{15}$ → ~70 ngày." }
+      ],
+      "result": "8 ký tự chữ+số: ~47 phút. Thêm chữ hoa+ký hiệu: ~70 ngày. Đây là lý do password policy yêu cầu đa dạng ký tự."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: chọn features cho A/B test",
+      "problem": "Có 8 feature mới. Team muốn chọn 3 feature để A/B test đồng thời. Có bao nhiêu cách chọn? Nếu thêm thứ tự ưu tiên, có bao nhiêu cách?",
+      "steps": [
+        { "text": "Không xét thứ tự (chọn 3 feature để test song song): $\\binom{8}{3}$.", "rule": "Tổ hợp: thứ tự không quan trọng" },
+        { "text": "$\\binom{8}{3} = \\frac{8!}{3! \\cdot 5!} = \\frac{8 \\times 7 \\times 6}{3 \\times 2 \\times 1} = \\frac{336}{6} = 56$ cách.", "isCommonMistake": true, "rule": "Chia k! để loại trùng — lỗi hay gặp là dùng P(8,3)=336 khi thứ tự không quan trọng" },
+        { "text": "Có xét thứ tự ưu tiên (feature nào test trước): $P(8,3) = 8 \\times 7 \\times 6 = 336$ cách." },
+        { "text": "Kiểm tra: $P(8,3) = C(8,3) \\times 3! = 56 \\times 6 = 336$ ✓ — hoán vị = tổ hợp × k!" }
+      ],
+      "result": "56 cách chọn 3 feature (không thứ tự); 336 cách nếu xét thứ tự ưu tiên."
+    },
+    {
+      "type": "graph",
+      "title": "Tốc độ tăng của n! và 2^n so với n^2",
+      "functions": [
+        { "fn": "2^x", "color": "#ffe08a" },
+        { "fn": "x^2", "color": "#7fded1" }
+      ],
+      "xDomain": [0, 10],
+      "yDomain": [0, 100],
+      "caption": "2^n (vàng) tăng nhanh hơn n² (xanh) rất nhiều. n! tăng còn nhanh hơn nữa (không vẽ được vì quá lớn). Đây là lý do brute-force O(2^n) hay O(n!) chỉ dùng được với n nhỏ."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp — hoán vị vs tổ hợp:** Câu hỏi \"có bao nhiêu cách sắp xếp/xếp hạng\" → hoán vị P(n,k). Câu hỏi \"có bao nhiêu cách chọn/nhóm\" → tổ hợp C(n,k). Dấu hiệu nhận biết: nếu đổi thứ tự cho ra kết quả khác (mật khẩu 'abc'≠'bca') → dùng P. Nếu đổi thứ tự vẫn là cùng một kết quả (nhóm {a,b,c}={c,a,b}) → dùng C."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Quy tắc nhân: n×m cách khi chọn liên tiếp (AND). Quy tắc cộng: n+m cách khi chọn thay thế (OR, tập rời nhau).",
+        "Hoán vị P(n,k) = n!/(n-k)! — thứ tự quan trọng (mật khẩu, xếp hạng).",
+        "Tổ hợp C(n,k) = n!/(k!(n-k)!) — thứ tự không quan trọng (nhóm, tập con).",
+        "Password space: $n^k$ (lặp được) hoặc P(n,k) (không lặp). Mỗi ký tự mới thêm tăng không gian theo lũy thừa.",
+        "Birthday paradox: với ~√N phần tử, xác suất collision > 50% — nền tảng phân tích hash table."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-comb-perm",
+      "type": "formula",
+      "front": "Hoán vị $P(n,k)$ = ? Khi nào dùng?",
+      "back": "$\\dfrac{n!}{(n-k)!}$ — dùng khi chọn k từ n và **thứ tự quan trọng** (mật khẩu, xếp hạng, sắp xếp)."
+    },
+    {
+      "id": "fc-comb-combo",
+      "type": "formula",
+      "front": "Tổ hợp $\\binom{n}{k}$ = ? Khi nào dùng?",
+      "back": "$\\dfrac{n!}{k!(n-k)!}$ — dùng khi chọn k từ n và **thứ tự không quan trọng** (chọn nhóm, tập con, committee)."
+    },
+    {
+      "id": "fc-comb-multiply",
+      "type": "concept",
+      "front": "Quy tắc nhân (product rule) phát biểu thế nào?",
+      "back": "Nếu bước 1 có m cách và bước 2 có n cách (độc lập nhau), thì cả hai bước có **m×n** cách. Mật khẩu k ký tự từ bảng n ký tự: $n^k$ cách."
+    },
+    {
+      "id": "fc-comb-birthday",
+      "type": "concept",
+      "front": "Birthday paradox: cần bao nhiêu người để xác suất trùng sinh nhật > 50%?",
+      "back": "~23 người. Số cặp = $\\binom{23}{2}=253 > 365/2$. Trong hashing: cần ~$\\sqrt{N}$ items để collision > 50% với bảng size N."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-comb-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Một PIN code gồm 4 chữ số (0-9), có thể lặp. Có bao nhiêu PIN khác nhau?",
+      "hints": [
+        "Mỗi vị trí có 10 lựa chọn (0..9), độc lập nhau.",
+        "Dùng quy tắc nhân."
+      ],
+      "solutionSteps": [
+        { "text": "Mỗi trong 4 vị trí có 10 lựa chọn (0-9), có thể lặp.", "rule": "Quy tắc nhân với lặp" },
+        { "text": "Tổng: $10^4 = 10{,}000$ PIN.", "isCommonMistake": true, "rule": "Đây là lũy thừa (10^4), không phải 10×4=40 — lỗi hay gặp là nhân thay vì lũy thừa" }
+      ],
+      "answer": "10,000 PIN khác nhau ($10^4$).",
+      "commonMistake": "Tính 10×4=40 — nhầm quy tắc nhân với phép cộng.",
+      "relatedFlashcard": "fc-comb-multiply"
+    },
+    {
+      "id": "ex-comb-apply-1",
+      "difficulty": "apply",
+      "prompt": "Trong một team 10 người, cần chọn: (a) 1 trưởng nhóm và 1 phó nhóm (hai vị trí khác nhau), (b) 1 nhóm 2 người đại diện (không phân biệt trưởng phó). Tính số cách mỗi trường hợp.",
+      "hints": [
+        "(a) Thứ tự quan trọng: người A làm trưởng + B làm phó ≠ B làm trưởng + A làm phó.",
+        "(b) Thứ tự không quan trọng: nhóm {A,B} = {B,A}.",
+        "So sánh kết quả (a) và (b) — tỉ lệ là bao nhiêu?"
+      ],
+      "solutionSteps": [
+        { "text": "(a) Chọn trưởng: 10 cách. Chọn phó (còn lại): 9 cách. Tổng: P(10,2) = 10×9 = 90.", "rule": "Hoán vị — thứ tự quan trọng" },
+        { "text": "(b) Chọn 2 người đại diện: $\\binom{10}{2} = \\frac{10 \\times 9}{2} = 45$.", "isCommonMistake": true, "rule": "Chia 2! vì {A,B}={B,A} — lỗi hay gặp là dùng P(10,2)=90 khi thứ tự không quan trọng" },
+        { "text": "Kiểm tra: P(10,2) = C(10,2) × 2! = 45×2 = 90 ✓." }
+      ],
+      "answer": "(a) 90 cách (hoán vị), (b) 45 cách (tổ hợp) — gấp đôi nhau vì mỗi cặp có 2 cách phân công trưởng-phó.",
+      "commonMistake": "Nhầm (a) với (b): dùng tổ hợp khi cần hoán vị hoặc ngược lại.",
+      "relatedFlashcard": "fc-comb-perm"
+    },
+    {
+      "id": "ex-comb-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Một hàm hash `h: {0..N-1} → {0..M-1}` với N=365, M=23. Giả sử hash ngẫu nhiên đều. (a) Xác suất 2 user cụ thể (Alice và Bob) cùng bucket? (b) Trong 23 user, số cặp có thể là bao nhiêu? (c) Tại sao collision rất có thể xảy ra? (Birthday paradox)",
+      "hints": [
+        "(a) Alice ngẫu nhiên vào 1 trong 365 bucket; xác suất Bob cùng bucket = 1/365.",
+        "(b) Số cặp từ 23 user = C(23,2).",
+        "(c) So sánh số cặp với M=365."
+      ],
+      "solutionSteps": [
+        { "text": "(a) P(Alice và Bob cùng bucket) = 1/365 ≈ 0.27%. Rất nhỏ cho một cặp cụ thể.", "rule": "Xác suất = số kết quả thuận lợi / tổng số kết quả" },
+        { "text": "(b) Số cặp từ 23 user: $\\binom{23}{2} = \\frac{23 \\times 22}{2} = 253$ cặp.", "rule": "Tổ hợp chọn 2 từ 23" },
+        { "text": "Mỗi cặp có xác suất 1/365 ≈ 0.27% collision. 253 cặp → xác suất ít nhất 1 collision ≈ 1 - (1-1/365)^253 ≈ 50%.", "isCommonMistake": true, "rule": "Phải nhân xác suất cho TẤT CẢ cặp — lỗi hay gặp là chỉ xét một cặp" },
+        { "text": "Kết luận: Dù mỗi cặp rất ít xảy ra collision, với 253 cặp thì gần như chắc chắn có ít nhất một collision. Đây là birthday paradox." }
+      ],
+      "answer": "253 cặp từ 23 user → xác suất ít nhất 1 collision ≈ 50%. Hash table N=365 slots cần ~√365≈19 items để collision probable.",
+      "commonMistake": "Chỉ xét xác suất một cặp (0.27%), bỏ qua có 253 cặp độc lập.",
+      "relatedFlashcard": "fc-comb-birthday"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-comb-1",
+      "type": "mcq",
+      "question": "Có bao nhiêu cách sắp xếp 5 tiến trình theo thứ tự ưu tiên (tất cả 5 tiến trình)?",
+      "options": ["$\\binom{5}{2} = 10$", "$5^2 = 25$", "$5! = 120$", "$\\binom{5}{5} = 1$"],
+      "correct": 2,
+      "explanation": "Sắp xếp TẤT CẢ n phần tử = n! hoán vị. $5! = 5 \\times 4 \\times 3 \\times 2 \\times 1 = 120$."
+    },
+    {
+      "id": "q-comb-2",
+      "type": "mcq",
+      "question": "Team chọn 2 người trong 6 để review PR (không phân biệt vai trò). Số cách chọn là?",
+      "options": ["$6 \\times 5 = 30$", "$\\binom{6}{2} = 15$", "$6^2 = 36$", "$\\binom{6}{4} = 15$"],
+      "correct": 1,
+      "explanation": "$\\binom{6}{2} = \\frac{6!}{2!4!} = \\frac{30}{2} = 15$. Thứ tự không quan trọng (review team không có trưởng-phó) → dùng tổ hợp."
+    },
+    {
+      "id": "q-comb-3",
+      "type": "mcq",
+      "question": "Mật khẩu 6 ký tự, mỗi ký tự là chữ thường (26) hoặc số (10). Không cho phép ký tự lặp. Số mật khẩu là?",
+      "options": ["$36^6$", "$P(36,6) = 36 \\times 35 \\times 34 \\times 33 \\times 32 \\times 31$", "$\\binom{36}{6}$", "$36 \\times 6$"],
+      "correct": 1,
+      "explanation": "Thứ tự quan trọng (mật khẩu) + không lặp = hoán vị P(36,6) = 36×35×34×33×32×31 ≈ 1.4 tỉ. Nếu cho phép lặp thì là 36^6 ≈ 2.2 tỉ."
+    }
+  ]
+}

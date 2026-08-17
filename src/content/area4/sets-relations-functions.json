@@ -1,0 +1,217 @@
+{
+  "id": "area4_sets-relations-functions",
+  "title": "Tập hợp, quan hệ, hàm (Sets, Relations, Functions)",
+  "area": 4,
+  "unit": "a4u1",
+  "order": 2,
+  "icon": "logic",
+  "tagline": "Tập hợp là nền tảng của cơ sở dữ liệu, hash set, và JOIN — hiểu set operations là hiểu cách SQL thực sự hoạt động.",
+  "readTime": "~20 min",
+  "prerequisites": ["area4_propositional-logic"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Tập hợp (set) là khái niệm đơn giản nhất trong toán học rời rạc — nhưng có sức mạnh đáng ngạc nhiên trong CS. Một tập hợp là **bộ sưu tập các phần tử không có thứ tự và không lặp**.\n\nTại sao CS cần tập hợp?\n- **Deduplication**: `HashSet` loại bỏ trùng lặp trong O(1)\n- **Database JOIN**: INNER JOIN = giao (∩); FULL OUTER JOIN = hợp (∪); LEFT JOIN xử lý hiệu (\\\\)\n- **Quan hệ (Relation)**: cơ sở lý thuyết của bảng trong relational database\n- **Hàm (Function)**: mô hình hóa API, ánh xạ key→value trong hash map\n\nHiểu tập hợp = hiểu cấu trúc dữ liệu và database ở tầng lý thuyết."
+    },
+    {
+      "type": "analogy",
+      "title": "Tập hợp như danh sách thành viên không trùng",
+      "content": "Hãy nghĩ một tập hợp như **danh sách thành viên câu lạc bộ**: không ai xuất hiện hai lần, và thứ tự tên trong danh sách không quan trọng.\n\n- **Hợp (Union ∪)**: gộp hai danh sách thành viên của hai CLB, mỗi người chỉ xuất hiện một lần.\n- **Giao (Intersection ∩)**: những người có mặt trong **cả hai** CLB.\n- **Hiệu (Difference \\\\)**: những người trong CLB A nhưng **không** trong CLB B.\n\nTrong Python: `set_a | set_b` (union), `set_a & set_b` (intersection), `set_a - set_b` (difference). Trong SQL: `UNION`, `INTERSECT`, `EXCEPT`."
+    },
+    {
+      "type": "formula",
+      "title": "Ký hiệu tập hợp cơ bản",
+      "latex": "A = \\{1, 2, 3\\} \\quad x \\in A \\quad A \\subseteq B \\quad |A| \\quad \\{x \\mid x > 0\\}",
+      "reading": "đọc là: A là tập {1,2,3}; x thuộc A; A là tập con của B; |A| là số phần tử của A (cardinality); tập các x sao cho x > 0.",
+      "symbols": [
+        { "sym": "\\in", "meaning": "thuộc — x∈A nghĩa là x là phần tử của A" },
+        { "sym": "\\subseteq", "meaning": "tập con — A⊆B nghĩa là mọi phần tử của A đều trong B" },
+        { "sym": "|A|", "meaning": "cardinality — số phần tử của A" },
+        { "sym": "\\{x \\mid P(x)\\}", "meaning": "set-builder notation — tập các x thỏa điều kiện P(x)" }
+      ]
+    },
+    {
+      "type": "formula",
+      "title": "Các phép toán trên tập hợp",
+      "latex": "A \\cup B = \\{x \\mid x \\in A \\lor x \\in B\\} \\qquad A \\cap B = \\{x \\mid x \\in A \\land x \\in B\\} \\qquad A \\setminus B = \\{x \\mid x \\in A \\land x \\notin B\\}",
+      "reading": "đọc là: A hợp B — các phần tử thuộc A hoặc B; A giao B — các phần tử thuộc cả A và B; A trừ B — các phần tử trong A nhưng không trong B.",
+      "symbols": [
+        { "sym": "\\cup", "meaning": "union — hợp, tương ứng OR trong logic" },
+        { "sym": "\\cap", "meaning": "intersection — giao, tương ứng AND trong logic" },
+        { "sym": "\\setminus", "meaning": "difference — hiệu tập hợp" }
+      ]
+    },
+    {
+      "type": "diagram",
+      "title": "Phép toán tập hợp — Venn diagram",
+      "mermaid": "graph LR\n    subgraph AuB[\"A ∪ B  (Union — SQL: UNION)\"]\n        A1[A only] \n        AB[A ∩ B]\n        B1[B only]\n    end\n    subgraph AiB[\"A ∩ B  (Intersection — SQL: INTERSECT)\"]\n        AB2[A ∩ B]\n    end\n    subgraph AdB[\"A ∖ B  (Difference — SQL: EXCEPT)\"]\n        A2[A only]\n    end",
+      "caption": "Các phép toán tập hợp ánh xạ trực tiếp sang SQL: UNION = ∪, INTERSECT = ∩, EXCEPT = ∖. JOIN trong SQL là phép tích Descartes (Cartesian product A×B) rồi lọc theo điều kiện."
+    },
+    {
+      "type": "explanation",
+      "title": "Quan hệ (Relation) — nền tảng của relational database",
+      "content": "**Quan hệ** là tập con của tích Descartes: $R \\subseteq A \\times B$, tức là tập các cặp có thứ tự $(a, b)$ với $a \\in A$, $b \\in B$.\n\nBảng trong database **chính là một quan hệ**: mỗi hàng là một bộ (tuple), mỗi cột tương ứng một tập giá trị. Bảng `users(id, name, email)` là quan hệ $\\subseteq \\mathbb{N} \\times \\text{String} \\times \\text{String}$.\n\n**Tính chất của quan hệ** (quan trọng cho thiết kế DB):\n\n| Tính chất | Định nghĩa | Ví dụ DB |\n|-----------|------------|----------|\n| Phản xạ (reflexive) | $(a,a) \\in R$ với mọi $a$ | `id = id` |\n| Đối xứng (symmetric) | $(a,b)\\in R \\Rightarrow (b,a)\\in R$ | quan hệ bạn bè |\n| Bắc cầu (transitive) | $(a,b),(b,c)\\in R \\Rightarrow (a,c)\\in R$ | quan hệ cha-ông-cháu |\n| Quan hệ tương đương | Phản xạ + đối xứng + bắc cầu | GROUP BY, partition |"
+    },
+    {
+      "type": "explanation",
+      "title": "Hàm (Function) — ánh xạ một-một hoặc nhiều-một",
+      "content": "**Hàm** $f: A \\to B$ là quan hệ đặc biệt: mỗi phần tử $a \\in A$ ánh xạ đến **đúng một** phần tử $f(a) \\in B$.\n\nCác loại hàm quan trọng trong CS:\n\n| Loại | Định nghĩa | Ví dụ CS |\n|------|------------|----------|\n| Injective (1-1) | $f(a)=f(b) \\Rightarrow a=b$ | hash function tốt (ít collision) |\n| Surjective (onto) | Mọi $b\\in B$ đều có $a$ ánh xạ đến | hàm hash modulo |\n| Bijective | Cả injective lẫn surjective | mã hoá 1-1, key↔value unique |\n\n**Hash collision** xảy ra khi hash function KHÔNG injective: hai key khác nhau ra cùng hash value. Thiết kế hash tốt cố gắng gần injective."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: phân tích JOIN bằng set operations",
+      "problem": "Cho bảng Users = {1, 2, 3} và bảng Orders gồm user_id = {2, 3, 4}. Xác định kết quả INNER JOIN, LEFT JOIN, FULL OUTER JOIN theo set theory.",
+      "steps": [
+        { "text": "Đặt U = {1,2,3} (user IDs), O = {2,3,4} (order user_ids).", "rule": "Mô hình hóa bằng tập hợp" },
+        { "text": "INNER JOIN = U ∩ O = {2, 3} — chỉ các user có đơn hàng.", "rule": "Intersection — giao tập hợp" },
+        { "text": "LEFT JOIN = U = {1,2,3} — tất cả user, kể cả user 1 không có đơn (cột order NULL).", "isCommonMistake": true, "rule": "LEFT JOIN giữ toàn bộ bảng trái — lỗi hay gặp là nhầm với INNER JOIN" },
+        { "text": "FULL OUTER JOIN = U ∪ O = {1,2,3,4} — mọi user và mọi order, NULL ở bên nào thiếu." }
+      ],
+      "result": "INNER={2,3}, LEFT={1,2,3}, FULL OUTER={1,2,3,4}"
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: deduplication với HashSet",
+      "problem": "Mảng [3, 1, 4, 1, 5, 9, 2, 6, 5] có phần tử nào trùng? Dùng set để khử trùng.",
+      "steps": [
+        { "text": "HashSet không chứa phần tử trùng. Thêm lần lượt vào set.", "rule": "Tính chất tập hợp: mỗi phần tử xuất hiện 0 hoặc 1 lần" },
+        { "text": "Khi thêm 1 lần thứ hai: set đã có 1 → bỏ qua. Tương tự với 5.", "isCommonMistake": true, "rule": "Set bỏ qua silently — không báo lỗi khi thêm trùng" },
+        { "text": "Kết quả: {1,2,3,4,5,6,9} — 7 phần tử duy nhất từ 9 phần tử ban đầu." }
+      ],
+      "result": "Set {1,2,3,4,5,6,9} — phần tử trùng: 1 và 5."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp — tập con vs phần tử:** `{1} ∈ {{1},{2}}` (True — {1} là phần tử của tập đó) khác với `{1} ⊆ {1,2}` (True — {1} là tập con của {1,2}). Dấu ∈ dùng cho phần tử; dấu ⊆ dùng cho tập hợp. Nhầm hai dấu này là lỗi rất phổ biến."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Tập hợp (set): bộ sưu tập không thứ tự, không trùng — nền tảng của HashSet, deduplication.",
+        "∪ (union) = OR, ∩ (intersection) = AND, ∖ (difference) — ánh xạ sang SQL UNION/INTERSECT/EXCEPT.",
+        "Quan hệ R ⊆ A×B là nền tảng lý thuyết của bảng trong relational database.",
+        "Hàm = quan hệ đặc biệt: mỗi input có đúng một output. Injective → ít collision trong hash.",
+        "Set-builder notation $\\{x \\mid P(x)\\}$ = SQL WHERE clause — cùng ý nghĩa, khác cú pháp."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-set-union",
+      "type": "definition",
+      "front": "$A \\cup B$ (union) chứa những phần tử nào?",
+      "back": "Tất cả phần tử thuộc A **hoặc** B (hoặc cả hai). Tương đương SQL UNION. Trong Python: `A | B`."
+    },
+    {
+      "id": "fc-set-intersection",
+      "type": "definition",
+      "front": "$A \\cap B$ (intersection) chứa những phần tử nào?",
+      "back": "Chỉ những phần tử thuộc **cả A lẫn B**. Tương đương SQL INTERSECT / INNER JOIN. Python: `A & B`."
+    },
+    {
+      "id": "fc-set-relation",
+      "type": "concept",
+      "front": "Quan hệ (relation) trong toán học là gì? Liên hệ với database?",
+      "back": "$R \\subseteq A \\times B$ — tập các cặp có thứ tự $(a,b)$. Mỗi **bảng trong DB** là một quan hệ; mỗi **hàng** là một tuple."
+    },
+    {
+      "id": "fc-set-function",
+      "type": "definition",
+      "front": "Hàm injective (one-to-one) là gì? Tại sao quan trọng với hashing?",
+      "back": "$f(a)=f(b) \\Rightarrow a=b$ — hai input khác nhau → output khác nhau. Hash function injective = **không có collision**."
+    },
+    {
+      "id": "fc-set-builder",
+      "type": "formula",
+      "front": "Set-builder notation $\\{x \\mid x > 0, x \\in \\mathbb{Z}\\}$ nghĩa là gì?",
+      "back": "Tập tất cả số nguyên dương: {1,2,3,...}. Tương đương `WHERE x > 0` trong SQL — cùng ý nghĩa lọc."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-set-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Cho A = {1,2,3,4} và B = {3,4,5,6}. Tìm A∪B, A∩B, A∖B.",
+      "hints": [
+        "∪: gộp tất cả phần tử, không trùng.",
+        "∩: chỉ phần tử có mặt ở cả A lẫn B.",
+        "A∖B: phần tử trong A nhưng không trong B."
+      ],
+      "solutionSteps": [
+        { "text": "A∪B = {1,2,3,4,5,6} — gộp, không trùng.", "rule": "Union: p∈A OR p∈B" },
+        { "text": "A∩B = {3,4} — chỉ 3 và 4 có trong cả hai.", "rule": "Intersection: p∈A AND p∈B" },
+        { "text": "A∖B = {1,2} — 1,2 trong A nhưng không trong B.", "isCommonMistake": true, "rule": "Hiệu A∖B KHÔNG đối xứng: A∖B ≠ B∖A" }
+      ],
+      "answer": "A∪B={1,2,3,4,5,6}, A∩B={3,4}, A∖B={1,2}",
+      "commonMistake": "Nhầm A∖B={1,2,5,6} — đó là symmetric difference, không phải hiệu.",
+      "relatedFlashcard": "fc-set-union"
+    },
+    {
+      "id": "ex-set-apply-1",
+      "difficulty": "apply",
+      "prompt": "Bảng `customers` có IDs: {101,102,103,104}. Bảng `orders` có customer_id: {102,103,105}. Viết tương đương set-theory cho: (a) INNER JOIN, (b) LEFT JOIN customers→orders (lấy tất cả khách, kể cả chưa mua).",
+      "hints": [
+        "INNER JOIN = giao của hai tập IDs.",
+        "LEFT JOIN giữ toàn bộ bảng trái (customers)."
+      ],
+      "solutionSteps": [
+        { "text": "C = {101,102,103,104}, O = {102,103,105}.", "rule": "Mô hình hóa tập hợp" },
+        { "text": "(a) INNER JOIN: C∩O = {102,103} — khách hàng có đơn hàng.", "rule": "INNER JOIN = intersection" },
+        { "text": "(b) LEFT JOIN: giữ toàn bộ C={101,102,103,104}; customer 101,104 không có đơn → cột order = NULL.", "isCommonMistake": true, "rule": "LEFT JOIN không loại bỏ hàng từ bảng trái — lỗi thường gặp là dùng INNER JOIN nhầm" }
+      ],
+      "answer": "(a) {102,103} — (b) {101,102,103,104} với NULL cho 101,104",
+      "commonMistake": "Dùng INNER JOIN khi cần LEFT JOIN → mất khách hàng chưa có đơn.",
+      "relatedFlashcard": "fc-set-intersection"
+    },
+    {
+      "id": "ex-set-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Thiết kế hash function `h: {0..99} → {0..9}` bằng `h(k) = k mod 10`. (a) Hàm này injective không? (b) Surjective không? (c) Nếu insert {15, 25, 35} vào hash table size 10, collision xảy ra ở bucket nào?",
+      "hints": [
+        "Injective: hai input khác nhau → output khác nhau?",
+        "Surjective: mọi bucket (0..9) đều có thể nhận key?",
+        "15 mod 10 = ?, 25 mod 10 = ?, 35 mod 10 = ?"
+      ],
+      "solutionSteps": [
+        { "text": "h(k) = k mod 10. Kiểm tra injective: h(15)=5, h(25)=5 — hai input khác nhau cùng output → **KHÔNG injective**.", "rule": "Injective: f(a)=f(b) ⟹ a=b — vi phạm khi có collision" },
+        { "text": "Kiểm tra surjective: với mọi b∈{0..9}, tồn tại k: k mod 10 = b (ví dụ k=b). → **Surjective**.", "rule": "Surjective: mọi output đều có input ánh xạ đến" },
+        { "text": "15,25,35 đều mod 10 = 5 → ba key đều vào **bucket 5**, gây collision.", "isCommonMistake": true, "rule": "Collision = không injective tại giá trị đó — phải dùng chaining hoặc open addressing" }
+      ],
+      "answer": "(a) Không injective — h(15)=h(25)=h(35)=5. (b) Surjective. (c) Collision tại bucket 5.",
+      "commonMistake": "Nghĩ surjective ⟹ tốt cho hashing. Thực ra cần gần-injective (phân tán đều) để tránh collision.",
+      "relatedFlashcard": "fc-set-function"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-set-1",
+      "type": "mcq",
+      "question": "Cho A={1,2,3} và B={2,3,4}. $A \\cap B$ là gì?",
+      "options": ["{1,2,3,4}", "{2,3}", "{1,4}", "{1,2,3,4} trừ {2,3}"],
+      "correct": 1,
+      "explanation": "Giao A∩B chứa phần tử thuộc **cả A lẫn B**: chỉ 2 và 3."
+    },
+    {
+      "id": "q-set-2",
+      "type": "mcq",
+      "question": "INNER JOIN trong SQL tương ứng phép toán tập hợp nào?",
+      "options": ["Union (∪)", "Intersection (∩)", "Difference (∖)", "Complement"],
+      "correct": 1,
+      "explanation": "INNER JOIN lấy các hàng khớp ở **cả hai bảng** — tương đương intersection (∩) của các khóa."
+    },
+    {
+      "id": "q-set-3",
+      "type": "mcq",
+      "question": "Hàm $f: \\mathbb{N} \\to \\mathbb{N}$, $f(n) = n \\mod 5$ có tính chất gì?",
+      "options": [
+        "Injective nhưng không surjective",
+        "Surjective nhưng không injective",
+        "Bijective",
+        "Không phải injective lẫn surjective"
+      ],
+      "correct": 1,
+      "explanation": "Surjective: mọi giá trị 0..4 đều đạt được. Không injective: f(0)=f(5)=f(10)=0 — nhiều input cùng output."
+    }
+  ]
+}

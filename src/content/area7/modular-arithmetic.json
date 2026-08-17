@@ -1,0 +1,199 @@
+{
+  "id": "area7_modular-arithmetic",
+  "title": "Số học modular (Modular Arithmetic)",
+  "area": 7,
+  "unit": "a7u2",
+  "order": 3,
+  "icon": "sigma",
+  "tagline": "Số học modular là toán học của 'phần dư' — nền tảng của mã hóa RSA, hàm băm (hash), tránh tràn số nguyên, và mọi hệ thống bảo mật hiện đại.",
+  "readTime": "~16 min",
+  "prerequisites": [],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Đồng hồ chỉ 12 giờ: sau 11 giờ thêm 2 giờ không phải 13 giờ mà là 1 giờ. Sau 23 giờ thêm 5 giờ là 4 giờ (sáng). Hệ thống 'đếm quay vòng' này chính là **số học modular (modular arithmetic)**.\n\nTrong CS, modular arithmetic xuất hiện khắp nơi:\n- **Hash table**: `index = key % table_size` — ánh xạ key bất kỳ vào chỉ số hợp lệ.\n- **Cryptography**: RSA encryption dùng `a^e mod n`.\n- **Tránh tràn số (integer overflow)**: xử lý số rất lớn bằng cách giữ phần dư.\n- **Circular buffer**: `next = (current + 1) % buffer_size`.\n- **Checksums và CRC**: phát hiện lỗi truyền dữ liệu."
+    },
+    {
+      "type": "analogy",
+      "title": "Đồng hồ 12 giờ — modular arithmetic trực quan",
+      "content": "Đồng hồ là ví dụ hoàn hảo của `mod 12`:\n- 10 + 5 = 15, nhưng 15 mod 12 = 3 → kim đồng hồ chỉ 3 giờ.\n- 9 - 11 = -2, nhưng -2 mod 12 = 10 → 2 giờ trước 9 giờ sáng = 11 giờ tối hôm qua (10 = 22 - 12).\n\nThay 12 bằng bất kỳ số n nào, bạn có 'đồng hồ mod n'. Mọi phép tính trong thế giới mod n đều cho kết quả từ 0 đến n-1 — không bao giờ 'tràn ra ngoài'.\n\nTrong JS: `(-2 % 12 + 12) % 12 === 10` — cần xử lý số âm cẩn thận vì `%` trong nhiều ngôn ngữ trả về âm."
+    },
+    {
+      "type": "formula",
+      "title": "Phép đồng dư (congruence modulo n)",
+      "latex": "a \\equiv b \\pmod{n} \\iff n \\mid (a - b)",
+      "reading": "đọc là: a đồng dư với b theo modulo n nếu và chỉ nếu n chia hết (a - b).",
+      "symbols": [
+        { "sym": "a \\equiv b \\pmod{n}", "meaning": "a và b có cùng số dư khi chia cho n. Ký hiệu ≡ là 'đồng dư'." },
+        { "sym": "n \\mid (a-b)", "meaning": "n chia hết (a - b), tức (a-b) là bội của n." },
+        { "sym": "a \\bmod n", "meaning": "phần dư của a khi chia cho n — luôn trong [0, n-1]." }
+      ],
+      "caption": "13 ≡ 1 (mod 12) vì 12 | (13-1) = 12. Trong CS: 13 % 12 === 1."
+    },
+    {
+      "type": "formula",
+      "title": "Tính chất quan trọng: modular operation phân phối",
+      "latex": "(a + b) \\bmod n = ((a \\bmod n) + (b \\bmod n)) \\bmod n",
+      "reading": "đọc là: phần dư của tổng bằng tổng các phần dư rồi lấy phần dư tiếp.",
+      "symbols": [
+        { "sym": "(a+b) \\bmod n", "meaning": "Tính tổng rồi lấy phần dư — cùng kết quả với cách phải." },
+        { "sym": "(a \\bmod n) + (b \\bmod n)", "meaning": "Lấy phần dư từng số trước — hữu ích khi a, b rất lớn." }
+      ],
+      "caption": "Tính chất này áp dụng cho cộng, trừ, nhân — nhưng KHÔNG áp dụng trực tiếp cho chia. Cho phép tính (a × b) mod n mà không cần tính a×b trước (tránh overflow)."
+    },
+    {
+      "type": "explanation",
+      "title": "Ứng dụng: Hàm băm (Hash Function)",
+      "content": "Hash table phổ biến nhất dùng `index = key % tableSize`. Ví dụ với `tableSize = 7`:\n\n- key = 100 → 100 % 7 = 2\n- key = 256 → 256 % 7 = 4\n- key = 1000007 → 1000007 % 7 = 6\n\nBất kể key lớn đến đâu, index luôn trong [0, 6]. Đây là ứng dụng trực tiếp của modular arithmetic.\n\n**Mẹo chọn tableSize:** Nên chọn số nguyên tố (prime number). Vì sao? Số nguyên tố ít ước số hơn → phân phối đều hơn, ít collision. Ví dụ: nếu key là bội của 4 và tableSize = 4 → toàn bộ key hash vào 0 → tệ. Nhưng với tableSize = 7 (nguyên tố), không có pattern như vậy."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Tính (a × b) mod n không bị overflow",
+      "problem": "Tính $(10^{15} \\times 10^{15}) \\bmod (10^9 + 7)$ trong code. Số nguyên 64-bit có thể chứa tối đa ~9.2 × 10¹⁸.",
+      "steps": [
+        { "text": "10¹⁵ × 10¹⁵ = 10³⁰ — vượt quá phạm vi int64 (~9.2×10¹⁸) → sẽ bị overflow nếu tính trực tiếp.", "rule": "Xác định nguy cơ overflow" },
+        { "text": "Dùng tính chất phân phối: (a × b) mod n = ((a mod n) × (b mod n)) mod n.", "rule": "Modular multiplication property" },
+        { "text": "a mod n = 10¹⁵ mod (10⁹+7). Chia: 10¹⁵ / (10⁹+7) ≈ 999993. Phần dư = 10¹⁵ - 999993×(10⁹+7) = 999993000001.", "isCommonMistake": true, "rule": "Cần tính a mod n TRƯỚC khi nhân — đừng nhân rồi mod" },
+        { "text": "Kết quả = (999993000001 × 999993000001) mod (10⁹+7). Hai số này < 10¹² nên tích < 10²⁴ — vẫn overflow int64. Cần dùng __int128 hoặc modular multiplication library trong C++, hay dùng BigInt trong JS." }
+      ],
+      "result": "Trong Python: `pow(10**15, 2, 10**9 + 7)` tự xử lý — Python dùng big integer tự nhiên."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Modular Exponentiation — tính aⁿ mod m hiệu quả",
+      "problem": "Tính $2^{100} \\bmod 13$ mà không tính 2¹⁰⁰ (số khổng lồ).",
+      "steps": [
+        { "text": "Ý tưởng: thay vì nhân 2 tổng cộng 100 lần, dùng 'bình phương liên tiếp' (fast exponentiation): 2¹⁰⁰ = (2⁵⁰)² = ((2²⁵)²)² = ...", "rule": "Fast power by squaring — O(log n) thay vì O(n)" },
+        { "text": "Sau mỗi bình phương, lấy mod 13 để giữ số nhỏ.", "rule": "Modular property: (a×b) mod m = ((a mod m)×(b mod m)) mod m" },
+        { "text": "2¹ mod 13 = 2. 2² mod 13 = 4. 2⁴ mod 13 = 16 mod 13 = 3. 2⁸ mod 13 = 9. 2¹⁶ mod 13 = 81 mod 13 = 3. ...", "isCommonMistake": true, "rule": "Phải mod LIÊN TỤC sau mỗi bình phương — đừng để số tích lũy rồi mới mod một lần" },
+        { "text": "100 = 64 + 32 + 4. 2¹⁰⁰ = 2⁶⁴ × 2³² × 2⁴. Nhân kết quả mod 13 từng phần: (9 × 3 × 3) mod 13 = 81 mod 13 = 3." }
+      ],
+      "result": "$2^{100} \\bmod 13 = 9$. (Dùng `pow(2, 100, 13)` trong Python để kiểm tra.)"
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Cạm bẫy: phép chia trong modular arithmetic**\n\nTrong số học thông thường: nếu ac = bc và c ≠ 0 thì a = b. Nhưng trong modular arithmetic:\n`4 × 3 ≡ 10 × 3 (mod 6)` (12 ≡ 30 mod 6) NHƯNG 4 ≢ 10 (mod 6)!\n\nChia cho c trong mod n chỉ an toàn khi `gcd(c, n) = 1` (c và n nguyên tố cùng nhau). Khi đó, dùng 'modular inverse' (nghịch đảo modular): `a/c mod n = a × c⁻¹ mod n`. Đây là nền tảng của RSA."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "a mod n = phần dư khi chia a cho n — luôn trong [0, n-1]. Đồng hồ 12 giờ = mod 12.",
+        "a ≡ b (mod n) nghĩa là n | (a-b) — a và b có cùng phần dư khi chia n.",
+        "Phân phối: (a+b) mod n = ((a mod n)+(b mod n)) mod n — tính trên số nhỏ trước để tránh overflow.",
+        "Ứng dụng: hash index = key % size, circular buffer, cryptography (RSA dùng aᵉ mod n).",
+        "Chia trong modular arithmetic cần modular inverse — chỉ tồn tại khi gcd(c, n) = 1."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-mod-def",
+      "type": "definition",
+      "front": "$a \\bmod n$ là gì? $a \\equiv b \\pmod{n}$ nghĩa là gì?",
+      "back": "$a \\bmod n$ = phần dư khi chia a cho n, trong [0, n-1]. $a \\equiv b$ (mod n) ↔ n chia hết (a-b)."
+    },
+    {
+      "id": "fc-mod-dist",
+      "type": "formula",
+      "front": "Tính chất phân phối modular: $(a + b) \\bmod n = ?$",
+      "back": "$((a \\bmod n) + (b \\bmod n)) \\bmod n$ — cũng áp dụng cho nhân, giúp tránh overflow."
+    },
+    {
+      "id": "fc-mod-hash",
+      "type": "concept",
+      "front": "Vì sao hash table dùng số nguyên tố làm tableSize?",
+      "back": "Số nguyên tố ít ước số → phân phối đều hơn, giảm collision khi key có pattern (ví dụ bội của 2, 4...)."
+    },
+    {
+      "id": "fc-mod-exp",
+      "type": "concept",
+      "front": "Fast modular exponentiation aⁿ mod m dùng O(?) phép nhân?",
+      "back": "O(log n) phép nhân — dùng kỹ thuật 'bình phương liên tiếp' (square and multiply)."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-mod-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Tính $7^3 \\bmod 5$.",
+      "hints": [
+        "7³ = 343.",
+        "Hoặc dùng tính chất: (7 mod 5)³ mod 5."
+      ],
+      "solutionSteps": [
+        { "text": "7 mod 5 = 2. Vậy 7³ mod 5 = 2³ mod 5.", "rule": "Phân phối modular — tính mod trước" },
+        { "text": "2³ = 8. 8 mod 5 = 3.", "isCommonMistake": false, "rule": "Tính và lấy phần dư" }
+      ],
+      "answer": "3",
+      "commonMistake": "Tính 7³=343 rồi 343 mod 5 = 3 — cũng đúng nhưng chậm hơn khi số lớn.",
+      "relatedFlashcard": "fc-mod-dist"
+    },
+    {
+      "id": "ex-mod-apply-1",
+      "difficulty": "apply",
+      "prompt": "Hệ thống circular buffer có 8 slot (index 0–7). Con trỏ đang ở vị trí 6. Sau 15 bước tiến, con trỏ ở vị trí nào?",
+      "hints": [
+        "next = (current + steps) % buffer_size",
+        "(6 + 15) % 8 = ?"
+      ],
+      "solutionSteps": [
+        { "text": "new_pos = (6 + 15) % 8 = 21 % 8.", "rule": "Circular index: (start + steps) % size" },
+        { "text": "21 % 8 = 21 - 2×8 = 21 - 16 = 5.", "isCommonMistake": false, "rule": "Tìm bội lớn nhất của 8 nhỏ hơn 21" },
+        { "text": "Con trỏ ở vị trí 5.", "isCommonMistake": true, "rule": "Đừng nghĩ 'nhảy 15 từ 6 là 6+15=21 rồi trừ 8 một lần = 13' — phải chia đủ lần cho 8" }
+      ],
+      "answer": "Vị trí 5",
+      "commonMistake": "Trừ 8 một lần: 21-8=13 — sai, vì 13 vẫn ngoài [0,7]. Phải dùng phép mod.",
+      "relatedFlashcard": "fc-mod-def"
+    },
+    {
+      "id": "ex-mod-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Trong competitive programming, kết quả thường yêu cầu in ra `answer mod (10⁹ + 7)`. Vì sao chọn $10^9 + 7$ và không phải số khác? Giải thích ít nhất 2 lý do.",
+      "hints": [
+        "10⁹ + 7 = 1000000007 — kiểm tra xem đây có phải số nguyên tố không.",
+        "int32 chứa tối đa ~2.1 × 10⁹. int64 chứa ~9.2 × 10¹⁸.",
+        "Nếu p là số nguyên tố, (a × b) mod p với a, b < p thì tích < p² ≈ 10¹⁸ — vừa vặn int64."
+      ],
+      "solutionSteps": [
+        { "text": "10⁹ + 7 là số nguyên tố (prime) — có thể kiểm tra bằng sieve hoặc primality test.", "rule": "Kiểm tra tính nguyên tố" },
+        { "text": "Lý do 1: Là số nguyên tố → mọi phần tử khác 0 đều có modular inverse → chia an toàn trong mod.", "rule": "Modular inverse tồn tại với mọi a khi n là nguyên tố" },
+        { "text": "Lý do 2: Đủ lớn để tránh kết quả bị 'ẩn' do mod quá nhỏ, đủ nhỏ để a × b (với a, b < 10⁹+7) vừa vào int64 (< (10⁹)² = 10¹⁸ < 9.2×10¹⁸).", "isCommonMistake": true, "rule": "Nếu chọn số không phải nguyên tố, không đảm bảo modular inverse tồn tại — nhiều phép chia trong mod sẽ sai" }
+      ],
+      "answer": "10⁹ + 7 là số nguyên tố lớn vừa đủ để: (1) mọi modular inverse tồn tại, (2) tích hai số < modulus vừa vào int64.",
+      "commonMistake": "Chọn 10⁹ (không phải nguyên tố = 2⁹ × 5⁹) → modular inverse không tồn tại với mọi số.",
+      "relatedFlashcard": "fc-mod-hash"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-mod-1",
+      "type": "mcq",
+      "question": "$-3 \\bmod 7$ bằng bao nhiêu (kết quả trong [0, 6])?",
+      "options": ["-3", "3", "4", "7"],
+      "correct": 2,
+      "explanation": "-3 + 7 = 4. Hoặc: -3 ≡ 4 (mod 7) vì 7 | (-3-4) = -7. Trong Python: -3 % 7 = 4. Trong JS: cần (-3 % 7 + 7) % 7 = 4."
+    },
+    {
+      "id": "q-mod-2",
+      "type": "mcq",
+      "question": "Hash table có 11 slot. Key = 256. Index = ?",
+      "options": ["0", "3", "256", "11"],
+      "correct": 1,
+      "explanation": "256 % 11 = 256 - 23×11 = 256 - 253 = 3. Index = 3."
+    },
+    {
+      "id": "q-mod-3",
+      "type": "mcq",
+      "question": "Tính $(3 \\times 5) \\bmod 7$ bằng cách nào an toàn để tránh overflow?",
+      "options": [
+        "Tính 3×5=15 rồi 15 mod 7 = 1",
+        "((3 mod 7) × (5 mod 7)) mod 7 = (3×5) mod 7 = 1",
+        "Cả hai cách đều đúng, nhưng cách 2 an toàn hơn khi số lớn",
+        "Không thể tránh overflow"
+      ],
+      "correct": 2,
+      "explanation": "Cả hai cho kết quả 1. Nhưng với số lớn (ví dụ 10¹⁵ × 10¹⁵), cách 2 — mod trước khi nhân — tránh tràn số int64."
+    }
+  ]
+}

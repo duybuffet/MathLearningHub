@@ -1,0 +1,240 @@
+{
+  "id": "area6_graph-basics",
+  "title": "Đỉnh, cạnh, biểu diễn (Vertices, Edges, Representations)",
+  "area": 6,
+  "unit": "a6u1",
+  "order": 1,
+  "icon": "graph",
+  "tagline": "Đồ thị mô hình hóa mọi thứ từ mạng xã hội đến bản đồ — nắm vững cách biểu diễn là bước đầu để giải mọi bài toán đồ thị.",
+  "readTime": "~18 min",
+  "prerequisites": [],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Đồ thị (graph) là một trong những cấu trúc dữ liệu **quan trọng và phổ biến nhất** trong khoa học máy tính. Bất cứ khi nào bạn nghĩ đến **quan hệ giữa các đối tượng**, bạn đang nghĩ đến đồ thị.\n\nMạng xã hội (ai kết bạn với ai?), bản đồ giao thông (thành phố nào nối với thành phố nào?), dependency graph của package (module nào phụ thuộc module nào?) — tất cả đều là đồ thị.\n\nChủ đề này dạy bạn ngôn ngữ cơ bản: **đỉnh, cạnh**, và hai cách biểu diễn đồ thị trong bộ nhớ máy tính: **danh sách kề (adjacency list)** và **ma trận kề (adjacency matrix)**."
+    },
+    {
+      "type": "analogy",
+      "title": "Đồ thị = bản đồ quan hệ",
+      "content": "Hãy nghĩ đến **mạng xã hội** của bạn: mỗi người là một **đỉnh (vertex/node)**, mỗi tình bạn là một **cạnh (edge)**. Nếu bạn và An là bạn bè, có một cạnh nối hai đỉnh đó.\n\nBây giờ mở rộng: trong Google Maps, mỗi **ngã tư** là một đỉnh, mỗi **đoạn đường** là một cạnh (có thể có **trọng số** là khoảng cách km). Bài toán \"đường đi ngắn nhất\" là bài toán đồ thị kinh điển.\n\nTrong lập trình: **dependency graph** của npm — mỗi package là đỉnh, mỗi `require()` là cạnh có hướng (directed). Cài package A kéo B, B kéo C: đó là đồ thị có hướng (directed graph)."
+    },
+    {
+      "type": "explanation",
+      "title": "Đồ thị có hướng vs vô hướng",
+      "content": "Có hai loại cạnh cơ bản:\n\n- **Vô hướng (undirected)**: quan hệ hai chiều — nếu A nối B thì B cũng nối A. Ví dụ: tình bạn trên Facebook, đường hai chiều.\n- **Có hướng (directed / digraph)**: quan hệ một chiều — A→B không có nghĩa B→A. Ví dụ: follow trên Twitter, dependency (`import`), hyperlink web.\n\nNgoài ra cạnh có thể có **trọng số (weight)**: khoảng cách, chi phí, thời gian. Đồ thị có trọng số dùng cho bài toán shortest-path như Dijkstra."
+    },
+    {
+      "type": "diagram",
+      "title": "Đồ thị vô hướng đơn giản",
+      "mermaid": "graph TD\n  A((A)) --- B((B))\n  A --- C((C))\n  B --- C\n  B --- D((D))\n  C --- E((E))\n  D --- E",
+      "caption": "Đồ thị vô hướng 5 đỉnh, 6 cạnh. Mỗi cạnh là quan hệ hai chiều."
+    },
+    {
+      "type": "diagram",
+      "title": "Đồ thị có hướng (directed graph)",
+      "mermaid": "graph LR\n  A((A)) --> B((B))\n  A --> C((C))\n  B --> D((D))\n  C --> D\n  D --> E((E))",
+      "caption": "Đồ thị có hướng — mũi tên chỉ chiều quan hệ. A có thể đến D, nhưng D không thể đến A trực tiếp."
+    },
+    {
+      "type": "formula",
+      "title": "Số cạnh tối đa và Bổ đề bắt tay (Handshaking Lemma)",
+      "latex": "\\text{Undirected: } |E| \\le \\frac{|V|(|V|-1)}{2} \\qquad \\sum_{v \\in V} \\deg(v) = 2|E|",
+      "reading": "đọc là: số cạnh tối đa của đồ thị vô hướng là V×(V−1)/2 (đồ thị đầy đủ). Tổng bậc tất cả các đỉnh luôn bằng 2 lần số cạnh.",
+      "symbols": [
+        { "sym": "|V|", "meaning": "số đỉnh (vertices)" },
+        { "sym": "|E|", "meaning": "số cạnh (edges)" },
+        { "sym": "\\deg(v)", "meaning": "bậc của đỉnh v = số cạnh nối với v" },
+        { "sym": "\\frac{|V|(|V|-1)}{2}", "meaning": "số cách chọn 2 đỉnh từ V đỉnh — đây là số cạnh của đồ thị đầy đủ K_V" }
+      ],
+      "caption": "Bổ đề bắt tay: mỗi cạnh đóng góp bậc 1 cho mỗi đầu → tổng bậc = 2|E|. Hệ quả: số đỉnh bậc lẻ luôn là số chẵn."
+    },
+    {
+      "type": "explanation",
+      "title": "Biểu diễn đồ thị: Danh sách kề (Adjacency List)",
+      "content": "**Adjacency list** lưu, với mỗi đỉnh, danh sách các đỉnh kề (hàng xóm) của nó.\n\nVí dụ đồ thị vô hướng ở trên:\n```\nA: [B, C]\nB: [A, C, D]\nC: [A, B, E]\nD: [B, E]\nE: [C, D]\n```\n\n**Ưu điểm:**\n- Duyệt hàng xóm của đỉnh v: `O(deg(v))` — rất nhanh\n- Bộ nhớ: `O(|V| + |E|)` — tiết kiệm cho đồ thị thưa (sparse)\n\n**Nhược điểm:**\n- Kiểm tra cạnh (u,v) có tồn tại không: `O(deg(u))` — phải duyệt danh sách\n\n**Dùng khi:** đồ thị thưa, cần duyệt hàng xóm (BFS, DFS, hầu hết bài toán thực tế)."
+    },
+    {
+      "type": "explanation",
+      "title": "Biểu diễn đồ thị: Ma trận kề (Adjacency Matrix)",
+      "content": "**Adjacency matrix** là ma trận `V×V` với `matrix[u][v] = 1` nếu có cạnh (u,v), ngược lại = 0. Nếu có trọng số: `matrix[u][v] = weight`.\n\nVí dụ đồ thị trên (đánh số A=0, B=1, C=2, D=3, E=4):\n\n|   | A | B | C | D | E |\n|---|---|---|---|---|---|\n| **A** | 0 | 1 | 1 | 0 | 0 |\n| **B** | 1 | 0 | 1 | 1 | 0 |\n| **C** | 1 | 1 | 0 | 0 | 1 |\n| **D** | 0 | 1 | 0 | 0 | 1 |\n| **E** | 0 | 0 | 1 | 1 | 0 |\n\n**Ưu điểm:**\n- Kiểm tra cạnh (u,v): `O(1)` — tra bảng ngay lập tức\n- Thêm/xóa cạnh: `O(1)`\n\n**Nhược điểm:**\n- Bộ nhớ: `O(|V|²)` — tốn cho đồ thị thưa (hầu hết ô là 0)\n- Duyệt hàng xóm: `O(|V|)` — phải quét cả hàng\n\n**Dùng khi:** đồ thị dày (dense), cần check cạnh nhanh, số đỉnh nhỏ."
+    },
+    {
+      "type": "formula",
+      "title": "So sánh độ phức tạp hai cách biểu diễn",
+      "latex": "\\text{Adj List: memory } O(V+E),\\; \\text{check edge } O(\\deg) \\qquad \\text{Adj Matrix: memory } O(V^2),\\; \\text{check edge } O(1)",
+      "reading": "đọc là: danh sách kề tiết kiệm bộ nhớ nhưng check cạnh chậm hơn; ma trận kề tốn bộ nhớ nhưng check cạnh O(1).",
+      "symbols": [
+        { "sym": "V", "meaning": "số đỉnh" },
+        { "sym": "E", "meaning": "số cạnh" },
+        { "sym": "O(V+E)", "meaning": "tuyến tính theo tổng đỉnh và cạnh — tối ưu cho đồ thị thưa" },
+        { "sym": "O(V^2)", "meaning": "bình phương theo số đỉnh — chỉ hợp lý khi E ≈ V²" }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Xây dựng adjacency list cho mạng xã hội",
+      "problem": "Mạng xã hội 4 người: An-Bình là bạn, An-Chi là bạn, Bình-Dũng là bạn, Chi-Dũng là bạn. Biểu diễn bằng adjacency list và tính bậc mỗi đỉnh.",
+      "steps": [
+        { "text": "Liệt kê đỉnh: {An, Bình, Chi, Dũng}. Liệt kê cạnh: {(An,Bình), (An,Chi), (Bình,Dũng), (Chi,Dũng)}. |V|=4, |E|=4.", "rule": "Xác định đỉnh và cạnh" },
+        { "text": "Xây adjacency list:\n- An: [Bình, Chi]\n- Bình: [An, Dũng]\n- Chi: [An, Dũng]\n- Dũng: [Bình, Chi]", "rule": "Mỗi cạnh (u,v) thêm v vào list của u VÀ u vào list của v (vô hướng)" },
+        { "text": "Tính bậc: deg(An)=2, deg(Bình)=2, deg(Chi)=2, deg(Dũng)=2. Tổng = 8.", "rule": "Bậc = độ dài adjacency list của đỉnh đó" },
+        { "text": "Kiểm tra: tổng bậc = 8 = 2 × |E| = 2 × 4 = 8. Đúng!", "rule": "Bổ đề bắt tay: tổng bậc = 2|E|", "isCommonMistake": false },
+        { "text": "Bộ nhớ cần: O(V+E) = O(4+4) = O(8) — mỗi cạnh xuất hiện 2 lần trong list (mỗi đầu).", "isCommonMistake": true, "rule": "Đồ thị vô hướng: mỗi cạnh lưu 2 lần trong adj list — đừng nhầm với directed graph chỉ lưu 1 lần" }
+      ],
+      "result": "Adjacency list: An:[Bình,Chi], Bình:[An,Dũng], Chi:[An,Dũng], Dũng:[Bình,Chi]. Tổng bậc = 8 = 2×4."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Dependency graph có hướng",
+      "problem": "Module A import B và C. Module B import D. Module C import D. Biểu diễn bằng đồ thị có hướng và adjacency list. Tìm đỉnh không có in-degree (không bị ai import).",
+      "steps": [
+        { "text": "Cạnh có hướng: A→B, A→C, B→D, C→D. Đây là đồ thị có hướng (directed).", "rule": "Import là quan hệ một chiều: A dùng B không có nghĩa B dùng A" },
+        { "text": "Adjacency list (out-edges):\n- A: [B, C]\n- B: [D]\n- C: [D]\n- D: []", "rule": "Directed adjacency list chỉ liệt kê cạnh ra (outgoing edges)" },
+        { "text": "In-degree (số cạnh đi vào): in(A)=0, in(B)=1, in(C)=1, in(D)=2.", "rule": "In-degree = số lần đỉnh xuất hiện trong các adjacency list khác" },
+        { "text": "Đỉnh có in-degree = 0: chỉ có A. A không bị module nào import — đây là entry point.", "isCommonMistake": true, "rule": "In-degree 0 nghĩa là không ai phụ thuộc vào nó, KHÔNG phải nó không phụ thuộc ai — nhầm in/out-degree là lỗi cực phổ biến" }
+      ],
+      "result": "Module A có in-degree = 0 → là entry point. D có in-degree = 2 → là dependency chung được tái sử dụng."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp với ma trận kề:** Với đồ thị **vô hướng**, ma trận phải **đối xứng** (`matrix[u][v] == matrix[v][u]`). Nếu bạn chỉ gán `matrix[u][v] = 1` mà quên `matrix[v][u] = 1`, đồ thị sẽ vô tình trở thành có hướng. Luôn gán cả hai chiều cho đồ thị vô hướng."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Đồ thị gồm đỉnh (V) và cạnh (E) — mô hình hóa quan hệ giữa các thực thể.",
+        "Vô hướng: quan hệ hai chiều (tình bạn). Có hướng: một chiều (import, follow, hyperlink).",
+        "Bổ đề bắt tay: tổng bậc tất cả đỉnh = 2|E|. Hệ quả: số đỉnh bậc lẻ luôn chẵn.",
+        "Adjacency list: bộ nhớ O(V+E), duyệt hàng xóm nhanh → dùng cho đồ thị thưa (hầu hết bài thực tế).",
+        "Adjacency matrix: check cạnh O(1), bộ nhớ O(V²) → chỉ dùng khi đồ thị dày hoặc V nhỏ.",
+        "Trong lập trình: đồ thị thưa rất phổ biến (mạng xã hội, bản đồ, dependency) → adjacency list thường là lựa chọn mặc định."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-graph-def",
+      "type": "definition",
+      "front": "Đồ thị G = (V, E) là gì? V và E là gì?",
+      "back": "V là tập đỉnh (vertices/nodes), E là tập cạnh (edges). Mỗi cạnh nối hai đỉnh. |V| = số đỉnh, |E| = số cạnh."
+    },
+    {
+      "id": "fc-graph-handshake",
+      "type": "formula",
+      "front": "Bổ đề bắt tay (Handshaking Lemma): tổng bậc tất cả đỉnh bằng gì?",
+      "back": "$\\sum_{v} \\deg(v) = 2|E|$ — mỗi cạnh đóng góp bậc 1 cho mỗi đầu nên tổng bậc gấp đôi số cạnh."
+    },
+    {
+      "id": "fc-adj-list-vs-matrix",
+      "type": "concept",
+      "front": "Khi nào dùng adjacency list? Khi nào dùng adjacency matrix?",
+      "back": "Adj list: đồ thị thưa (sparse), duyệt hàng xóm, bộ nhớ O(V+E). Adj matrix: đồ thị dày (dense), check cạnh O(1), bộ nhớ O(V²)."
+    },
+    {
+      "id": "fc-directed-indegree",
+      "type": "definition",
+      "front": "In-degree và out-degree của một đỉnh trong đồ thị có hướng là gì?",
+      "back": "In-degree = số cạnh đi VÀO đỉnh. Out-degree = số cạnh đi RA khỏi đỉnh. Đỉnh in-degree=0 là source (không ai trỏ vào)."
+    },
+    {
+      "id": "fc-graph-max-edges",
+      "type": "formula",
+      "front": "Đồ thị vô hướng V đỉnh có tối đa bao nhiêu cạnh?",
+      "back": "$\\frac{V(V-1)}{2}$ — đây là đồ thị đầy đủ $K_V$ khi mọi cặp đỉnh đều nối nhau."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-graph-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Đồ thị vô hướng có 5 đỉnh và tổng bậc các đỉnh là 12. Hỏi đồ thị có bao nhiêu cạnh?",
+      "hints": [
+        "Dùng bổ đề bắt tay: tổng bậc = 2 × số cạnh.",
+        "Số cạnh = tổng bậc / 2."
+      ],
+      "solutionSteps": [
+        { "text": "Bổ đề bắt tay: tổng bậc = 2|E|.", "rule": "Handshaking Lemma" },
+        { "text": "12 = 2|E| → |E| = 6.", "isCommonMistake": false },
+        { "text": "Kiểm tra: 5 đỉnh tối đa có 5×4/2 = 10 cạnh. 6 ≤ 10, hợp lệ." }
+      ],
+      "answer": "6 cạnh",
+      "commonMistake": "Nhầm tổng bậc = số cạnh (không nhân đôi). Tổng bậc = 12 ≠ số cạnh.",
+      "relatedFlashcard": "fc-graph-handshake"
+    },
+    {
+      "id": "ex-graph-apply-1",
+      "difficulty": "apply",
+      "prompt": "Cho đồ thị vô hướng: đỉnh {0,1,2,3}, cạnh {(0,1),(0,2),(1,2),(2,3)}. Hãy viết adjacency list và adjacency matrix.",
+      "hints": [
+        "Adjacency list: với mỗi đỉnh, liệt kê các đỉnh kề.",
+        "Adjacency matrix 4×4: matrix[u][v]=1 nếu có cạnh, đối xứng vì vô hướng.",
+        "Mỗi cạnh (u,v) vô hướng xuất hiện 2 lần trong adj list."
+      ],
+      "solutionSteps": [
+        { "text": "Adjacency list:\n- 0: [1, 2]\n- 1: [0, 2]\n- 2: [0, 1, 3]\n- 3: [2]", "rule": "Mỗi cạnh thêm vào cả hai phía" },
+        { "text": "Ma trận kề:\n|   | 0 | 1 | 2 | 3 |\n|---|---|---|---|---|\n| 0 | 0 | 1 | 1 | 0 |\n| 1 | 1 | 0 | 1 | 0 |\n| 2 | 1 | 1 | 0 | 1 |\n| 3 | 0 | 0 | 1 | 0 |", "rule": "Ma trận đối xứng cho đồ thị vô hướng" },
+        { "text": "Kiểm tra bổ đề bắt tay: bậc = [2,2,3,1], tổng = 8 = 2×4 cạnh.", "isCommonMistake": true, "rule": "Quên gán matrix[v][u]=1 — ma trận không đối xứng là lỗi cực phổ biến" }
+      ],
+      "answer": "Adj list: 0:[1,2], 1:[0,2], 2:[0,1,3], 3:[2]. Ma trận 4×4 đối xứng như trên.",
+      "commonMistake": "Với đồ thị vô hướng, quên thêm cạnh ngược chiều trong adj list hoặc không gán matrix[v][u].",
+      "relatedFlashcard": "fc-adj-list-vs-matrix"
+    },
+    {
+      "id": "ex-graph-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Một mạng xã hội có 1 triệu người dùng (V = 10⁶). Trung bình mỗi người có 200 bạn bè. So sánh bộ nhớ adjacency list vs adjacency matrix. Tại sao Facebook/LinkedIn KHÔNG dùng adjacency matrix?",
+      "hints": [
+        "Adj list bộ nhớ: O(V + E). Tính E từ tổng bậc.",
+        "Tổng bậc = V × 200. E = tổng bậc / 2.",
+        "Adj matrix bộ nhớ: O(V²). V = 10⁶ → V² = 10¹².",
+        "1 bit = 1 cạnh. 10¹² bit = bao nhiêu TB?"
+      ],
+      "solutionSteps": [
+        { "text": "E = (V × avg_degree) / 2 = (10⁶ × 200) / 2 = 10⁸ cạnh.", "rule": "Handshaking Lemma: tổng bậc = 2E" },
+        { "text": "Adj list: O(V+E) = O(10⁶ + 10⁸) ≈ O(10⁸). Khoảng 100 triệu entries — vài GB.", "rule": "Adj list tỉ lệ với thực tế số kết nối" },
+        { "text": "Adj matrix: O(V²) = O(10¹²) = 1 nghìn tỷ ô. Dù chỉ 1 bit/ô = 125 GB chỉ để lưu matrix — và 99.98% ô là 0 (vì đồ thị rất thưa: E/V² = 10⁸/10¹² = 0.01%).", "isCommonMistake": true, "rule": "Đừng nhầm: đồ thị thực tế gần như luôn thưa (sparse) — adj matrix lãng phí khủng khiếp" },
+        { "text": "Kết luận: mạng xã hội là đồ thị thưa điển hình. Adjacency list tiết kiệm hơn 1000× và duyệt hàng xóm nhanh hơn. Matrix chỉ phù hợp khi V nhỏ hoặc đồ thị dày." }
+      ],
+      "answer": "Adj list ~vài GB, adj matrix ~125GB (chỉ lưu matrix, 99.98% ô = 0). → Adjacency list là lựa chọn duy nhất hợp lý.",
+      "commonMistake": "Quên rằng mạng xã hội là sparse graph. Adj matrix chỉ hiệu quả khi E ≈ V² (đồ thị dày).",
+      "relatedFlashcard": "fc-adj-list-vs-matrix"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-graph-1",
+      "type": "mcq",
+      "question": "Đồ thị vô hướng có 4 đỉnh và tổng bậc = 10. Có bao nhiêu cạnh?",
+      "options": ["4", "5", "10", "20"],
+      "correct": 1,
+      "explanation": "Bổ đề bắt tay: tổng bậc = 2|E| → |E| = 10/2 = 5."
+    },
+    {
+      "id": "q-graph-2",
+      "type": "mcq",
+      "question": "Bạn cần kiểm tra xem có cạnh giữa đỉnh u và v hay không với tốc độ O(1). Cấu trúc nào phù hợp?",
+      "options": [
+        "Adjacency list",
+        "Adjacency matrix",
+        "Danh sách cạnh (edge list)",
+        "Cả hai đều O(1)"
+      ],
+      "correct": 1,
+      "explanation": "Adjacency matrix tra bảng `matrix[u][v]` trong O(1). Adjacency list phải duyệt qua danh sách hàng xóm của u, tốn O(deg(u))."
+    },
+    {
+      "id": "q-graph-3",
+      "type": "mcq",
+      "question": "Đồ thị nào sau đây là directed graph (đồ thị có hướng)?",
+      "options": [
+        "Mạng lưới bạn bè Facebook (hai người cùng chấp nhận)",
+        "Dependency graph của npm packages (A import B)",
+        "Đường hai chiều trên bản đồ",
+        "Kết nối trong mạng LAN (có thể ping hai chiều)"
+      ],
+      "correct": 1,
+      "explanation": "Import/dependency là quan hệ một chiều: A import B không có nghĩa B import A. Facebook friendship, đường hai chiều, ping LAN đều là vô hướng (hai chiều)."
+    }
+  ]
+}

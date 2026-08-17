@@ -1,0 +1,233 @@
+{
+  "id": "area2_integrals-basics",
+  "title": "Tích phân cơ bản (Integrals)",
+  "area": 2,
+  "unit": "a2u2",
+  "order": 4,
+  "icon": "curve",
+  "tagline": "Tích phân đo diện tích dưới đồ thị — ý tưởng tích lũy từng phần nhỏ, xuất hiện trong xác suất, kỳ vọng và phân tích chi phí thuật toán.",
+  "readTime": "~16 min",
+  "prerequisites": ["area2_derivatives"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Nếu đạo hàm hỏi \"hàm số thay đổi nhanh đến đâu?\", thì tích phân (integral) hỏi ngược lại: **\"Tổng tích lũy của tất cả những thay đổi nhỏ đó là bao nhiêu?\"**\n\nHình ảnh trực quan nhất: **tích phân = diện tích dưới đồ thị** giữa hai điểm a và b.\n\nTrong CS, tích phân xuất hiện ở nhiều nơi:\n- **Xác suất**: diện tích dưới đường phân phối xác suất (PDF) = xác suất trong khoảng đó\n- **Kỳ vọng (expected value)**: $E[X] = \\int x \\cdot p(x) dx$ — tích phân nhân trọng số\n- **Tổng chi phí**: đếm tổng số thao tác trong thuật toán phức tạp có thể cần tích phân\n- **Amortized analysis**: tích phân là phiên bản liên tục của tổng rời rạc $\\sum$"
+    },
+    {
+      "type": "analogy",
+      "title": "Tích phân = đếm diện tích bằng cách ghép hình chữ nhật mỏng",
+      "content": "Hãy hình dung bạn muốn đo diện tích dưới một đường cong lạ. Cách đơn giản nhất:\n\n1. Chia khoảng [a, b] thành n hình chữ nhật rất hẹp (chiều rộng Δx)\n2. Mỗi hình có chiều cao f(x)\n3. Tổng diện tích ≈ $\\sum f(x_i) \\cdot \\Delta x$\n\nKhi n → ∞ (hình chữ nhật ngày càng mỏng hơn), tổng xấp xỉ trở thành chính xác — đó là tích phân.\n\n**Kết nối với xác suất**: Nếu f(x) là hàm mật độ xác suất (PDF), thì $\\int_a^b f(x)dx$ = xác suất biến ngẫu nhiên rơi vào khoảng [a,b]. Tổng toàn bộ diện tích = 1 (100% xác suất)."
+    },
+    {
+      "type": "formula",
+      "title": "Tích phân xác định (definite integral)",
+      "latex": "\\int_a^b f(x)\\, dx = \\lim_{n\\to\\infty} \\sum_{i=1}^{n} f(x_i) \\cdot \\Delta x",
+      "reading": "đọc là: tích phân từ a đến b của f(x) dx bằng giới hạn khi n tiến đến vô cực của tổng các hình chữ nhật mỏng.",
+      "symbols": [
+        { "sym": "\\int_a^b", "meaning": "tích phân từ a (cận dưới) đến b (cận trên)" },
+        { "sym": "f(x)\\,dx", "meaning": "f(x): chiều cao; dx: chiều rộng vô cùng nhỏ của mỗi dải" },
+        { "sym": "\\sum f(x_i)\\Delta x", "meaning": "tổng Riemann — xấp xỉ diện tích bằng hình chữ nhật" }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Diện tích dưới đồ thị f(x) = x² từ 0 đến 2",
+      "functions": [
+        { "fn": "x^2", "color": "#ffe08a" }
+      ],
+      "xDomain": [-0.5, 3],
+      "yDomain": [-0.5, 5],
+      "caption": "Vàng: f(x) = x². Tích phân từ 0 đến 2 = diện tích phần dưới đường cong này = 8/3 ≈ 2.67. Để 'cảm nhận' tích phân, tưởng tượng bạn lấp đầy vùng đó bằng hàng nghìn hình chữ nhật mỏng."
+    },
+    {
+      "type": "explanation",
+      "title": "Định lý cơ bản của giải tích — cầu nối đạo hàm và tích phân",
+      "content": "Đạo hàm và tích phân là **hai phép toán ngược nhau** — đây là phát hiện vĩ đại nhất của giải tích:\n\n**Định lý cơ bản:** Nếu F'(x) = f(x), thì:\n$$\\int_a^b f(x)\\,dx = F(b) - F(a)$$\n\nF được gọi là **nguyên hàm (antiderivative)** của f. Thay vì tính giới hạn tổng Riemann, ta chỉ cần:\n1. Tìm F sao cho F' = f\n2. Tính F(b) − F(a)\n\nVí dụ: $\\int_0^2 x^2\\,dx$. Vì $\\frac{d}{dx}[x^3/3] = x^2$, ta có $F(x) = x^3/3$. Kết quả: $F(2) - F(0) = 8/3 - 0 = 8/3$."
+    },
+    {
+      "type": "formula",
+      "title": "Định lý cơ bản của giải tích",
+      "latex": "\\int_a^b f(x)\\,dx = F(b) - F(a) \\quad \\text{where } F'(x) = f(x)",
+      "reading": "đọc là: tích phân từ a đến b của f(x) bằng F(b) trừ F(a), với F là nguyên hàm của f (hàm mà đạo hàm của nó là f).",
+      "symbols": [
+        { "sym": "F(x)", "meaning": "nguyên hàm (antiderivative) của f: hàm mà F'(x) = f(x)" },
+        { "sym": "F(b) - F(a)", "meaning": "tính tại hai cận rồi trừ — cách tính nhanh không cần tổng Riemann" },
+        { "sym": "F'(x) = f(x)", "meaning": "điều kiện: F phải có đạo hàm bằng f" }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Quy tắc nguyên hàm cơ bản",
+      "content": "Nguyên hàm là phép tính ngược của đạo hàm. Quy tắc cơ bản:\n\n- **Lũy thừa:** $\\int x^n\\,dx = \\frac{x^{n+1}}{n+1} + C$ (với n ≠ −1)\n- **Hằng số:** $\\int c\\,dx = cx + C$\n- **Tổng:** $\\int [f(x) + g(x)]\\,dx = \\int f\\,dx + \\int g\\,dx$\n\nLưu ý quan trọng: **+ C** (hằng số tích phân) — vì đạo hàm của hằng số = 0, nguyên hàm không xác định duy nhất. Nhưng với tích phân xác định (có cận a, b), C biến mất vì F(b)−F(a) loại C ra.\n\nVí dụ: $\\int 3x^2\\,dx = 3 \\cdot \\frac{x^3}{3} + C = x^3 + C$"
+    },
+    {
+      "type": "graph",
+      "title": "Tích phân = tổng tích lũy — diện tích tăng dần",
+      "functions": [
+        { "fn": "x^2", "color": "#ffe08a" },
+        { "fn": "x^3 / 3", "color": "#7fded1" }
+      ],
+      "xDomain": [-1, 3],
+      "yDomain": [-1, 6],
+      "caption": "Vàng: f(x) = x² (hàm gốc). Xanh: F(x) = x³/3 (nguyên hàm). F là 'diện tích tích lũy' dưới f từ 0 đến x. Khi f tăng (f > 0), F dốc lên — khi nào f = 0, F đạt cực trị."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 1: tính tích phân xác định",
+      "problem": "Tính $\\int_1^3 (2x + 1)\\,dx$.",
+      "steps": [
+        { "text": "Tìm nguyên hàm: $\\int(2x+1)\\,dx = x^2 + x + C$.", "rule": "Quy tắc lũy thừa ngược: $\\int x^n dx = x^{n+1}/(n+1)$" },
+        { "text": "Áp dụng định lý cơ bản: $[x^2+x]_1^3 = F(3) - F(1)$.", "rule": "Định lý cơ bản của giải tích" },
+        { "text": "$F(3) = 9 + 3 = 12$. $F(1) = 1 + 1 = 2$.", "isCommonMistake": false },
+        { "text": "$\\int_1^3(2x+1)\\,dx = 12 - 2 = 10$.", "isCommonMistake": false },
+        { "text": "Lỗi hay gặp: quên trừ F(1) — chỉ tính F(3)=12 rồi báo kết quả là 12.", "isCommonMistake": true, "rule": "Tích phân xác định = F(cận trên) − F(cận dưới). PHẢI trừ cả hai cận" }
+      ],
+      "result": "$\\int_1^3 (2x+1)\\,dx = 10$ (diện tích hình thang dưới đường 2x+1 từ x=1 đến x=3)"
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 2: kỳ vọng và diện tích dưới PDF",
+      "problem": "Xác suất thời gian phản hồi server (tính bằng giây) theo phân phối đều: $p(x) = 0.5$ trên $[0, 2]$ (0 ngoài khoảng đó). Tính xác suất phản hồi trong vòng 1 giây: $P(0 \\le X \\le 1)$.",
+      "steps": [
+        { "text": "$P(0 \\le X \\le 1) = \\int_0^1 p(x)\\,dx = \\int_0^1 0.5\\,dx$.", "rule": "Xác suất = diện tích dưới PDF" },
+        { "text": "$\\int_0^1 0.5\\,dx = 0.5x \\Big|_0^1 = 0.5(1) - 0.5(0) = 0.5$.", "rule": "Nguyên hàm của hằng số c là cx" },
+        { "text": "Xác suất = 0.5 = 50%.", "isCommonMistake": false },
+        { "text": "Kiểm tra sanity: $\\int_0^2 0.5\\,dx = 0.5 \\times 2 = 1$ ✓ (tổng xác suất = 100%).", "isCommonMistake": false },
+        { "text": "Lỗi hay gặp: nhân 0.5 × 1 = 0.5 mà không dùng tích phân, được đúng nhưng vô tình chỉ đúng vì phân phối đều. Với PDF phức tạp hơn (Gaussian, Poisson), PHẢI dùng tích phân.", "isCommonMistake": true, "rule": "Chỉ phân phối đều mới có P = chiều cao × chiều rộng. PDF tổng quát cần tích phân." }
+      ],
+      "result": "$P(0 \\le X \\le 1) = 0.5$ — 50% khả năng server phản hồi trong 1 giây."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi hay gặp — quên hằng số C và nhầm tích phân bất định vs xác định:**\n- **Tích phân bất định** $\\int f(x)dx = F(x) + C$ — không có cận, phải thêm +C.\n- **Tích phân xác định** $\\int_a^b f(x)dx = F(b) - F(a)$ — có cận a và b, C triệt tiêu, ra một con số.\n\nHai loại này khác nhau hoàn toàn. Tích phân xác định là diện tích (một số); tích phân bất định là họ hàm (một hàm + C)."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Tích phân = diện tích dưới đồ thị = tổng tích lũy các thay đổi nhỏ.",
+        "Định lý cơ bản: $\\int_a^b f(x)dx = F(b) - F(a)$, trong đó F' = f.",
+        "Quy tắc nguyên hàm: $\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$ (n ≠ −1).",
+        "Trong xác suất: diện tích dưới PDF = xác suất; tổng toàn bộ = 1.",
+        "Tích phân là phiên bản liên tục của tổng $\\sum$ — kết nối với expected value, amortized cost."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-int-def",
+      "type": "definition",
+      "front": "Ý nghĩa hình học của tích phân $\\int_a^b f(x)dx$ là gì?",
+      "back": "Diện tích dưới đồ thị f(x) từ x=a đến x=b (phần trên trục x dương, phần dưới âm)."
+    },
+    {
+      "id": "fc-int-ftc",
+      "type": "formula",
+      "front": "Định lý cơ bản của giải tích: $\\int_a^b f(x)dx = ?$",
+      "back": "$F(b) - F(a)$, trong đó F là nguyên hàm của f: $F'(x) = f(x)$. Đạo hàm và tích phân là phép toán ngược nhau."
+    },
+    {
+      "id": "fc-int-power",
+      "type": "formula",
+      "front": "Quy tắc nguyên hàm lũy thừa: $\\int x^n dx = ?$",
+      "back": "$\\frac{x^{n+1}}{n+1} + C$ (với n ≠ −1). Ngược với power rule đạo hàm: tăng số mũ lên 1, chia cho số mũ mới."
+    },
+    {
+      "id": "fc-int-prob",
+      "type": "concept",
+      "front": "Tích phân liên quan đến xác suất như thế nào?",
+      "back": "Nếu p(x) là hàm mật độ xác suất (PDF), thì $P(a \\le X \\le b) = \\int_a^b p(x)dx$. Tổng toàn bộ = $\\int_{-\\infty}^{+\\infty} p(x)dx = 1$."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-int-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Tính $\\int_0^2 x^3\\,dx$.",
+      "hints": [
+        "Tìm nguyên hàm của x³ trước: $\\int x^3 dx = ?$",
+        "Áp dụng công thức: $\\int x^n dx = x^{n+1}/(n+1)$.",
+        "Sau đó áp dụng định lý cơ bản: F(2) − F(0)."
+      ],
+      "solutionSteps": [
+        { "text": "Nguyên hàm: $\\int x^3 dx = \\frac{x^4}{4} + C$.", "rule": "Quy tắc nguyên hàm lũy thừa" },
+        { "text": "$F(x) = x^4/4$. Tính tại cận: $F(2) = 16/4 = 4$. $F(0) = 0$.", "rule": "Định lý cơ bản" },
+        { "text": "$\\int_0^2 x^3 dx = F(2) - F(0) = 4 - 0 = 4$.", "isCommonMistake": false },
+        { "text": "Lỗi hay gặp: tính nguyên hàm là $x^4$ (quên chia 4), rồi ra F(2)=16.", "isCommonMistake": true, "rule": "Nguyên hàm x^n = x^(n+1) CHIA (n+1), không chỉ tăng số mũ" }
+      ],
+      "answer": "4",
+      "commonMistake": "Quên chia cho (n+1) trong công thức nguyên hàm — viết x⁴ thay vì x⁴/4.",
+      "relatedFlashcard": "fc-int-power"
+    },
+    {
+      "id": "ex-int-apply-1",
+      "difficulty": "apply",
+      "prompt": "Tính diện tích dưới đường $f(x) = 3x^2 + 2x$ từ $x = 1$ đến $x = 3$.",
+      "hints": [
+        "Tích phân xác định = diện tích dưới đồ thị.",
+        "Tìm nguyên hàm từng số hạng: $\\int 3x^2 dx$ và $\\int 2x dx$.",
+        "Áp dụng F(3) − F(1)."
+      ],
+      "solutionSteps": [
+        { "text": "Nguyên hàm: $\\int(3x^2 + 2x)dx = x^3 + x^2 + C$.", "rule": "Quy tắc nguyên hàm: $\\int 3x^2 dx = x^3$, $\\int 2x dx = x^2$" },
+        { "text": "$F(3) = 27 + 9 = 36$. $F(1) = 1 + 1 = 2$.", "isCommonMistake": false },
+        { "text": "$\\int_1^3 (3x^2+2x)\\,dx = 36 - 2 = 34$.", "isCommonMistake": false },
+        { "text": "Lỗi hay gặp: tính F(3) = 36 và quên trừ F(1). Kết quả sai = 36.", "isCommonMistake": true, "rule": "Tích phân xác định = F(cận TRÊN) − F(cận DƯỚI). Không quên cận dưới!" }
+      ],
+      "answer": "34",
+      "commonMistake": "Quên trừ giá trị nguyên hàm tại cận dưới — chỉ tính F(3) mà không trừ F(1).",
+      "relatedFlashcard": "fc-int-ftc"
+    },
+    {
+      "id": "ex-int-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Thời gian phản hồi API (giây) có PDF: $p(x) = 2e^{-2x}$ với $x \\ge 0$ (phân phối mũ). Tính xác suất phản hồi trong khoảng 0 đến 1 giây: $P(0 \\le X \\le 1) = \\int_0^1 2e^{-2x}\\,dx$. Biết nguyên hàm $\\int e^{-2x}dx = -\\frac{1}{2}e^{-2x}$.",
+      "hints": [
+        "Áp dụng: $\\int 2e^{-2x}dx = 2 \\cdot (-\\frac{1}{2}e^{-2x}) = -e^{-2x}$.",
+        "Tính $F(1) - F(0)$ với $F(x) = -e^{-2x}$.",
+        "$e^{-2} \\approx 0.135$."
+      ],
+      "solutionSteps": [
+        { "text": "Nguyên hàm: $\\int 2e^{-2x}dx = -e^{-2x} + C$.", "rule": "Nguyên hàm của $ce^{kx}$ là $\\frac{c}{k}e^{kx}$" },
+        { "text": "$F(x) = -e^{-2x}$. $F(1) = -e^{-2} \\approx -0.135$. $F(0) = -e^0 = -1$.", "isCommonMistake": false },
+        { "text": "$P(0\\le X\\le 1) = F(1) - F(0) = (-0.135) - (-1) = 0.865$.", "rule": "Định lý cơ bản" },
+        { "text": "Kết quả: ~86.5% xác suất server phản hồi trong 1 giây.", "isCommonMistake": false },
+        { "text": "Lỗi hay gặp: tính $F(1) - F(0) = -0.135 - 1 = -1.135$ (quên dấu của F(0)=-1 → $-(-1)=+1$).", "isCommonMistake": true, "rule": "Trừ một số âm = cộng: $(-0.135) - (-1) = -0.135 + 1 = 0.865$. Cẩn thận dấu!" }
+      ],
+      "answer": "$P(0 \\le X \\le 1) = 1 - e^{-2} \\approx 0.865$ — 86.5% xác suất. Đây là cách tính CDF của phân phối mũ.",
+      "commonMistake": "Sai dấu khi tính F(0) = −e⁰ = −1, sau đó nhầm F(1)−F(0) = −0.135 − 1 thay vì −0.135 − (−1).",
+      "relatedFlashcard": "fc-int-prob"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-int-1",
+      "type": "mcq",
+      "question": "$\\int_0^3 2x\\,dx$ bằng bao nhiêu?",
+      "options": ["3", "6", "9", "18"],
+      "correct": 2,
+      "explanation": "Nguyên hàm của 2x là $x^2$. $F(3) - F(0) = 9 - 0 = 9$. Hình học: tam giác có đáy 3, chiều cao 6, diện tích = 3×6/2 = 9. ✓"
+    },
+    {
+      "id": "q-int-2",
+      "type": "mcq",
+      "question": "Nếu p(x) là PDF của biến ngẫu nhiên X, thì $\\int_{-\\infty}^{+\\infty} p(x)\\,dx$ bằng bao nhiêu?",
+      "options": ["0", "1", "Phụ thuộc vào X", "Vô cực"],
+      "correct": 1,
+      "explanation": "Tổng tất cả xác suất luôn bằng 1 (100%). Đây là tính chất định nghĩa của PDF — diện tích toàn bộ dưới đường cong = 1."
+    },
+    {
+      "id": "q-int-3",
+      "type": "mcq",
+      "question": "Định lý cơ bản của giải tích nói gì về đạo hàm và tích phân?",
+      "options": [
+        "Tích phân là bình phương của đạo hàm",
+        "Đạo hàm và tích phân là hai phép toán ngược nhau",
+        "Tích phân xác định luôn bằng diện tích dương",
+        "Đạo hàm của một hằng số là tích phân đó"
+      ],
+      "correct": 1,
+      "explanation": "Nếu F'(x) = f(x) (F là nguyên hàm của f), thì $\\int_a^b f(x)dx = F(b) - F(a)$. Lấy tích phân của f rồi lấy đạo hàm lại là ra f — hai phép toán triệt tiêu nhau."
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "id": "area3_matrix-multiplication",
+  "title": "Nhân ma trận (Matrix Multiplication)",
+  "area": 3,
+  "unit": "a3u1",
+  "order": 3,
+  "icon": "matrix",
+  "tagline": "Nhân ma trận là phép toán đằng sau forward pass của neural network, phép biến hình 3D trong game, và hợp thành các bước xử lý dữ liệu.",
+  "readTime": "~16 min",
+  "prerequisites": ["area3_matrices-operations"],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Nhân ma trận (matrix multiplication) là phép toán quan trọng nhất trong đại số tuyến tính ứng dụng. Không giống cộng ma trận, nhân ma trận có quy tắc phức tạp hơn — nhưng khi hiểu đúng, bạn sẽ thấy nó là **cỗ máy tổng hợp thông tin** cực kỳ mạnh.\n\nNhân ma trận xuất hiện ở đâu trong CS?\n\n- **Neural networks:** mỗi layer là $\\text{output} = W \\cdot \\text{input} + b$ — nhân ma trận trọng số với vector đầu vào.\n- **Computer graphics:** xoay, scale, project một hình 3D đều là nhân ma trận transform.\n- **Hợp thành phép biến đổi (composition):** áp dụng hai phép biến đổi A rồi B tương đương nhân AB rồi áp một lần.\n- **Google PageRank:** tính toán dựa trên lũy thừa của ma trận kề (adjacency matrix)."
+    },
+    {
+      "type": "analogy",
+      "title": "Nhân ma trận như \"kết hợp nhiều quy tắc chấm điểm\"",
+      "content": "Hãy nghĩ đến bài thi có 3 câu, và 4 học sinh. Ma trận điểm $S$ (4×3) — mỗi hàng là một học sinh, mỗi cột là điểm một câu.\n\nBan giám khảo quyết định 3 môn thi: mỗi môn có trọng số khác nhau cho 3 câu. Ma trận trọng số $W$ (3×2) — mỗi cột là bộ trọng số cho 1 môn.\n\nKết quả $S \\times W$ (4×2) cho ra điểm tổng hợp của mỗi học sinh cho mỗi môn — **mỗi phần tử là dot product của một hàng với một cột**.\n\nĐây chính xác là cơ chế của một linear layer trong neural network: mỗi neuron đầu ra là dot product của input vector với một hàng của weight matrix."
+    },
+    {
+      "type": "formula",
+      "title": "Quy tắc nhân ma trận",
+      "latex": "(AB)_{ij} = \\sum_{k=1}^{p} a_{ik} \\cdot b_{kj} \\qquad A_{m\\times p} \\cdot B_{p\\times n} = C_{m\\times n}",
+      "reading": "đọc là: phần tử (i,j) của tích AB bằng dot product của hàng i của A với cột j của B. Kích thước: A (m×p) nhân B (p×n) cho kết quả C (m×n).",
+      "symbols": [
+        { "sym": "p", "meaning": "số cột của A = số hàng của B — điều kiện bắt buộc để nhân được" },
+        { "sym": "a_{ik}", "meaning": "phần tử hàng i, cột k của ma trận A" },
+        { "sym": "b_{kj}", "meaning": "phần tử hàng k, cột j của ma trận B" },
+        { "sym": "C_{m \\times n}", "meaning": "kết quả có m hàng (từ A) và n cột (từ B)" }
+      ]
+    },
+    {
+      "type": "diagram",
+      "title": "Luồng dữ liệu nhân ma trận — trực quan hóa",
+      "mermaid": "graph LR\n    subgraph A [\"Ma trận A (m×p)\"]\n        A1[\"Hàng i của A\\n[a₁ a₂ ... aₚ]\"]\n    end\n    subgraph B [\"Ma trận B (p×n)\"]\n        B1[\"Cột j của B\\n[b₁ b₂ ... bₚ]ᵀ\"]\n    end\n    A1 -->|\"dot product\"| C1[\"C[i][j] = Σ aₖ·bₖ\"]\n    B1 -->|\"dot product\"| C1\n    C1 --> C[\"Ma trận kết quả C (m×n)\"]",
+      "caption": "Mỗi phần tử C[i][j] = dot product của hàng i (từ A) với cột j (từ B). Phải tính m×n phép dot product để ra toàn bộ C."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 1: Nhân ma trận 2×2",
+      "problem": "Tính $AB$ với $A = \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}$ và $B = \\begin{bmatrix} 5 & 6 \\\\ 7 & 8 \\end{bmatrix}$.",
+      "steps": [
+        { "text": "Kiểm tra điều kiện: A là 2×2, B là 2×2 → số cột A (=2) = số hàng B (=2) ✓. Kết quả C sẽ là 2×2.", "rule": "Điều kiện: cột A = hàng B" },
+        { "text": "$C_{11}$ = hàng 1 của A · cột 1 của B = $1\\times5 + 2\\times7 = 5 + 14 = 19$.", "rule": "Dot product hàng-cột" },
+        { "text": "$C_{12}$ = hàng 1 của A · cột 2 của B = $1\\times6 + 2\\times8 = 6 + 16 = 22$." },
+        { "text": "$C_{21}$ = hàng 2 của A · cột 1 của B = $3\\times5 + 4\\times7 = 15 + 28 = 43$." },
+        { "text": "$C_{22}$ = hàng 2 của A · cột 2 của B = $3\\times6 + 4\\times8 = 18 + 32 = 50$." },
+        { "text": "Lỗi hay gặp: cộng hàng của A với hàng của B (như cộng ma trận) thay vì nhân hàng A với CỘT B.", "isCommonMistake": true, "rule": "Nhân ma trận dùng hàng × cột, không phải hàng × hàng" }
+      ],
+      "result": "$AB = \\begin{bmatrix} 19 & 22 \\\\ 43 & 50 \\end{bmatrix}$"
+    },
+    {
+      "type": "explanation",
+      "title": "Nhân ma trận KHÔNG giao hoán — cực kỳ quan trọng",
+      "content": "Đây là điều khác biệt lớn nhất so với nhân số thực: **$AB \\neq BA$ trong trường hợp chung.**\n\nVí dụ với cùng A, B từ ví dụ trên:\n\n$BA = \\begin{bmatrix} 5 & 6 \\\\ 7 & 8 \\end{bmatrix} \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix} = \\begin{bmatrix} 23 & 34 \\\\ 31 & 46 \\end{bmatrix} \\neq AB$\n\nTrong neural networks: nếu bạn nhân nhầm thứ tự weight matrix, toàn bộ forward pass sai — đây là lỗi rất phổ biến.\n\nTuy nhiên, nhân ma trận **có kết hợp (associative):** $(AB)C = A(BC)$. Và **phân phối (distributive):** $A(B+C) = AB + AC$."
+    },
+    {
+      "type": "formula",
+      "title": "Tính chất của nhân ma trận",
+      "latex": "AB \\neq BA \\quad \\text{(not commutative)} \\qquad (AB)C = A(BC) \\quad \\text{(associative)} \\qquad (AB)^T = B^T A^T",
+      "reading": "đọc là: nhân ma trận không giao hoán; có tính kết hợp; transpose của tích = tích transpose theo thứ tự ngược.",
+      "symbols": [
+        { "sym": "AB \\neq BA", "meaning": "thứ tự nhân quan trọng — đổi thứ tự sẽ ra kết quả khác (hoặc thậm chí không tính được)" },
+        { "sym": "(AB)^T = B^T A^T", "meaning": "transpose của tích: đảo thứ tự VÀ transpose từng ma trận" }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 2: Neural network layer — nhân ma trận thực tế",
+      "problem": "Input vector $\\mathbf{x} = \\begin{bmatrix} 1 \\\\ 2 \\\\ 3 \\end{bmatrix}$ (3 features). Weight matrix $W = \\begin{bmatrix} 1 & 0 & -1 \\\\ 0 & 1 & 2 \\end{bmatrix}$ (2 neurons, 3 inputs). Tính output $\\mathbf{y} = W\\mathbf{x}$.",
+      "steps": [
+        { "text": "W là 2×3, x là 3×1. Số cột W (=3) = số hàng x (=3) ✓. Kết quả y là 2×1 — 2 neurons.", "rule": "Điều kiện nhân: cột trái = hàng phải" },
+        { "text": "$y_1$ = hàng 1 của W · x = $1\\times1 + 0\\times2 + (-1)\\times3 = 1 + 0 - 3 = -2$." },
+        { "text": "$y_2$ = hàng 2 của W · x = $0\\times1 + 1\\times2 + 2\\times3 = 0 + 2 + 6 = 8$." },
+        { "text": "Kết quả: $\\mathbf{y} = \\begin{bmatrix} -2 \\\\ 8 \\end{bmatrix}$ — đây là pre-activation output của layer.", "isCommonMistake": false },
+        { "text": "Lỗi nhân nhầm chiều: tính $\\mathbf{x}W$ thay vì $W\\mathbf{x}$ — sai thứ tự trong neural net làm shape không khớp.", "isCommonMistake": true, "rule": "Trong Wx: W là weight (m×n), x là input (n×1), output là (m×1)" }
+      ],
+      "result": "$W\\mathbf{x} = \\begin{bmatrix} -2 \\\\ 8 \\end{bmatrix}$ — output của 2 neurons"
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Shape mismatch — lỗi #1 trong Deep Learning:** `ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0`. Khi gặp lỗi này, kiểm tra ngay: cột của ma trận TRÁI có bằng hàng của ma trận PHẢI không? Luôn in `A.shape` và `B.shape` trước khi nhân. Thứ tự sai (AB vs BA) cũng có thể cho shape đúng nhưng kết quả hoàn toàn sai về ngữ nghĩa."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Nhân $A_{m\\times p} \\cdot B_{p\\times n}$: cột A PHẢI bằng hàng B; kết quả là $C_{m\\times n}$.",
+        "Mỗi phần tử $C_{ij}$ = dot product của hàng i (A) với cột j (B).",
+        "KHÔNG giao hoán: $AB \\neq BA$ — thứ tự nhân luôn quan trọng.",
+        "$(AB)^T = B^T A^T$ — transpose đảo thứ tự.",
+        "Ứng dụng: neural network layer ($\\mathbf{y}=W\\mathbf{x}$), graphics transform, composition nhiều phép biến đổi."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-matmul-condition",
+      "type": "formula",
+      "front": "Điều kiện để tính $AB$ và kích thước kết quả?",
+      "back": "Số cột A = số hàng B. Nếu $A_{m\\times p}$ và $B_{p\\times n}$ thì $AB$ có kích thước $m\\times n$."
+    },
+    {
+      "id": "fc-matmul-element",
+      "type": "formula",
+      "front": "Công thức phần tử $(AB)_{ij}$?",
+      "back": "$(AB)_{ij} = \\sum_{k=1}^{p} a_{ik} b_{kj}$ — dot product của hàng i (A) với cột j (B)."
+    },
+    {
+      "id": "fc-matmul-noncommute",
+      "type": "concept",
+      "front": "Nhân ma trận có tính giao hoán không?",
+      "back": "**Không.** $AB \\neq BA$ trong trường hợp chung. Thứ tự nhân quan trọng — đây là khác biệt lớn nhất so với nhân số thực."
+    },
+    {
+      "id": "fc-matmul-transpose",
+      "type": "formula",
+      "front": "$(AB)^T = ?$",
+      "back": "$(AB)^T = B^T A^T$ — transpose của tích: transpose từng ma trận và đảo thứ tự."
+    },
+    {
+      "id": "fc-matmul-nn",
+      "type": "concept",
+      "front": "Trong neural network, một linear layer tính gì?",
+      "back": "$\\mathbf{y} = W\\mathbf{x} + \\mathbf{b}$ — nhân weight matrix $W$ với input vector $\\mathbf{x}$ rồi cộng bias. Đây là nhân ma trận."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-matmul-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Tính $AB$ với $A = \\begin{bmatrix} 2 & 1 \\\\ 0 & 3 \\end{bmatrix}$ và $B = \\begin{bmatrix} 1 & 0 \\\\ -1 & 2 \\end{bmatrix}$.",
+      "hints": [
+        "Kiểm tra điều kiện: cột A = hàng B?",
+        "$C_{11}$ = hàng 1 của A · cột 1 của B = $2\\times1 + 1\\times(-1)$"
+      ],
+      "solutionSteps": [
+        { "text": "A là 2×2, B là 2×2. Cột A (=2) = hàng B (=2) ✓.", "rule": "Điều kiện nhân ma trận" },
+        { "text": "$C_{11} = 2\\times1 + 1\\times(-1) = 2 - 1 = 1$." },
+        { "text": "$C_{12} = 2\\times0 + 1\\times2 = 0 + 2 = 2$." },
+        { "text": "$C_{21} = 0\\times1 + 3\\times(-1) = 0 - 3 = -3$.", "isCommonMistake": false },
+        { "text": "$C_{22} = 0\\times0 + 3\\times2 = 0 + 6 = 6$." }
+      ],
+      "answer": "$AB = \\begin{bmatrix} 1 & 2 \\\\ -3 & 6 \\end{bmatrix}$",
+      "commonMistake": "Nhân phần tử theo vị trí (như Hadamard product): $2\\times1, 1\\times0, 0\\times(-1), 3\\times2$ — đó là phép khác.",
+      "relatedFlashcard": "fc-matmul-element"
+    },
+    {
+      "id": "ex-matmul-apply-1",
+      "difficulty": "apply",
+      "prompt": "Ma trận biến hình xoay 90° ngược chiều kim đồng hồ là $R = \\begin{bmatrix} 0 & -1 \\\\ 1 & 0 \\end{bmatrix}$. Áp dụng R lên điểm $\\mathbf{p} = \\begin{bmatrix} 3 \\\\ 1 \\end{bmatrix}$. Điểm mới ở đâu?",
+      "hints": [
+        "Tính $R\\mathbf{p}$ — nhân ma trận 2×2 với vector cột 2×1.",
+        "Kết quả là tọa độ sau khi xoay."
+      ],
+      "solutionSteps": [
+        { "text": "$R\\mathbf{p} = \\begin{bmatrix} 0 & -1 \\\\ 1 & 0 \\end{bmatrix} \\begin{bmatrix} 3 \\\\ 1 \\end{bmatrix}$.", "rule": "Nhân ma trận transform với vector điểm" },
+        { "text": "$y_1 = 0\\times3 + (-1)\\times1 = -1$." },
+        { "text": "$y_2 = 1\\times3 + 0\\times1 = 3$." },
+        { "text": "Điểm $(3,1)$ sau khi xoay 90° CCW → $(-1, 3)$. Kiểm tra: điểm dịch từ góc phần tư 1 sang góc phần tư 2.", "isCommonMistake": false },
+        { "text": "Lỗi hay gặp: dùng $\\mathbf{p}R$ (vector nhân bên trái ma trận) — shape sẽ là $1\\times2$ × $2\\times2$ → $1\\times2$, không phải vector cột.", "isCommonMistake": true, "rule": "Nhân đúng thứ tự: $R\\mathbf{p}$ (transform × point), không phải $\\mathbf{p}R$" }
+      ],
+      "answer": "Điểm mới: $(-1, 3)$",
+      "commonMistake": "Nhầm thứ tự: tính $\\mathbf{p}R$ thay vì $R\\mathbf{p}$ — trong graphics, transform luôn nhân bên trái.",
+      "relatedFlashcard": "fc-matmul-nn"
+    },
+    {
+      "id": "ex-matmul-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Một mạng nơ-ron có 2 layer: Layer 1 có weight $W_1$ (kích thước $4\\times3$), Layer 2 có weight $W_2$ (kích thước $2\\times4$). Input $\\mathbf{x}$ là vector 3 chiều. (a) Tính kích thước output của từng layer. (b) Hợp thành (composition) $W_2 W_1$ có kích thước bao nhiêu? (c) Điều này có nghĩa gì về hiệu quả tính toán?",
+      "hints": [
+        "Layer 1: $W_1 \\mathbf{x}$, Layer 2: $W_2(W_1\\mathbf{x})$.",
+        "Nhân ma trận có tính kết hợp: $W_2(W_1\\mathbf{x}) = (W_2 W_1)\\mathbf{x}$.",
+        "$(W_2 W_1)$: $(2\\times4) \\cdot (4\\times3) = ?$"
+      ],
+      "solutionSteps": [
+        { "text": "(a) Layer 1: $W_1(4\\times3)\\cdot\\mathbf{x}(3\\times1) = $ output $(4\\times1)$ — 4 neurons. Layer 2: $W_2(2\\times4)\\cdot(4\\times1) = $ output $(2\\times1)$ — 2 neurons.", "rule": "Kích thước kết quả nhân ma trận" },
+        { "text": "(b) $W_2 W_1$: $(2\\times4)\\cdot(4\\times3) = (2\\times3)$ — ma trận hợp thành 2×3.", "rule": "Tính kết hợp: $(W_2 W_1)\\mathbf{x}$" },
+        { "text": "(c) Nếu chạy inference nhiều lần, tính $W_2 W_1$ một lần (2×3) rồi nhân với từng $\\mathbf{x}$ (3×1) hiệu quả hơn tính $W_1\\mathbf{x}$ rồi $W_2$ hai lần.", "isCommonMistake": false },
+        { "text": "Lưu ý: chỉ áp dụng khi không có activation function (phi tuyến) ở giữa — nếu có ReLU/sigmoid, không thể hợp thành vì không còn tuyến tính.", "isCommonMistake": true, "rule": "Hợp thành tuyến tính chỉ đúng khi KHÔNG có activation function phi tuyến" }
+      ],
+      "answer": "(a) Layer1→4D, Layer2→2D. (b) $W_2W_1$ là 2×3. (c) Inference hiệu quả hơn nếu không có activation giữa các layer.",
+      "commonMistake": "Nghĩ rằng luôn có thể hợp thành hai layer — không thể khi có ReLU/sigmoid ở giữa.",
+      "relatedFlashcard": "fc-matmul-nn"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-matmul-1",
+      "type": "mcq",
+      "question": "Cho $A_{3\\times4}$ và $B_{4\\times2}$. Kích thước của $AB$ là bao nhiêu?",
+      "options": ["4×4", "3×2", "3×4", "Không tính được"],
+      "correct": 1,
+      "explanation": "Cột A (=4) = hàng B (=4) → hợp lệ. Kết quả: hàng A × cột B = 3×2."
+    },
+    {
+      "id": "q-matmul-2",
+      "type": "mcq",
+      "question": "Phát biểu nào ĐÚNG về nhân ma trận?",
+      "options": [
+        "$AB = BA$ luôn đúng",
+        "$AB \\neq BA$ trong trường hợp chung",
+        "$(AB)C \\neq A(BC)$ — không có tính kết hợp",
+        "Hai ma trận bất kỳ đều nhân được với nhau"
+      ],
+      "correct": 1,
+      "explanation": "Nhân ma trận KHÔNG giao hoán ($AB \\neq BA$) nhưng CÓ tính kết hợp $(AB)C = A(BC)$ và cần điều kiện cột-hàng khớp."
+    },
+    {
+      "id": "q-matmul-3",
+      "type": "mcq",
+      "question": "Trong PyTorch/NumPy, lệnh nào thực hiện nhân ma trận (matrix multiplication)?",
+      "options": [
+        "`A * B` (Hadamard product — nhân phần tử)",
+        "`A @ B` hoặc `torch.matmul(A, B)`",
+        "`A + B`",
+        "`A.dot(B)` luôn đúng với ma trận bất kỳ"
+      ],
+      "correct": 1,
+      "explanation": "`@` là toán tử nhân ma trận trong Python/NumPy/PyTorch. `*` là Hadamard product (nhân từng phần tử). `np.dot` cũng hoạt động nhưng `@` rõ nghĩa hơn."
+    }
+  ]
+}
