@@ -1,5 +1,6 @@
 import type { ContentSection } from '@/types/content-schema-types';
 import { BlockFormula, InlineFormula } from '@/components/ui/katex-formula';
+import { InlineMarkdown } from './inline-markdown';
 
 interface FormulaSectionProps {
   section: ContentSection;
@@ -12,7 +13,9 @@ export function FormulaSection({ section }: FormulaSectionProps) {
   return (
     <div className="rounded-card border border-accent-blue/30 bg-accent-blue/5 p-5 space-y-4">
       {title && (
-        <h3 className="text-base font-semibold text-text-primary">{title}</h3>
+        <h3 className="text-base font-semibold text-text-primary">
+          <InlineMarkdown text={title} />
+        </h3>
       )}
 
       {latex && (
@@ -22,7 +25,9 @@ export function FormulaSection({ section }: FormulaSectionProps) {
       )}
 
       {reading && (
-        <p className="text-text-muted text-sm italic">{reading}</p>
+        <p className="text-text-muted text-sm italic">
+          <InlineMarkdown text={reading} />
+        </p>
       )}
 
       {symbols && symbols.length > 0 && (
@@ -39,7 +44,9 @@ export function FormulaSection({ section }: FormulaSectionProps) {
                 <td className="py-1.5 pr-4 font-mono text-accent-orange">
                   <InlineFormula latex={s.sym} />
                 </td>
-                <td className="py-1.5 text-text-secondary">{s.meaning}</td>
+                <td className="py-1.5 text-text-secondary">
+                  <InlineMarkdown text={s.meaning} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -47,7 +54,9 @@ export function FormulaSection({ section }: FormulaSectionProps) {
       )}
 
       {caption && (
-        <p className="text-xs text-text-muted text-center pt-1">{caption}</p>
+        <p className="text-xs text-text-muted text-center pt-1">
+          <InlineMarkdown text={caption} />
+        </p>
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { InlineMarkdown } from '@/components/topic/inline-markdown';
 
 // Lazy singleton mermaid instance, configured once for the dark theme.
 let mermaidPromise: Promise<typeof import('mermaid').default> | null = null;
@@ -72,7 +73,9 @@ export function MermaidDiagramRenderer({ chart, caption }: MermaidDiagramRendere
         dangerouslySetInnerHTML={{ __html: svg }}
       />
       {caption && (
-        <figcaption className="mt-3 text-center text-xs text-text-muted">{caption}</figcaption>
+        <figcaption className="mt-3 text-center text-xs text-text-muted">
+          <InlineMarkdown text={caption} />
+        </figcaption>
       )}
     </figure>
   );

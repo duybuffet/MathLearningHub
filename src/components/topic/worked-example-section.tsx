@@ -12,7 +12,9 @@ export function WorkedExampleSection({ section }: WorkedExampleSectionProps) {
   return (
     <div className="rounded-card border border-accent-green/30 bg-accent-green/5 p-5 space-y-4">
       {title && (
-        <h3 className="text-base font-semibold text-text-primary">{title}</h3>
+        <h3 className="text-base font-semibold text-text-primary">
+          <InlineMarkdown text={title} />
+        </h3>
       )}
 
       {problem && (
@@ -50,7 +52,7 @@ export function WorkedExampleSection({ section }: WorkedExampleSectionProps) {
                 </p>
                 {step.rule && (
                   <span className="inline-block text-xs px-2 py-0.5 rounded bg-accent-blue/10 text-accent-blue font-medium">
-                    {step.rule}
+                    <InlineMarkdown text={step.rule} />
                   </span>
                 )}
               </div>

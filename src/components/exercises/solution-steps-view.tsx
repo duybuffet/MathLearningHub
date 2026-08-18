@@ -40,7 +40,7 @@ function StepRow({ step, index }: { step: SolutionStep; index: number }) {
         </p>
         {step.rule && (
           <span className="mt-1 inline-block text-xs text-text-muted px-2 py-0.5 rounded border border-border-subtle">
-            {step.rule}
+            <InlineMarkdown text={step.rule} />
           </span>
         )}
       </div>
