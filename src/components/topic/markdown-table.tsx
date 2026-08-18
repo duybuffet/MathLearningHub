@@ -1,17 +1,15 @@
 import { InlineMarkdown } from './inline-markdown';
 
-// Renders GitHub-style Markdown pipe-tables that appear inside prose content.
-// A "table block" is a group of consecutive lines each wrapped in `|...|`.
+// Renders prose blocks that may contain GitHub-style Markdown: pipe-tables,
+// ordered/unordered lists, and paragraphs. Used by every prose section.
 
-const SEPARATOR_RE = /^\s*\|?[\s:|-]+\|?\s*$/; // e.g. |---|---|
+const SEPARATOR_RE = /^\s*\|?[\s:|-]+\|?\s*$/; // table separator: |---|---|
+const LIST_RE = /^\s*(\d+[.)]|[-*])\s+(.*)$/; // "1. x" | "1) x" | "- x" | "* x"
 
 /** True when a \n\n-delimited block is a pipe-table (≥2 rows, every line |...|). */
 export function isTableBlock(block: string): boolean {
   const lines = block.split('\n').map((l) => l.trim()).filter(Boolean);
-  return (
-    lines.length >= 2 &&
-    lines.every((l) => l.startsWith('|') && l.endsWith('|'))
-  );
+  return lines.length >= 2 && lines.every((l) => l.startsWith('|') && l.endsWith('|'));
 }
 
 function parseRow(line: string): string[] {
@@ -62,7 +60,45 @@ export function MarkdownTable({ source }: { source: string }) {
   );
 }
 
-/** Splits content on \n\n and renders each block as a table or a paragraph. */
+/** Renders a run of Markdown list lines as <ol> or <ul>. */
+function MarkdownList({ lines }: { lines: string[] }) {
+  const ordered = /^\s*\d/.test(lines[0]);
+  const items = lines.map((l) => l.replace(LIST_RE, '$2'));
+  const Tag = ordered ? 'ol' : 'ul';
+  return (
+    <Tag
+      className={`ml-5 space-y-1.5 ${ordered ? 'list-decimal' : 'list-disc'} text-text-secondary`}
+    >
+      {items.map((it, i) => (
+        <li key={i} className="pl-1 leading-relaxed marker:text-text-muted">
+          <InlineMarkdown text={it} />
+        </li>
+      ))}
+    </Tag>
+  );
+}
+
+type Segment = { type: 'list'; lines: string[] } | { type: 'p'; text: string };
+
+/** Splits one block into list-runs + paragraph-runs (handles intro-line + list). */
+function segmentBlock(block: string): Segment[] {
+  const segs: Segment[] = [];
+  for (const raw of block.split('\n')) {
+    const isList = LIST_RE.test(raw);
+    const last = segs[segs.length - 1];
+    if (isList) {
+      if (last && last.type === 'list') last.lines.push(raw);
+      else segs.push({ type: 'list', lines: [raw] });
+    } else {
+      if (raw.trim() === '') continue;
+      if (last && last.type === 'p') last.text += ' ' + raw.trim();
+      else segs.push({ type: 'p', text: raw.trim() });
+    }
+  }
+  return segs;
+}
+
+/** Splits content on \n\n and renders each block as a table, list, or paragraph. */
 export function ProseBlocks({
   content,
   className = 'text-text-secondary leading-relaxed',
@@ -73,15 +109,18 @@ export function ProseBlocks({
   const blocks = content.split('\n\n').filter(Boolean);
   return (
     <div className="space-y-3">
-      {blocks.map((b, i) =>
-        isTableBlock(b) ? (
-          <MarkdownTable key={i} source={b} />
-        ) : (
-          <p key={i} className={className}>
-            <InlineMarkdown text={b} />
-          </p>
-        ),
-      )}
+      {blocks.map((b, i) => {
+        if (isTableBlock(b)) return <MarkdownTable key={i} source={b} />;
+        return segmentBlock(b).map((seg, k) =>
+          seg.type === 'list' ? (
+            <MarkdownList key={`${i}-${k}`} lines={seg.lines} />
+          ) : (
+            <p key={`${i}-${k}`} className={className}>
+              <InlineMarkdown text={seg.text} />
+            </p>
+          ),
+        );
+      })}
     </div>
   );
 }
