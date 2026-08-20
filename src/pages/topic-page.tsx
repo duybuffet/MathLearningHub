@@ -80,6 +80,7 @@ export function TopicPage() {
               Thẻ ghi nhớ (Flashcards)
             </h2>
             <FlashcardDeck
+              key={topicId}
               cards={topic.flashcards.map((fc) => ({ topicId: topicId, card: fc }))}
             />
           </div>
@@ -91,14 +92,14 @@ export function TopicPage() {
             <h2 className="text-lg font-semibold text-text-primary mb-4">
               Bài tập (Exercises)
             </h2>
-            <ExerciseList exercises={topic.exercises} flashcards={topic.flashcards} />
+            <ExerciseList key={topicId} exercises={topic.exercises} flashcards={topic.flashcards} />
           </div>
         )}
 
         {/* Quiz */}
         {topic.quiz.length > 0 && (
           <div className="mt-8 mb-12">
-            <QuizSection topicId={topicId} quiz={topic.quiz} />
+            <QuizSection key={topicId} topicId={topicId} quiz={topic.quiz} />
           </div>
         )}
       </div>
