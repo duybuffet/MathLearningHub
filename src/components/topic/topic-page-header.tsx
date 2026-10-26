@@ -1,41 +1,33 @@
 import { Link } from 'react-router-dom';
+import { splitBilingualTitle } from '@/lib/topic-title-and-numbering';
 
 interface TopicPageHeaderProps {
   title: string;
   tagline: string;
   readTime: string;
-  areaBadge?: string;
+  lessonNumber: string;
+  chapterTitle?: string;
 }
 
-export function TopicPageHeader({ title, tagline, readTime, areaBadge }: TopicPageHeaderProps) {
+/** Lesson header: chapter + lesson number, bilingual title, one-line tagline. */
+export function TopicPageHeader({ title, tagline, readTime, lessonNumber, chapterTitle }: TopicPageHeaderProps) {
+  const { vi, en } = splitBilingualTitle(title);
+  const minutes = readTime.replace(/[^\d]/g, '');
+
   return (
-    <header className="text-center py-8 px-4">
-      <Link
-        to="/"
-        className="inline-flex items-center gap-1 mb-6 text-sm text-text-muted hover:text-accent-blue transition-colors duration-150"
-      >
-        <span aria-hidden="true">←</span>
-        Quay lại tất cả topics
+    <header className="pb-8 pt-2">
+      <Link to="/" className="text-sm text-text-muted transition-colors hover:text-text-primary">
+        {chapterTitle ?? 'Mục lục'}
       </Link>
 
-      <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3 leading-tight">
-        {title}
-      </h1>
-
-      <p className="text-text-secondary text-lg max-w-xl mx-auto mb-4 leading-relaxed">
-        {tagline}
+      <p className="mt-6 text-sm text-text-muted">
+        <span className="text-accent-orange">Bài {lessonNumber}</span>
+        {minutes && <span className="ml-3">{minutes} phút đọc</span>}
       </p>
+      <h1 className="mt-2 font-serif text-[2rem] leading-[1.15] text-text-primary sm:text-[2.5rem]">{vi}</h1>
+      {en && <p className="mt-1 text-text-muted">{en}</p>}
 
-      <div className="flex items-center justify-center gap-3 flex-wrap">
-        <span className="inline-block px-3 py-1 rounded-btn bg-bg-panel border border-border-subtle text-text-muted text-sm font-mono">
-          {readTime} đọc
-        </span>
-        {areaBadge && (
-          <span className="inline-block px-3 py-1 rounded-btn bg-accent-orange/15 border border-accent-orange/30 text-accent-orange text-sm font-medium">
-            {areaBadge}
-          </span>
-        )}
-      </div>
+      <p className="mt-5 max-w-2xl text-lg leading-relaxed text-text-secondary">{tagline}</p>
     </header>
   );
 }

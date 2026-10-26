@@ -1,5 +1,6 @@
 import type { ContentSection } from '@/types/content-schema-types';
 import { InlineMarkdown } from './inline-markdown';
+import { ProseBlocks } from './markdown-table';
 
 interface WorkedExampleSectionProps {
   section: ContentSection;
@@ -10,50 +11,35 @@ export function WorkedExampleSection({ section }: WorkedExampleSectionProps) {
   const { title, problem, steps, result } = section;
 
   return (
-    <div className="rounded-card border border-accent-green/30 bg-accent-green/5 p-5 space-y-4">
+    <div className="space-y-4 rounded-card bg-bg-card px-4 py-5 sm:px-6">
+      <p className="font-sans text-sm font-medium text-accent-green">Ví dụ giải từng bước</p>
       {title && (
-        <h3 className="text-base font-semibold text-text-primary">
+        <h3 className="-mt-2 font-serif text-lg text-text-primary">
           <InlineMarkdown text={title} />
         </h3>
       )}
 
       {problem && (
-        <div className="rounded-btn bg-bg-panel border border-border-subtle px-4 py-3">
-          <span className="text-xs font-semibold text-text-muted uppercase tracking-wide block mb-1">
-            Bài toán
-          </span>
-          <p className="text-text-primary leading-relaxed">
-            <InlineMarkdown text={problem} />
-          </p>
-        </div>
+        <ProseBlocks content={problem} className="leading-relaxed text-text-primary" />
       )}
 
       {steps && steps.length > 0 && (
-        <ol className="space-y-3">
+        <ol className="space-y-3 border-t border-border-subtle pt-4">
           {steps.map((step, i) => (
             <li
               key={i}
-              className={`
-                flex gap-3 rounded-btn px-3 py-2.5 border
-                ${step.isCommonMistake
-                  ? 'border-amber-500/40 bg-amber-500/10 border-l-4 border-l-amber-500'
-                  : 'border-border-subtle/40 bg-bg-panel/50'}
-              `}
+              className={`flex gap-3 ${step.isCommonMistake ? '-mx-2 rounded-btn bg-accent-orange/[0.07] px-2 py-2' : ''}`}
             >
-              <span className="shrink-0 w-6 h-6 rounded-full bg-accent-green/20 text-accent-green text-xs font-bold flex items-center justify-center mt-0.5">
-                {i + 1}
-              </span>
-              <div className="flex-1 space-y-1">
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  {step.isCommonMistake && (
-                    <span className="mr-1" aria-label="Lỗi hay gặp">⚠️</span>
-                  )}
-                  <InlineMarkdown text={step.text} />
-                </p>
+              <span className="w-5 shrink-0 pt-px text-right font-sans text-sm tabular-nums text-text-muted">{i + 1}</span>
+              <div className="min-w-0 flex-1 space-y-1">
+                {step.isCommonMistake && (
+                  <span className="block font-sans text-xs font-medium text-accent-orange">Chỗ hay sai</span>
+                )}
+                <ProseBlocks content={step.text} className="leading-relaxed text-text-secondary" />
                 {step.rule && (
-                  <span className="inline-block text-xs px-2 py-0.5 rounded bg-accent-blue/10 text-accent-blue font-medium">
+                  <p className="font-sans text-xs text-accent-blue">
                     <InlineMarkdown text={step.rule} />
-                  </span>
+                  </p>
                 )}
               </div>
             </li>
@@ -62,12 +48,10 @@ export function WorkedExampleSection({ section }: WorkedExampleSectionProps) {
       )}
 
       {result && (
-        <div className="flex items-start gap-2 rounded-btn border border-accent-green/40 bg-accent-green/10 px-4 py-3">
-          <span className="text-accent-green text-base mt-0.5" aria-hidden="true">✅</span>
-          <p className="text-text-primary font-semibold">
-            <InlineMarkdown text={result} />
-          </p>
-        </div>
+        <p className="border-t border-border-subtle pt-4 text-text-primary">
+          <span className="mr-2 font-sans text-sm font-medium text-accent-green">Kết quả</span>
+          <InlineMarkdown text={result} />
+        </p>
       )}
     </div>
   );

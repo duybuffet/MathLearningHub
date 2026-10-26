@@ -7,18 +7,19 @@
    Token NAMES are kept stable (accent-orange/green/blue/purple) so components
    cascade automatically; only the VALUES are remapped to chalk pastels. */
 :root {
-  --bg-primary: #12211d; /* chalkboard green */
-  --bg-card: #1b2e28;
-  --bg-panel: #16261f;
-  --bg-code: #0e1a16;
-  --text-primary: #f2efe6; /* chalk white (warm) */
-  --text-secondary: #b9c9c0;
-  --text-muted: #7d938a;
-  --accent-orange: #ffe08a; /* chalk yellow — primary accent */
-  --accent-green: #7fded1; /* chalk mint — success / read */
-  --accent-blue: #8ac6ff; /* chalk blue */
-  --accent-purple: #ff9ecb; /* chalk pink */
-  --border: rgba(242, 239, 230, 0.1);
+  --bg-primary: #142420; /* chalkboard green */
+  --bg-card: #1a2d28; /* raised surface (sidebar, flashcards) */
+  --bg-panel: #1d322c; /* hover / inset */
+  --bg-code: #0f1c18;
+  --text-primary: #eee9dd; /* chalk white (warm) */
+  --text-secondary: #b6c4bc;
+  --text-muted: #7f938a;
+  --accent-orange: #f0d58c; /* chalk yellow — primary accent */
+  --accent-green: #8fd3c5; /* chalk mint — success / read */
+  --accent-blue: #9cc4ea; /* chalk blue */
+  --accent-purple: #eda8c4; /* chalk pink */
+  --border: rgba(238, 233, 221, 0.09);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 html,
@@ -30,21 +31,10 @@ body,
 body {
   margin: 0;
   background-color: var(--bg-primary);
-  /* faint chalk-dust texture: two soft radial smudges over the board */
-  background-image:
-    radial-gradient(
-      ellipse at 20% 0%,
-      rgba(255, 255, 255, 0.035),
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse at 90% 100%,
-      rgba(127, 222, 209, 0.05),
-      transparent 55%
-    );
-  background-attachment: fixed;
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -71,4 +61,29 @@ body {
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0.25rem 0;
+}
+
+/* ── Lesson prose: book-like serif reading column ── */
+.prose-reading {
+  font-family: 'Literata', Georgia, serif;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.prose-reading .katex {
+  font-size: 1.08em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-orange);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -11,9 +11,9 @@ interface ExerciseListProps {
 
 const TIER_ORDER = ['warmup', 'apply', 'challenge'] as const;
 const TIER_LABELS = {
-  warmup: 'Khởi động (Warmup)',
-  apply: 'Áp dụng (Apply)',
-  challenge: 'Thử thách (Challenge)',
+  warmup: 'Khởi động',
+  apply: 'Áp dụng',
+  challenge: 'Thử thách',
 };
 
 export function ExerciseList({ exercises, flashcards = [] }: ExerciseListProps) {
@@ -22,17 +22,17 @@ export function ExerciseList({ exercises, flashcards = [] }: ExerciseListProps) 
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       {TIER_ORDER.map((tier) => {
         const tiered = exercises.filter((e) => e.difficulty === tier);
         if (tiered.length === 0) return null;
         return (
           <div key={tier} className="flex flex-col gap-3">
-            <h4 className="text-sm font-semibold text-text-muted uppercase tracking-wide">
+            <h3 className="text-sm text-text-muted">
               {TIER_LABELS[tier]}
-            </h4>
+            </h3>
             {tiered.map((ex) => (
-              <ExerciseCard key={ex.id} exercise={ex} flashcards={flashcards} />
+              <ExerciseCard key={ex.id} exercise={ex} flashcards={flashcards} showDifficulty={false} />
             ))}
           </div>
         );

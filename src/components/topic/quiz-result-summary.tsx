@@ -29,48 +29,40 @@ export function QuizResultSummary({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.25 }}
-      className="flex flex-col items-center gap-6 py-6 text-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      className="flex flex-col items-start gap-4 rounded-card bg-bg-card px-5 py-5"
     >
-      <div className="flex flex-col items-center gap-1">
-        <span className={`text-6xl font-bold font-mono ${scoreColor}`}>
-          {score}%
+      <p className="text-text-primary">
+        <span className={`mr-3 font-serif text-4xl tabular-nums ${scoreColor}`}>{score}%</span>
+        <span className="text-text-secondary">
+          {correctCount}/{total} câu đúng
         </span>
-        <span className="text-text-secondary text-sm">
-          {correctCount} / {total} đúng
-        </span>
-      </div>
-
-      {bestScore !== undefined && (
-        <p className="text-text-muted text-xs">
-          Điểm cao nhất: <span className="text-text-secondary font-semibold">{bestScore}%</span>
-        </p>
-      )}
-
-      <p className="text-text-secondary text-sm max-w-xs">
-        {isPerfect
-          ? 'Hoàn hảo! Xuất sắc lắm.'
-          : isPassing
-            ? 'Tốt lắm! Ôn thêm để nắm chắc hơn nhé.'
-            : 'Hãy ôn lại topic và thử lại — bạn làm được!'}
       </p>
 
-      <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+      <p className="text-text-secondary">
+        {isPerfect
+          ? 'Đúng hết. Bài này bạn đã nắm chắc.'
+          : isPassing
+            ? 'Khá vững. Xem lại giải thích của các câu sai rồi làm lại.'
+            : 'Chưa chắc. Đọc lại phần lý thuyết và ví dụ, rồi làm lại.'}
+        {bestScore !== undefined && <span className="text-text-muted"> Điểm cao nhất: {bestScore}%.</span>}
+      </p>
+
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={onRetry}
-          className="flex-1 px-4 py-3 rounded-btn border border-border-subtle bg-bg-panel text-text-primary text-sm font-semibold hover:border-accent-blue transition-colors"
+          className="rounded-btn bg-bg-panel px-4 py-2.5 text-sm text-text-primary transition-colors hover:bg-bg-primary"
         >
-          Thử lại
+          Làm lại
         </button>
-
         {nextTopicHref && (
           <Link
             to={nextTopicHref}
-            className="flex-1 px-4 py-3 rounded-btn bg-accent-orange text-white text-sm font-semibold hover:opacity-90 transition-opacity text-center"
+            className="rounded-btn bg-accent-orange px-4 py-2.5 text-sm font-medium text-bg-primary transition-opacity hover:opacity-90"
           >
-            Topic tiếp →
+            Sang bài tiếp theo
           </Link>
         )}
       </div>

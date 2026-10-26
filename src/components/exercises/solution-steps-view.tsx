@@ -1,9 +1,10 @@
 // ── Solution Steps View — step-by-step answer reveal ──────────
-// Renders numbered solutionSteps with ⚠️ on isCommonMistake steps,
-// then the ✅ final answer and optional commonMistake callout.
+// Numbered solutionSteps (common-mistake steps highlighted), the final
+// answer, the common-mistake note and the related flashcard.
 
 import type { Exercise, SolutionStep } from '@/types/content-schema-types';
 import { InlineMarkdown } from '@/components/topic/inline-markdown';
+import { ProseBlocks } from '@/components/topic/markdown-table';
 
 interface SolutionStepsViewProps {
   exercise: Exercise;
@@ -11,85 +12,47 @@ interface SolutionStepsViewProps {
 }
 
 function StepRow({ step, index }: { step: SolutionStep; index: number }) {
-  const isMistake = step.isCommonMistake;
   return (
-    <li
-      className={[
-        'flex gap-3 p-3 rounded-lg border',
-        isMistake
-          ? 'border-amber-500/30 bg-amber-500/5'
-          : 'border-border-subtle bg-bg-primary',
-      ].join(' ')}
-    >
-      <span
-        className={[
-          'flex-shrink-0 w-6 h-6 rounded-full text-xs flex items-center justify-center font-semibold',
-          isMistake ? 'bg-amber-500/20 text-amber-400' : 'bg-bg-card text-text-muted',
-        ].join(' ')}
-      >
-        {index + 1}
-      </span>
-      <div className="flex-1 min-w-0">
-        <p className="text-text-secondary text-sm leading-relaxed">
-          {isMistake && (
-            <span className="mr-1" aria-label="Lỗi hay gặp">
-              ⚠️
-            </span>
-          )}
-          <InlineMarkdown text={step.text} />
-        </p>
+    <li className={`flex gap-3 ${step.isCommonMistake ? '-mx-2 rounded-btn bg-accent-orange/[0.07] px-2 py-2' : ''}`}>
+      <span className="w-5 shrink-0 pt-px text-right text-sm tabular-nums text-text-muted">{index + 1}</span>
+      <div className="min-w-0 flex-1 space-y-1">
+        {step.isCommonMistake && <span className="block text-xs font-medium text-accent-orange">Chỗ hay sai</span>}
+        <ProseBlocks content={step.text} className="text-[0.9375rem] leading-relaxed text-text-secondary" />
         {step.rule && (
-          <span className="mt-1 inline-block text-xs text-text-muted px-2 py-0.5 rounded border border-border-subtle">
+          <p className="text-xs text-accent-blue">
             <InlineMarkdown text={step.rule} />
-          </span>
+          </p>
         )}
       </div>
     </li>
   );
 }
 
-export function SolutionStepsView({
-  exercise,
-  relatedFlashcardFront,
-}: SolutionStepsViewProps) {
+export function SolutionStepsView({ exercise, relatedFlashcardFront }: SolutionStepsViewProps) {
   return (
-    <div className="flex flex-col gap-4">
-      {/* Steps */}
-      <ol className="flex flex-col gap-2 list-none p-0 m-0">
+    <div className="flex flex-col gap-4 border-t border-border-subtle pt-4">
+      <ol className="m-0 flex list-none flex-col gap-3 p-0">
         {exercise.solutionSteps.map((step, i) => (
           <StepRow key={i} step={step} index={i} />
         ))}
       </ol>
 
-      {/* Final answer */}
-      <div className="flex items-start gap-2 p-3 rounded-lg border border-green-500/30 bg-green-500/5">
-        <span aria-label="Đáp án đúng">✅</span>
-        <div className="text-sm text-green-300">
-          <span className="font-semibold mr-1">Đáp án (Answer):</span>
-          <InlineMarkdown text={exercise.answer} />
-        </div>
+      <div className="border-t border-border-subtle pt-4 text-text-primary">
+        <span className="mb-1 block text-sm font-medium text-accent-green">Đáp án</span>
+        <ProseBlocks content={exercise.answer} className="leading-relaxed" />
       </div>
 
-      {/* Common mistake callout */}
       {exercise.commonMistake && (
-        <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
-          <span aria-label="Lỗi hay gặp">⚠️</span>
-          <div className="text-sm text-amber-300">
-            <span className="font-semibold mr-1">Lỗi hay gặp (Common mistake):</span>
-            <InlineMarkdown text={exercise.commonMistake} />
-          </div>
-        </div>
+        <p className="border-l-2 border-accent-orange pl-4 text-sm leading-relaxed text-text-secondary">
+          <span className="mb-0.5 block text-xs font-medium text-accent-orange">Lỗi hay gặp</span>
+          <InlineMarkdown text={exercise.commonMistake} />
+        </p>
       )}
 
-      {/* Related flashcard link */}
       {relatedFlashcardFront && (
-        <div className="flex items-start gap-2 p-3 rounded-lg border border-blue-400/20 bg-blue-400/5 text-sm text-blue-300">
-          <span aria-hidden>🃏</span>
-          <div>
-            <span className="font-semibold">Thẻ liên quan (Related flashcard): </span>
-            <InlineMarkdown text={relatedFlashcardFront} />
-          </div>
-        </div>
+        <p className="text-sm text-text-muted">
+          Thẻ liên quan: <InlineMarkdown text={relatedFlashcardFront} />
+        </p>
       )}
     </div>
   );

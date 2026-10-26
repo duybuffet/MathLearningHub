@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### Content review, PWA & reading-first redesign (2026-10-26)
+- **Content audit (all 30 topics):** every claim/number recomputed; fixed ~80 factual errors (e.g. wrong
+  quiz answers with two correct options, 2¹⁰⁰ mod 13 = 3 not 9, least-squares intercept 2/3, "apply A then B
+  = BA", birthday threshold ≈1.18√m, f'(x)=0 ≠ extremum, concave-up description, log-log vs semi-log).
+  Per-area details: `plans/261026-content-review-pwa-ui/reports/content-review-area{1..7}.md`.
+- **Content expansion:** every topic now has ≥8 flashcards, 6 tiered exercises, ≥6 quiz questions (answer
+  positions balanced). New sections incl. Dijkstra/Bellman-Ford, topological sort, eigenvectors, chain rule
+  & backprop, L'Hôpital, linearity of expectation, distributions, extended Euclid, amortized analysis.
+- **New topics:** `area1/summations-series` (Σ, arithmetic/geometric/harmonic series, loop counting) and
+  `area7/number-bases-binary` (bases, two's complement, bitwise tricks, floating point).
+- **PWA:** vite-plugin-pwa (manifest, icons, Workbox precache of all assets) → installable, offline reading.
+- **Redesign:** book-style table of contents with numbered chapters/lessons, Be Vietnam Pro + Literata
+  reading type, no emoji chrome, prev/next lesson navigation, mobile-safe mermaid (scroll instead of shrink).
+- **Fixes:** review queue no longer counts cards of unread topics (was "229 due" on a fresh install);
+  mobile drawer no longer closes when expanding a chapter; white-on-yellow buttons; math inside bold.
+- **Renderer:** `$$display$$`, `*italic*`, fenced code blocks; flashcards/exercises/quiz/steps render
+  lists & tables. `npm run validate:content` validator added.
+
 ### Phase 6 — Content authoring: Areas 3-7 complete (2026-08-17)
 - Authored all remaining 21 topics → 30/30 total across 7 areas:
   - Area 3 Đại số tuyến tính (5): vectors, matrices-operations, matrix-multiplication, determinant-inverse, linear-systems.

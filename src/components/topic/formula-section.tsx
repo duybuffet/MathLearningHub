@@ -11,9 +11,9 @@ export function FormulaSection({ section }: FormulaSectionProps) {
   const { title, latex, reading, symbols, caption } = section;
 
   return (
-    <div className="rounded-card border border-accent-blue/30 bg-accent-blue/5 p-5 space-y-4">
+    <div className="space-y-4 rounded-card bg-bg-card px-4 py-5 sm:px-6">
       {title && (
-        <h3 className="text-base font-semibold text-text-primary">
+        <h3 className="font-serif text-lg text-text-primary">
           <InlineMarkdown text={title} />
         </h3>
       )}
@@ -25,23 +25,23 @@ export function FormulaSection({ section }: FormulaSectionProps) {
       )}
 
       {reading && (
-        <p className="text-text-muted text-sm italic">
+        <p className="text-[0.975rem] italic text-text-secondary">
           <InlineMarkdown text={reading} />
         </p>
       )}
 
       {symbols && symbols.length > 0 && (
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full border-collapse font-sans text-sm">
           <thead>
             <tr className="border-b border-border-subtle">
-              <th className="text-left text-text-muted font-medium pb-1 pr-4 w-16">Ký hiệu</th>
-              <th className="text-left text-text-muted font-medium pb-1">Ý nghĩa</th>
+              <th className="pb-1 pr-4 text-left text-xs font-normal text-text-muted">Ký hiệu</th>
+              <th className="pb-1 text-left text-xs font-normal text-text-muted">Ý nghĩa</th>
             </tr>
           </thead>
           <tbody>
             {symbols.map((s, i) => (
-              <tr key={i} className="border-b border-border-subtle/40 last:border-0">
-                <td className="py-1.5 pr-4 font-mono text-accent-orange">
+              <tr key={i} className="border-b border-border-subtle last:border-0">
+                <td className="whitespace-nowrap py-1.5 pr-4 align-top text-accent-orange">
                   <InlineFormula latex={s.sym} />
                 </td>
                 <td className="py-1.5 text-text-secondary">
@@ -54,7 +54,7 @@ export function FormulaSection({ section }: FormulaSectionProps) {
       )}
 
       {caption && (
-        <p className="text-xs text-text-muted text-center pt-1">
+        <p className="pt-1 font-sans text-xs text-text-muted">
           <InlineMarkdown text={caption} />
         </p>
       )}

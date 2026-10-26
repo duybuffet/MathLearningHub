@@ -1,8 +1,10 @@
-import { InlineMath } from 'react-katex';
+import { BlockMath, InlineMath } from 'react-katex';
 
-// Splits text by **bold**, `code`, and $inline math$ tokens.
+// Splits text by **bold**, *italic*, `code`, $$display math$$ and $inline math$ tokens.
 // Used throughout section renderers for math-aware prose.
-const TOKEN_RE = /(\*\*[^*]+\*\*|`[^`]+`|\$[^$]+\$)/g;
+// Italic needs a non-word char before it, so `5*3 + 2*4` stays plain; bold may contain single `*`.
+const TOKEN_RE =
+  /(\$\$[^$]+\$\$|\*\*(?:[^*]|\*(?!\*))+\*\*|(?<![\w*])\*(?=\S)[^*\n]*?\S\*(?!\w)|`[^`]+`|\$[^$]+\$)/g;
 
 interface InlineMarkdownProps {
   text: string;
@@ -12,8 +14,22 @@ function renderToken(token: string, idx: number): React.ReactNode {
   if (token.startsWith('**') && token.endsWith('**')) {
     return (
       <strong key={idx} className="text-text-primary font-semibold">
-        {token.slice(2, -2)}
+        <InlineMarkdown text={token.slice(2, -2)} />
       </strong>
+    );
+  }
+  if (token.length > 4 && token.startsWith('$$') && token.endsWith('$$')) {
+    return (
+      <span key={idx} className="block overflow-x-auto">
+        <BlockMath math={token.slice(2, -2)} />
+      </span>
+    );
+  }
+  if (token.length > 2 && token.startsWith('*') && token.endsWith('*') && !token.startsWith('**')) {
+    return (
+      <em key={idx}>
+        <InlineMarkdown text={token.slice(1, -1)} />
+      </em>
     );
   }
   if (token.startsWith('`') && token.endsWith('`')) {

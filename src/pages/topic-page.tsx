@@ -12,6 +12,8 @@ import { SectionContentRenderer } from '@/components/topic/section-content-rende
 import { QuizSection } from '@/components/topic/quiz-section';
 import { FlashcardDeck } from '@/components/flashcards/flashcard-deck';
 import { ExerciseList } from '@/components/exercises/exercise-list';
+import { LessonPrevNextNavigation } from '@/components/topic/lesson-prev-next-navigation';
+import { lessonNumber } from '@/lib/topic-title-and-numbering';
 
 export function TopicPage() {
   const { areaId, topicSlug } = useParams<{ areaId: string; topicSlug: string }>();
@@ -23,9 +25,8 @@ export function TopicPage() {
   const topicId = areaId && topicSlug ? topicIdFor(areaId, topicSlug) : '';
   const { markRead, setLastVisited } = useTopicProgress(topicId);
 
-  // Find area title for badge
-  const areaTitle = areaId
-    ? getCurriculum().areas.find((a) => a.id === areaId)?.titleEn
+  const chapterTitle = areaId
+    ? getCurriculum().areas.find((a) => a.id === areaId)?.title
     : undefined;
 
   // Track last visited on mount
@@ -57,14 +58,14 @@ export function TopicPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        {/* Header */}
+    <article>
+      <div>
         <TopicPageHeader
           title={topic.title}
           tagline={topic.tagline}
           readTime={topic.readTime}
-          areaBadge={areaTitle}
+          lessonNumber={lessonNumber(areaId!, topicSlug!)}
+          chapterTitle={chapterTitle}
         />
 
         {/* Main content sections */}
@@ -75,51 +76,52 @@ export function TopicPage() {
 
         {/* ── Thẻ ghi nhớ (Flashcards) ── */}
         {topic.flashcards.length > 0 && (
-          <div className="mt-10 mb-6">
-            <h2 className="text-lg font-semibold text-text-primary mb-4">
-              Thẻ ghi nhớ (Flashcards)
+          <section className="mt-14">
+            <h2 className="mb-4 font-serif text-2xl text-text-primary">
+              Thẻ ghi nhớ
             </h2>
             <FlashcardDeck
               key={topicId}
               cards={topic.flashcards.map((fc) => ({ topicId: topicId, card: fc }))}
             />
-          </div>
+          </section>
         )}
 
         {/* ── Bài tập (Exercises) ── */}
         {topic.exercises.length > 0 && (
-          <div className="mt-10 mb-6">
-            <h2 className="text-lg font-semibold text-text-primary mb-4">
-              Bài tập (Exercises)
+          <section className="mt-14">
+            <h2 className="mb-4 font-serif text-2xl text-text-primary">
+              Bài tập
             </h2>
             <ExerciseList key={topicId} exercises={topic.exercises} flashcards={topic.flashcards} />
-          </div>
+          </section>
         )}
 
         {/* Quiz */}
         {topic.quiz.length > 0 && (
-          <div className="mt-8 mb-12">
+          <section className="mt-14">
             <QuizSection key={topicId} topicId={topicId} quiz={topic.quiz} />
-          </div>
+          </section>
         )}
+
+        <LessonPrevNextNavigation areaId={areaId!} slug={topicSlug!} />
       </div>
-    </div>
+    </article>
   );
 }
 
 function ContentComingSoon() {
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center px-4 text-center gap-6">
-      <div className="text-5xl" aria-hidden="true">🚧</div>
-      <h1 className="text-2xl font-bold text-text-primary">Đang cập nhật (Coming soon)</h1>
-      <p className="text-text-secondary max-w-sm">
-        Topic này chưa được xuất bản. Quay lại sau nhé — chúng tôi đang làm!
+    <div className="flex flex-col items-start gap-4 py-16">
+      <h1 className="font-serif text-2xl text-text-primary">Không tìm thấy bài này</h1>
+      <p className="max-w-sm text-text-secondary">
+        Đường dẫn có thể đã cũ. Mở mục lục để chọn bài khác.
       </p>
       <Link
         to="/"
         className="px-4 py-2 rounded-btn bg-bg-card border border-border-subtle text-text-secondary hover:text-text-primary hover:border-accent-blue transition-colors duration-150 text-sm"
       >
-        ← Quay lại tất cả topics
+        Mở mục lục
       </Link>
     </div>
   );

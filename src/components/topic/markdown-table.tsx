@@ -98,7 +98,23 @@ function segmentBlock(block: string): Segment[] {
   return segs;
 }
 
-/** Splits content on \n\n and renders each block as a table, list, or paragraph. */
+const FENCE_RE = /```[\w-]*\n?([\s\S]*?)```/g;
+
+/** Splits content into ``` fenced code (kept whole) and \n\n-separated prose blocks. */
+function splitBlocks(content: string): { code?: string; text?: string }[] {
+  const out: { code?: string; text?: string }[] = [];
+  let last = 0;
+  for (const m of content.matchAll(FENCE_RE)) {
+    const before = content.slice(last, m.index);
+    before.split('\n\n').filter((b) => b.trim()).forEach((text) => out.push({ text }));
+    out.push({ code: m[1].replace(/\n$/, '') });
+    last = (m.index ?? 0) + m[0].length;
+  }
+  content.slice(last).split('\n\n').filter((b) => b.trim()).forEach((text) => out.push({ text }));
+  return out;
+}
+
+/** Renders prose: fenced code, tables, lists and paragraphs (blocks separated by \n\n). */
 export function ProseBlocks({
   content,
   className = 'text-text-secondary leading-relaxed',
@@ -106,18 +122,33 @@ export function ProseBlocks({
   content: string;
   className?: string;
 }) {
-  const blocks = content.split('\n\n').filter(Boolean);
+  const blocks = splitBlocks(content);
   return (
     <div className="space-y-3">
-      {blocks.map((b, i) => {
+      {blocks.map(({ code, text }, i) => {
+        if (code !== undefined) {
+          return (
+            <pre key={i} className="overflow-x-auto rounded-btn bg-bg-code px-4 py-3 font-mono text-[0.8125rem] leading-relaxed text-text-secondary">
+              <code>{code}</code>
+            </pre>
+          );
+        }
+        const b = text as string;
         if (isTableBlock(b)) return <MarkdownTable key={i} source={b} />;
         return segmentBlock(b).map((seg, k) =>
           seg.type === 'list' ? (
             <MarkdownList key={`${i}-${k}`} lines={seg.lines} />
           ) : (
-            <p key={`${i}-${k}`} className={className}>
-              <InlineMarkdown text={seg.text} />
-            </p>
+            // $$display math$$ renders a block element, which can't live inside <p>.
+            seg.text.includes('$$') ? (
+              <div key={`${i}-${k}`} className={className}>
+                <InlineMarkdown text={seg.text} />
+              </div>
+            ) : (
+              <p key={`${i}-${k}`} className={className}>
+                <InlineMarkdown text={seg.text} />
+              </p>
+            )
           ),
         );
       })}

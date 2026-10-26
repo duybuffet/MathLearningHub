@@ -14,6 +14,10 @@ import type { MathTopic } from '@/types/content-schema-types';
 interface SrSelectors {
   dueFlashcardIds: (ids: string[], now: Date) => string[];
   dueExerciseIds: (ids: string[], now: Date) => string[];
+  /** Topics not read yet contribute no NEW cards — only ones already scheduled. */
+  isTopicRead: (topicId: string) => boolean;
+  /** True once a card has been graded at least once (key "fc:<id>" | "ex:<id>"). */
+  isScheduled: (key: string) => boolean;
 }
 
 /** Collect all due items across authored topics, interleaved by topic. */
@@ -21,8 +25,9 @@ export function collectDueItems(srSelectors: SrSelectors, now: Date): ReviewItem
   const topics = loadAuthoredTopics();
 
   const buckets = topics.map((topic: MathTopic) => {
-    const fcIds = topic.flashcards.map((f) => f.id);
-    const exIds = topic.exercises.map((e) => e.id);
+    const read = srSelectors.isTopicRead(topic.id);
+    const fcIds = topic.flashcards.map((f) => f.id).filter((id) => read || srSelectors.isScheduled(`fc:${id}`));
+    const exIds = topic.exercises.map((e) => e.id).filter((id) => read || srSelectors.isScheduled(`ex:${id}`));
 
     const dueFC = srSelectors.dueFlashcardIds(fcIds, now);
     const dueEX = srSelectors.dueExerciseIds(exIds, now);

@@ -1,10 +1,11 @@
-// ── Ôn hôm nay (Review Today) Page ───────────────────────────
+// ── Ôn tập hôm nay Page ───────────────────────────
 // Gathers ALL due flashcards + exercises across authored topics,
 // interleaves them by topic (round-robin), steps through one at a time.
 
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSrStore } from '@/store/spaced-repetition-store';
+import { useProgressStore } from '@/store/progress-store-with-persist';
 import { collectDueItems } from '@/lib/collect-due-items';
 import { loadAuthoredTopics } from '@/lib/content-loader';
 import { FlashcardView } from '@/components/flashcards/flashcard-view';
@@ -25,6 +26,8 @@ export function ReviewTodayPage() {
         {
           dueFlashcardIds: srStore.dueFlashcardIds,
           dueExerciseIds: srStore.dueExerciseIds,
+          isTopicRead: (id) => Boolean(useProgressStore.getState().progress[id]?.read),
+          isScheduled: (key) => key in useSrStore.getState().schedules,
         },
         now,
       ),
@@ -39,19 +42,18 @@ export function ReviewTodayPage() {
 
   if (queue.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-6 py-20 text-center">
-        <span className="text-5xl" aria-hidden>🎉</span>
-        <h1 className="text-2xl font-bold text-text-primary">
-          Hôm nay không có gì cần ôn
+      <div className="flex flex-col items-start gap-4 py-12">
+        <h1 className="font-serif text-2xl text-text-primary">
+          Chưa có gì đến hạn
         </h1>
         <p className="text-text-muted max-w-sm">
-          Tất cả thẻ và bài tập chưa đến hạn. Hãy học thêm một chủ đề mới!
+          Thẻ và bài tập của một bài sẽ vào đây sau khi bạn đọc xong bài đó. Đọc thêm một bài rồi quay lại.
         </p>
         <Link
           to="/"
-          className="px-4 py-2 rounded-btn border border-border-subtle text-text-secondary text-sm hover:text-text-primary hover:border-accent-blue transition-colors"
+          className="rounded-btn bg-bg-card px-4 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
         >
-          ← Về trang chủ
+          Về mục lục
         </Link>
       </div>
     );
@@ -59,19 +61,18 @@ export function ReviewTodayPage() {
 
   if (index >= queue.length) {
     return (
-      <div className="flex flex-col items-center gap-6 py-20 text-center">
-        <span className="text-4xl" aria-hidden>✅</span>
-        <h1 className="text-2xl font-bold text-text-primary">
-          Ôn tập xong rồi!
+      <div className="flex flex-col items-start gap-4 py-12">
+        <h1 className="font-serif text-2xl text-text-primary">
+          Xong phần ôn hôm nay
         </h1>
         <p className="text-text-muted">
           Bạn đã ôn {queue.length} mục hôm nay.
         </p>
         <Link
           to="/"
-          className="px-4 py-2 rounded-btn border border-border-subtle text-text-secondary text-sm hover:text-text-primary hover:border-accent-blue transition-colors"
+          className="rounded-btn bg-bg-card px-4 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
         >
-          ← Về trang chủ
+          Về mục lục
         </Link>
       </div>
     );
@@ -85,34 +86,33 @@ export function ReviewTodayPage() {
     allTopics.find((t) => t.id === current.topicId)?.flashcards ?? [];
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4 flex flex-col gap-6">
+    <div className="mx-auto flex max-w-2xl flex-col gap-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-text-primary">
-          Ôn hôm nay (Review Today)
+        <h1 className="font-serif text-2xl text-text-primary">
+          Ôn tập hôm nay
         </h1>
         <Link to="/" className="text-sm text-text-muted hover:text-text-primary">
-          ← Trang chủ
+          Mục lục
         </Link>
       </div>
 
       {/* Counts */}
       <p className="text-sm text-text-muted">
-        {fcCount} thẻ + {exCount} bài tập tới hạn · {index + 1}/{queue.length}
+        {fcCount} thẻ + {exCount} bài tập đến hạn. Đang ở mục {index + 1}/{queue.length}.
       </p>
 
       {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-bg-card overflow-hidden">
+      <div className="h-1 overflow-hidden rounded-full bg-bg-card">
         <div
-          className="h-full bg-accent-blue rounded-full transition-all duration-300"
+          className="h-full rounded-full bg-accent-orange transition-all duration-300"
           style={{ width: `${((index) / queue.length) * 100}%` }}
         />
       </div>
 
       {/* Current item */}
       {current.kind === 'flashcard' && current.flashcard && (
-        <div className="p-5 rounded-xl border border-border-subtle bg-bg-card">
-          <p className="text-xs text-text-muted mb-3">Thẻ ghi nhớ (Flashcard)</p>
+        <div>
           <FlashcardView
             key={current.flashcard.id}
             card={current.flashcard}

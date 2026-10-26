@@ -19,12 +19,13 @@ export default {
         'border-subtle': 'var(--border)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+        serif: ['Literata', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', '"Fira Code"', 'monospace'],
       },
       borderRadius: {
-        card: '16px',
-        btn: '8px',
+        card: '10px',
+        btn: '6px',
       },
     },
   },

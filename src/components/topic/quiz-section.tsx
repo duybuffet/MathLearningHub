@@ -74,33 +74,31 @@ export function QuizSection({ topicId, quiz }: QuizSectionProps) {
   const nextTopicHref = buildNextTopicHref(topicId);
 
   return (
-    <section className="bg-bg-card rounded-card border border-border-subtle p-6 flex flex-col gap-6">
-      <h2 className="text-text-primary font-semibold text-lg">Kiểm tra kiến thức</h2>
+    <div className="flex flex-col gap-5">
+      <h2 className="font-serif text-2xl text-text-primary">Kiểm tra nhanh</h2>
 
       {state === 'idle' && (
-        <div className="flex flex-col items-center gap-4 py-4">
-          <p className="text-text-secondary text-sm">
-            Kiểm tra hiểu biết của bạn với {total} câu hỏi.
+        <div className="flex flex-col items-start gap-4 rounded-card bg-bg-card px-5 py-5">
+          <p className="text-text-secondary">
+            {total} câu trắc nghiệm về bài này.
+            {progress.quizScore !== undefined && (
+              <span className="text-text-muted"> Điểm cao nhất của bạn: {progress.quizScore}%.</span>
+            )}
           </p>
-          {progress.quizScore !== undefined && (
-            <p className="text-text-muted text-xs">
-              Điểm cao nhất: <span className="text-text-secondary font-semibold">{progress.quizScore}%</span>
-            </p>
-          )}
           <button
             onClick={handleStart}
-            className="px-6 py-3 rounded-btn bg-accent-orange text-white font-semibold text-sm hover:opacity-90 transition-opacity"
+            className="rounded-btn bg-accent-orange px-5 py-2.5 text-sm font-medium text-bg-primary transition-opacity hover:opacity-90"
           >
-            Bắt đầu Quiz — {total} câu
+            {progress.quizScore !== undefined ? 'Làm lại' : 'Bắt đầu'}
           </button>
         </div>
       )}
 
       {state === 'answering' && (
         <>
-          <div className="w-full bg-bg-panel rounded-full h-1.5 overflow-hidden">
+          <div className="h-1 w-full overflow-hidden rounded-full bg-bg-card">
             <div
-              className="bg-accent-orange h-1.5 rounded-full transition-all duration-300"
+              className="h-1 rounded-full bg-accent-orange transition-all duration-300"
               style={{ width: `${(currentIndex / total) * 100}%` }}
             />
           </div>
@@ -127,6 +125,6 @@ export function QuizSection({ topicId, quiz }: QuizSectionProps) {
           nextTopicHref={nextTopicHref}
         />
       )}
-    </section>
+    </div>
   );
 }

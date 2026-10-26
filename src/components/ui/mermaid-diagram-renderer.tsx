@@ -11,15 +11,19 @@ function getMermaid() {
         startOnLoad: false,
         theme: 'dark',
         securityLevel: 'strict',
-        fontFamily: 'Inter, system-ui, sans-serif',
+        fontFamily: '"Be Vietnam Pro", system-ui, sans-serif',
         themeVariables: {
-          background: '#1b2e28',
-          primaryColor: '#16261f',
-          primaryTextColor: '#f2efe6',
-          primaryBorderColor: '#ffe08a',
-          lineColor: '#7fded1',
-          secondaryColor: '#0e1a16',
-          tertiaryColor: '#12211d',
+          background: '#1a2d28',
+          primaryColor: '#1d322c',
+          primaryTextColor: '#eee9dd',
+          primaryBorderColor: '#f0d58c',
+          lineColor: '#8fd3c5',
+          secondaryColor: '#0f1c18',
+          tertiaryColor: '#142420',
+          clusterBkg: '#142420',
+          clusterBorder: '#7f938a',
+          edgeLabelBackground: '#1a2d28',
+          nodeTextColor: '#eee9dd',
         },
       });
       return mermaid;
@@ -40,6 +44,7 @@ export function MermaidDiagramRenderer({ chart, caption }: MermaidDiagramRendere
   const [svg, setSvg] = useState<string>('');
   const [failed, setFailed] = useState(false);
   const idRef = useRef(`mmd-${(diagramSeq += 1)}`);
+  const boxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,6 +62,20 @@ export function MermaidDiagramRenderer({ chart, caption }: MermaidDiagramRendere
     };
   }, [chart]);
 
+  // Wide diagrams would shrink to unreadable text on phones: keep them at
+  // ≥80% of natural size and let the box scroll horizontally instead.
+  useEffect(() => {
+    const box = boxRef.current;
+    const el = box?.querySelector('svg');
+    if (!box || !el) return;
+    const natural = el.viewBox.baseVal?.width || 0;
+    const minWidth = Math.round(natural * 0.8);
+    if (minWidth > box.clientWidth) {
+      el.style.maxWidth = 'none';
+      el.style.width = `${minWidth}px`;
+    }
+  }, [svg]);
+
   if (failed) {
     return (
       <pre className="rounded-card bg-bg-code p-4 text-xs text-text-muted overflow-x-auto font-mono">
@@ -66,9 +85,10 @@ export function MermaidDiagramRenderer({ chart, caption }: MermaidDiagramRendere
   }
 
   return (
-    <figure className="rounded-card border border-border-subtle bg-bg-card p-4 my-2">
+    <figure className="rounded-card bg-bg-card px-3 py-4 font-sans">
       <div
-        className="flex justify-center overflow-x-auto [&_svg]:max-w-full [&_svg]:h-auto"
+        ref={boxRef}
+        className="overflow-x-auto [&_svg]:mx-auto [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-full"
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: svg }}
       />

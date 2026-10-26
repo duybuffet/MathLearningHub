@@ -25,7 +25,8 @@ export function GraphSection({ section }: GraphSectionProps) {
         if (cancelled || !containerRef.current) return;
 
         const width = containerRef.current.clientWidth || 480;
-        const height = Math.round(width * 0.55);
+        // Phones: keep enough height so y-axis ticks do not collide.
+        const height = Math.max(Math.round(width * 0.6), 260);
 
         // Clear any previous render
         containerRef.current.innerHTML = '';
@@ -79,7 +80,7 @@ export function GraphSection({ section }: GraphSectionProps) {
       ) : (
         <div
           className={`
-            rounded-card border border-border-subtle bg-bg-card overflow-hidden
+            rounded-card bg-bg-card overflow-hidden
             ${!ready ? 'min-h-[240px] flex items-center justify-center' : ''}
           `}
         >

@@ -14,6 +14,14 @@ export function MobileNavigationDrawer() {
     toggleSidebar(false);
   }, [location.pathname, toggleSidebar]);
 
+  // Esc closes the drawer
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && toggleSidebar(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [sidebarOpen, toggleSidebar]);
+
   // Lock body scroll when open
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? 'hidden' : '';
@@ -30,7 +38,7 @@ export function MobileNavigationDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             aria-hidden="true"
             onClick={() => toggleSidebar(false)}
           />
@@ -40,15 +48,15 @@ export function MobileNavigationDrawer() {
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-y-0 left-0 z-50 w-72 bg-bg-card shadow-2xl lg:hidden"
+            transition={{ type: 'tween', duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
+            className="fixed inset-y-0 left-0 z-50 flex w-[min(20rem,85vw)] flex-col bg-bg-card shadow-2xl lg:hidden"
             aria-label="Điều hướng"
             role="dialog"
             aria-modal="true"
           >
             <button
               onClick={() => toggleSidebar(false)}
-              className="absolute right-3 top-4 rounded-btn p-1.5 text-text-muted transition-colors hover:bg-bg-panel hover:text-text-primary"
+              className="absolute right-3 top-[calc(0.875rem+env(safe-area-inset-top))] rounded-btn p-1.5 text-text-muted transition-colors hover:bg-bg-panel hover:text-text-primary"
               aria-label="Đóng điều hướng"
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
@@ -56,7 +64,11 @@ export function MobileNavigationDrawer() {
               </svg>
             </button>
 
-            <div onClick={() => toggleSidebar(false)} className="h-full overflow-hidden">
+            {/* Any lesson link (even the current one) closes the drawer */}
+            <div
+              className="flex min-h-0 flex-1 flex-col"
+              onClick={(e) => (e.target as HTMLElement).closest('a') && toggleSidebar(false)}
+            >
               <SidebarNavigationTree />
             </div>
           </motion.aside>

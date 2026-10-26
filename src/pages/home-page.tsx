@@ -1,61 +1,26 @@
-// Home dashboard: hero + review CTA + continue card + 7 area collapsibles + overall progress.
-import { useProgressStore } from '@/store/progress-store-with-persist';
-import { getCurriculum } from '@/lib/content-loader';
-import { overallCompletion } from '@/lib/completion-progress-helpers';
-import { AreaSectionCollapsible } from '@/components/home/area-section-collapsible';
-import { ReviewTodayCta } from '@/components/home/review-today-cta';
-import { ContinueLearningCard } from '@/components/home/continue-learning-card';
-import { ProgressBar } from '@/components/ui/progress-bar';
+// Home: short intro, resume/review shortcuts, then the book-style table of contents.
+import { ChapterTableOfContents } from '@/components/home/chapter-table-of-contents';
+import { TodayReadingShortcuts } from '@/components/home/today-reading-shortcuts';
 
 export function HomePage() {
-  const curriculum = getCurriculum();
-  const progress = useProgressStore((s) => s.progress);
-  const { pct, read, total } = overallCompletion(curriculum, progress);
-
   return (
-    <div className="space-y-8">
-      {/* Hero */}
-      <section className="rounded-card border border-border-subtle bg-bg-card p-6">
-        <h1 className="text-2xl font-bold text-text-primary">
-          Toán nền cho Khoa học Máy tính
-          <span className="block text-base font-normal text-text-muted mt-1">
-            Math Foundations for Computer Science
-          </span>
+    <div>
+      <header className="mb-8">
+        <h1 className="font-serif text-[2rem] leading-[1.15] text-text-primary sm:text-[2.5rem]">
+          Toán nền cho
+          <br />
+          Khoa học Máy tính
         </h1>
-        <p className="mt-3 max-w-2xl text-text-secondary text-sm leading-relaxed">
-          Học lại toán cốt lõi cho CS — trực quan, có công thức (formula), đồ thị tương tác
-          (interactive graph) và lặp lại ngắt quãng (spaced repetition) để nhớ lâu.
+        <p className="mt-4 max-w-xl text-text-secondary">
+          Bảy chương toán mà lập trình viên gặp hằng ngày: từ logarit, xác suất đến Big-O. Mỗi bài
+          giải thích bằng trực giác, có ví dụ giải từng bước, bài tập và thẻ ôn ngắt quãng.
         </p>
-        {total > 0 && (
-          <div className="mt-5 max-w-sm">
-            <div className="flex justify-between text-xs text-text-muted mb-1.5">
-              <span>Tiến độ tổng (Overall progress)</span>
-              <span className="font-mono">{read}/{total} chủ đề · {pct}%</span>
-            </div>
-            <ProgressBar value={pct} />
-          </div>
-        )}
-      </section>
+      </header>
 
-      {/* Review CTA + Continue card — side by side on sm+ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <ReviewTodayCta />
-        <ContinueLearningCard />
-      </div>
+      <TodayReadingShortcuts />
 
-      {/* Curriculum: 7 areas */}
-      <section>
-        <h2 className="text-lg font-bold text-text-primary mb-6">
-          Chương trình học (Curriculum)
-        </h2>
-        {curriculum.areas.map((area, i) => (
-          <AreaSectionCollapsible
-            key={area.id}
-            area={area}
-            defaultOpen={i === 0}
-          />
-        ))}
-      </section>
+      <h2 className="mb-1 mt-12 text-sm text-text-muted">Mục lục</h2>
+      <ChapterTableOfContents />
     </div>
   );
 }

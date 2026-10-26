@@ -21,10 +21,9 @@ export function TopicDrillPage() {
 
   if (!topic) {
     return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <span className="text-4xl" aria-hidden>🚧</span>
-        <h1 className="text-xl font-bold text-text-primary">Chủ đề không tồn tại</h1>
-        <Link to="/" className="text-sm text-text-muted hover:text-text-primary">← Về trang chủ</Link>
+      <div className="flex flex-col items-start gap-4 py-12">
+        <h1 className="font-serif text-2xl text-text-primary">Chủ đề không tồn tại</h1>
+        <Link to="/" className="text-sm text-text-muted hover:text-text-primary">Về mục lục</Link>
       </div>
     );
   }
@@ -35,10 +34,10 @@ export function TopicDrillPage() {
 
   if (queue.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
+      <div className="flex flex-col items-start gap-4 py-12">
         <p className="text-text-muted">Chủ đề này chưa có thẻ hoặc bài tập.</p>
         <Link to={`/area/${areaId}/${topicSlug}`} className="text-sm text-text-muted hover:text-text-primary">
-          ← Về trang chủ đề
+          Về mục lục đề
         </Link>
       </div>
     );
@@ -46,20 +45,19 @@ export function TopicDrillPage() {
 
   if (index >= queue.length) {
     return (
-      <div className="flex flex-col items-center gap-6 py-16 text-center">
-        <span className="text-4xl" aria-hidden>🎯</span>
-        <h1 className="text-xl font-bold text-text-primary">Hoàn thành luyện tập!</h1>
-        <p className="text-text-muted">{queue.length} mục — {topic.title}</p>
+      <div className="flex flex-col items-start gap-4 py-12">
+        <h1 className="font-serif text-2xl text-text-primary">Xong phần luyện tập</h1>
+        <p className="text-text-muted">{queue.length} mục của bài {topic.title}.</p>
         <div className="flex gap-3">
           <button
             onClick={() => setIndex(0)}
-            className="px-4 py-2 rounded-btn border border-border-subtle text-text-secondary text-sm hover:border-accent-blue hover:text-text-primary transition-colors"
+            className="rounded-btn bg-bg-card px-4 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
           >
             Luyện lại
           </button>
           <Link
             to={`/area/${areaId}/${topicSlug}`}
-            className="px-4 py-2 rounded-btn border border-border-subtle text-text-secondary text-sm hover:border-accent-blue hover:text-text-primary transition-colors"
+            className="rounded-btn bg-bg-card px-4 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
           >
             Về chủ đề
           </Link>
@@ -71,15 +69,15 @@ export function TopicDrillPage() {
   const current = queue[index];
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4 flex flex-col gap-6">
+    <div className="mx-auto flex max-w-2xl flex-col gap-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <Link to={`/area/${areaId}/${topicSlug}`} className="text-xs text-text-muted hover:text-text-primary">
             ← {topic.title}
           </Link>
-          <h1 className="text-xl font-bold text-text-primary mt-1">
-            Luyện tập (Drill)
+          <h1 className="font-serif text-2xl text-text-primary mt-1">
+            Luyện tập
           </h1>
         </div>
         <span className="text-sm text-text-muted">
@@ -88,7 +86,7 @@ export function TopicDrillPage() {
       </div>
 
       {/* Progress bar */}
-      <div className="h-1.5 rounded-full bg-bg-card overflow-hidden">
+      <div className="h-1 overflow-hidden rounded-full bg-bg-card">
         <div
           className="h-full bg-accent-orange rounded-full transition-all duration-300"
           style={{ width: `${(index / queue.length) * 100}%` }}
@@ -97,8 +95,7 @@ export function TopicDrillPage() {
 
       {/* Current item */}
       {current.kind === 'flashcard' && current.flashcard && (
-        <div className="p-5 rounded-xl border border-border-subtle bg-bg-card">
-          <p className="text-xs text-text-muted mb-3">Thẻ ghi nhớ (Flashcard)</p>
+        <div>
           <FlashcardView
             key={`${topicId}-${current.flashcard.id}`}
             card={current.flashcard}

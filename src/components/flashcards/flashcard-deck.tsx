@@ -29,18 +29,15 @@ export function FlashcardDeck({ cards, onDone }: FlashcardDeckProps) {
 
   if (index >= cards.length) {
     return (
-      <div className="flex flex-col items-center gap-4 py-8">
-        <span className="text-3xl" aria-hidden>🎉</span>
-        <p className="text-text-primary font-semibold">Xong rồi! (All done)</p>
-        <p className="text-text-muted text-sm">
-          Bạn đã ôn {cards.length} thẻ.
-        </p>
+      <div className="flex flex-col items-start gap-3 rounded-card bg-bg-card px-5 py-5">
+        <p className="text-text-primary">Đã ôn hết {cards.length} thẻ.</p>
+        <p className="text-sm text-text-muted">Các thẻ sẽ quay lại trong mục Ôn tập khi đến hạn.</p>
         <button
           onClick={() => {
             setIndex(0);
             onDone?.();
           }}
-          className="px-4 py-2 rounded-btn border border-border-subtle text-text-secondary text-sm hover:text-text-primary hover:border-accent-blue/40 transition-colors"
+          className="rounded-btn bg-bg-panel px-4 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
         >
           Ôn lại từ đầu
         </button>
@@ -56,26 +53,17 @@ export function FlashcardDeck({ cards, onDone }: FlashcardDeckProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {/* Progress */}
       <div className="flex items-center justify-between text-xs text-text-muted">
-        <span>
-          {index + 1} / {cards.length} thẻ
+        <span className="tabular-nums">
+          Thẻ {index + 1}/{cards.length}
         </span>
-        <div className="flex gap-1">
-          {cards.map((_, i) => (
-            <div
-              key={i}
-              className={[
-                'h-1 w-6 rounded-full transition-colors',
-                i < index
-                  ? 'bg-accent-blue'
-                  : i === index
-                    ? 'bg-accent-orange'
-                    : 'bg-border-subtle',
-              ].join(' ')}
-            />
-          ))}
+        <div className="h-1 w-24 overflow-hidden rounded-full bg-bg-card">
+          <div
+            className="h-full rounded-full bg-accent-orange transition-[width] duration-300"
+            style={{ width: `${(index / cards.length) * 100}%` }}
+          />
         </div>
       </div>
 
