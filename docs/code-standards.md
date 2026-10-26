@@ -24,11 +24,20 @@
 ## Prose formatting (what the renderer supports)
 
 Inside any `content` / `caption` / `title` string:
-- Inline: `**bold**`, `` `code` ``, and inline math `$...$` (KaTeX). Remember JSON needs `\\`
-  for a LaTeX backslash.
+- Inline: `**bold**`, `*italic*`, `` `code` ``, inline math `$...$` and display math `$$...$$`
+  (KaTeX). Remember JSON needs `\\` for a LaTeX backslash.
+- Lists: lines starting with `- ` or `1. ` render as `<ul>/<ol>`.
+- Never put Vietnamese or other non-Latin glyphs (—, ≈, →) inside math — KaTeX fonts lack them.
+  Use `\approx`, `\to`, English `\text{}`. No literal `$` for currency; no stray single `*`.
 - **Markdown pipe-tables** ARE rendered (great for tables of values, e.g. limits `x → c`).
   Separate the table from surrounding prose with a blank line (`\n\n`); each row wrapped in
   `| ... |`; include a `|---|` separator row. Cells support inline math.
+
+## Validation
+
+Run `npm run validate:content` after editing any topic JSON. It checks schema shape, parses every
+formula with KaTeX (strict), flags Vietnamese inside math / mis-paired `$`, quiz `correct` range,
+duplicate ids/options and `relatedFlashcard` links.
 
 ## Safety
 
