@@ -1,0 +1,14 @@
+# Code review: UI redesign + PWA (uncommitted)
+No critical/blocking. Ranked:
+1. [Med] vite.config.js (tracked, tsc-emitted) shadows vite.config.ts: Vite resolves .js before .ts; two copies drift. Fix: git rm vite.config.js (+ tsbuildinfo), keep only .ts; tsconfig.node noEmit.
+2. [Med] inline-markdown.tsx:5 TOKEN_RE italic `\*[^*\s][^*]*\*` false-positives on plain `5*3 + 2*4` -> italic "3 + 2"; spans newlines/list items (`- *a\n- b*`). Fix: require non-word boundary `(?<![\w*])\*(?=\S)[^*\n]*?\S\*(?!\w)`.
+3. [Med] inline-markdown.tsx:5 bold `\*\*[^*]+\*\*` cannot contain `*`: `**a *b* c**` and `**x $a*b$**` break into stray `*`. "Recursive bold" cannot nest italic. Fix: `\*\*(?:[^*]|\*(?!\*))+\*\*` or drop claim.
+4. [Low] inline-markdown.tsx:~23 `$$` -> `<span block><BlockMath/></span>` inside `<p>`: react-katex BlockMath renders a div -> invalid nesting (dev warning, odd in strong/em). Fix: split display math out in ParagraphBlock/ProseBlocks, or use InlineMath displayMode via katex renderToString.
+5. [Low] sidebar-navigation-tree.tsx:12 ChapterSection useState(defaultOpen) only initial: prev/next to another chapter leaves active lesson in collapsed chapter. Fix: useEffect open when area.id === current areaId.
+6. [Low] use-due-review-count.ts: memo keyed only on schedules/progress; count not refreshed across midnight / when a card becomes due while page stays open. Add minute tick state or accept.
+7. [Low] mermaid-diagram-renderer.tsx:65 min-width effect runs once per svg; not re-evaluated on resize/rotation (clientWidth), and uses viewBox width (0 if missing -> no-op, ok). Acceptable.
+8. [Low] mobile-navigation-drawer.tsx: removed wrapper onClick close; closing now only on pathname change, so tapping the current lesson link leaves drawer open. role=dialog without Esc/focus trap (pre-existing). Fix: onClick close on NavLink or keydown Esc.
+9. [Info] PWA: navigateFallback '/index.html' + vercel.json rewrite '/(.*)'->'/' OK (Vercel serves static files incl. sw.js/manifest before rewrites). Add navigateFallbackDenylist [/^\/assets\//] optional. Maskable icon reuses non-padded pwa-512 -> may be cropped; generate padded variant. Google Fonts CSS CacheFirst 1y: stale CSS risk, prefer StaleWhileRevalidate for googleapis.
+10. [Info] topic-page markRead sentinel sits before flashcards/exercises/quiz: short lesson auto-marks read on load -> now also unlocks SR cards (collect-due-items gating). Pre-existing trigger, new consequence.
+11. [Info] scripts/validate-content.mjs: `\$([^$]+)\$` pairing mirrors renderer; does not validate `*`/`**` balance or fences. checkString strips only backtick spans so `$` in code fences ok. No bug.
+Checked OK: no dangling imports of deleted home/ui components (only a comment in content-schema-types.ts:120 mentions topic-card-icon), hooks order in topic-page, collect-due-items gating, FENCE_RE.

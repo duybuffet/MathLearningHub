@@ -6,7 +6,7 @@
   "order": 1,
   "icon": "curve",
   "tagline": "Giới hạn (limit) hỏi \"hàm số tiến về đâu khi x tiến về một điểm?\" — nền tảng để hiểu Big-O và vì sao ta bỏ hằng số trong tiệm cận.",
-  "readTime": "~15 min",
+  "readTime": "~22 min",
   "prerequisites": [],
   "sections": [
     {
@@ -16,7 +16,7 @@
     {
       "type": "analogy",
       "title": "Giống như dự đoán điểm đến từ hướng đi",
-      "content": "Hãy tưởng tượng bạn nhìn một chiếc xe trên xa lộ từ xa: bạn không biết xe có dừng hẳn hay không, nhưng nhìn vào **hướng và quỹ đạo** của nó, bạn có thể dự đoán nó đang đến gần điểm nào.\n\nTương tự, với giới hạn: thay vì tính *chính xác* f(x) tại x=c (đôi khi hàm không xác định tại đó!), ta hỏi: \"Khi x tiến *rất gần* c — từ cả hai phía — thì f(x) tiến về giá trị nào?\"\n\nBảng giá trị ví dụ cho f(x) = (x²−1)/(x−1) khi x→1:\n\n| x | 0.9 | 0.99 | 0.999 | → | 1.001 | 1.01 | 1.1 |\n|---|---|---|---|---|---|---|---|\n| f(x) | 1.9 | 1.99 | 1.999 | → | 2.001 | 2.01 | 2.1 |\n\nDù tại x=1 hàm không xác định (mẫu = 0), nhưng giới hạn của nó rõ ràng là **2**."
+      "content": "Hãy tưởng tượng bạn nhìn một chiếc xe trên xa lộ từ xa: bạn không biết xe có dừng hẳn hay không, nhưng nhìn vào **hướng và quỹ đạo** của nó, bạn có thể dự đoán nó đang đến gần điểm nào.\n\nTương tự, với giới hạn: thay vì tính *chính xác* f(x) tại x = c (đôi khi hàm không xác định tại đó!), ta hỏi: \"Khi x tiến *rất gần* c — từ cả hai phía — thì f(x) tiến về giá trị nào?\"\n\nBảng giá trị cho $f(x) = \\frac{x^2-1}{x-1}$ khi $x \\to 1$:\n\n| x | f(x) |\n|---|---|\n| 0.9 | 1.9 |\n| 0.99 | 1.99 |\n| 0.999 | 1.999 |\n| 1 | không xác định |\n| 1.001 | 2.001 |\n| 1.01 | 2.01 |\n| 1.1 | 2.1 |\n\nDù tại x = 1 hàm không xác định (mẫu = 0), từ cả hai phía f(x) đều dồn về **2** — vậy giới hạn bằng 2."
     },
     {
       "type": "formula",
@@ -24,71 +24,226 @@
       "latex": "\\lim_{x \\to c} f(x) = L",
       "reading": "đọc là: \"giới hạn của f(x) khi x tiến đến c bằng L\".",
       "symbols": [
-        { "sym": "x \\to c", "meaning": "x tiến gần c (nhưng không nhất thiết bằng c)" },
-        { "sym": "f(x)", "meaning": "hàm số đang xét" },
-        { "sym": "L", "meaning": "giá trị giới hạn — f(x) tiến đến L" },
-        { "sym": "\\lim", "meaning": "ký hiệu limit (từ tiếng Latin 'limes' = ranh giới)" }
+        {
+          "sym": "x \\to c",
+          "meaning": "x tiến gần c (nhưng không nhất thiết bằng c)"
+        },
+        {
+          "sym": "f(x)",
+          "meaning": "hàm số đang xét"
+        },
+        {
+          "sym": "L",
+          "meaning": "giá trị giới hạn — f(x) tiến đến L"
+        },
+        {
+          "sym": "\\lim",
+          "meaning": "ký hiệu limit (từ tiếng Latin 'limes' = ranh giới)"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Giới hạn khi n→∞ và Big-O",
-      "content": "Trong phân tích thuật toán, ta thường xét giới hạn khi n→∞ (n tiến đến vô cực). Đây là cơ sở toán học của ký hiệu Big-O:\n\n- `lim(n→∞) 1/n = 0` → hằng số nhỏ dần về 0, bỏ đi được\n- `lim(n→∞) (3n² + 5n) / n² = 3` → chỉ bậc cao nhất còn lại\n- `lim(n→∞) log(n) / n = 0` → log n tăng chậm hơn n rất nhiều\n\nKhi ta nói `O(n²)` thay vì `O(3n² + 5n)`, chúng ta đang áp dụng đúng logic giới hạn này: khi n lớn, các số hạng nhỏ hơn \"biến mất\" so với số hạng thống trị."
+      "content": "Trong phân tích thuật toán, ta thường xét giới hạn khi $n \\to \\infty$ (n tiến đến vô cực). Đây là cơ sở toán học của ký hiệu Big-O:\n\n- $\\lim_{n\\to\\infty} \\frac{c}{n} = 0$ với mọi hằng số c → một số hạng bậc thấp chia cho số hạng bậc cao sẽ teo về 0\n- $\\lim_{n\\to\\infty} \\frac{3n^2 + 5n}{n^2} = 3$ → chỉ số hạng bậc cao nhất quyết định bậc tăng trưởng\n- $\\lim_{n\\to\\infty} \\frac{\\log n}{n} = 0$ → log n tăng chậm hơn n rất nhiều\n\nKhi ta viết $O(n^2)$ thay vì $O(3n^2 + 5n)$, ta đang dùng đúng logic này: khi n lớn, các số hạng bậc thấp trở nên không đáng kể *so với* số hạng thống trị, còn hệ số nhân (3) không đổi bậc."
     },
     {
       "type": "graph",
       "title": "Đồ thị f(x) = (x²−1)/(x−1) — lỗ hổng tại x=1",
       "functions": [
-        { "fn": "(x^2 - 1) / (x - 1)", "color": "#ffe08a" }
+        {
+          "fn": "(x^2 - 1) / (x - 1)",
+          "color": "#ffe08a"
+        }
       ],
-      "xDomain": [-1, 4],
-      "yDomain": [-1, 5],
+      "xDomain": [
+        -1,
+        4
+      ],
+      "yDomain": [
+        -1,
+        5
+      ],
       "caption": "Hàm số này bằng (x+1) với mọi x≠1, nhưng không xác định tại x=1. Tuy nhiên giới hạn khi x→1 vẫn tồn tại và bằng 2. Đây là điểm mấu chốt: giới hạn quan tâm đến *xu hướng tiến về*, không phải *giá trị tại điểm đó*."
     },
     {
       "type": "formula",
-      "title": "Giới hạn khi x→∞ (tiệm cận)",
-      "latex": "\\lim_{n \\to \\infty} \\frac{1}{n} = 0 \\qquad \\lim_{n \\to \\infty} \\frac{3n^2 + 5n}{n^2} = 3",
+      "title": "Giới hạn khi n → ∞ (tiệm cận)",
+      "latex": "\\begin{gathered} \\lim_{n \\to \\infty} \\frac{1}{n} = 0 \\\\ \\lim_{n \\to \\infty} \\frac{3n^2 + 5n}{n^2} = 3 \\end{gathered}",
       "reading": "đọc là: \"khi n tiến đến vô cực, 1/n tiến về 0\"; và \"(3n² + 5n)/n² tiến về 3\".",
       "symbols": [
-        { "sym": "n \\to \\infty", "meaning": "n tăng không giới hạn (vô cực)" },
-        { "sym": "1/n \\to 0", "meaning": "1/n ngày càng nhỏ hơn, tiến về 0" },
-        { "sym": "3n^2 / n^2", "meaning": "số hạng bậc thấp hơn biến mất, còn lại hệ số 3" }
+        {
+          "sym": "n \\to \\infty",
+          "meaning": "n tăng không giới hạn (vô cực)"
+        },
+        {
+          "sym": "1/n \\to 0",
+          "meaning": "1/n ngày càng nhỏ hơn, tiến về 0"
+        },
+        {
+          "sym": "3n^2 / n^2",
+          "meaning": "số hạng bậc thấp hơn biến mất, còn lại hệ số 3"
+        }
       ]
     },
     {
       "type": "graph",
       "title": "Minh họa 1/n → 0 khi n→∞",
       "functions": [
-        { "fn": "1/x", "color": "#7fded1" },
-        { "fn": "1/x^2", "color": "#ff9ecb" }
+        {
+          "fn": "1/x",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "1/x^2",
+          "color": "#ff9ecb"
+        }
       ],
-      "xDomain": [0.5, 20],
-      "yDomain": [-0.1, 2],
-      "caption": "Cả 1/n (xanh) và 1/n² (hồng) đều tiến về 0 khi n→∞, nhưng 1/n² tiến nhanh hơn. Trong Big-O, cả hai đều là O(1/n) và O(1/n²) tương ứng — các hằng số nhân không ảnh hưởng đến bậc."
+      "xDomain": [
+        0.5,
+        20
+      ],
+      "yDomain": [
+        -0.1,
+        2
+      ],
+      "caption": "Cả 1/n (xanh) và 1/n² (hồng) đều tiến về 0 khi n→∞, nhưng 1/n² tiến về 0 nhanh hơn hẳn: tại n = 10, 1/n = 0.1 còn 1/n² = 0.01. \"Cùng tiến về 0\" chưa đủ — tốc độ tiến về đâu mới là thứ Big-O so sánh."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: tính giới hạn bằng bảng giá trị",
       "problem": "Ước lượng $\\lim_{x \\to 2} (x^2 - x)$ bằng bảng giá trị.",
       "steps": [
-        { "text": "Thử các giá trị x gần 2: x = 1.9, 1.99, 1.999, 2.001, 2.01, 2.1.", "rule": "Tiếp cận giới hạn từ hai phía" },
-        { "text": "Tính f(x) = x²−x: f(1.9)=1.71, f(1.99)=1.9701, f(1.999)=1.997001, f(2.001)=2.003001, f(2.01)=2.0301, f(2.1)=2.31." },
-        { "text": "Từ cả hai phía, f(x) đều tiến về 2. Vậy giới hạn bằng 2.", "rule": "Giới hạn từ trái = giới hạn từ phải → giới hạn tồn tại" },
-        { "text": "Kiểm tra: f(2) = 4−2 = 2. Hàm liên tục tại x=2 nên giới hạn = giá trị hàm.", "isCommonMistake": true, "rule": "Không phải lúc nào cũng được thay thẳng x=c vào — chỉ khi hàm liên tục tại c" }
+        {
+          "text": "Thử các giá trị x gần 2: x = 1.9, 1.99, 1.999, 2.001, 2.01, 2.1.",
+          "rule": "Tiếp cận giới hạn từ hai phía"
+        },
+        {
+          "text": "Tính f(x) = x²−x: f(1.9)=1.71, f(1.99)=1.9701, f(1.999)=1.997001, f(2.001)=2.003001, f(2.01)=2.0301, f(2.1)=2.31."
+        },
+        {
+          "text": "Từ cả hai phía, f(x) đều tiến về 2. Vậy giới hạn bằng 2.",
+          "rule": "Giới hạn từ trái = giới hạn từ phải → giới hạn tồn tại"
+        },
+        {
+          "text": "Kiểm tra: f(2) = 4 − 2 = 2, khớp với bảng. Sai lầm hay gặp: từ đây suy ra \"cứ thay thẳng x = c là ra giới hạn\". Điều đó chỉ đúng vì $x^2 - x$ là đa thức (liên tục); với $\\frac{x^2-1}{x-1}$ tại x = 1 thì thay thẳng cho ra 0/0.",
+          "rule": "Thay thẳng x = c chỉ hợp lệ khi hàm liên tục tại c",
+          "isCommonMistake": true
+        }
       ],
       "result": "$\\lim_{x \\to 2} (x^2 - x) = 2$"
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 2: Big-O từ góc nhìn giới hạn",
-      "problem": "Chứng minh bằng trực giác giới hạn rằng $5n^2 + 100n$ có bậc $O(n^2)$.",
+      "problem": "Dùng giới hạn để giải thích vì sao $5n^2 + 100n$ có bậc $n^2$.",
       "steps": [
-        { "text": "Chia tử và mẫu cho $n^2$: $\\frac{5n^2 + 100n}{n^2} = 5 + \\frac{100}{n}$.", "rule": "Chia cho số hạng thống trị" },
-        { "text": "Lấy giới hạn khi n→∞: $\\lim_{n\\to\\infty}\\left(5 + \\frac{100}{n}\\right) = 5 + 0 = 5$.", "rule": "lim(1/n) = 0 khi n→∞" },
-        { "text": "Giới hạn là hằng số (5), không phụ thuộc n → $5n^2+100n$ tăng *đúng theo bậc* $n^2$.", "isCommonMistake": true, "rule": "Đừng nhầm: $5n^2+100n$ KHÔNG phải $O(n^3)$ hay $O(n)$ — giới hạn xác định bậc chính xác" }
+        {
+          "text": "Chia tử và mẫu cho $n^2$: $\\frac{5n^2 + 100n}{n^2} = 5 + \\frac{100}{n}$.",
+          "rule": "Chia cho số hạng thống trị"
+        },
+        {
+          "text": "Lấy giới hạn khi n→∞: $\\lim_{n\\to\\infty}\\left(5 + \\frac{100}{n}\\right) = 5 + 0 = 5$.",
+          "rule": "lim(1/n) = 0 khi n→∞"
+        },
+        {
+          "text": "Giới hạn là hằng số dương hữu hạn (5) → $5n^2+100n$ tăng *đúng theo bậc* $n^2$, tức là $\\Theta(n^2)$. Sai lầm hay gặp: nói \"nó KHÔNG phải $O(n^3)$\". Thực ra nó vẫn là $O(n^3)$ (Big-O chỉ là cận trên), chỉ là cận đó lỏng; giới hạn hằng số dương cho ta cận *chặt* $\\Theta(n^2)$.",
+          "rule": "Giới hạn tỉ số = c, 0 < c < vô cực ⇒ cùng bậc (Θ)",
+          "isCommonMistake": true
+        }
       ],
-      "result": "$5n^2 + 100n = O(n^2)$ vì $\\lim_{n\\to\\infty}\\frac{5n^2+100n}{n^2} = 5$ (hằng số hữu hạn dương)"
+      "result": "$5n^2 + 100n = \\Theta(n^2)$ (nên cũng là $O(n^2)$) vì $\\lim_{n\\to\\infty}\\frac{5n^2+100n}{n^2} = 5$ — hằng số hữu hạn dương."
+    },
+    {
+      "type": "explanation",
+      "title": "Giới hạn một phía & khi nào giới hạn không tồn tại",
+      "content": "Ký hiệu $x \\to c^-$ nghĩa là x tiến về c **từ bên trái** (x < c), còn $x \\to c^+$ là **từ bên phải** (x > c). Giới hạn hai phía chỉ tồn tại khi hai giới hạn một phía tồn tại và **bằng nhau**.\n\nBa tình huống giới hạn KHÔNG tồn tại (tại một điểm hữu hạn):\n\n- **Hai phía khác nhau**: `floor(x)` tại x = 2 — từ trái ra 1, từ phải ra 2.\n- **Phình ra vô cực**: $\\frac{1}{x}$ tại x = 0 — trái về $-\\infty$, phải về $+\\infty$.\n- **Dao động mãi**: $\\sin(1/x)$ khi x → 0 — lắc giữa −1 và 1, không dồn về đâu.\n\nGhi chú: viết $\\lim = \\infty$ là cách nói \"tăng không giới hạn\" — đó là một kiểu giới hạn *không tồn tại* (theo nghĩa số thực), nhưng rất hữu ích khi so sánh tốc độ tăng."
+    },
+    {
+      "type": "explanation",
+      "title": "So sánh tốc độ tăng bằng giới hạn — xương sống của Big-O",
+      "content": "Muốn biết f(n) hay g(n) tăng nhanh hơn, xét tỉ số $\\frac{f(n)}{g(n)}$ khi $n \\to \\infty$:\n\n| Giới hạn của f/g | Ý nghĩa | Ký hiệu |\n|---|---|---|\n| 0 | f chậm hơn hẳn g | $f = o(g)$ |\n| hằng số c > 0 | cùng bậc | $f = \\Theta(g)$ |\n| ∞ | f nhanh hơn hẳn g | $g = o(f)$ |\n\nÁp dụng ta có **thang tăng trưởng** (mỗi bậc thua xa bậc sau khi n đủ lớn):\n\n$$1 \\ll \\log n \\ll \\sqrt{n} \\ll n \\ll n \\log n \\ll n^2 \\ll 2^n \\ll n!$$\n\nHai quy tắc đáng thuộc lòng: **mọi log thua mọi lũy thừa** ($\\lim \\frac{(\\log n)^k}{n^{\\varepsilon}} = 0$ với mọi k và mọi $\\varepsilon > 0$), và **mọi đa thức thua mọi hàm mũ** ($\\lim \\frac{n^k}{a^n} = 0$ với mọi k và mọi a > 1). Đó là lý do một thuật toán $O(2^n)$ luôn thua $O(n^{10})$ — khi n đủ lớn."
+    },
+    {
+      "type": "graph",
+      "title": "Thang tăng trưởng: log n, n, n², 2ⁿ",
+      "functions": [
+        {
+          "fn": "log(x)/log(2)",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "x",
+          "color": "#8ac6ff"
+        },
+        {
+          "fn": "x^2",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "2^x",
+          "color": "#ff9ecb"
+        }
+      ],
+      "xDomain": [
+        0.5,
+        8
+      ],
+      "yDomain": [
+        0,
+        40
+      ],
+      "caption": "Mint: log₂ n. Xanh dương: n. Vàng: n². Hồng: 2ⁿ. Với n nhỏ, các đường còn đan vào nhau (2ⁿ < n² khi 2 < n < 4), nhưng từ n = 5 trở đi 2ⁿ bỏ xa n² và khoảng cách chỉ ngày càng lớn — đó chính là ý nghĩa của giới hạn khi n → ∞."
+    },
+    {
+      "type": "formula",
+      "title": "Quy tắc L'Hôpital (dùng nhanh cho dạng 0/0 và ∞/∞)",
+      "latex": "\\lim_{x \\to c} \\frac{f(x)}{g(x)} = \\lim_{x \\to c} \\frac{f'(x)}{g'(x)}",
+      "reading": "đọc là: nếu tử và mẫu cùng tiến về 0 (hoặc cùng tiến về vô cực), thì giới hạn của tỉ số bằng giới hạn của tỉ số các đạo hàm — miễn là giới hạn vế phải tồn tại. Áp dụng được cả khi c = ∞. (Đạo hàm sẽ học kỹ ở bài sau; ở đây chỉ cần $(\\ln x)' = 1/x$ và $(x^k)' = kx^{k-1}$.)",
+      "symbols": [
+        {
+          "sym": "\\frac{0}{0},\\ \\frac{\\infty}{\\infty}",
+          "meaning": "điều kiện bắt buộc — chỉ dùng được với hai dạng vô định này"
+        },
+        {
+          "sym": "f'(x),\\ g'(x)",
+          "meaning": "đạo hàm riêng rẽ của tử và mẫu (KHÔNG phải đạo hàm của cả phân số)"
+        },
+        {
+          "sym": "c",
+          "meaning": "có thể là số hữu hạn hoặc ∞"
+        }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 3: vì sao log n ≪ n và n³ ≪ 2ⁿ",
+      "problem": "Tính $\\lim_{n\\to\\infty} \\frac{\\ln n}{n}$ và $\\lim_{n\\to\\infty} \\frac{n^3}{2^n}$.",
+      "steps": [
+        {
+          "text": "Khi n → ∞, cả $\\ln n$ và $n$ đều → ∞: dạng ∞/∞, dùng được L'Hôpital.",
+          "rule": "Kiểm tra điều kiện trước khi dùng L'Hôpital"
+        },
+        {
+          "text": "$\\lim \\frac{\\ln n}{n} = \\lim \\frac{1/n}{1} = \\lim \\frac{1}{n} = 0$. Vậy $\\ln n = o(n)$: log tăng chậm hơn hẳn tuyến tính.",
+          "rule": "L'Hôpital: đạo hàm tử và mẫu riêng rẽ"
+        },
+        {
+          "text": "Với $\\frac{n^3}{2^n}$: đạo hàm của $2^n$ là $2^n \\ln 2$. Áp dụng L'Hôpital 3 lần: $\\frac{3n^2}{2^n \\ln 2} \\to \\frac{6n}{2^n (\\ln 2)^2} \\to \\frac{6}{2^n (\\ln 2)^3} \\to 0$.",
+          "rule": "Lặp L'Hôpital đến khi tử thành hằng số"
+        },
+        {
+          "text": "Sai lầm hay gặp: lấy đạo hàm của cả phân số theo quy tắc thương, hoặc dùng L'Hôpital khi không phải dạng 0/0 hay ∞/∞ (ví dụ $\\lim_{x\\to 0} \\frac{x+1}{x+2} = \\frac{1}{2}$, nhưng L'Hôpital cho ra 1 — sai).",
+          "rule": "L'Hôpital = tử' / mẫu', chỉ cho dạng vô định",
+          "isCommonMistake": true
+        }
+      ],
+      "result": "Cả hai giới hạn bằng 0: $\\ln n = o(n)$ và $n^3 = o(2^n)$ — thuật toán $O(n^3)$ luôn thắng $O(2^n)$ khi n đủ lớn."
+    },
+    {
+      "type": "callout",
+      "variant": "info",
+      "content": "**Một giới hạn hay gặp trong CS:** $\\lim_{n\\to\\infty}\\left(1 - \\frac{1}{n}\\right)^n = \\frac{1}{e} \\approx 0.368$.\n\nÝ nghĩa: rải n key ngẫu nhiên vào n bucket của hash table, xác suất một bucket cụ thể bị **bỏ trống** là $(1 - 1/n)^n \\approx 36.8\\%$. Cùng con số này là tỉ lệ mẫu \"out-of-bag\" khi bootstrap trong Random Forest. Anh em của nó: $\\lim (1 + 1/n)^n = e \\approx 2.718$."
     },
     {
       "type": "callout",
@@ -99,9 +254,10 @@
       "type": "key_takeaways",
       "items": [
         "Giới hạn hỏi: \"f(x) tiến về đâu khi x tiến về c?\" — không cần hàm xác định tại c.",
-        "Đọc giới hạn qua bảng giá trị: kiểm tra cả từ trái lẫn từ phải.",
-        "Khi n→∞: 1/n→0, hằng số biến mất, số hạng bậc cao thống trị — đây là nền tảng của Big-O.",
-        "$\\lim_{n\\to\\infty} \\frac{f(n)}{g(n)} = \\text{const}$ → f và g cùng bậc (O notation).",
+        "Giới hạn hai phía tồn tại khi và chỉ khi giới hạn trái = giới hạn phải.",
+        "Dạng 0/0 (hay ∞/∞) là dạng vô định: rút gọn, nhân liên hợp hoặc dùng L'Hôpital — không kết luận vội.",
+        "So sánh tốc độ tăng bằng $\\lim f(n)/g(n)$: bằng 0 → f tăng chậm hơn hẳn; bằng hằng số dương → cùng bậc ($\\Theta$); bằng ∞ → f tăng nhanh hơn hẳn.",
+        "Thang tăng trưởng: $\\log n \\ll n^k \\ll 2^n \\ll n!$ — nền tảng để xếp hạng độ phức tạp thuật toán.",
         "Giới hạn ≠ giá trị tại điểm đó — chỉ bằng nhau khi hàm liên tục (bài tiếp theo)."
       ]
     }
@@ -123,7 +279,7 @@
       "id": "fc-lim-bigo",
       "type": "concept",
       "front": "Giới hạn liên quan đến Big-O như thế nào?",
-      "back": "Nếu $\\lim_{n\\to\\infty} \\frac{f(n)}{g(n)} = c$ (hằng số dương hữu hạn) thì f và g cùng bậc tăng trưởng: $f = O(g)$ và $g = O(f)$."
+      "back": "Nếu $\\lim_{n\\to\\infty} \\frac{f(n)}{g(n)} = c$ với $0 < c < \\infty$ thì f và g cùng bậc tăng trưởng: $f = \\Theta(g)$ (vừa $f = O(g)$, vừa $g = O(f)$). Nếu giới hạn = 0 thì f tăng chậm hơn hẳn g."
     },
     {
       "id": "fc-lim-table",
@@ -136,6 +292,42 @@
       "type": "concept",
       "front": "Giới hạn tại c có luôn bằng f(c) không?",
       "back": "Không. Giới hạn có thể tồn tại dù f không xác định tại c. Chúng bằng nhau chỉ khi hàm liên tục tại c (bài tiếp theo)."
+    },
+    {
+      "id": "fc-lim-indeterminate",
+      "type": "concept",
+      "front": "Thay x = c vào được $\\frac{0}{0}$. Kết luận gì?",
+      "back": "Chưa kết luận được gì — 0/0 là **dạng vô định**. Phải biến đổi: phân tích nhân tử rồi rút gọn, nhân liên hợp, hoặc dùng L'Hôpital. Giới hạn có thể là bất kỳ số nào (hoặc không tồn tại)."
+    },
+    {
+      "id": "fc-lim-one-sided",
+      "type": "definition",
+      "front": "Khi nào giới hạn hai phía $\\lim_{x\\to c} f(x)$ tồn tại?",
+      "back": "Khi và chỉ khi giới hạn trái $\\lim_{x\\to c^-}$ và giới hạn phải $\\lim_{x\\to c^+}$ đều tồn tại và **bằng nhau**. Ví dụ floor(x) tại x = 2: trái = 1, phải = 2 → không tồn tại."
+    },
+    {
+      "id": "fc-lim-growth",
+      "type": "concept",
+      "front": "Xếp theo tốc độ tăng: $n^2$, $2^n$, $\\log n$, $n!$, $n \\log n$, $\\sqrt{n}$.",
+      "back": "$\\log n \\ll \\sqrt{n} \\ll n \\log n \\ll n^2 \\ll 2^n \\ll n!$. Mọi log thua mọi lũy thừa; mọi đa thức thua mọi hàm mũ."
+    },
+    {
+      "id": "fc-lim-ratio-test",
+      "type": "concept",
+      "front": "Dùng $\\lim_{n\\to\\infty} f(n)/g(n)$ để so sánh tốc độ tăng: ba kết quả nghĩa là gì?",
+      "back": "= 0 → f tăng chậm hơn hẳn ($f = o(g)$). = c với 0 < c < ∞ → cùng bậc ($f = \\Theta(g)$). = ∞ → f tăng nhanh hơn hẳn ($g = o(f)$)."
+    },
+    {
+      "id": "fc-lim-lhopital",
+      "type": "formula",
+      "front": "Quy tắc L'Hôpital phát biểu gì và khi nào được dùng?",
+      "back": "Với dạng $\\frac{0}{0}$ hoặc $\\frac{\\infty}{\\infty}$: $\\lim \\frac{f}{g} = \\lim \\frac{f'}{g'}$ (nếu vế phải tồn tại). Đạo hàm tử và mẫu **riêng rẽ**. Không dùng cho dạng khác."
+    },
+    {
+      "id": "fc-lim-e",
+      "type": "formula",
+      "front": "$\\lim_{n\\to\\infty}(1 - 1/n)^n = ?$ và ý nghĩa trong hashing?",
+      "back": "$1/e \\approx 0.368$. Rải n key vào n bucket ngẫu nhiên: mỗi bucket trống với xác suất ≈ 36.8%, nên kỳ vọng ≈ 0.368n bucket trống."
     }
   ],
   "exercises": [
@@ -148,10 +340,23 @@
         "Tính 2x+1 cho mỗi giá trị trên."
       ],
       "solutionSteps": [
-        { "text": "x = 2.9 → f = 6.8; x = 2.99 → f = 6.98; x = 2.999 → f = 6.998.", "rule": "Tiếp cận từ phía trái" },
-        { "text": "x = 3.001 → f = 7.002; x = 3.01 → f = 7.02; x = 3.1 → f = 7.2.", "rule": "Tiếp cận từ phía phải" },
-        { "text": "Cả hai phía đều tiến về 7. Giới hạn = 7.", "isCommonMistake": false },
-        { "text": "Kiểm tra: f(3) = 7. Hàm tuyến tính luôn liên tục, giới hạn = giá trị hàm.", "isCommonMistake": true, "rule": "Hàm tuyến tính: giới hạn = giá trị hàm. Nhưng không phải lúc nào cũng vậy!" }
+        {
+          "text": "x = 2.9 → f = 6.8; x = 2.99 → f = 6.98; x = 2.999 → f = 6.998.",
+          "rule": "Tiếp cận từ phía trái"
+        },
+        {
+          "text": "x = 3.001 → f = 7.002; x = 3.01 → f = 7.02; x = 3.1 → f = 7.2.",
+          "rule": "Tiếp cận từ phía phải"
+        },
+        {
+          "text": "Cả hai phía đều tiến về 7. Giới hạn = 7.",
+          "rule": "Giới hạn trái = giới hạn phải → giới hạn tồn tại"
+        },
+        {
+          "text": "Kiểm tra: f(3) = 7, khớp với bảng — vì 2x + 1 là hàm tuyến tính (liên tục). Sai lầm hay gặp: chỉ thử từ một phía (ví dụ 2.9, 2.99) rồi kết luận ngay; với hàm có bước nhảy, hai phía có thể cho hai giá trị khác nhau.",
+          "rule": "Phải kiểm tra cả trái lẫn phải",
+          "isCommonMistake": true
+        }
       ],
       "answer": "7",
       "commonMistake": "Chỉ thử từ một phía (ví dụ chỉ từ trái) — phải kiểm tra cả hai phía để xác nhận giới hạn tồn tại.",
@@ -167,15 +372,31 @@
         "Rút gọn (x-1) ở tử và mẫu."
       ],
       "solutionSteps": [
-        { "text": "Nhận thấy tại x=1: tử = 0, mẫu = 0 → dạng 0/0, cần rút gọn.", "rule": "Nhận dạng dạng vô định 0/0" },
-        { "text": "Phân tích: $x^2 - 1 = (x-1)(x+1)$.", "rule": "Hằng đẳng thức a²−b² = (a−b)(a+b)" },
-        { "text": "$\\frac{x^2-1}{x-1} = \\frac{(x-1)(x+1)}{x-1} = x+1$ với $x \\neq 1$.", "isCommonMistake": false },
-        { "text": "$\\lim_{x\\to 1}(x+1) = 1+1 = 2$.", "rule": "Sau khi rút gọn, thay x=c vào hàm rút gọn" },
-        { "text": "Sai lầm hay gặp: thay x=1 vào trực tiếp $\\frac{1-1}{1-1} = \\frac{0}{0}$ và báo 'không xác định'.", "isCommonMistake": true, "rule": "Dạng 0/0 cần rút gọn trước, KHÔNG phải kết luận giới hạn không tồn tại" }
+        {
+          "text": "Nhận thấy tại x=1: tử = 0, mẫu = 0 → dạng 0/0, cần rút gọn.",
+          "rule": "Nhận dạng dạng vô định 0/0"
+        },
+        {
+          "text": "Phân tích: $x^2 - 1 = (x-1)(x+1)$.",
+          "rule": "Hằng đẳng thức a²−b² = (a−b)(a+b)"
+        },
+        {
+          "text": "$\\frac{x^2-1}{x-1} = \\frac{(x-1)(x+1)}{x-1} = x+1$ với $x \\neq 1$.",
+          "rule": "Được rút gọn vì giới hạn chỉ xét x ≠ 1"
+        },
+        {
+          "text": "$\\lim_{x\\to 1}(x+1) = 1+1 = 2$.",
+          "rule": "Sau khi rút gọn, thay x=c vào hàm rút gọn"
+        },
+        {
+          "text": "Sai lầm hay gặp: thay x=1 vào trực tiếp $\\frac{1-1}{1-1} = \\frac{0}{0}$ và báo 'không xác định'.",
+          "isCommonMistake": true,
+          "rule": "Dạng 0/0 cần rút gọn trước, KHÔNG phải kết luận giới hạn không tồn tại"
+        }
       ],
       "answer": "2",
       "commonMistake": "Thay x=1 vào và kết luận 0/0 = 'không xác định'. Phải rút gọn trước rồi mới lấy giới hạn.",
-      "relatedFlashcard": "fc-lim-def"
+      "relatedFlashcard": "fc-lim-indeterminate"
     },
     {
       "id": "ex-lim-challenge-1",
@@ -187,14 +408,122 @@
         "Giới hạn hữu hạn dương → cùng bậc tăng trưởng."
       ],
       "solutionSteps": [
-        { "text": "$\\frac{T(n)}{n^2} = \\frac{3n^2 + 10n + 500}{n^2} = 3 + \\frac{10}{n} + \\frac{500}{n^2}$.", "rule": "Chia từng số hạng cho n²" },
-        { "text": "Lấy giới hạn: $\\lim_{n\\to\\infty}\\left(3 + \\frac{10}{n} + \\frac{500}{n^2}\\right) = 3 + 0 + 0 = 3$.", "rule": "1/n→0 và 1/n²→0 khi n→∞" },
-        { "text": "Giới hạn = 3 (hằng số dương hữu hạn) → T(n) tăng *đúng theo bậc* n².", "isCommonMistake": false },
-        { "text": "Sai lầm hay gặp: nghĩ rằng 500 'lớn' so với 3n² khi n nhỏ → phải nhớ Big-O quan tâm n→∞, không phải n nhỏ.", "isCommonMistake": true, "rule": "Big-O là tiệm cận (asymptotic) — chỉ có ý nghĩa khi n đủ lớn" }
+        {
+          "text": "$\\frac{T(n)}{n^2} = \\frac{3n^2 + 10n + 500}{n^2} = 3 + \\frac{10}{n} + \\frac{500}{n^2}$.",
+          "rule": "Chia từng số hạng cho n²"
+        },
+        {
+          "text": "Lấy giới hạn: $\\lim_{n\\to\\infty}\\left(3 + \\frac{10}{n} + \\frac{500}{n^2}\\right) = 3 + 0 + 0 = 3$.",
+          "rule": "1/n→0 và 1/n²→0 khi n→∞"
+        },
+        {
+          "text": "Giới hạn = 3 (hằng số dương hữu hạn) → T(n) tăng *đúng theo bậc* n², tức $T(n) = \\Theta(n^2)$, nên cũng là $O(n^2)$.",
+          "rule": "Giới hạn tỉ số là hằng số dương ⇒ cùng bậc"
+        },
+        {
+          "text": "Sai lầm hay gặp: nghĩ rằng 500 'lớn' so với 3n² khi n nhỏ → phải nhớ Big-O quan tâm n→∞, không phải n nhỏ.",
+          "isCommonMistake": true,
+          "rule": "Big-O là tiệm cận (asymptotic) — chỉ có ý nghĩa khi n đủ lớn"
+        }
       ],
       "answer": "$\\lim_{n\\to\\infty} T(n)/n^2 = 3$ → $T(n) = O(n^2)$. Các số hạng $10n$ và $500$ biến mất vì tốc độ tăng của chúng thua xa $n^2$.",
-      "commonMistake": "Nghĩ T(n) = O(n²+n) hoặc giữ lại 10n — trong Big-O chỉ giữ số hạng bậc cao nhất.",
+      "commonMistake": "Giữ lại 10n kiểu $O(n^2 + 10n)$ — không sai nhưng thừa, vì $n^2 + 10n = \\Theta(n^2)$. Hoặc nghĩ 500 \"lớn\" nên quan trọng — Big-O chỉ quan tâm khi n đủ lớn.",
       "relatedFlashcard": "fc-lim-bigo"
+    },
+    {
+      "id": "ex-lim-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tính $\\lim_{n\\to\\infty} \\frac{2n + 3}{5n - 1}$.",
+      "hints": [
+        "Cả tử và mẫu đều → ∞. Chia tử và mẫu cho số hạng bậc cao nhất của mẫu.",
+        "Chia cho n: được $\\frac{2 + 3/n}{5 - 1/n}$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Chia tử và mẫu cho n: $\\frac{2n+3}{5n-1} = \\frac{2 + 3/n}{5 - 1/n}$.",
+          "rule": "Chia cho lũy thừa cao nhất"
+        },
+        {
+          "text": "Khi n → ∞: $3/n \\to 0$ và $1/n \\to 0$.",
+          "rule": "$\\lim c/n = 0$"
+        },
+        {
+          "text": "Giới hạn = $\\frac{2 + 0}{5 - 0} = \\frac{2}{5}$. Sai lầm hay gặp: chỉ \"triệt tiêu n\" rồi trả lời 1, hoặc tính $\\frac{2+3}{5-1} = \\frac{5}{4}$ như thể n = 1.",
+          "rule": "Tỉ số hệ số bậc cao nhất",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "$\\frac{2}{5} = 0.4$",
+      "commonMistake": "Bỏ n đi và trả lời 1, hoặc thay một giá trị n cụ thể thay vì lấy giới hạn. Với hai đa thức cùng bậc, giới hạn = tỉ số hai hệ số bậc cao nhất.",
+      "relatedFlashcard": "fc-lim-ratio-test"
+    },
+    {
+      "id": "ex-lim-apply-2",
+      "difficulty": "apply",
+      "prompt": "Hai thuật toán có chi phí $f(n) = n \\log_2 n$ và $g(n) = n^{1.5}$. Dùng giới hạn để xác định thuật toán nào tốt hơn khi n lớn.",
+      "hints": [
+        "Xét $\\frac{f(n)}{g(n)} = \\frac{n \\log_2 n}{n^{1.5}}$ và rút gọn.",
+        "Sau khi rút gọn còn $\\frac{\\log_2 n}{\\sqrt{n}}$: dạng ∞/∞.",
+        "Đổi cơ số: $\\log_2 n = \\frac{\\ln n}{\\ln 2}$, rồi dùng L'Hôpital với $(\\sqrt{n})' = \\frac{1}{2\\sqrt{n}}$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\frac{n \\log_2 n}{n^{1.5}} = \\frac{\\log_2 n}{n^{0.5}} = \\frac{1}{\\ln 2} \\cdot \\frac{\\ln n}{\\sqrt{n}}$.",
+          "rule": "Rút gọn lũy thừa + đổi cơ số log"
+        },
+        {
+          "text": "L'Hôpital cho dạng ∞/∞: $\\frac{\\ln n}{\\sqrt{n}} \\to \\frac{1/n}{1/(2\\sqrt{n})} = \\frac{2\\sqrt{n}}{n} = \\frac{2}{\\sqrt{n}} \\to 0$.",
+          "rule": "L'Hôpital"
+        },
+        {
+          "text": "Giới hạn = 0 → $n \\log_2 n = o(n^{1.5})$: thuật toán f tốt hơn khi n đủ lớn.",
+          "rule": "Giới hạn = 0 ⇒ f tăng chậm hơn hẳn g"
+        },
+        {
+          "text": "Sai lầm hay gặp: thử n = 16 thấy $f = 64 = g$ rồi kết luận \"ngang nhau\". Một vài giá trị nhỏ không quyết định bậc tăng; giới hạn mới quyết định (n = 2^20: f ≈ 2.1e7, g ≈ 1.1e9).",
+          "rule": "So sánh tiệm cận, không phải vài điểm",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "$\\lim \\frac{n\\log_2 n}{n^{1.5}} = 0$, nên $n \\log n$ tăng chậm hơn hẳn $n^{1.5}$ — chọn thuật toán $n \\log n$.",
+      "commonMistake": "So sánh tại vài giá trị n nhỏ, hoặc nghĩ log n \"cũng gần như n^0.5\". Mọi log đều thua mọi lũy thừa dương của n.",
+      "relatedFlashcard": "fc-lim-growth"
+    },
+    {
+      "id": "ex-lim-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Rải n key vào hash table n bucket, mỗi key chọn bucket ngẫu nhiên độc lập. Xác suất một bucket cụ thể bị trống là $(1 - 1/n)^n$. Tính giới hạn của xác suất này khi $n \\to \\infty$.",
+      "hints": [
+        "Lấy ln để biến lũy thừa thành tích: $\\ln P = n \\ln(1 - 1/n)$.",
+        "Đặt $t = 1/n$ (t → 0⁺): $\\ln P = \\frac{\\ln(1 - t)}{t}$ — dạng 0/0.",
+        "Dùng L'Hôpital với $(\\ln(1-t))' = \\frac{-1}{1-t}$, rồi lấy e mũ kết quả."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\ln P_n = n \\ln\\left(1 - \\frac{1}{n}\\right)$ — dạng $\\infty \\cdot 0$, chưa kết luận được.",
+          "rule": "Lấy log để hạ số mũ"
+        },
+        {
+          "text": "Đặt $t = 1/n \\to 0^+$: $\\ln P = \\frac{\\ln(1-t)}{t}$, dạng 0/0.",
+          "rule": "Đổi biến về dạng 0/0"
+        },
+        {
+          "text": "L'Hôpital: $\\lim_{t\\to 0} \\frac{-1/(1-t)}{1} = -1$. Vậy $\\ln P \\to -1$.",
+          "rule": "L'Hôpital"
+        },
+        {
+          "text": "Do đó $P \\to e^{-1} \\approx 0.368$. Sai lầm hay gặp: lập luận \"$1 - 1/n \\to 1$ nên $(1-1/n)^n \\to 1^n = 1$\" — sai, vì cơ số và số mũ cùng thay đổi ($1^\\infty$ là dạng vô định).",
+          "rule": "Dạng 1^∞ là vô định",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Kiểm tra số: n = 1000 cho $(0.999)^{1000} \\approx 0.3677$, rất gần $1/e \\approx 0.3679$.",
+          "rule": "Kiểm chứng bằng số"
+        }
+      ],
+      "answer": "$\\lim_{n\\to\\infty}(1 - 1/n)^n = 1/e \\approx 0.368$ — khoảng 36.8% bucket bị trống, tức kỳ vọng ≈ 0.368n bucket trống.",
+      "commonMistake": "Coi $1^\\infty = 1$. Khi cơ số → 1 và số mũ → ∞ cùng lúc thì đó là dạng vô định; phải lấy log rồi tính.",
+      "relatedFlashcard": "fc-lim-e"
     }
   ],
   "quiz": [
@@ -202,16 +531,26 @@
       "id": "q-lim-1",
       "type": "mcq",
       "question": "$\\lim_{x \\to 2} \\frac{x^2 - 4}{x - 2}$ bằng bao nhiêu?",
-      "options": ["0", "2", "4", "Không tồn tại"],
-      "correct": 2,
+      "options": [
+        "0",
+        "2",
+        "Không tồn tại",
+        "4"
+      ],
+      "correct": 3,
       "explanation": "Phân tích $x^2-4 = (x-2)(x+2)$, rút gọn còn $x+2$. Khi x→2, $x+2 \\to 4$."
     },
     {
       "id": "q-lim-2",
       "type": "mcq",
       "question": "$\\lim_{n \\to \\infty} \\frac{5n^3 + 2n^2}{n^3}$ bằng bao nhiêu?",
-      "options": ["2", "5", "7", "Vô cực"],
-      "correct": 1,
+      "options": [
+        "5",
+        "2",
+        "7",
+        "Vô cực"
+      ],
+      "correct": 0,
       "explanation": "Chia từng số hạng: $5 + 2/n$. Khi n→∞, $2/n→0$, còn lại 5."
     },
     {
@@ -220,12 +559,51 @@
       "question": "Nếu $\\lim_{n\\to\\infty} f(n)/g(n) = 7$ (hằng số dương hữu hạn), điều này có nghĩa là gì trong Big-O?",
       "options": [
         "f(n) = O(1)",
-        "f(n) tăng chậm hơn g(n) 7 lần",
         "f(n) và g(n) cùng bậc tăng trưởng: $f = \\Theta(g)$",
+        "f(n) tăng chậm hơn g(n) 7 lần",
         "g(n) = O(f(n)) nhưng f(n) ≠ O(g(n))"
       ],
-      "correct": 2,
+      "correct": 1,
       "explanation": "Giới hạn hữu hạn dương → f và g cùng bậc. Cả hai đều big-O của nhau (ký hiệu $\\Theta$)."
+    },
+    {
+      "id": "q-lim-4",
+      "type": "mcq",
+      "question": "Hàm nào tăng nhanh nhất khi $n \\to \\infty$?",
+      "options": [
+        "$n^{10}$",
+        "$n^2 \\log n$",
+        "$1.01^n$",
+        "$n^{100}$"
+      ],
+      "correct": 2,
+      "explanation": "Mọi hàm mũ $a^n$ với a > 1 cuối cùng đều vượt mọi đa thức: $\\lim n^k / a^n = 0$. Với $1.01^n$ so với $n^{10}$, điểm vượt xảy ra quanh n ≈ 9 nghìn — muộn nhưng chắc chắn. (So với $n^{100}$ thì muộn hơn nhiều, nhưng vẫn xảy ra.)"
+    },
+    {
+      "id": "q-lim-5",
+      "type": "mcq",
+      "question": "$\\lim_{x \\to 0} \\frac{|x|}{x}$ bằng bao nhiêu?",
+      "options": [
+        "Không tồn tại",
+        "0",
+        "1",
+        "−1"
+      ],
+      "correct": 0,
+      "explanation": "Từ phải (x > 0): $|x|/x = 1$. Từ trái (x < 0): $|x|/x = -1$. Hai giới hạn một phía khác nhau → giới hạn hai phía không tồn tại."
+    },
+    {
+      "id": "q-lim-6",
+      "type": "mcq",
+      "question": "Có thể dùng L'Hôpital trực tiếp cho giới hạn nào dưới đây?",
+      "options": [
+        "$\\lim_{x\\to 0} \\frac{x+1}{x+2}$",
+        "$\\lim_{x\\to 1} \\frac{x^2 + 1}{x}$",
+        "$\\lim_{x\\to 2} \\frac{x^2 - 4}{x + 2}$",
+        "$\\lim_{n\\to\\infty} \\frac{n^2}{e^n}$"
+      ],
+      "correct": 3,
+      "explanation": "L'Hôpital chỉ dùng cho dạng 0/0 hoặc ∞/∞. $\\frac{n^2}{e^n}$ là ∞/∞; áp dụng 2 lần được $\\frac{2}{e^n} \\to 0$. Ba lựa chọn còn lại không phải dạng vô định — thay thẳng được ngay: $\\frac{1}{2}$, $2$ và $\\frac{0}{4} = 0$. Dùng L'Hôpital cho chúng có thể ra kết quả sai (ví dụ câu đầu sẽ ra 1 thay vì 1/2)."
     }
   ]
 }

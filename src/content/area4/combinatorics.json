@@ -6,12 +6,14 @@
   "order": 4,
   "icon": "logic",
   "tagline": "Đếm chính xác số trường hợp là nền tảng phân tích độ phức tạp — brute force O(n!), backtracking, birthday paradox đều từ tổ hợp.",
-  "readTime": "~18 min",
-  "prerequisites": ["area4_sets-relations-functions"],
+  "readTime": "~30 min",
+  "prerequisites": [
+    "area4_sets-relations-functions"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Tổ hợp (combinatorics) là nghệ thuật **đếm thông minh** — đếm mà không liệt kê từng cái một. Nghe đơn giản, nhưng đây là nền tảng của:\n- **Độ phức tạp thuật toán**: bao nhiêu trạng thái cần xét? (brute force password là $26^8$ trường hợp)\n- **Probability & hashing**: birthday paradox — vì sao hash collision xảy ra sớm hơn tưởng\n- **Backtracking & DP**: bao nhiêu nhánh trong cây tìm kiếm?\n- **Cryptography**: không gian key 2^128 có bao nhiêu khả năng?\n\nHai khái niệm cốt lõi: **hoán vị (permutation)** = quan tâm thứ tự; **tổ hợp (combination)** = không quan tâm thứ tự."
+      "content": "Tổ hợp (combinatorics) là nghệ thuật **đếm thông minh** — đếm mà không liệt kê từng cái một. Nghe đơn giản, nhưng đây là nền tảng của:\n- **Độ phức tạp thuật toán**: bao nhiêu trạng thái cần xét? (brute force password là $26^8$ trường hợp)\n- **Probability & hashing**: birthday paradox — vì sao hash collision xảy ra sớm hơn tưởng\n- **Backtracking & DP**: bao nhiêu nhánh trong cây tìm kiếm? Tam giác Pascal chính là một bảng DP\n- **Cryptography**: không gian key $2^{128}$ lớn cỡ nào, và vì sao vẫn có thể có collision?\n\nHai khái niệm cốt lõi: **hoán vị (permutation)** = quan tâm thứ tự; **tổ hợp (combination)** = không quan tâm thứ tự."
     },
     {
       "type": "analogy",
@@ -24,8 +26,14 @@
       "latex": "\\text{Product (AND): } |A \\times B| = |A| \\cdot |B| \\qquad \\text{Sum (OR): } |A \\cup B| = |A| + |B| \\;\\;(\\text{if } A \\cap B = \\emptyset)",
       "reading": "đọc là: quy tắc nhân — chọn một việc từ A VÀ một việc từ B có |A|×|B| cách; quy tắc cộng — chọn một việc từ A HOẶC B (không giao nhau) có |A|+|B| cách.",
       "symbols": [
-        { "sym": "|A \\times B|", "meaning": "số cặp (a,b) với a∈A, b∈B — quy tắc nhân/product rule" },
-        { "sym": "|A \\cup B|", "meaning": "quy tắc cộng/sum rule — khi A và B rời nhau (disjoint)" }
+        {
+          "sym": "|A \\times B|",
+          "meaning": "số cặp (a,b) với a∈A, b∈B — quy tắc nhân/product rule"
+        },
+        {
+          "sym": "|A \\cup B|",
+          "meaning": "quy tắc cộng/sum rule — khi A và B rời nhau (disjoint)"
+        }
       ],
       "caption": "Hai quy tắc này là nền tảng mọi bài đếm. Mật khẩu 8 ký tự (chữ+số): 36^8 cách (quy tắc nhân 8 lần)."
     },
@@ -35,32 +43,55 @@
       "latex": "P(n,k) = \\frac{n!}{(n-k)!} \\qquad\\qquad C(n,k) = \\binom{n}{k} = \\frac{n!}{k!(n-k)!}",
       "reading": "đọc là: P(n,k) — số cách chọn k phần tử từ n và SẮP XẾP có thứ tự; C(n,k) — số cách chọn k phần tử từ n KHÔNG xét thứ tự.",
       "symbols": [
-        { "sym": "n!", "meaning": "giai thừa: n! = n×(n-1)×...×1. 0! = 1 theo quy ước." },
-        { "sym": "P(n,k)", "meaning": "permutation: số hoán vị k phần tử từ n" },
-        { "sym": "\\binom{n}{k}", "meaning": "binomial coefficient (\"n chọn k\") — số tổ hợp" },
-        { "sym": "k!", "meaning": "chia k! để loại các hoán vị của nhóm đã chọn (thứ tự không quan trọng)" }
+        {
+          "sym": "n!",
+          "meaning": "giai thừa: n! = n×(n-1)×...×1. 0! = 1 theo quy ước."
+        },
+        {
+          "sym": "P(n,k)",
+          "meaning": "permutation: số hoán vị k phần tử từ n"
+        },
+        {
+          "sym": "\\binom{n}{k}",
+          "meaning": "binomial coefficient (\"n chọn k\") — số tổ hợp"
+        },
+        {
+          "sym": "k!",
+          "meaning": "chia k! để loại các hoán vị của nhóm đã chọn (thứ tự không quan trọng)"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Bảng so sánh hoán vị vs tổ hợp trong CS",
-      "content": "| Tình huống | Công thức | Ví dụ CS |\n|------------|-----------|----------|\n| Sắp xếp n phần tử | $n!$ | Độ phức tạp brute-force TSP trên n thành phố |\n| Chọn k từ n, thứ tự quan trọng | $P(n,k)$ | Xếp hạng top-3 server theo latency |\n| Chọn k từ n, không cần thứ tự | $\\binom{n}{k}$ | Chọn 3 feature để A/B test từ 10 feature |\n| Mật khẩu dài k từ bảng chữ n ký tự | $n^k$ | Password attack space: $26^8 \\approx 2 \\times 10^{11}$ |\n| Số tập con của tập n phần tử | $2^n$ | Tổng số subsets = số trạng thái DP bitmask |\n\n**Birthday paradox**: với n người, xác suất hai người sinh cùng ngày > 50% khi n ≈ 23. Tại sao? Vì cần đếm số cặp: $\\binom{n}{2} = \\frac{n(n-1)}{2}$, và với n=23: 253 cặp vs 365 ngày. Hash collision xảy ra tương tự: chỉ cần ~$\\sqrt{\\text{size}}$ item để collision probability > 50%."
+      "content": "| Tình huống | Công thức | Ví dụ CS |\n|---|---|---|\n| Sắp xếp n phần tử | $n!$ | Brute-force TSP: $(n-1)!/2$ chu trình, cỡ $n!$ |\n| Chọn k từ n, có thứ tự | $P(n,k)$ | Xếp hạng top-3 server theo latency |\n| Chọn k từ n, không thứ tự | $\\binom{n}{k}$ | Chọn 3 feature để A/B test từ 10 |\n| Chuỗi dài k từ n ký hiệu | $n^k$ | Password space: $26^8 \\approx 2.1 \\times 10^{11}$ |\n| Số tập con của n phần tử | $2^n$ | Số trạng thái DP bitmask |\n\n**Birthday paradox**: chỉ cần 23 người là xác suất có hai người trùng sinh nhật vượt 50% (chính xác ≈ 50.7%). Trực giác: thứ có thể trùng là **cặp người**, và 23 người tạo ra $\\binom{23}{2} = 253$ cặp — mỗi cặp trùng với xác suất 1/365, nên kỳ vọng số cặp trùng ≈ 253/365 ≈ 0.69.\n\nVới hash table N bucket, xác suất collision đạt 50% khi có khoảng $1.18\\sqrt{N}$ key (với đúng $\\sqrt{N}$ key thì khoảng 39%). Hash 64-bit: chỉ khoảng $1.18 \\times 2^{32} \\approx 5$ tỉ item là đã có 50% khả năng trùng — vì vậy ID ngẫu nhiên cần đủ nhiều bit."
     },
     {
       "type": "diagram",
       "title": "Cây đếm mật khẩu 2 ký tự từ {A,B,C}",
-      "mermaid": "graph TD\n    Start[Bắt đầu] --> A1[Ký tự 1: A]\n    Start --> B1[Ký tự 1: B]\n    Start --> C1[Ký tự 1: C]\n    A1 --> AA[AA]\n    A1 --> AB[AB]\n    A1 --> AC[AC]\n    B1 --> BA[BA]\n    B1 --> BB[BB]\n    B1 --> BC2[BC]\n    C1 --> CA[CA]\n    C1 --> CB[CB]\n    C1 --> CC[CC]",
-      "caption": "Với 3 ký tự, mật khẩu dài 2 có 3×3=9 cách (quy tắc nhân). Nếu không lặp (injective): P(3,2)=3×2=6 cách. Cây quyết định này là cấu trúc của backtracking."
+      "mermaid": "graph TD\n    Start[\"Bắt đầu\"] --> A1[\"Ký tự 1: A\"]\n    Start --> B1[\"Ký tự 1: B\"]\n    Start --> C1[\"Ký tự 1: C\"]\n    A1 --> AA[AA]\n    A1 --> AB[AB]\n    A1 --> AC[AC]\n    B1 --> BA[BA]\n    B1 --> BB[BB]\n    B1 --> BC2[BC]\n    C1 --> CA[CA]\n    C1 --> CB[CB]\n    C1 --> CC[CC]",
+      "caption": "Với 3 ký tự, chuỗi dài 2 có 3×3 = 9 cách (quy tắc nhân). Nếu không cho lặp ký tự (bỏ AA, BB, CC): P(3,2) = 3×2 = 6 cách. Cây quyết định này chính là cây đệ quy của backtracking."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: đếm complexity brute force password crack",
       "problem": "Attacker brute-force mật khẩu gồm 8 ký tự, mỗi ký tự là chữ thường (26) hoặc số (10). Mất bao nhiêu lần thử trong trường hợp xấu nhất? Nếu thử 10^9 lần/giây, mất bao lâu?",
       "steps": [
-        { "text": "Mỗi vị trí có 26+10=36 lựa chọn. Mật khẩu dài 8 → $36^8$ tổ hợp.", "rule": "Quy tắc nhân: n^k với k vị trí độc lập" },
-        { "text": "$36^8 = 2{,}821{,}109{,}907{,}456 \\approx 2.8 \\times 10^{12}$ trường hợp.", "isCommonMistake": true, "rule": "Phải dùng lũy thừa, không phải nhân — lỗi hay gặp là tính 36×8=288" },
-        { "text": "Thời gian = $2.8 \\times 10^{12}$ / $10^9$ = khoảng **2800 giây ≈ 47 phút** worst case." },
-        { "text": "Thêm chữ HOA (26): $62^8 \\approx 2.2 \\times 10^{14}$ → ~61 giờ. Thêm ký tự đặc biệt (~32): $94^8 \\approx 6 \\times 10^{15}$ → ~70 ngày." }
+        {
+          "text": "Mỗi vị trí có 26+10=36 lựa chọn. Mật khẩu dài 8 → $36^8$ tổ hợp.",
+          "rule": "Quy tắc nhân: n^k với k vị trí độc lập"
+        },
+        {
+          "text": "$36^8 = 2{,}821{,}109{,}907{,}456 \\approx 2.8 \\times 10^{12}$ trường hợp.",
+          "isCommonMistake": true,
+          "rule": "Phải dùng lũy thừa, không phải nhân — lỗi hay gặp là tính 36×8=288"
+        },
+        {
+          "text": "Thời gian = $2.8 \\times 10^{12}$ / $10^9$ = khoảng **2800 giây ≈ 47 phút** worst case."
+        },
+        {
+          "text": "Thêm chữ HOA (26): $62^8 \\approx 2.2 \\times 10^{14}$ → ~61 giờ. Thêm ký tự đặc biệt (~32): $94^8 \\approx 6 \\times 10^{15}$ → ~70 ngày."
+        }
       ],
       "result": "8 ký tự chữ+số: ~47 phút. Thêm chữ hoa+ký hiệu: ~70 ngày. Đây là lý do password policy yêu cầu đa dạng ký tự."
     },
@@ -69,23 +100,147 @@
       "title": "Ví dụ: chọn features cho A/B test",
       "problem": "Có 8 feature mới. Team muốn chọn 3 feature để A/B test đồng thời. Có bao nhiêu cách chọn? Nếu thêm thứ tự ưu tiên, có bao nhiêu cách?",
       "steps": [
-        { "text": "Không xét thứ tự (chọn 3 feature để test song song): $\\binom{8}{3}$.", "rule": "Tổ hợp: thứ tự không quan trọng" },
-        { "text": "$\\binom{8}{3} = \\frac{8!}{3! \\cdot 5!} = \\frac{8 \\times 7 \\times 6}{3 \\times 2 \\times 1} = \\frac{336}{6} = 56$ cách.", "isCommonMistake": true, "rule": "Chia k! để loại trùng — lỗi hay gặp là dùng P(8,3)=336 khi thứ tự không quan trọng" },
-        { "text": "Có xét thứ tự ưu tiên (feature nào test trước): $P(8,3) = 8 \\times 7 \\times 6 = 336$ cách." },
-        { "text": "Kiểm tra: $P(8,3) = C(8,3) \\times 3! = 56 \\times 6 = 336$ ✓ — hoán vị = tổ hợp × k!" }
+        {
+          "text": "Không xét thứ tự (chọn 3 feature để test song song): $\\binom{8}{3}$.",
+          "rule": "Tổ hợp: thứ tự không quan trọng"
+        },
+        {
+          "text": "$\\binom{8}{3} = \\frac{8!}{3! \\cdot 5!} = \\frac{8 \\times 7 \\times 6}{3 \\times 2 \\times 1} = \\frac{336}{6} = 56$ cách.",
+          "isCommonMistake": true,
+          "rule": "Chia k! để loại trùng — lỗi hay gặp là dùng P(8,3)=336 khi thứ tự không quan trọng"
+        },
+        {
+          "text": "Có xét thứ tự ưu tiên (feature nào test trước): $P(8,3) = 8 \\times 7 \\times 6 = 336$ cách."
+        },
+        {
+          "text": "Kiểm tra: $P(8,3) = C(8,3) \\times 3! = 56 \\times 6 = 336$ ✓ — hoán vị = tổ hợp × k!"
+        }
       ],
       "result": "56 cách chọn 3 feature (không thứ tự); 336 cách nếu xét thứ tự ưu tiên."
     },
     {
-      "type": "graph",
-      "title": "Tốc độ tăng của n! và 2^n so với n^2",
-      "functions": [
-        { "fn": "2^x", "color": "#ffe08a" },
-        { "fn": "x^2", "color": "#7fded1" }
+      "type": "explanation",
+      "title": "Bốn kiểu chọn k từ n: thứ tự × lặp lại",
+      "content": "Mọi bài \"chọn k thứ từ n loại\" rơi vào một trong bốn ô — hỏi hai câu: **thứ tự có quan trọng không?** và **có được lặp không?**\n\n| | Có lặp | Không lặp |\n|---|---|---|\n| Có thứ tự | $n^k$ | $P(n,k)$ |\n| Không thứ tự | $\\binom{n+k-1}{k}$ | $\\binom{n}{k}$ |\n\nÔ khó nhất là **không thứ tự, có lặp** (multiset): ví dụ chọn 3 viên kem từ 5 vị, được lấy trùng vị → $\\binom{5+3-1}{3} = \\binom{7}{3} = 35$ cách.\n\nCông thức này đến từ kỹ thuật **chia kẹo Euler (stars and bars)**: k ngôi sao (đồ vật giống nhau) và n−1 vạch ngăn (chia thành n nhóm). Mỗi cách xếp một dãy k + n − 1 ký hiệu ứng với đúng một cách chia, nên số cách = chọn vị trí cho n − 1 vạch: $\\binom{n+k-1}{n-1} = \\binom{n+k-1}{k}$."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: chia 10 job giống nhau cho 3 worker (stars and bars)",
+      "problem": "Có bao nhiêu cách phân 10 job giống hệt nhau cho 3 worker, (a) nếu worker được phép nhận 0 job, (b) nếu mỗi worker nhận ít nhất 1 job?",
+      "steps": [
+        {
+          "text": "Mô hình: số nghiệm nguyên không âm của $x_1 + x_2 + x_3 = 10$.",
+          "rule": "Job giống nhau → chỉ quan tâm số lượng mỗi worker"
+        },
+        {
+          "text": "(a) 10 sao, 2 vạch → chọn vị trí 2 vạch trong 12 ô: $\\binom{12}{2} = 66$.",
+          "rule": "Stars and bars: $\\binom{n+k-1}{n-1}$"
+        },
+        {
+          "text": "(b) Phát trước mỗi worker 1 job (đặt $y_i = x_i - 1 \\ge 0$), còn 7 job chia tự do: $\\binom{7+2}{2} = \\binom{9}{2} = 36$.",
+          "isCommonMistake": true,
+          "rule": "Đổi biến để đưa ràng buộc ≥ 1 về ≥ 0 — lỗi hay gặp là vẫn dùng 10 trong công thức"
+        },
+        {
+          "text": "Kiểm tra bằng brute force: duyệt mọi $(x_1, x_2, x_3)$ cho đúng 66 và 36. ✓"
+        }
       ],
-      "xDomain": [0, 10],
-      "yDomain": [0, 100],
-      "caption": "2^n (vàng) tăng nhanh hơn n² (xanh) rất nhiều. n! tăng còn nhanh hơn nữa (không vẽ được vì quá lớn). Đây là lý do brute-force O(2^n) hay O(n!) chỉ dùng được với n nhỏ."
+      "result": "(a) 66 cách, (b) 36 cách. Nếu job **khác nhau** thì lại là $3^{10} = 59049$ cách (mỗi job chọn một worker)."
+    },
+    {
+      "type": "formula",
+      "title": "Hằng đẳng thức Pascal — tổ hợp là một bài DP",
+      "latex": "\\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k} \\qquad \\binom{n}{0} = \\binom{n}{n} = 1",
+      "reading": "đọc là: số cách chọn k từ n = (số cách có chọn phần tử cuối: chọn thêm k−1 từ n−1) + (số cách không chọn phần tử cuối: chọn đủ k từ n−1).",
+      "symbols": [
+        {
+          "sym": "\\binom{n-1}{k-1}",
+          "meaning": "phần tử thứ n ĐƯỢC chọn — còn phải chọn k−1 từ n−1 phần tử còn lại"
+        },
+        {
+          "sym": "\\binom{n-1}{k}",
+          "meaning": "phần tử thứ n KHÔNG được chọn — chọn đủ k từ n−1"
+        },
+        {
+          "sym": "\\sum_{k=0}^{n} \\binom{n}{k} = 2^n",
+          "meaning": "tổng một hàng tam giác Pascal = tổng số tập con"
+        },
+        {
+          "sym": "\\binom{n}{k} = \\binom{n}{n-k}",
+          "meaning": "đối xứng: chọn k cái để lấy = chọn n−k cái để bỏ"
+        }
+      ],
+      "caption": "Đây là recurrence \"chọn hoặc không chọn\" — khuôn mẫu của rất nhiều bài DP (knapsack, subset sum). Tính bảng Pascal tốn O(nk) phép cộng và tránh tràn số khi tính n! trực tiếp."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ interview: số đường đi trên lưới (Unique Paths)",
+      "problem": "Robot ở góc trên-trái của lưới 3 hàng × 7 cột, chỉ được đi sang phải hoặc xuống dưới. Có bao nhiêu đường đến góc dưới-phải?",
+      "steps": [
+        {
+          "text": "Mọi đường đi gồm đúng 6 bước phải (R) và 2 bước xuống (D) — tổng 8 bước.",
+          "rule": "Mô hình hóa đường đi thành chuỗi ký hiệu"
+        },
+        {
+          "text": "Một đường đi ↔ chọn 2 vị trí trong 8 bước để đặt D: $\\binom{8}{2} = 28$.",
+          "rule": "Song ánh: đường đi ↔ tập vị trí của D"
+        },
+        {
+          "text": "Không phải $2^8$: không phải mọi chuỗi R/D độ dài 8 đều hợp lệ — số R và D đã cố định.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: coi mỗi bước có 2 lựa chọn độc lập"
+        },
+        {
+          "text": "Đối chiếu DP: `paths[r][c] = paths[r-1][c] + paths[r][c-1]` — chính là hằng đẳng thức Pascal, cho cùng kết quả 28.",
+          "rule": "Công thức đóng = nghiệm của recurrence DP"
+        }
+      ],
+      "result": "$\\binom{m+n-2}{m-1}$ đường cho lưới m × n; với 3 × 7 là 28 — O(1) công thức thay vì O(mn) DP."
+    },
+    {
+      "type": "formula",
+      "title": "Bao hàm – loại trừ (Inclusion–Exclusion)",
+      "latex": "|A \\cup B \\cup C| = |A| + |B| + |C| - |A \\cap B| - |A \\cap C| - |B \\cap C| + |A \\cap B \\cap C|",
+      "reading": "đọc là: cộng từng tập, trừ các giao đôi (bị đếm hai lần), cộng lại giao ba (bị trừ quá tay).",
+      "symbols": [
+        {
+          "sym": "|A \\cup B| = |A| + |B| - |A \\cap B|",
+          "meaning": "bản hai tập — quy tắc cộng khi các tập KHÔNG rời nhau"
+        },
+        {
+          "sym": "+|A \\cap B \\cap C|",
+          "meaning": "phần tử thuộc cả ba bị cộng 3 lần, trừ 3 lần, nên phải cộng lại 1 lần"
+        }
+      ],
+      "caption": "Ví dụ: trong 1..100, số chia hết cho 2, 3 hoặc 5 là 50 + 33 + 20 − 16 − 10 − 6 + 3 = 74. Dùng ⌊100/d⌋ để đếm bội của d; giao của \"chia hết cho 2\" và \"chia hết cho 3\" là \"chia hết cho 6\"."
+    },
+    {
+      "type": "explanation",
+      "title": "Nguyên lý chuồng bồ câu (Pigeonhole Principle)",
+      "content": "Nhét N con bồ câu vào k chuồng thì có ít nhất một chuồng chứa $\\lceil N/k \\rceil$ con. Bản đơn giản: **k + 1 con vào k chuồng → có chuồng ≥ 2 con.**\n\nNghe hiển nhiên, nhưng đây là công cụ chứng minh \"chắc chắn tồn tại\" rất mạnh trong CS:\n\n- **Hash collision**: nhiều key hơn số giá trị hash thì collision là bắt buộc, dù hàm hash tốt đến đâu.\n- **Nén không mất dữ liệu**: không thuật toán nào nén được **mọi** file n-bit thành ngắn hơn — có $2^n$ file nhưng chỉ $2^n - 1$ chuỗi ngắn hơn n bit.\n- **Interview (Find the Duplicate Number)**: mảng n + 1 số nguyên trong [1, n] chắc chắn có phần tử lặp.\n- **Bản tổng quát**: 1000 request chia cho 7 server → có server nhận ít nhất $\\lceil 1000/7 \\rceil = 143$ request.\n\nMẹo áp dụng: xác định rõ \"bồ câu\" là gì và \"chuồng\" là gì — thường chuồng là các giá trị có thể (bucket, số dư, ngày sinh)."
+    },
+    {
+      "type": "graph",
+      "title": "Tốc độ tăng của 2^n so với n^2",
+      "functions": [
+        {
+          "fn": "2^x",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "x^2",
+          "color": "#7fded1"
+        }
+      ],
+      "xDomain": [
+        0,
+        10
+      ],
+      "yDomain": [
+        0,
+        100
+      ],
+      "caption": "2^n (vàng) và n² (xanh) bằng nhau tại n = 2 và n = 4; từ n > 4 thì 2^n bỏ xa n². n! còn tăng nhanh hơn (10! = 3628800, không vừa khung hình). Đây là lý do brute-force O(2^n) hay O(n!) chỉ dùng được với n nhỏ."
     },
     {
       "type": "callout",
@@ -96,10 +251,11 @@
       "type": "key_takeaways",
       "items": [
         "Quy tắc nhân: n×m cách khi chọn liên tiếp (AND). Quy tắc cộng: n+m cách khi chọn thay thế (OR, tập rời nhau).",
-        "Hoán vị P(n,k) = n!/(n-k)! — thứ tự quan trọng (mật khẩu, xếp hạng).",
-        "Tổ hợp C(n,k) = n!/(k!(n-k)!) — thứ tự không quan trọng (nhóm, tập con).",
-        "Password space: $n^k$ (lặp được) hoặc P(n,k) (không lặp). Mỗi ký tự mới thêm tăng không gian theo lũy thừa.",
-        "Birthday paradox: với ~√N phần tử, xác suất collision > 50% — nền tảng phân tích hash table."
+        "Bốn ô: có thứ tự + lặp $n^k$; có thứ tự, không lặp $P(n,k)$; không thứ tự, không lặp $\\binom{n}{k}$; không thứ tự + lặp $\\binom{n+k-1}{k}$ (stars and bars).",
+        "Pascal: $\\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k}$ — \"chọn hoặc không chọn\", khuôn mẫu của DP.",
+        "Bao hàm–loại trừ: tập giao nhau thì cộng rồi trừ phần đếm trùng.",
+        "Chuồng bồ câu: N vật vào k hộp → có hộp chứa ≥ ⌈N/k⌉ — collision là bắt buộc khi key nhiều hơn bucket.",
+        "Birthday paradox: khoảng $1.18\\sqrt{N}$ phần tử là xác suất collision đạt 50% — nền tảng chọn độ dài hash/ID."
       ]
     }
   ],
@@ -126,7 +282,43 @@
       "id": "fc-comb-birthday",
       "type": "concept",
       "front": "Birthday paradox: cần bao nhiêu người để xác suất trùng sinh nhật > 50%?",
-      "back": "~23 người. Số cặp = $\\binom{23}{2}=253 > 365/2$. Trong hashing: cần ~$\\sqrt{N}$ items để collision > 50% với bảng size N."
+      "back": "23 người (xác suất ≈ 50.7%). Lý do: 23 người tạo 253 cặp. Với hash N bucket: khoảng $1.18\\sqrt{N}$ key là collision đạt 50%."
+    },
+    {
+      "id": "fc-comb-stars-bars",
+      "type": "formula",
+      "front": "Số nghiệm nguyên không âm của $x_1 + \\cdots + x_n = k$? (stars and bars)",
+      "back": "$\\binom{n+k-1}{n-1}$ — xếp k sao và n−1 vạch. Nếu mỗi $x_i \\ge 1$: phát trước mỗi biến 1, còn $\\binom{k-1}{n-1}$."
+    },
+    {
+      "id": "fc-comb-four-cases",
+      "type": "concept",
+      "front": "Chọn k từ n: công thức cho 4 trường hợp (thứ tự? lặp?)",
+      "back": "Thứ tự + lặp: $n^k$. Thứ tự, không lặp: $P(n,k)$. Không thứ tự, không lặp: $\\binom{n}{k}$. Không thứ tự + lặp: $\\binom{n+k-1}{k}$."
+    },
+    {
+      "id": "fc-comb-pascal",
+      "type": "formula",
+      "front": "Hằng đẳng thức Pascal là gì và vì sao đúng?",
+      "back": "$\\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k}$: phần tử cuối hoặc được chọn, hoặc không. Là recurrence DP để tính tổ hợp không tràn số."
+    },
+    {
+      "id": "fc-comb-inclusion-exclusion",
+      "type": "formula",
+      "front": "Bao hàm–loại trừ cho 3 tập?",
+      "back": "$|A \\cup B \\cup C| = |A|+|B|+|C| - |A \\cap B| - |A \\cap C| - |B \\cap C| + |A \\cap B \\cap C|$."
+    },
+    {
+      "id": "fc-comb-pigeonhole",
+      "type": "concept",
+      "front": "Nguyên lý chuồng bồ câu (dạng tổng quát) và một ứng dụng CS?",
+      "back": "N vật vào k hộp → có hộp chứa ít nhất $\\lceil N/k \\rceil$ vật. Ứng dụng: key nhiều hơn bucket thì chắc chắn collision; mảng n+1 số trong [1, n] chắc chắn có số lặp."
+    },
+    {
+      "id": "fc-comb-multinomial",
+      "type": "formula",
+      "front": "Số cách sắp xếp chữ cái của từ có lặp, ví dụ MISSISSIPPI?",
+      "back": "$\\frac{n!}{n_1! \\, n_2! \\cdots}$ — chia cho hoán vị trong mỗi nhóm chữ giống nhau. MISSISSIPPI (11 chữ: M1, I4, S4, P2): $\\frac{11!}{4!\\,4!\\,2!} = 34650$."
     }
   ],
   "exercises": [
@@ -139,12 +331,42 @@
         "Dùng quy tắc nhân."
       ],
       "solutionSteps": [
-        { "text": "Mỗi trong 4 vị trí có 10 lựa chọn (0-9), có thể lặp.", "rule": "Quy tắc nhân với lặp" },
-        { "text": "Tổng: $10^4 = 10{,}000$ PIN.", "isCommonMistake": true, "rule": "Đây là lũy thừa (10^4), không phải 10×4=40 — lỗi hay gặp là nhân thay vì lũy thừa" }
+        {
+          "text": "Mỗi trong 4 vị trí có 10 lựa chọn (0-9), có thể lặp.",
+          "rule": "Quy tắc nhân với lặp"
+        },
+        {
+          "text": "Tổng: $10^4 = 10{,}000$ PIN.",
+          "isCommonMistake": true,
+          "rule": "Đây là lũy thừa (10^4), không phải 10×4=40 — lỗi hay gặp là nhân thay vì lũy thừa"
+        }
       ],
       "answer": "10,000 PIN khác nhau ($10^4$).",
-      "commonMistake": "Tính 10×4=40 — nhầm quy tắc nhân với phép cộng.",
+      "commonMistake": "Tính 10×4 = 40 (nhân số lựa chọn với số vị trí) thay vì nhân 10 với chính nó 4 lần.",
       "relatedFlashcard": "fc-comb-multiply"
+    },
+    {
+      "id": "ex-comb-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Có bao nhiêu chuỗi bit độ dài 8 chứa đúng 3 bit 1?",
+      "hints": [
+        "Chuỗi được xác định hoàn toàn bởi vị trí của các bit 1.",
+        "Thứ tự chọn vị trí không quan trọng."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Chọn 3 vị trí trong 8 để đặt bit 1; các vị trí còn lại là 0.",
+          "rule": "Song ánh chuỗi bit ↔ tập vị trí"
+        },
+        {
+          "text": "$\\binom{8}{3} = \\frac{8 \\times 7 \\times 6}{3!} = 56$.",
+          "isCommonMistake": true,
+          "rule": "Không thứ tự → tổ hợp; lỗi hay gặp là dùng P(8,3) = 336, đếm mỗi chuỗi 3! lần"
+        }
+      ],
+      "answer": "56 chuỗi.",
+      "commonMistake": "Dùng $P(8,3) = 336$ hoặc $2^8 = 256$ (là tổng số chuỗi, không ràng buộc số bit 1).",
+      "relatedFlashcard": "fc-comb-combo"
     },
     {
       "id": "ex-comb-apply-1",
@@ -156,32 +378,119 @@
         "So sánh kết quả (a) và (b) — tỉ lệ là bao nhiêu?"
       ],
       "solutionSteps": [
-        { "text": "(a) Chọn trưởng: 10 cách. Chọn phó (còn lại): 9 cách. Tổng: P(10,2) = 10×9 = 90.", "rule": "Hoán vị — thứ tự quan trọng" },
-        { "text": "(b) Chọn 2 người đại diện: $\\binom{10}{2} = \\frac{10 \\times 9}{2} = 45$.", "isCommonMistake": true, "rule": "Chia 2! vì {A,B}={B,A} — lỗi hay gặp là dùng P(10,2)=90 khi thứ tự không quan trọng" },
-        { "text": "Kiểm tra: P(10,2) = C(10,2) × 2! = 45×2 = 90 ✓." }
+        {
+          "text": "(a) Chọn trưởng: 10 cách. Chọn phó (còn lại): 9 cách. Tổng: P(10,2) = 10×9 = 90.",
+          "rule": "Hoán vị — thứ tự quan trọng"
+        },
+        {
+          "text": "(b) Chọn 2 người đại diện: $\\binom{10}{2} = \\frac{10 \\times 9}{2} = 45$.",
+          "isCommonMistake": true,
+          "rule": "Chia 2! vì {A,B}={B,A} — lỗi hay gặp là dùng P(10,2)=90 khi thứ tự không quan trọng"
+        },
+        {
+          "text": "Kiểm tra: P(10,2) = C(10,2) × 2! = 45×2 = 90 ✓.",
+          "rule": "Hoán vị = tổ hợp × k!"
+        }
       ],
       "answer": "(a) 90 cách (hoán vị), (b) 45 cách (tổ hợp) — gấp đôi nhau vì mỗi cặp có 2 cách phân công trưởng-phó.",
       "commonMistake": "Nhầm (a) với (b): dùng tổ hợp khi cần hoán vị hoặc ngược lại.",
       "relatedFlashcard": "fc-comb-perm"
     },
     {
-      "id": "ex-comb-challenge-1",
-      "difficulty": "challenge",
-      "prompt": "Một hàm hash `h: {0..N-1} → {0..M-1}` với N=365, M=23. Giả sử hash ngẫu nhiên đều. (a) Xác suất 2 user cụ thể (Alice và Bob) cùng bucket? (b) Trong 23 user, số cặp có thể là bao nhiêu? (c) Tại sao collision rất có thể xảy ra? (Birthday paradox)",
+      "id": "ex-comb-apply-2",
+      "difficulty": "apply",
+      "prompt": "Trong các số 1, 2, ..., 100, có bao nhiêu số chia hết cho 2, 3 hoặc 5? Suy ra có bao nhiêu số không chia hết cho số nào trong ba số đó.",
       "hints": [
-        "(a) Alice ngẫu nhiên vào 1 trong 365 bucket; xác suất Bob cùng bucket = 1/365.",
-        "(b) Số cặp từ 23 user = C(23,2).",
-        "(c) So sánh số cặp với M=365."
+        "Số bội của d trong 1..100 là ⌊100/d⌋.",
+        "Chia hết cho cả 2 và 3 ⟺ chia hết cho 6 (vì 2, 3 nguyên tố cùng nhau).",
+        "Áp dụng bao hàm–loại trừ cho 3 tập."
       ],
       "solutionSteps": [
-        { "text": "(a) P(Alice và Bob cùng bucket) = 1/365 ≈ 0.27%. Rất nhỏ cho một cặp cụ thể.", "rule": "Xác suất = số kết quả thuận lợi / tổng số kết quả" },
-        { "text": "(b) Số cặp từ 23 user: $\\binom{23}{2} = \\frac{23 \\times 22}{2} = 253$ cặp.", "rule": "Tổ hợp chọn 2 từ 23" },
-        { "text": "Mỗi cặp có xác suất 1/365 ≈ 0.27% collision. 253 cặp → xác suất ít nhất 1 collision ≈ 1 - (1-1/365)^253 ≈ 50%.", "isCommonMistake": true, "rule": "Phải nhân xác suất cho TẤT CẢ cặp — lỗi hay gặp là chỉ xét một cặp" },
-        { "text": "Kết luận: Dù mỗi cặp rất ít xảy ra collision, với 253 cặp thì gần như chắc chắn có ít nhất một collision. Đây là birthday paradox." }
+        {
+          "text": "|A₂| = 50, |A₃| = 33, |A₅| = 20.",
+          "rule": "Đếm bội: ⌊100/d⌋"
+        },
+        {
+          "text": "Giao đôi: |A₆| = 16, |A₁₀| = 10, |A₁₅| = 6. Giao ba: |A₃₀| = 3.",
+          "rule": "Giao = bội của tích (các số nguyên tố cùng nhau)"
+        },
+        {
+          "text": "$50 + 33 + 20 - 16 - 10 - 6 + 3 = 74$.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: quên cộng lại giao ba (ra 71) hoặc chỉ cộng 50+33+20 = 103 > 100"
+        },
+        {
+          "text": "Không chia hết cho số nào: 100 − 74 = 26.",
+          "rule": "Phần bù"
+        }
       ],
-      "answer": "253 cặp từ 23 user → xác suất ít nhất 1 collision ≈ 50%. Hash table N=365 slots cần ~√365≈19 items để collision probable.",
-      "commonMistake": "Chỉ xét xác suất một cặp (0.27%), bỏ qua có 253 cặp độc lập.",
+      "answer": "74 số chia hết cho 2, 3 hoặc 5; 26 số không chia hết cho số nào.",
+      "commonMistake": "Quên số hạng $+|A \\cap B \\cap C|$ — các bội của 30 bị trừ mất hoàn toàn.",
+      "relatedFlashcard": "fc-comb-inclusion-exclusion"
+    },
+    {
+      "id": "ex-comb-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Băm 23 user vào hash table M = 365 bucket, mỗi user vào bucket ngẫu nhiên đều, độc lập. (a) Xác suất 2 user cụ thể (Alice và Bob) cùng bucket? (b) Có bao nhiêu cặp user? (c) Ước lượng xác suất có ít nhất một collision (birthday paradox).",
+      "hints": [
+        "(a) Alice rơi vào bucket nào cũng được; Bob phải rơi đúng bucket đó.",
+        "(b) Số cặp từ 23 user = $\\binom{23}{2}$.",
+        "(c) Chính xác: P(không collision) = $\\frac{365}{365} \\cdot \\frac{364}{365} \\cdots \\frac{343}{365}$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) P(Alice và Bob cùng bucket) = 1/365 ≈ 0.27%.",
+          "rule": "Xác suất = số kết quả thuận lợi / tổng số kết quả"
+        },
+        {
+          "text": "(b) $\\binom{23}{2} = \\frac{23 \\times 22}{2} = 253$ cặp.",
+          "rule": "Tổ hợp chọn 2 từ 23"
+        },
+        {
+          "text": "(c) Chính xác: user thứ i phải tránh i−1 bucket đã dùng, nên $P(\\text{no collision}) = \\prod_{i=0}^{22} \\frac{365-i}{365} \\approx 0.493$ → P(collision) ≈ 50.7%.",
+          "rule": "Phần bù + quy tắc nhân"
+        },
+        {
+          "text": "Ước lượng nhanh: coi 253 cặp gần như độc lập, $1 - (364/365)^{253} \\approx 50\\%$. Lỗi trực giác là chỉ nhìn một cặp (0.27%) hoặc so 23 với 365 (\"mới 6% bảng\").",
+          "isCommonMistake": true,
+          "rule": "Cái có thể trùng là cặp, không phải từng user"
+        }
+      ],
+      "answer": "(a) 1/365 ≈ 0.27%, (b) 253 cặp, (c) ≈ 50.7%. Tổng quát: khoảng $1.18\\sqrt{M}$ key là xác suất collision đạt 50% (với M = 365 là ≈ 22.5).",
+      "commonMistake": "Chỉ xét xác suất một cặp (0.27%), hoặc nghĩ 23/365 ≈ 6% bảng thì collision hiếm.",
       "relatedFlashcard": "fc-comb-birthday"
+    },
+    {
+      "id": "ex-comb-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Cấp 10 GPU giống nhau cho 4 team, trong đó team ML phải nhận ít nhất 2 GPU, các team khác có thể nhận 0. Có bao nhiêu cách cấp phát?",
+      "hints": [
+        "Mô hình: $x_1 + x_2 + x_3 + x_4 = 10$ với $x_1 \\ge 2$, các $x_i \\ge 0$.",
+        "Phát trước 2 GPU cho team ML.",
+        "Còn bao nhiêu GPU chia tự do cho 4 team?"
+      ],
+      "solutionSteps": [
+        {
+          "text": "GPU giống nhau → đếm nghiệm nguyên của $x_1 + x_2 + x_3 + x_4 = 10$, $x_1 \\ge 2$.",
+          "rule": "Mô hình hóa"
+        },
+        {
+          "text": "Đặt $y_1 = x_1 - 2 \\ge 0$: $y_1 + x_2 + x_3 + x_4 = 8$.",
+          "isCommonMistake": true,
+          "rule": "Đổi biến cho ràng buộc cận dưới — lỗi hay gặp là quên giảm tổng từ 10 xuống 8"
+        },
+        {
+          "text": "Stars and bars: 8 sao, 3 vạch → $\\binom{11}{3} = 165$.",
+          "rule": "$\\binom{k+n-1}{n-1}$ với k = 8, n = 4"
+        },
+        {
+          "text": "Kiểm tra brute force (duyệt mọi bộ 4 số có tổng 10, $x_1 \\ge 2$): 165 ✓.",
+          "rule": "Đối chiếu bằng brute force"
+        }
+      ],
+      "answer": "165 cách.",
+      "commonMistake": "Dùng $4^{10}$ (coi GPU khác nhau) hoặc $\\binom{13}{3} = 286$ (bỏ quên ràng buộc ≥ 2).",
+      "relatedFlashcard": "fc-comb-stars-bars"
     }
   ],
   "quiz": [
@@ -189,7 +498,12 @@
       "id": "q-comb-1",
       "type": "mcq",
       "question": "Có bao nhiêu cách sắp xếp 5 tiến trình theo thứ tự ưu tiên (tất cả 5 tiến trình)?",
-      "options": ["$\\binom{5}{2} = 10$", "$5^2 = 25$", "$5! = 120$", "$\\binom{5}{5} = 1$"],
+      "options": [
+        "$\\binom{5}{2} = 10$",
+        "$5^2 = 25$",
+        "$5! = 120$",
+        "$\\binom{5}{5} = 1$"
+      ],
       "correct": 2,
       "explanation": "Sắp xếp TẤT CẢ n phần tử = n! hoán vị. $5! = 5 \\times 4 \\times 3 \\times 2 \\times 1 = 120$."
     },
@@ -197,17 +511,66 @@
       "id": "q-comb-2",
       "type": "mcq",
       "question": "Team chọn 2 người trong 6 để review PR (không phân biệt vai trò). Số cách chọn là?",
-      "options": ["$6 \\times 5 = 30$", "$\\binom{6}{2} = 15$", "$6^2 = 36$", "$\\binom{6}{4} = 15$"],
-      "correct": 1,
-      "explanation": "$\\binom{6}{2} = \\frac{6!}{2!4!} = \\frac{30}{2} = 15$. Thứ tự không quan trọng (review team không có trưởng-phó) → dùng tổ hợp."
+      "options": [
+        "$6 \\times 5 = 30$",
+        "$6^2 = 36$",
+        "$2^6 = 64$",
+        "$\\binom{6}{2} = 15$"
+      ],
+      "correct": 3,
+      "explanation": "$\\binom{6}{2} = \\frac{6 \\times 5}{2} = 15$. Thứ tự không quan trọng (cặp reviewer {A, B} = {B, A}) → dùng tổ hợp. 30 là đếm có thứ tự (mỗi cặp bị đếm 2 lần)."
     },
     {
       "id": "q-comb-3",
       "type": "mcq",
       "question": "Mật khẩu 6 ký tự, mỗi ký tự là chữ thường (26) hoặc số (10). Không cho phép ký tự lặp. Số mật khẩu là?",
-      "options": ["$36^6$", "$P(36,6) = 36 \\times 35 \\times 34 \\times 33 \\times 32 \\times 31$", "$\\binom{36}{6}$", "$36 \\times 6$"],
+      "options": [
+        "$P(36,6) = 36 \\times 35 \\times 34 \\times 33 \\times 32 \\times 31$",
+        "$36^6$",
+        "$\\binom{36}{6}$",
+        "$36 \\times 6$"
+      ],
+      "correct": 0,
+      "explanation": "Thứ tự quan trọng (mật khẩu) + không lặp = hoán vị P(36,6) ≈ 1.40 tỉ. Nếu cho phép lặp thì là $36^6$ ≈ 2.18 tỉ; $\\binom{36}{6}$ bỏ mất thứ tự."
+    },
+    {
+      "id": "q-comb-4",
+      "type": "mcq",
+      "question": "Có bao nhiêu cách chia 5 token giống nhau cho 3 user (user có thể nhận 0)?",
+      "options": [
+        "$3^5 = 243$",
+        "$\\binom{7}{2} = 21$",
+        "$\\binom{5}{3} = 10$",
+        "$5^3 = 125$"
+      ],
       "correct": 1,
-      "explanation": "Thứ tự quan trọng (mật khẩu) + không lặp = hoán vị P(36,6) = 36×35×34×33×32×31 ≈ 1.4 tỉ. Nếu cho phép lặp thì là 36^6 ≈ 2.2 tỉ."
+      "explanation": "Stars and bars: 5 sao + 2 vạch, chọn vị trí 2 vạch trong 7 ô: $\\binom{7}{2} = 21$. $3^5$ là khi token **khác nhau** (mỗi token chọn một user)."
+    },
+    {
+      "id": "q-comb-5",
+      "type": "mcq",
+      "question": "Hằng đẳng thức Pascal $\\binom{n}{k} = \\binom{n-1}{k-1} + \\binom{n-1}{k}$ dựa trên lập luận nào?",
+      "options": [
+        "Tính đối xứng $\\binom{n}{k} = \\binom{n}{n-k}$",
+        "Định nghĩa giai thừa",
+        "Phần tử cuối hoặc được chọn, hoặc không được chọn",
+        "Nguyên lý chuồng bồ câu"
+      ],
+      "correct": 2,
+      "explanation": "Chia các tập con k phần tử thành hai nhóm rời nhau: có chứa phần tử n (chọn thêm k−1 từ n−1) và không chứa (chọn k từ n−1), rồi dùng quy tắc cộng. Đây chính là recurrence của DP \"chọn/không chọn\"."
+    },
+    {
+      "id": "q-comb-6",
+      "type": "mcq",
+      "question": "Cần ít nhất bao nhiêu user để **chắc chắn** có hai người có cùng 4 chữ số cuối số điện thoại?",
+      "options": [
+        "10001",
+        "10000",
+        "5001",
+        "119 (theo birthday paradox)"
+      ],
+      "correct": 0,
+      "explanation": "Có $10^4 = 10000$ \"chuồng\" (0000–9999). Theo nguyên lý chuồng bồ câu cần 10001 người để chắc chắn trùng. Birthday paradox (khoảng 119 người, ≈ $1.18\\sqrt{10000}$) chỉ cho xác suất 50%, không phải chắc chắn."
     }
   ]
 }

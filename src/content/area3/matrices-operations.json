@@ -6,8 +6,10 @@
   "order": 2,
   "icon": "matrix",
   "tagline": "Ma trận là bảng số hình chữ nhật — biểu diễn ảnh, bộ dữ liệu, phép biến hình, và trọng số mạng nơ-ron trong một cấu trúc thống nhất.",
-  "readTime": "~14 min",
-  "prerequisites": ["area3_vectors"],
+  "readTime": "~16 min",
+  "prerequisites": [
+    "area3_vectors"
+  ],
   "sections": [
     {
       "type": "intro",
@@ -16,23 +18,32 @@
     {
       "type": "analogy",
       "title": "Ma trận như bảng tính Excel có siêu năng lực",
-      "content": "Hãy nghĩ ma trận như một bảng Excel: có hàng và cột, mỗi ô chứa một số. Nhưng khác Excel ở chỗ: bạn có thể **cộng, trừ, nhân** các bảng với nhau theo quy tắc toán học chặt chẽ, và kết quả mang ý nghĩa hình học và dữ liệu sâu sắc.\n\nVí dụ một ma trận 2×3 (2 hàng, 3 cột):\n\n| | Cột 1 | Cột 2 | Cột 3 |\n|---|---|---|---|\n| **Hàng 1** | 1 | 2 | 3 |\n| **Hàng 2** | 4 | 5 | 6 |\n\nKý hiệu: A[1][2] = 3 (hàng 1, cột 2). Trong Python/NumPy: `A[0][2]` (index từ 0)."
+      "content": "Hãy nghĩ ma trận như một bảng Excel: có hàng và cột, mỗi ô chứa một số. Nhưng khác Excel ở chỗ: bạn có thể **cộng, trừ, nhân** các bảng với nhau theo quy tắc toán học chặt chẽ, và kết quả mang ý nghĩa hình học và dữ liệu sâu sắc.\n\nVí dụ một ma trận 2×3 (2 hàng, 3 cột):\n\n| | Cột 1 | Cột 2 | Cột 3 |\n|---|---|---|---|\n| **Hàng 1** | 1 | 2 | 3 |\n| **Hàng 2** | 4 | 5 | 6 |\n\nKý hiệu toán: $a_{12} = 2$ (hàng 1, cột 2) và $a_{13} = 3$ (hàng 1, cột 3) — chỉ số bắt đầu từ 1. Trong Python/NumPy chỉ số bắt đầu từ 0, nên $a_{13}$ là `A[0, 2]` (hoặc `A[0][2]`)."
     },
     {
       "type": "formula",
       "title": "Ký hiệu ma trận",
       "latex": "A = \\begin{bmatrix} a_{11} & a_{12} & \\cdots & a_{1n} \\\\ a_{21} & a_{22} & \\cdots & a_{2n} \\\\ \\vdots & \\vdots & \\ddots & \\vdots \\\\ a_{m1} & a_{m2} & \\cdots & a_{mn} \\end{bmatrix}_{m \\times n}",
-      "reading": "đọc là: A là ma trận m × n (m hàng, n cột), phần tử tại hàng i cột j ký hiệu là aᵢⱼ.",
+      "reading": "đọc là: A là ma trận m × n (m hàng, n cột); phần tử ở hàng i, cột j ký hiệu là a-i-j.",
       "symbols": [
-        { "sym": "m \\times n", "meaning": "kích thước ma trận: m hàng, n cột (đọc 'm by n')" },
-        { "sym": "a_{ij}", "meaning": "phần tử tại hàng i, cột j (index từ 1 trong toán học, từ 0 trong code)" },
-        { "sym": "A^T", "meaning": "ma trận chuyển vị (transpose): đổi hàng thành cột" }
+        {
+          "sym": "m \\times n",
+          "meaning": "kích thước ma trận: m hàng, n cột (đọc 'm by n')"
+        },
+        {
+          "sym": "a_{ij}",
+          "meaning": "phần tử tại hàng i, cột j (index từ 1 trong toán học, từ 0 trong code)"
+        },
+        {
+          "sym": "A^T",
+          "meaning": "ma trận chuyển vị (transpose): đổi hàng thành cột"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Cộng/trừ ma trận và nhân vô hướng",
-      "content": "**Cộng/trừ ma trận:** chỉ thực hiện được khi hai ma trận cùng kích thước. Cộng từng phần tử tương ứng.\n\nVí dụ $A + B$ với $A, B$ cùng là $2\\times2$:\n\n| | | | | |\n|---|---|---|---|---|\n| A | 1  2 | + | B | 5  6 |\n|   | 3  4 |   |   | 7  8 |\n\nKết quả A + B:\n\n| 6 | 8 |\n|---|---|\n| 10 | 12 |\n\n**Nhân vô hướng (scalar):** nhân mọi phần tử với cùng một số. $3 \\times A$ sẽ nhân mọi phần tử của A với 3.\n\n**Chuyển vị (transpose) $A^T$:** hàng thành cột, cột thành hàng. Ma trận $2\\times3$ transposed thành $3\\times2$. Trong NumPy: `A.T`."
+      "content": "**Cộng/trừ ma trận:** chỉ thực hiện được khi hai ma trận cùng kích thước. Cộng (trừ) từng phần tử ở cùng vị trí:\n\n$$\\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix} + \\begin{bmatrix} 5 & 6 \\\\ 7 & 8 \\end{bmatrix} = \\begin{bmatrix} 6 & 8 \\\\ 10 & 12 \\end{bmatrix}$$\n\n**Nhân vô hướng (scalar multiplication):** nhân mọi phần tử với cùng một số. $3A$ nhân mọi phần tử của A với 3.\n\n**Chuyển vị (transpose) $A^T$:** hàng thành cột, cột thành hàng. Ma trận $2\\times3$ sau khi chuyển vị thành $3\\times2$. Trong NumPy: `A.T`. Hình học: chuyển vị là \"lật\" ma trận qua đường chéo chính — các phần tử trên đường chéo giữ nguyên.\n\n**Nhân từng phần tử (Hadamard product, $A \\odot B$):** cũng cần cùng kích thước, nhân từng ô với nhau. Trong NumPy đây là `A * B` — **không phải** phép nhân ma trận (`A @ B`, bài sau)."
     },
     {
       "type": "formula",
@@ -40,27 +51,63 @@
       "latex": "(A + B)_{ij} = a_{ij} + b_{ij} \\qquad (A^T)_{ij} = a_{ji}",
       "reading": "đọc là: phần tử (i,j) của A+B bằng tổng phần tử (i,j) tương ứng; phần tử (i,j) của chuyển vị bằng phần tử (j,i) của ma trận gốc.",
       "symbols": [
-        { "sym": "(A+B)_{ij}", "meaning": "phần tử hàng i cột j của tổng A+B" },
-        { "sym": "a_{ji}", "meaning": "hàng và cột đổi chỗ — đó là ý nghĩa của transpose" },
-        { "sym": "A = A^T", "meaning": "ma trận đối xứng (symmetric matrix) — hay gặp trong covariance matrix" }
+        {
+          "sym": "(A+B)_{ij}",
+          "meaning": "phần tử hàng i cột j của tổng A+B"
+        },
+        {
+          "sym": "a_{ji}",
+          "meaning": "hàng và cột đổi chỗ — đó là ý nghĩa của transpose"
+        },
+        {
+          "sym": "A = A^T",
+          "meaning": "ma trận đối xứng (symmetric matrix) — hay gặp trong covariance matrix"
+        },
+        {
+          "sym": "(A^T)^T = A",
+          "meaning": "chuyển vị hai lần trở về ma trận gốc"
+        },
+        {
+          "sym": "(A + B)^T = A^T + B^T",
+          "meaning": "chuyển vị phân phối với phép cộng"
+        }
       ]
+    },
+    {
+      "type": "explanation",
+      "title": "Các ma trận đặc biệt hay gặp",
+      "content": "- **Ma trận vuông (square):** $n \\times n$ — số hàng bằng số cột.\n- **Ma trận đơn vị (identity) $I$:** đường chéo chính bằng 1, còn lại bằng 0. Đóng vai trò \"số 1\" của phép nhân ma trận: $AI = IA = A$. NumPy: `np.eye(n)`.\n- **Ma trận không (zero matrix):** toàn số 0 — \"số 0\" của phép cộng: $A + 0 = A$.\n- **Ma trận đường chéo (diagonal):** chỉ có phần tử trên đường chéo chính khác 0 — mỗi trục được co giãn độc lập (phép scale trong đồ họa).\n- **Ma trận đối xứng (symmetric):** $A = A^T$, tức $a_{ij} = a_{ji}$. Ví dụ: ma trận khoảng cách giữa các thành phố, ma trận kề của đồ thị vô hướng, covariance matrix.\n- **Ma trận thưa (sparse):** đa số phần tử bằng 0 (ma trận kề của mạng xã hội, ma trận user × item). Lưu dạng CSR/COO chỉ giữ phần tử khác 0 để tiết kiệm bộ nhớ."
     },
     {
       "type": "diagram",
       "title": "Ảnh số là ma trận — pipeline xử lý ảnh",
-      "mermaid": "graph TD\n    A[\"Ảnh xám 4×4 pixels\\n(ma trận 4×4 giá trị 0-255)\"] --> B[\"Phép toán ma trận\\n(thêm độ sáng: A + 50)\"] --> C[\"Ảnh sáng hơn\\n(cộng scalar vào toàn bộ)\"]  \n    A --> D[\"Lật ảnh ngang\\n(Transpose hoặc flip cột)\"] --> E[\"Ảnh mirror\"]\n    A --> F[\"Chuẩn hóa: A / 255\"] --> G[\"Feature matrix\\n(giá trị 0.0 - 1.0 cho ML)\"]",
-      "caption": "Mọi phép xử lý ảnh cơ bản đều là phép toán ma trận. Deep learning image models làm hàng nghìn phép toán như vậy."
+      "mermaid": "graph TD\n    A[\"Ảnh xám 4×4 pixels\\n(ma trận 4×4, giá trị 0-255)\"] --> B[\"Cộng scalar: A + 50\"] --> C[\"Ảnh sáng hơn\\n(nhớ cắt về tối đa 255)\"]\n    A --> D[\"Transpose: A.T\"] --> E[\"Ảnh lật qua đường chéo\\n(xoay 90 độ + soi gương)\"]\n    A --> H[\"Đảo thứ tự các cột\"] --> I[\"Ảnh soi gương ngang\"]\n    A --> F[\"Chuẩn hóa: A / 255\"] --> G[\"Feature matrix\\n(giá trị 0.0 - 1.0 cho ML)\"]",
+      "caption": "Phép xử lý ảnh cơ bản là phép toán ma trận. Chú ý: transpose lật ảnh qua đường chéo, còn soi gương ngang là đảo thứ tự cột — hai phép khác nhau."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: Cộng ma trận và nhân scalar",
       "problem": "Cho $A = \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}$ và $B = \\begin{bmatrix} 5 & 0 \\\\ -1 & 2 \\end{bmatrix}$. Tính $A + B$ và $2A$.",
       "steps": [
-        { "text": "$A + B$: cộng từng phần tử tương ứng.", "rule": "Cộng ma trận cùng kích thước" },
-        { "text": "$A + B = \\begin{bmatrix} 1+5 & 2+0 \\\\ 3+(-1) & 4+2 \\end{bmatrix} = \\begin{bmatrix} 6 & 2 \\\\ 2 & 6 \\end{bmatrix}$." },
-        { "text": "$2A$: nhân mọi phần tử với 2.", "rule": "Nhân scalar" },
-        { "text": "$2A = \\begin{bmatrix} 2 & 4 \\\\ 6 & 8 \\end{bmatrix}$." },
-        { "text": "Lỗi phổ biến: cộng kích thước khác nhau — ví dụ A là 2×2 và B là 2×3 sẽ báo lỗi (shape mismatch).", "isCommonMistake": true, "rule": "Cộng ma trận yêu cầu kích thước GIỐNG HỆT nhau" }
+        {
+          "text": "$A + B$: cộng từng phần tử tương ứng.",
+          "rule": "Cộng ma trận cùng kích thước"
+        },
+        {
+          "text": "$A + B = \\begin{bmatrix} 1+5 & 2+0 \\\\ 3+(-1) & 4+2 \\end{bmatrix} = \\begin{bmatrix} 6 & 2 \\\\ 2 & 6 \\end{bmatrix}$."
+        },
+        {
+          "text": "$2A$: nhân mọi phần tử với 2.",
+          "rule": "Nhân scalar"
+        },
+        {
+          "text": "$2A = \\begin{bmatrix} 2 & 4 \\\\ 6 & 8 \\end{bmatrix}$."
+        },
+        {
+          "text": "Lỗi phổ biến: cộng kích thước khác nhau — ví dụ A là 2×2 và B là 2×3 sẽ báo lỗi (shape mismatch).",
+          "isCommonMistake": true,
+          "rule": "Cộng ma trận yêu cầu kích thước GIỐNG HỆT nhau"
+        }
       ],
       "result": "$A+B = \\begin{bmatrix} 6 & 2 \\\\ 2 & 6 \\end{bmatrix}$, $2A = \\begin{bmatrix} 2 & 4 \\\\ 6 & 8 \\end{bmatrix}$"
     },
@@ -69,25 +116,41 @@
       "title": "Ví dụ 2: Chuyển vị (Transpose)",
       "problem": "Cho $A = \\begin{bmatrix} 1 & 2 & 3 \\\\ 4 & 5 & 6 \\end{bmatrix}$ (kích thước 2×3). Tính $A^T$.",
       "steps": [
-        { "text": "Chuyển vị: đổi hàng thành cột. Hàng 1 của A = [1,2,3] → Cột 1 của $A^T$.", "rule": "$(A^T)_{ij} = a_{ji}$" },
-        { "text": "$A^T = \\begin{bmatrix} 1 & 4 \\\\ 2 & 5 \\\\ 3 & 6 \\end{bmatrix}$ — kích thước 3×2.", "rule": "Transpose đổi kích thước m×n thành n×m" },
-        { "text": "Lỗi hay gặp: nhầm hàng 2 của A là cột 1 của $A^T$ — phải đúng cột 2 của $A^T$.", "isCommonMistake": true, "rule": "$(A^T)_{ij} = A_{ji}$ — i và j đổi chỗ" }
+        {
+          "text": "Chuyển vị: đổi hàng thành cột. Hàng 1 của A = [1,2,3] → Cột 1 của $A^T$.",
+          "rule": "$(A^T)_{ij} = a_{ji}$"
+        },
+        {
+          "text": "$A^T = \\begin{bmatrix} 1 & 4 \\\\ 2 & 5 \\\\ 3 & 6 \\end{bmatrix}$ — kích thước 3×2.",
+          "rule": "Transpose đổi kích thước m×n thành n×m"
+        },
+        {
+          "text": "Lỗi hay gặp: viết hàng 2 của A là $[4, 5, 6]$ thành **hàng** 2 của $A^T$ (chép nguyên). Đúng phải là: hàng 2 của A thành **cột** 2 của $A^T$.",
+          "isCommonMistake": true,
+          "rule": "$(A^T)_{ij} = A_{ji}$ — i và j đổi chỗ"
+        }
       ],
       "result": "$A^T = \\begin{bmatrix} 1 & 4 \\\\ 2 & 5 \\\\ 3 & 6 \\end{bmatrix}$ (kích thước 3×2)"
     },
     {
+      "type": "explanation",
+      "title": "Ma trận trong bộ nhớ: row-major vs column-major",
+      "content": "RAM là một dải byte một chiều, nên ma trận 2D phải được \"trải phẳng\". Có hai quy ước:\n\n- **Row-major** (C, C++, NumPy mặc định, PyTorch): lưu hết hàng 0, rồi hàng 1… Phần tử `A[i][j]` của ma trận có $n$ cột nằm ở vị trí $i \\times n + j$.\n- **Column-major** (Fortran, MATLAB, R, BLAS/LAPACK gốc): lưu hết cột 0, rồi cột 1… Phần tử `A[i][j]` của ma trận có $m$ hàng nằm ở vị trí $j \\times m + i$.\n\nVì sao quan trọng? CPU nạp bộ nhớ theo **cache line** (thường 64 byte). Duyệt theo đúng thứ tự lưu trữ (với row-major: vòng ngoài theo hàng, vòng trong theo cột) đọc các ô liền kề → cache hit; duyệt ngược lại nhảy cóc $n$ phần tử mỗi bước → cache miss, có thể chậm hơn nhiều lần với ma trận lớn.\n\nTrong NumPy, `A.T` **không sao chép dữ liệu** — nó chỉ đổi strides (bước nhảy), nên nhanh $O(1)$; nhưng duyệt `A.T` theo hàng lại là duyệt `A` theo cột."
+    },
+    {
       "type": "callout",
       "variant": "warning",
-      "content": "**Điều kiện cộng/trừ:** Hai ma trận phải có **đúng cùng kích thước** (cùng số hàng VÀ cùng số cột). Trong NumPy, nếu kích thước không khớp sẽ gặp lỗi `ValueError: operands could not be broadcast together`. Broadcasting (phát sóng) là tính năng đặc biệt của NumPy, không phải phép toán ma trận tiêu chuẩn — cẩn thận khi dùng."
+      "content": "**Điều kiện cộng/trừ:** trong toán học, hai ma trận phải có **đúng cùng kích thước** (cùng số hàng VÀ cùng số cột). NumPy/PyTorch thì có thêm **broadcasting**: tự \"kéo giãn\" chiều có kích thước 1 cho khớp — ví dụ `X - X.mean(axis=0)` với X là (100, 3) và mean là (3,) vẫn chạy, và `A + 50` cộng 50 vào mọi ô. Tiện nhưng nguy hiểm: shape (100,) cộng với (100, 1) sẽ ra (100, 100) mà không báo lỗi. Khi kích thước không khớp được, bạn gặp `ValueError: operands could not be broadcast together`."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Ma trận m×n là bảng số m hàng n cột; phần tử aᵢⱼ ở hàng i, cột j.",
-        "Cộng/trừ: phải cùng kích thước, cộng từng phần tử tương ứng.",
+        "Ma trận m×n là bảng số m hàng n cột; phần tử $a_{ij}$ ở hàng i, cột j (toán đếm từ 1, code đếm từ 0).",
+        "Cộng/trừ và Hadamard product: phải cùng kích thước, làm từng phần tử tương ứng.",
         "Nhân scalar: nhân toàn bộ phần tử với cùng một số.",
-        "Chuyển vị $A^T$: đổi hàng thành cột — ma trận m×n thành n×m.",
-        "Ứng dụng trực tiếp: ảnh số, DataFrame ML, biến hình đồ họa, trọng số neural network."
+        "Chuyển vị $A^T$: đổi hàng thành cột — m×n thành n×m; $A = A^T$ là ma trận đối xứng.",
+        "Ma trận đơn vị $I$ là \"số 1\" của phép nhân ma trận; ma trận đường chéo co giãn từng trục.",
+        "Row-major: `A[i][j]` ở vị trí $i \\times n + j$ — duyệt theo hàng thân thiện với cache."
       ]
     }
   ],
@@ -102,7 +165,7 @@
       "id": "fc-mat-add",
       "type": "formula",
       "front": "Điều kiện để cộng hai ma trận A và B?",
-      "back": "A và B phải có **cùng kích thước** (cùng số hàng m và cột n). Kết quả: $(A+B)_{ij} = a_{ij} + b_{ij}$."
+      "back": "A và B phải có **cùng kích thước** (cùng số hàng m và cùng số cột n). Kết quả: $(A+B)_{ij} = a_{ij} + b_{ij}$. (Broadcasting của NumPy là quy tắc riêng của thư viện, không phải phép cộng ma trận trong toán.)"
     },
     {
       "id": "fc-mat-transpose",
@@ -115,6 +178,36 @@
       "type": "concept",
       "front": "Ảnh xám 28×28 pixels biểu diễn thế nào bằng ma trận?",
       "back": "Ma trận $28 \\times 28$ — mỗi phần tử là giá trị độ sáng 0 (đen) đến 255 (trắng). MNIST dataset dùng định dạng này."
+    },
+    {
+      "id": "fc-mat-identity",
+      "type": "definition",
+      "front": "Ma trận đơn vị (identity) $I$ là gì?",
+      "back": "Ma trận vuông có đường chéo chính bằng 1, còn lại bằng 0. $AI = IA = A$ — là \\\"số 1\\\" của phép nhân ma trận. NumPy: `np.eye(n)`."
+    },
+    {
+      "id": "fc-mat-symmetric",
+      "type": "definition",
+      "front": "Ma trận đối xứng (symmetric) là gì? Cho ví dụ trong CS.",
+      "back": "$A = A^T$ ($a_{ij} = a_{ji}$). Ví dụ: ma trận kề của đồ thị vô hướng, ma trận khoảng cách, covariance matrix, $X^TX$."
+    },
+    {
+      "id": "fc-mat-rowmajor",
+      "type": "concept",
+      "front": "Row-major layout: phần tử `A[i][j]` (ma trận n cột) nằm ở đâu trong bộ nhớ?",
+      "back": "Ở vị trí (offset) $i \\times n + j$ tính từ đầu mảng (nhân thêm số byte mỗi phần tử để ra byte offset). Duyệt theo hàng = đọc liền kề = thân thiện cache. Column-major (Fortran/MATLAB): $j \\times m + i$."
+    },
+    {
+      "id": "fc-mat-broadcast",
+      "type": "concept",
+      "front": "Broadcasting trong NumPy so khớp shape theo quy tắc nào?",
+      "back": "So từ chiều **cuối cùng** ngược lên: hai chiều tương thích nếu bằng nhau hoặc một trong hai bằng 1 (hoặc bị thiếu). Ví dụ (4,3) với (3,) được; (4,3) với (4,) lỗi; (4,3) với (4,1) được."
+    },
+    {
+      "id": "fc-mat-hadamard",
+      "type": "concept",
+      "front": "`A * B` và `A @ B` trong NumPy khác nhau thế nào?",
+      "back": "`A * B` là Hadamard product $A \\odot B$ — nhân từng phần tử, cần cùng shape (hoặc broadcast được). `A @ B` là nhân ma trận — cần số cột A = số hàng B."
     }
   ],
   "exercises": [
@@ -127,49 +220,191 @@
         "Transpose: hàng 1 thành cột 1, hàng 2 thành cột 2."
       ],
       "solutionSteps": [
-        { "text": "$A - B = \\begin{bmatrix} 2-1 & -1-4 \\\\ 0-(-2) & 3-1 \\end{bmatrix} = \\begin{bmatrix} 1 & -5 \\\\ 2 & 2 \\end{bmatrix}$.", "rule": "Trừ từng phần tử" },
-        { "text": "$A^T = \\begin{bmatrix} 2 & 0 \\\\ -1 & 3 \\end{bmatrix}$ — hàng thành cột.", "rule": "Transpose: $(A^T)_{ij} = a_{ji}$" }
+        {
+          "text": "$A - B = \\begin{bmatrix} 2-1 & -1-4 \\\\ 0-(-2) & 3-1 \\end{bmatrix} = \\begin{bmatrix} 1 & -5 \\\\ 2 & 2 \\end{bmatrix}$.",
+          "rule": "Trừ từng phần tử"
+        },
+        {
+          "text": "Lỗi hay gặp: tính $0 - (-2) = -2$ — trừ một số âm là cộng: $0 - (-2) = +2$.",
+          "rule": "Trừ số âm = cộng",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$A^T = \\begin{bmatrix} 2 & 0 \\\\ -1 & 3 \\end{bmatrix}$ — hàng 1 $(2, -1)$ thành cột 1, hàng 2 $(0, 3)$ thành cột 2; đường chéo $2, 3$ giữ nguyên.",
+          "rule": "Transpose: $(A^T)_{ij} = a_{ji}$"
+        }
       ],
       "answer": "$A-B = \\begin{bmatrix} 1 & -5 \\\\ 2 & 2 \\end{bmatrix}$, $A^T = \\begin{bmatrix} 2 & 0 \\\\ -1 & 3 \\end{bmatrix}$",
-      "commonMistake": "Đổi cột thay vì đổi hàng khi transpose — nhớ: $(A^T)_{ij} = a_{ji}$, i và j hoán đổi.",
+      "commonMistake": "Sai dấu khi trừ số âm, hoặc transpose nhầm (đổi chỗ cả đường chéo chính) — nhớ: $(A^T)_{ij} = a_{ji}$, phần tử trên đường chéo không đổi.",
       "relatedFlashcard": "fc-mat-transpose"
+    },
+    {
+      "id": "ex-mat-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Cho $A = \\begin{bmatrix} 1 & 2 & 3 \\\\ 4 & 5 & 6 \\end{bmatrix}$. Cho biết kích thước của A, giá trị $a_{12}$, $a_{23}$, và cách truy cập $a_{23}$ trong NumPy.",
+      "hints": [
+        "Kích thước = số hàng × số cột.",
+        "$a_{ij}$: chỉ số đầu là hàng, chỉ số sau là cột (đếm từ 1).",
+        "NumPy đếm từ 0: trừ 1 ở cả hai chỉ số."
+      ],
+      "solutionSteps": [
+        {
+          "text": "A có 2 hàng, 3 cột → kích thước $2\\times3$.",
+          "rule": "Kích thước m×n"
+        },
+        {
+          "text": "$a_{12}$ = hàng 1, cột 2 = 2; $a_{23}$ = hàng 2, cột 3 = 6.",
+          "rule": "a_ij: hàng i, cột j"
+        },
+        {
+          "text": "Lỗi hay gặp: đọc $a_{12}$ là \\\"cột 1, hàng 2\\\" và trả lời 4. Quy ước luôn là **hàng trước, cột sau**.",
+          "rule": "Hàng trước, cột sau",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Trong NumPy: $a_{23}$ là `A[1, 2]` (trừ 1 ở mỗi chỉ số).",
+          "rule": "Index từ 0 trong code"
+        }
+      ],
+      "answer": "Kích thước $2\\times3$; $a_{12} = 2$; $a_{23} = 6$ = `A[1, 2]`.",
+      "commonMistake": "Đảo thứ tự hàng/cột, hoặc quên trừ 1 khi chuyển sang chỉ số NumPy.",
+      "relatedFlashcard": "fc-mat-def"
     },
     {
       "id": "ex-mat-apply-1",
       "difficulty": "apply",
-      "prompt": "Ảnh xám 3×3 pixels có giá trị như sau:\n\n| 100 | 150 | 200 |\n|---|---|---|\n| 50 | 100 | 150 |\n| 0 | 50 | 100 |\n\nViết ma trận này và tính ma trận sau khi (a) tăng độ sáng thêm 50, (b) chuẩn hóa về [0,1] bằng cách chia 255.",
+      "prompt": "Ảnh xám 3×3 pixels (8-bit, giá trị 0–255) có giá trị như sau:\n\n| 100 | 150 | 200 |\n|---|---|---|\n| 50 | 100 | 150 |\n| 0 | 50 | 100 |\n\nViết ma trận này và tính ma trận sau khi (a) tăng độ sáng thêm 50, (b) chuẩn hóa về [0, 1] bằng cách chia cho 255. (c) Nếu tăng sáng thêm 100 thay vì 50 thì ô có giá trị 200 gặp vấn đề gì khi lưu dạng `uint8`?",
       "hints": [
-        "Tăng độ sáng = cộng scalar 50 vào toàn bộ ma trận.",
-        "Chuẩn hóa = nhân với 1/255 (hoặc chia cho 255)."
+        "Tăng độ sáng = cộng scalar vào mọi phần tử.",
+        "Chuẩn hóa = nhân với 1/255.",
+        "`uint8` chỉ chứa được 0–255; phép cộng vượt quá sẽ quay vòng (modulo 256)."
       ],
       "solutionSteps": [
-        { "text": "Ma trận gốc $A = \\begin{bmatrix} 100 & 150 & 200 \\\\ 50 & 100 & 150 \\\\ 0 & 50 & 100 \\end{bmatrix}$.", "rule": "Biểu diễn ảnh số dạng ma trận" },
-        { "text": "(a) $A + 50 = \\begin{bmatrix} 150 & 200 & 250 \\\\ 100 & 150 & 200 \\\\ 50 & 100 & 150 \\end{bmatrix}$.", "rule": "Cộng scalar" },
-        { "text": "(b) $A / 255 \\approx \\begin{bmatrix} 0.39 & 0.59 & 0.78 \\\\ 0.20 & 0.39 & 0.59 \\\\ 0 & 0.20 & 0.39 \\end{bmatrix}$.", "rule": "Nhân scalar (1/255)" },
-        { "text": "Lỗi hay gặp với chuẩn hóa: quên chia cho 255, dùng 256 hoặc 254 — luôn dùng 255 (giá trị tối đa).", "isCommonMistake": true, "rule": "Giá trị pixel tối đa = 255 (8-bit color)" }
+        {
+          "text": "Ma trận gốc $A = \\begin{bmatrix} 100 & 150 & 200 \\\\ 50 & 100 & 150 \\\\ 0 & 50 & 100 \\end{bmatrix}$.",
+          "rule": "Biểu diễn ảnh số dạng ma trận"
+        },
+        {
+          "text": "(a) $A + 50 = \\begin{bmatrix} 150 & 200 & 250 \\\\ 100 & 150 & 200 \\\\ 50 & 100 & 150 \\end{bmatrix}$ — mọi giá trị vẫn trong khoảng 0–255.",
+          "rule": "Cộng scalar vào từng phần tử"
+        },
+        {
+          "text": "(b) $A / 255 \\approx \\begin{bmatrix} 0.39 & 0.59 & 0.78 \\\\ 0.20 & 0.39 & 0.59 \\\\ 0 & 0.20 & 0.39 \\end{bmatrix}$.",
+          "rule": "Nhân scalar 1/255"
+        },
+        {
+          "text": "(c) Lỗi hay gặp: $200 + 100 = 300$ vượt quá 255; với `uint8` NumPy cho $300 - 256 = 44$ — pixel sáng bỗng thành gần đen. Phải đổi sang kiểu lớn hơn rồi cắt: `np.clip(A.astype(np.int16) + 100, 0, 255)`.",
+          "rule": "Tràn số (overflow) với uint8",
+          "isCommonMistake": true
+        }
       ],
-      "answer": "Tăng sáng: cộng 50 vào mỗi phần tử. Chuẩn hóa: chia mỗi phần tử cho 255.",
-      "commonMistake": "Quên rằng phép cộng scalar phân phối đều — không cần làm từng ô, NumPy xử lý tự động.",
+      "answer": "(a) Cộng 50 vào mọi ô (giá trị lớn nhất 250). (b) Chia mọi ô cho 255 (ví dụ 100 → 0.39). (c) 200 + 100 tràn uint8 thành 44 — cần đổi kiểu và clip về 255.",
+      "commonMistake": "Cộng trực tiếp trên mảng `uint8` mà không clip — giá trị vượt 255 quay vòng thành số nhỏ, tạo đốm tối trên ảnh.",
       "relatedFlashcard": "fc-mat-image"
+    },
+    {
+      "id": "ex-mat-apply-2",
+      "difficulty": "apply",
+      "prompt": "Một ma trận `float32` kích thước 1000×500 (1000 hàng, 500 cột) lưu liên tục trong bộ nhớ, mỗi phần tử 4 byte. Tính byte offset của phần tử `A[3][7]` (chỉ số từ 0) nếu lưu (a) row-major, (b) column-major. (c) Với row-major, vòng lặp nào nhanh hơn để tính tổng mọi phần tử: `for i: for j: s += A[i][j]` hay `for j: for i: s += A[i][j]`?",
+      "hints": [
+        "Row-major: offset phần tử = $i \\times n_{cols} + j$ (n_cols = số cột).",
+        "Column-major: offset phần tử = $j \\times n_{rows} + i$ (n_rows = số hàng).",
+        "Nhân với 4 byte để ra byte offset. Vòng trong nên chạy theo chiều liền kề trong bộ nhớ."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) Row-major: $(3 \\times 500 + 7) \\times 4 = 1507 \\times 4 = 6028$ byte.",
+          "rule": "Offset row-major = i·n + j"
+        },
+        {
+          "text": "(b) Column-major: $(7 \\times 1000 + 3) \\times 4 = 7003 \\times 4 = 28012$ byte.",
+          "rule": "Offset column-major = j·m + i"
+        },
+        {
+          "text": "Lỗi hay gặp: nhân $i$ với **số hàng** (1000) trong row-major. Mỗi hàng chứa \\\"số cột\\\" phần tử, nên để nhảy qua $i$ hàng phải nhân với số cột (500).",
+          "rule": "Bước nhảy giữa hai hàng = số cột",
+          "isCommonMistake": true
+        },
+        {
+          "text": "(c) `for i: for j:` nhanh hơn: vòng trong đi qua các ô liền kề (bước 4 byte), mỗi cache line 64 byte phục vụ 16 phần tử. Vòng `for j: for i:` nhảy 2000 byte mỗi bước → gần như mỗi lần truy cập là một cache miss.",
+          "rule": "Cache locality"
+        }
+      ],
+      "answer": "(a) 6028 byte; (b) 28012 byte; (c) vòng ngoài theo hàng, vòng trong theo cột (`for i: for j:`).",
+      "commonMistake": "Dùng sai bước nhảy (số hàng thay vì số cột) khi tính offset row-major.",
+      "relatedFlashcard": "fc-mat-rowmajor"
     },
     {
       "id": "ex-mat-challenge-1",
       "difficulty": "challenge",
-      "prompt": "Trong ML, một dataset có 5 mẫu và 3 đặc trưng (features). Ta biểu diễn bằng ma trận $X$ kích thước $5\\times3$. Để tính covariance matrix, ta cần tính $X^T X$. Kích thước của $X^T$ là bao nhiêu? Và $X^T X$ là bao nhiêu? Giải thích ý nghĩa.",
+      "prompt": "Trong ML, một dataset có 5 mẫu và 3 đặc trưng (features), biểu diễn bằng ma trận $X$ kích thước $5\\times3$. Nhiều thuật toán (linear regression, PCA) dùng ma trận $X^T X$. Kích thước của $X^T$ và $X^T X$ là bao nhiêu? Phần tử $(i, j)$ của $X^T X$ có ý nghĩa gì?",
       "hints": [
         "$X$ là $5\\times3$ → $X^T$ là $?\\times?$",
         "Để nhân hai ma trận được, số cột của ma trận trái = số hàng của ma trận phải.",
         "$X^T X$: $(3\\times5) \\times (5\\times3) = ?$"
       ],
       "solutionSteps": [
-        { "text": "$X$ kích thước $5\\times3$ → $X^T$ kích thước $3\\times5$ (transposed).", "rule": "Transpose đổi m×n thành n×m" },
-        { "text": "$X^T X$: $(3\\times5) \\cdot (5\\times3)$ — số cột $X^T$ = số hàng $X$ = 5, hợp lệ.", "rule": "Điều kiện nhân ma trận: cột trái = hàng phải" },
-        { "text": "Kết quả $X^T X$ kích thước $3\\times3$ — ma trận vuông (square matrix).", "rule": "Kích thước kết quả: hàng trái × cột phải" },
-        { "text": "$X^T X$ là covariance matrix của features — phần tử (i,j) là inner product của feature i và feature j. PCA dùng ma trận này.", "isCommonMistake": false }
+        {
+          "text": "$X$ kích thước $5\\times3$ → $X^T$ kích thước $3\\times5$.",
+          "rule": "Transpose đổi m×n thành n×m"
+        },
+        {
+          "text": "$X^T X$: $(3\\times5)(5\\times3)$ — số cột $X^T$ = số hàng $X$ = 5, nhân được.",
+          "rule": "Điều kiện nhân ma trận: cột trái = hàng phải"
+        },
+        {
+          "text": "Kết quả $X^T X$ kích thước $3\\times3$ — mỗi feature một hàng, một cột.",
+          "rule": "Kích thước kết quả: hàng trái × cột phải"
+        },
+        {
+          "text": "Phần tử $(i, j)$ = dot product của cột feature i với cột feature j (gọi là Gram matrix). Ma trận này đối xứng.",
+          "rule": "Mỗi phần tử của tích là một dot product"
+        },
+        {
+          "text": "Lỗi hay gặp: gọi $X^T X$ luôn là covariance matrix. Chỉ khi các cột của X đã được **trừ trung bình (mean-centered)**, $\\frac{1}{n-1}X^T X$ mới là covariance matrix (PCA dùng ma trận này).",
+          "rule": "Covariance cần dữ liệu đã centered",
+          "isCommonMistake": true
+        }
       ],
-      "answer": "$X^T$ là $3\\times5$; $X^T X$ là $3\\times3$ — covariance matrix của 3 features.",
-      "commonMistake": "Nhầm thứ tự: $XX^T$ (5×5) ≠ $X^TX$ (3×3) — thứ tự nhân ma trận QUAN TRỌNG.",
+      "answer": "$X^T$ là $3\\times5$; $X^T X$ là $3\\times3$, đối xứng — phần tử $(i,j)$ là dot product của feature i và feature j. Nếu X đã mean-centered thì $\\frac{1}{n-1}X^TX$ là covariance matrix.",
+      "commonMistake": "Nhầm thứ tự: $XX^T$ là $5\\times5$ (so sánh giữa các mẫu), còn $X^TX$ là $3\\times3$ (so sánh giữa các feature).",
       "relatedFlashcard": "fc-mat-transpose"
+    },
+    {
+      "id": "ex-mat-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Dữ liệu $X = \\begin{bmatrix} 1 & 2 & 3 \\\\ 3 & 4 & 5 \\\\ 5 & 6 & 7 \\\\ 7 & 8 & 9 \\end{bmatrix}$ (4 mẫu × 3 features). (a) Tính vector trung bình từng cột và ma trận đã trừ trung bình (mean-centered). (b) Trong NumPy, `X - X.mean(axis=0)` chạy được, còn `X - X.mean(axis=1)` báo lỗi. Giải thích bằng quy tắc broadcasting và sửa câu lệnh thứ hai để trừ trung bình theo từng hàng.",
+      "hints": [
+        "`axis=0` gộp theo hàng → ra một giá trị cho mỗi cột, shape (3,).",
+        "`axis=1` ra một giá trị cho mỗi hàng, shape (4,).",
+        "Broadcasting so khớp từ chiều cuối: (4,3) với (3,) và (4,3) với (4,)."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Trung bình cột: $(1+3+5+7)/4 = 4$, $(2+4+6+8)/4 = 5$, $(3+5+7+9)/4 = 6$ → $\\boldsymbol{\\mu} = (4, 5, 6)$, shape (3,).",
+          "rule": "Trung bình theo cột (axis=0)"
+        },
+        {
+          "text": "Centered: $X - \\boldsymbol{\\mu} = \\begin{bmatrix} -3 & -3 & -3 \\\\ -1 & -1 & -1 \\\\ 1 & 1 & 1 \\\\ 3 & 3 & 3 \\end{bmatrix}$ — mỗi cột giờ có trung bình 0.",
+          "rule": "Broadcasting: (4,3) với (3,) → trừ μ vào từng hàng"
+        },
+        {
+          "text": "`X.mean(axis=1)` = (2, 4, 6, 8), shape (4,). So từ chiều cuối: 3 (của X) với 4 → khác nhau và không cái nào bằng 1 → lỗi.",
+          "rule": "Quy tắc broadcasting"
+        },
+        {
+          "text": "Lỗi hay gặp: nghĩ NumPy tự hiểu vector dài 4 phải khớp với 4 hàng. Broadcasting luôn căn từ **chiều cuối**; muốn khớp theo hàng phải biến nó thành cột (4, 1).",
+          "rule": "Căn shape từ phải sang trái",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Sửa: `X - X.mean(axis=1, keepdims=True)` (shape (4,1)) hoặc `X - X.mean(axis=1)[:, None]`.",
+          "rule": "keepdims giữ chiều để broadcast đúng"
+        }
+      ],
+      "answer": "$\\boldsymbol{\\mu} = (4,5,6)$; X centered có các hàng $(-3,-3,-3), (-1,-1,-1), (1,1,1), (3,3,3)$. Lỗi vì (4,3) và (4,) không khớp ở chiều cuối; sửa bằng `keepdims=True` để có shape (4,1).",
+      "commonMistake": "Sửa lỗi shape bằng cách transpose bừa (`X.T - ...`) rồi quên transpose lại, khiến kết quả có shape (3,4).",
+      "relatedFlashcard": "fc-mat-broadcast"
     }
   ],
   "quiz": [
@@ -177,8 +412,13 @@
       "id": "q-mat-1",
       "type": "mcq",
       "question": "Ma trận $A$ có kích thước $3\\times4$. $A^T$ có kích thước bao nhiêu?",
-      "options": ["3×4", "4×3", "4×4", "3×3"],
-      "correct": 1,
+      "options": [
+        "4×3",
+        "3×4",
+        "4×4",
+        "3×3"
+      ],
+      "correct": 0,
       "explanation": "Transpose đổi hàng thành cột: $3\\times4$ → $4\\times3$."
     },
     {
@@ -200,12 +440,51 @@
       "question": "Trong NumPy, `A.T` thực hiện phép toán gì?",
       "options": [
         "Tính determinant (định thức) của A",
-        "Tính transpose (chuyển vị) của A",
+        "Tính inverse (nghịch đảo) của A",
         "Nhân A với chính nó",
-        "Tính inverse (nghịch đảo) của A"
+        "Tính transpose (chuyển vị) của A"
+      ],
+      "correct": 3,
+      "explanation": "`A.T` là chuyển vị — hàng thành cột. Determinant: `np.linalg.det(A)`. Inverse: `np.linalg.inv(A)`."
+    },
+    {
+      "id": "q-mat-4",
+      "type": "mcq",
+      "question": "Ma trận 100×200 (100 hàng, 200 cột) lưu row-major. Phần tử `A[2][5]` (chỉ số từ 0) nằm ở vị trí thứ mấy trong mảng phẳng (đếm từ 0)?",
+      "options": [
+        "205",
+        "405",
+        "502",
+        "1005"
       ],
       "correct": 1,
-      "explanation": "`A.T` là chuyển vị — hàng thành cột. Determinant: `np.linalg.det(A)`. Inverse: `np.linalg.inv(A)`."
+      "explanation": "Row-major: $i \\times n_{cols} + j = 2 \\times 200 + 5 = 405$ (với $n_{cols} = 200$ là số cột). Đáp án 205 là nhân nhầm với số hàng (100)."
+    },
+    {
+      "id": "q-mat-5",
+      "type": "mcq",
+      "question": "Phát biểu nào về chuyển vị là ĐÚNG?",
+      "options": [
+        "$(A + B)^T = A^T + B^T$ và $(A^T)^T = A$",
+        "$A^T$ luôn có cùng kích thước với $A$",
+        "Chuyển vị một ảnh tương đương soi gương ảnh theo chiều ngang",
+        "Chỉ ma trận vuông mới có $A^T$"
+      ],
+      "correct": 0,
+      "explanation": "Chuyển vị phân phối với phép cộng và chuyển vị hai lần trở về gốc. $A^T$ có kích thước n×m (chỉ giống A khi vuông); mọi ma trận đều có chuyển vị; chuyển vị là lật qua đường chéo, không phải soi gương ngang."
+    },
+    {
+      "id": "q-mat-6",
+      "type": "mcq",
+      "question": "Trong NumPy, X có shape (4, 3). Phép nào sau đây báo lỗi broadcasting?",
+      "options": [
+        "`X + np.ones(3)`",
+        "`X + np.ones((4, 1))`",
+        "`X + np.ones(4)`",
+        "`X + 5`"
+      ],
+      "correct": 2,
+      "explanation": "Broadcasting so từ chiều cuối: (4,3) với (4,) → so 3 với 4, không khớp và không chiều nào bằng 1 → lỗi. (3,) khớp chiều cuối; (4,1) có chiều 1 nên kéo giãn được; scalar luôn broadcast."
     }
   ]
 }

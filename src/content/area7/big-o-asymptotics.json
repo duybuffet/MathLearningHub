@@ -5,105 +5,218 @@
   "unit": "a7u1",
   "order": 1,
   "icon": "sigma",
-  "tagline": "Big-O là ngôn ngữ chung để so sánh tốc độ thuật toán — không cần đo đồng hồ, chỉ cần đếm 'bước tăng như thế nào khi n tăng'.",
-  "readTime": "~18 min",
+  "tagline": "Big-O là ngôn ngữ chung để so sánh tốc độ thuật toán — không cần bấm đồng hồ, chỉ cần hỏi 'số bước tăng như thế nào khi n tăng'.",
+  "readTime": "~25 min",
   "prerequisites": [],
   "sections": [
     {
       "type": "intro",
-      "content": "Bạn có hai thuật toán sắp xếp. Một cái chạy 3n² + 5n + 10 bước, cái kia chạy 100n + 200 bước. Với n = 10, cái đầu chạy 360 bước, cái sau 1200 bước — nhưng với n = 10,000, cái đầu chạy ~3 tỉ bước còn cái sau chỉ 1 triệu bước. Câu hỏi là: làm sao ta nói về 'tốc độ' theo cách nhất quán mà không cần thử với mọi giá trị n?\n\n**Big-O notation** (ký hiệu tiệm cận) là câu trả lời. Nó bỏ qua hằng số, bỏ qua bậc nhỏ, và chỉ giữ lại 'hình dạng tăng trưởng' quan trọng nhất. Đây là công cụ thiết yếu để lập trình viên so sánh thuật toán, thiết kế hệ thống có thể scale, và giải thích code trong phỏng vấn kỹ thuật."
+      "content": "Bạn có hai thuật toán sắp xếp. Một cái chạy $3n^2 + 5n + 10$ bước, cái kia chạy $100n + 200$ bước. Với n = 10, cái đầu chạy 360 bước, cái sau 1,200 bước — nhưng với n = 10,000, cái đầu chạy khoảng 300 triệu bước còn cái sau chỉ khoảng 1 triệu bước. Làm sao nói về 'tốc độ' một cách nhất quán mà không cần thử với mọi giá trị n?\n\n**Ký hiệu Big-O (Big-O notation)** — thuộc nhóm ký hiệu tiệm cận (asymptotic notation) — là câu trả lời. Nó bỏ qua hằng số, bỏ qua bậc nhỏ, và chỉ giữ lại 'hình dạng tăng trưởng' (order of growth) quan trọng nhất. Đây là công cụ thiết yếu để so sánh thuật toán, thiết kế hệ thống có thể scale, và giải thích code trong phỏng vấn kỹ thuật."
     },
     {
       "type": "analogy",
       "title": "Hành trình Hà Nội → TP.HCM",
-      "content": "Bạn hỏi một người Hà Nội: \"Đi vào TP.HCM mất bao lâu?\"\n\n- Đi máy bay: ~2 giờ, dù mua vé sớm hay muộn.\n- Đi xe khách: ~30 giờ, tùy đường tắc hay không.\n- Đi bộ: hàng tháng.\n\nTa không cần biết chính xác từng phút — ta quan tâm đến **bậc độ lớn**: máy bay là O(1) so với khoảng cách, xe khách là O(khoảng cách), đi bộ cũng O(khoảng cách) nhưng hệ số lớn hơn nhiều.\n\nBig-O hoạt động tương tự: bỏ qua hệ số, chỉ giữ 'hình dạng' — tuyến tính, bình phương, logarithm."
+      "content": "Bạn hỏi: \"Đi từ Hà Nội vào TP.HCM mất bao lâu?\"\n\n- Đi máy bay: ~2 giờ bay + ~2 giờ thủ tục — phần lớn là chi phí cố định.\n- Đi xe khách: ~30 giờ — gấp đôi quãng đường thì gần như gấp đôi thời gian.\n- Đi bộ: hàng tháng — cũng tỉ lệ với quãng đường, nhưng hệ số lớn hơn rất nhiều.\n\nXe khách và đi bộ có cùng **hình dạng tăng trưởng** (tuyến tính theo quãng đường) dù hệ số khác xa nhau. Big-O hoạt động y như vậy: bỏ qua hệ số, chỉ giữ 'hình dạng' — hằng số, logarit, tuyến tính, bình phương, mũ."
     },
     {
       "type": "formula",
       "title": "Định nghĩa Big-O chính thức",
-      "latex": "f(n) = O(g(n)) \\iff \\exists\\, c > 0,\\; n_0 > 0 \\text{ sao cho } f(n) \\le c \\cdot g(n) \\;\\forall n \\ge n_0",
-      "reading": "đọc là: f(n) thuộc O(g(n)) nếu tồn tại hằng số c dương và n₀ sao cho với mọi n ≥ n₀, f(n) không vượt quá c nhân g(n).",
+      "latex": "f(n) = O(g(n)) \\iff \\exists\\, c > 0,\\ n_0 :\\ f(n) \\le c \\cdot g(n)\\ \\ \\forall n \\ge n_0",
+      "reading": "đọc là: f(n) thuộc O(g(n)) nếu tồn tại hằng số dương c và ngưỡng n₀ sao cho với mọi n ≥ n₀, f(n) không vượt quá c nhân g(n).",
       "symbols": [
-        { "sym": "f(n)", "meaning": "hàm số thực (ví dụ: số bước của thuật toán)." },
-        { "sym": "g(n)", "meaning": "hàm chuẩn (ví dụ: n², n log n) dùng để mô tả tăng trưởng." },
-        { "sym": "c", "meaning": "hằng số dương tùy chọn — Big-O bỏ qua các hằng số nhân." },
-        { "sym": "n₀", "meaning": "ngưỡng n — chỉ cần bất đẳng thức đúng với n đủ lớn." }
+        {
+          "sym": "f(n)",
+          "meaning": "hàm cần đánh giá (ví dụ: số bước của thuật toán)."
+        },
+        {
+          "sym": "g(n)",
+          "meaning": "hàm chuẩn để so sánh (ví dụ: $n^2$, $n \\log n$)."
+        },
+        {
+          "sym": "c",
+          "meaning": "hằng số dương — chính là lý do Big-O 'bỏ qua hệ số nhân'."
+        },
+        {
+          "sym": "n_0",
+          "meaning": "ngưỡng — chỉ cần bất đẳng thức đúng khi n đủ lớn, n nhỏ không quan trọng."
+        }
       ],
-      "caption": "Ý nghĩa trực quan: f tăng 'không nhanh hơn' g về mặt bậc (order of growth)."
+      "caption": "Ý nghĩa trực quan: từ một điểm n₀ trở đi, f luôn nằm dưới đường c·g — f tăng 'không nhanh hơn' g về bậc."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Tìm c và n₀ để chứng minh $2n + 10 = O(n)$",
+      "problem": "Chứng minh $f(n) = 2n + 10$ thuộc $O(n)$ bằng định nghĩa: tìm cụ thể một cặp $(c, n_0)$.",
+      "steps": [
+        {
+          "text": "Cần tìm c, n₀ sao cho $2n + 10 \\le c \\cdot n$ với mọi $n \\ge n_0$.",
+          "rule": "Viết lại định nghĩa"
+        },
+        {
+          "text": "Thử c = 3: $2n + 10 \\le 3n \\iff 10 \\le n$. Vậy chọn $n_0 = 10$.",
+          "rule": "Giải bất đẳng thức theo n"
+        },
+        {
+          "text": "Kiểm tra: n = 10 → 30 ≤ 30 ✓; n = 100 → 210 ≤ 300 ✓. Với n = 5: 20 > 15 — nhưng n < n₀ nên không sao.",
+          "rule": "Chỉ cần đúng với n ≥ n₀"
+        },
+        {
+          "text": "Cặp (c, n₀) KHÔNG duy nhất: c = 12, n₀ = 1 cũng được vì $2n + 10 \\le 2n + 10n = 12n$ khi n ≥ 1. Chỉ cần tồn tại MỘT cặp.",
+          "rule": "Định nghĩa chỉ đòi hỏi tồn tại",
+          "isCommonMistake": true
+        }
+      ],
+      "result": "$2n + 10 = O(n)$ với $c = 3, n_0 = 10$ (hoặc $c = 12, n_0 = 1$)."
     },
     {
       "type": "explanation",
       "title": "Quy tắc thực hành: bỏ hằng số & bậc thấp",
-      "content": "Khi phân tích thuật toán, ta áp dụng hai quy tắc đơn giản:\n\n**1. Bỏ hằng số nhân (drop constants):**\n`5n` → `O(n)`, `100n²` → `O(n²)`, `3 log n` → `O(log n)`\n\n**2. Bỏ bậc thấp (drop lower-order terms):**\n`n² + n + 1` → `O(n²)`, `3n log n + 5n` → `O(n log n)`\n\nLý do: với n đủ lớn, bậc cao nhất chiếm áp đảo. Ví dụ: `n² + 1000n` với n = 10⁶ thì n² = 10¹² còn 1000n = 10⁹ — chỉ 0.1% tổng số.\n\nVí dụ trong JS:\n```\n// O(n) — một vòng lặp duyệt mảng\nfunction findMax(arr) {\n  let max = arr[0];\n  for (let x of arr) if (x > max) max = x;\n  return max;\n}\n```"
+      "content": "Khi phân tích thuật toán, ta áp dụng hai quy tắc:\n\n**1. Bỏ hằng số nhân (drop constants):** `5n` → $O(n)$, `100n²` → $O(n^2)$, `3 log n` → $O(\\log n)$.\n\n**2. Bỏ bậc thấp (drop lower-order terms):** `n² + n + 1` → $O(n^2)$, `3n log n + 5n` → $O(n \\log n)$.\n\nLý do: khi n đủ lớn, số hạng bậc cao nhất áp đảo. Ví dụ `n² + 1000n` với n = 10⁶: n² = 10¹² còn 1000n = 10⁹ — chỉ khoảng 0.1% tổng.\n\n**3. Cộng khi tuần tự, nhân khi lồng nhau:** hai vòng lặp chạy nối tiếp nhau tốn $O(n) + O(n^2) = O(n^2)$ (lấy bậc lớn nhất). Vòng lặp chạy n lần, mỗi lần gọi hàm $O(\\log n)$ → $O(n \\log n)$.\n\n**4. Vòng lặp nhân/chia đôi biến đếm → log:** `for (i = 1; i < n; i *= 2)` chỉ chạy khoảng $\\log_2 n$ lần.\n\nVí dụ hàm $O(n)$ — một vòng lặp duyệt mảng: `for (const x of arr) if (x > max) max = x;`"
+    },
+    {
+      "type": "formula",
+      "title": "Cơ số của log không quan trọng trong Big-O",
+      "latex": "\\log_a n = \\frac{\\log_b n}{\\log_b a} \\ \\Rightarrow\\ O(\\log_2 n) = O(\\log_{10} n) = O(\\ln n)",
+      "reading": "đọc là: đổi cơ số log chỉ nhân thêm một hằng số 1/log_b(a), mà Big-O bỏ qua hằng số — nên ta viết gọn O(log n).",
+      "symbols": [
+        {
+          "sym": "\\log_2 n",
+          "meaning": "số lần chia đôi n đến khi còn 1 — xuất hiện trong binary search, cây cân bằng."
+        },
+        {
+          "sym": "\\log_b a",
+          "meaning": "hằng số (không phụ thuộc n). Ví dụ $\\log_2 10 \\approx 3.32$."
+        }
+      ],
+      "caption": "Lưu ý: điều này KHÔNG đúng với số mũ — $2^n$ và $4^n$ là hai bậc khác nhau, vì $4^n / 2^n = 2^n$ không bị chặn."
     },
     {
       "type": "graph",
       "title": "So sánh tốc độ tăng trưởng của các Big-O phổ biến",
       "functions": [
-        { "fn": "1", "color": "#ffe08a" },
-        { "fn": "log(x) / log(2)", "color": "#7fded1" },
-        { "fn": "x", "color": "#8ac6ff" },
-        { "fn": "x * log(x) / log(2)", "color": "#ff9ecb" },
-        { "fn": "x^2", "color": "#ff6b6b" }
+        {
+          "fn": "log(x) / log(2)",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "x",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "x * log(x) / log(2)",
+          "color": "#8ac6ff"
+        },
+        {
+          "fn": "x^2",
+          "color": "#ff9ecb"
+        }
       ],
-      "xDomain": [1, 20],
-      "yDomain": [0, 60],
-      "caption": "Vàng=O(1), xanh lá=O(log n), xanh dương=O(n), hồng=O(n log n), đỏ=O(n²). Chú ý O(n²) bùng nổ rất nhanh so với O(n log n) dù n nhỏ."
+      "xDomain": [
+        1,
+        20
+      ],
+      "yDomain": [
+        0,
+        60
+      ],
+      "caption": "Vàng = log₂ n, bạc hà = n, xanh dương = n log₂ n, hồng = n². Ngay cả với n nhỏ, n² đã vượt xa n log n."
     },
     {
       "type": "explanation",
       "title": "Bảng n vs số thao tác — tại sao Big-O quan trọng",
-      "content": "| n | O(1) | O(log n) | O(n) | O(n²) | O(2ⁿ) |\n|---|---|---|---|---|---|\n| 10 | 1 | ~3 | 10 | 100 | 1,024 |\n| 100 | 1 | ~7 | 100 | 10,000 | 10³⁰ |\n| 1,000 | 1 | ~10 | 1,000 | 1,000,000 | 10³⁰¹ |\n| 1,000,000 | 1 | ~20 | 10⁶ | 10¹² | ∞ practical |\n\nNhận xét: O(2ⁿ) không thể dùng với n > 60 trên máy tính hiện đại. O(n²) với n=10⁶ cần 10¹² phép tính — với 10⁹ phép/giây mất ~16 phút. O(n log n) với n=10⁶ chỉ cần ~20×10⁶ ≈ 0.02 giây."
+      "content": "| n | log₂ n | n log₂ n | n² | 2ⁿ |\n|---|---|---|---|---|\n| 10 | ~3 | ~33 | 100 | 1,024 |\n| 100 | ~7 | ~664 | 10⁴ | ~10³⁰ |\n| 1,000 | ~10 | ~10⁴ | 10⁶ | ~10³⁰¹ |\n| 10⁶ | ~20 | ~2×10⁷ | 10¹² | quá lớn |\n\nVới máy chạy ~10⁹ phép tính/giây: $O(n \\log n)$ với n = 10⁶ mất ~0.02 giây; $O(n^2)$ với n = 10⁶ mất ~10¹² / 10⁹ = 1,000 giây ≈ 17 phút; $O(2^n)$ đã bất khả thi khi n vượt ~40–50 (2⁵⁰ ≈ 10¹⁵ → hơn 10 ngày).\n\nThứ tự tăng trưởng cần thuộc lòng: $1 < \\log n < \\sqrt{n} < n < n \\log n < n^2 < 2^n < n!$"
     },
     {
       "type": "formula",
-      "title": "Ba ký hiệu tiệm cận quan trọng",
-      "latex": "f = O(g): \\text{ upper bound} \\quad f = \\Omega(g): \\text{ lower bound} \\quad f = \\Theta(g): \\text{ tight bound}",
-      "reading": "đọc là: Big-O là chặn trên (upper bound), Big-Omega là chặn dưới (lower bound), Big-Theta là chặn chính xác hai chiều.",
+      "title": "Ba ký hiệu tiệm cận: O, Ω, Θ",
+      "latex": "\\begin{aligned} f = O(g) &\\iff \\exists c, n_0:\\ f(n) \\le c\\,g(n) \\\\ f = \\Omega(g) &\\iff \\exists c, n_0:\\ f(n) \\ge c\\,g(n) \\\\ f = \\Theta(g) &\\iff f = O(g) \\text{ and } f = \\Omega(g) \\end{aligned}",
+      "reading": "đọc là: Big-O là chặn trên (upper bound), Big-Omega là chặn dưới (lower bound), Big-Theta là chặn chặt hai chiều (tight bound) — tồn tại c₁, c₂ > 0 để c₁·g(n) ≤ f(n) ≤ c₂·g(n) với mọi n ≥ n₀.",
       "symbols": [
-        { "sym": "O(g)", "meaning": "f tăng KHÔNG nhanh hơn g (worst case phổ biến nhất)." },
-        { "sym": "\\Omega(g)", "meaning": "f tăng ÍT NHẤT nhanh bằng g (best case / lower bound)." },
-        { "sym": "\\Theta(g)", "meaning": "f tăng ĐÚNG BẰNG bậc của g (tight bound, chính xác nhất)." }
+        {
+          "sym": "O(g)",
+          "meaning": "f tăng KHÔNG nhanh hơn g (chặn trên). Ví dụ: $n = O(n^2)$ là phát biểu đúng (dù lỏng)."
+        },
+        {
+          "sym": "\\Omega(g)",
+          "meaning": "f tăng ÍT NHẤT nhanh như g (chặn dưới). Ví dụ: mọi thuật toán sắp xếp dựa trên so sánh là $\\Omega(n \\log n)$."
+        },
+        {
+          "sym": "\\Theta(g)",
+          "meaning": "f tăng ĐÚNG bậc của g. Ví dụ: $3n^2 + 5n = \\Theta(n^2)$."
+        }
       ],
-      "caption": "Trong phỏng vấn/thực tế, 'Big-O' thường được dùng để chỉ worst-case. Nhưng kỹ thuật hơn, cần phân biệt O, Ω, Θ."
+      "caption": "O/Ω/Θ là về HÀM SỐ; worst/best/average case là về ĐẦU VÀO. Hai trục này độc lập: có thể nói 'worst case của insertion sort là Θ(n²)' và 'best case là Θ(n)'."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: Phân tích O() của đoạn code tìm kiếm tuyến tính",
       "problem": "Phân tích Big-O của hàm `linearSearch(arr, target)` duyệt từng phần tử trong mảng n phần tử.",
       "steps": [
-        { "text": "Xác định 'bộ đếm': mỗi lần so sánh `arr[i] === target` là 1 bước.", "rule": "Đếm số thao tác cơ bản" },
-        { "text": "Worst case: target không có trong mảng → duyệt toàn bộ n phần tử → n bước.", "rule": "Worst-case analysis" },
-        { "text": "Bỏ hằng số nhân (giả sử mỗi vòng lặp có 3 thao tác thì là 3n) → vẫn là O(n).", "rule": "Bỏ hằng số" },
-        { "text": "Best case: phần tử đầu khớp → O(1). Average: O(n/2) = O(n).", "isCommonMistake": true, "rule": "Đừng nhầm O(n/2) với O(n²) — n/2 vẫn là O(n)" }
+        {
+          "text": "Xác định 'bộ đếm': mỗi lần so sánh `arr[i] === target` là 1 bước.",
+          "rule": "Đếm số thao tác cơ bản"
+        },
+        {
+          "text": "Worst case: target không có trong mảng → duyệt toàn bộ n phần tử → n bước.",
+          "rule": "Worst-case analysis"
+        },
+        {
+          "text": "Bỏ hằng số nhân (giả sử mỗi vòng lặp có 3 thao tác thì là 3n) → vẫn là O(n).",
+          "rule": "Bỏ hằng số"
+        },
+        {
+          "text": "Best case: phần tử đầu khớp → $O(1)$. Average (target ở vị trí ngẫu nhiên): khoảng n/2 phép so sánh → vẫn là $O(n)$.",
+          "rule": "n/2 chỉ khác n một hằng số 1/2 — không phải bậc 'nhanh hơn'",
+          "isCommonMistake": true
+        }
       ],
       "result": "Tìm kiếm tuyến tính: $O(n)$ worst case, $O(1)$ best case, $O(n)$ average case."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: Phân tích vòng lặp lồng nhau",
-      "problem": "Phân tích Big-O của đoạn code:\n```\nfor (let i = 0; i < n; i++)\n  for (let j = 0; j < n; j++)\n    doWork(); // O(1)\n```",
+      "problem": "Phân tích Big-O của đoạn code: `for (i = 0; i < n; i++) for (j = 0; j < n; j++) doWork();` với `doWork()` tốn $O(1)$.",
       "steps": [
-        { "text": "Vòng ngoài chạy n lần.", "rule": "Đếm vòng lặp ngoài" },
-        { "text": "Với mỗi lần vòng ngoài, vòng trong cũng chạy n lần.", "rule": "Đếm vòng lặp trong" },
-        { "text": "Tổng số thao tác: n × n = n².", "rule": "Nhân số bước hai vòng lặp độc lập" },
-        { "text": "n² + bất kỳ hằng số nào → O(n²).", "isCommonMistake": true, "rule": "Nếu vòng trong chạy n lần (không phụ thuộc i) thì nhân, không phải cộng" }
+        {
+          "text": "Vòng ngoài chạy n lần.",
+          "rule": "Đếm vòng lặp ngoài"
+        },
+        {
+          "text": "Với mỗi lần vòng ngoài, vòng trong cũng chạy n lần.",
+          "rule": "Đếm vòng lặp trong"
+        },
+        {
+          "text": "Tổng số lần gọi `doWork()`: $n \\times n = n^2$.",
+          "rule": "Vòng lặp lồng nhau → NHÂN số lần lặp"
+        },
+        {
+          "text": "$n^2$ cộng chi phí khởi tạo vòng lặp (bậc thấp) → $O(n^2)$. Sai lầm hay gặp: CỘNG hai vòng thành $n + n = O(n)$.",
+          "rule": "Cộng chỉ dùng khi hai vòng chạy NỐI TIẾP, không phải lồng nhau",
+          "isCommonMistake": true
+        }
       ],
       "result": "Vòng lặp lồng nhau hai cấp: $O(n^2)$."
     },
     {
+      "type": "explanation",
+      "title": "Phân tích khấu hao (amortized analysis) — mảng động",
+      "content": "`ArrayList` (Java), `vector` (C++), `list` (Python) đều là **mảng động (dynamic array)**: khi đầy, nó cấp phát mảng mới gấp đôi và chép toàn bộ phần tử sang. Một lần `push` lúc đầy tốn $O(n)$ — vậy sao ta vẫn nói push là $O(1)$?\n\n**Phân tích khấu hao (amortized analysis)** tính TỔNG chi phí của cả chuỗi thao tác rồi chia đều. Với n lần push, các lần chép xảy ra ở kích thước 1, 2, 4, …, nên tổng số phần tử bị chép là\n\n$$1 + 2 + 4 + \\cdots + \\frac{n}{2} < n$$\n\nCộng thêm n lần ghi, tổng chi phí < 2n (tính cả cấp phát, vẫn < 3n) → trung bình mỗi push là $O(1)$ **khấu hao** (amortized), dù một push đơn lẻ có thể là $O(n)$.\n\nNếu thay vì nhân đôi, ta chỉ tăng thêm 10 ô mỗi lần, tổng số lần chép là $10 + 20 + 30 + \\cdots \\approx n^2/20$ → $O(n)$ mỗi push. Đó là lý do mọi thư viện đều tăng theo **hệ số nhân** (×1.5 hoặc ×2)."
+    },
+    {
       "type": "callout",
       "variant": "warning",
-      "content": "**Cạm bẫy phổ biến:** O(2n) = O(n) và O(n + 1000) = O(n) — hằng số và bậc thấp biến mất. Nhưng O(n²) ≠ O(n log n) — đây là bậc khác nhau, KHÔNG rút gọn được! Cũng đừng nhầm: 'Big-O nói về worst case' — thực ra Big-O chỉ là **chặn trên**, không nhất thiết là worst case. Bubble sort là O(n²) worst case nhưng O(n) khi mảng đã sắp xếp — cả hai đều dùng Big-O để diễn đạt."
+      "content": "**Cạm bẫy phổ biến:**\n\n- $O(2n) = O(n)$ và $O(n + 1000) = O(n)$ — hằng số và bậc thấp biến mất. Nhưng $O(n^2) \\ne O(n \\log n)$ — khác bậc, KHÔNG rút gọn được.\n- 'Big-O = worst case' là cách nói tắt. Thật ra Big-O chỉ là **chặn trên** của một hàm; worst case là một lựa chọn đầu vào. Bubble sort (có cờ dừng sớm khi không còn hoán đổi) là $O(n^2)$ ở worst case nhưng $O(n)$ khi mảng đã sắp xếp.\n- Hai đầu vào khác nhau phải dùng hai biến: duyệt mảng A cỡ a rồi mảng B cỡ b là $O(a + b)$, lồng nhau là $O(a \\cdot b)$ — đừng gộp thành $O(n^2)$.\n- `s += str` trong vòng lặp có thể là $O(n^2)$ ở nhiều ngôn ngữ vì mỗi lần nối tạo chuỗi mới — chi phí ẩn trong thư viện cũng phải đếm."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Big-O mô tả 'hình dạng tăng trưởng' của thuật toán — bỏ hằng số, giữ bậc cao nhất.",
-        "Thứ tự từ nhanh đến chậm: O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ).",
-        "Vòng lặp lồng nhau: bậc NHÂN. Vòng lặp tuần tự: bậc CỘNG (lấy bậc lớn nhất).",
-        "Ba ký hiệu: O (chặn trên), Ω (chặn dưới), Θ (chặn hai chiều / tight bound).",
-        "Ứng dụng thực tế: O(n²) phù hợp n < 10,000; O(n log n) tốt đến n = 10⁷; O(log n) tốt cho mọi n thực tế."
+        "Big-O mô tả 'hình dạng tăng trưởng' — bỏ hằng số, giữ bậc cao nhất. Định nghĩa: tồn tại c, n₀ sao cho f(n) ≤ c·g(n) với mọi n ≥ n₀.",
+        "Thứ tự: 1 < log n < √n < n < n log n < n² < 2ⁿ < n!.",
+        "Vòng lặp lồng nhau: NHÂN. Vòng lặp tuần tự: CỘNG (giữ bậc lớn nhất). Biến đếm nhân đôi: log n.",
+        "O (chặn trên), Ω (chặn dưới), Θ (chặn chặt). Chúng độc lập với khái niệm worst/best/average case.",
+        "Cơ số log không quan trọng trong Big-O; cơ số của hàm mũ thì CÓ.",
+        "Khấu hao: push vào mảng động nhân đôi là O(1) amortized dù đôi khi tốn O(n).",
+        "Ước lượng thực tế (~10⁸–10⁹ phép/giây): O(n²) ổn với n ≲ 10⁴; O(n log n) ổn đến ~10⁷."
       ]
     }
   ],
@@ -112,13 +225,13 @@
       "id": "fc-bigo-def",
       "type": "definition",
       "front": "Big-O notation f(n) = O(g(n)) nghĩa là gì?",
-      "back": "Tồn tại hằng số c > 0 và n₀ sao cho với mọi n ≥ n₀: f(n) ≤ c·g(n). Nói đơn giản: f tăng không nhanh hơn g về bậc."
+      "back": "Tồn tại hằng số c > 0 và ngưỡng n₀ sao cho với mọi n ≥ n₀: f(n) ≤ c·g(n). Nói đơn giản: từ một lúc nào đó, f tăng không nhanh hơn g (sai khác tối đa một hằng số)."
     },
     {
       "id": "fc-bigo-order",
       "type": "concept",
-      "front": "Xếp theo thứ tự từ nhanh đến chậm: O(n²), O(1), O(n log n), O(log n), O(n), O(2ⁿ)",
-      "back": "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)"
+      "front": "Xếp theo tốc độ tăng trưởng (tăng chậm nhất = thuật toán nhanh nhất trước): n², 1, n log n, log n, n, 2ⁿ, √n, n!",
+      "back": "1 < log n < √n < n < n log n < n² < 2ⁿ < n!"
     },
     {
       "id": "fc-bigo-simplify",
@@ -136,7 +249,31 @@
       "id": "fc-bigo-theta",
       "type": "definition",
       "front": "Khác nhau giữa O, Ω, và Θ?",
-      "back": "O = chặn trên (upper bound), Ω = chặn dưới (lower bound), Θ = chặn hai chiều (tight bound — vừa O vừa Ω)."
+      "back": "O = chặn trên (upper bound), Ω = chặn dưới (lower bound), Θ = chặn chặt hai chiều (tight bound — vừa O vừa Ω). Ví dụ: 3n² + 5n là Θ(n²), và cũng là O(n³) (đúng nhưng lỏng)."
+    },
+    {
+      "id": "fc-bigo-log-base",
+      "type": "concept",
+      "front": "Vì sao viết $O(\\log n)$ mà không cần ghi cơ số?",
+      "back": "Vì $\\log_a n = \\log_b n / \\log_b a$ — đổi cơ số chỉ nhân một hằng số, Big-O bỏ qua hằng số. Nhưng với hàm mũ thì cơ số quan trọng: $4^n$ không phải $O(2^n)$."
+    },
+    {
+      "id": "fc-bigo-sequential",
+      "type": "concept",
+      "front": "Hai vòng lặp chạy NỐI TIẾP: một cái $O(n)$, một cái $O(n^2)$. Tổng là gì?",
+      "back": "$O(n + n^2) = O(n^2)$ — tuần tự thì cộng, rồi giữ bậc lớn nhất. (Lồng nhau thì nhân.)"
+    },
+    {
+      "id": "fc-bigo-halving",
+      "type": "concept",
+      "front": "`for (i = 1; i < n; i *= 2)` chạy bao nhiêu lần?",
+      "back": "Khoảng $\\log_2 n$ lần — i lần lượt là 1, 2, 4, …, nên sau k bước $i = 2^k \\ge n$ khi $k \\ge \\log_2 n$. Biến đếm nhân/chia hằng số → $O(\\log n)$."
+    },
+    {
+      "id": "fc-bigo-amortized",
+      "type": "concept",
+      "front": "Push vào mảng động (nhân đôi dung lượng khi đầy) tốn bao nhiêu, khấu hao (amortized)?",
+      "back": "$O(1)$ amortized: n lần push chép tổng cộng $1 + 2 + 4 + \\cdots < n$ phần tử → tổng $O(n)$, chia đều mỗi lần $O(1)$. Một lần push đơn lẻ worst case vẫn là $O(n)$."
     }
   ],
   "exercises": [
@@ -149,31 +286,111 @@
         "Bỏ hằng số nhân và tất cả bậc thấp hơn."
       ],
       "solutionSteps": [
-        { "text": "Xác định bậc cao nhất: n³.", "rule": "Tìm số hạng có bậc lớn nhất" },
-        { "text": "Bỏ hệ số 7: n³ → O(n³).", "rule": "Bỏ hằng số nhân" },
-        { "text": "Bỏ các bậc thấp hơn 2n², n, 50.", "isCommonMistake": true, "rule": "Đừng giữ 2n² hay n — chúng không ảnh hưởng bậc khi n lớn" }
+        {
+          "text": "Số hạng bậc cao nhất là $7n^3$.",
+          "rule": "Tìm số hạng có bậc lớn nhất"
+        },
+        {
+          "text": "Bỏ các số hạng bậc thấp $2n^2$, $n$, $50$ — khi n lớn chúng không đáng kể so với $n^3$.",
+          "rule": "Bỏ bậc thấp"
+        },
+        {
+          "text": "Bỏ hệ số 7: $7n^3$ → $O(n^3)$.",
+          "rule": "Bỏ hằng số nhân — đừng viết $O(7n^3)$",
+          "isCommonMistake": true
+        }
       ],
       "answer": "O(n³)",
       "commonMistake": "Viết O(7n³) — phải bỏ hệ số 7.",
       "relatedFlashcard": "fc-bigo-simplify"
     },
     {
-      "id": "ex-bigo-apply-1",
-      "difficulty": "apply",
-      "prompt": "Phân tích Big-O của đoạn code sau:\n```\nfor (let i = 0; i < n; i++) {     // vòng ngoài\n  for (let j = i; j < n; j++) {   // vòng trong bắt đầu từ i\n    doWork(); // O(1)\n  }\n}\n```",
+      "id": "ex-bigo-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Chứng minh $3n^2 + 5n + 10 = O(n^2)$ bằng định nghĩa: tìm một cặp $(c, n_0)$ với $c = 4$.",
       "hints": [
-        "Vòng trong chạy bao nhiêu lần khi i=0, i=1, i=2,...?",
-        "Tổng = n + (n-1) + ... + 1 = ?",
-        "Dùng công thức tổng chuỗi số học."
+        "Cần $3n^2 + 5n + 10 \\le 4n^2$, tức là $n^2 - 5n - 10 \\ge 0$.",
+        "Thử n = 6 và n = 7.",
+        "Nghiệm dương của $n^2 - 5n - 10 = 0$ là khoảng 6.53."
       ],
       "solutionSteps": [
-        { "text": "Khi i=0: vòng trong chạy n lần. Khi i=1: n-1 lần. ... Khi i=n-1: 1 lần.", "rule": "Đếm số vòng lặp trong mỗi iteration của ngoài" },
-        { "text": "Tổng = n + (n-1) + ... + 1 = n(n+1)/2.", "rule": "Tổng chuỗi số học: 1+2+...+n = n(n+1)/2" },
-        { "text": "n(n+1)/2 = n²/2 + n/2 → bỏ hệ số và bậc thấp → O(n²).", "isCommonMistake": true, "rule": "Dù vòng trong không chạy đủ n lần, tổng vẫn là O(n²) — không phải O(n²/2)" }
+        {
+          "text": "Với c = 4, bất đẳng thức cần là $3n^2 + 5n + 10 \\le 4n^2 \\iff n^2 - 5n - 10 \\ge 0$.",
+          "rule": "Viết lại định nghĩa Big-O"
+        },
+        {
+          "text": "n = 6: 36 − 30 − 10 = −4 < 0 ✗. n = 7: 49 − 35 − 10 = 4 ≥ 0 ✓. Vế trái tăng khi n > 2.5 nên đúng với mọi n ≥ 7.",
+          "rule": "Thử giá trị, kiểm tra tính tăng"
+        },
+        {
+          "text": "Vậy $c = 4, n_0 = 7$. Lưu ý: chọn c = 3 thì KHÔNG bao giờ được, vì $3n^2 + 5n + 10 > 3n^2$ với mọi n.",
+          "rule": "c phải lớn hơn hệ số bậc cao nhất",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Cách khác không cần giải: với n ≥ 1, $3n^2 + 5n + 10 \\le 3n^2 + 5n^2 + 10n^2 = 18n^2$ → $c = 18, n_0 = 1$.",
+          "rule": "Chặn từng số hạng bởi $n^2$"
+        }
+      ],
+      "answer": "$c = 4,\\ n_0 = 7$ (cũng hợp lệ: $c = 18,\\ n_0 = 1$).",
+      "commonMistake": "Chọn c bằng đúng hệ số dẫn đầu (c = 3) — khi đó các số hạng bậc thấp luôn làm vế trái lớn hơn.",
+      "relatedFlashcard": "fc-bigo-def"
+    },
+    {
+      "id": "ex-bigo-apply-1",
+      "difficulty": "apply",
+      "prompt": "Phân tích Big-O của đoạn code: `for (i = 0; i < n; i++) for (j = i; j < n; j++) doWork();` (vòng trong bắt đầu từ i, `doWork()` là $O(1)$).",
+      "hints": [
+        "Vòng trong chạy bao nhiêu lần khi i = 0, i = 1, i = 2, …?",
+        "Tổng = n + (n − 1) + … + 1 = ?",
+        "Dùng công thức tổng cấp số cộng $1 + 2 + \\cdots + n = n(n+1)/2$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Khi i = 0: vòng trong chạy n lần. Khi i = 1: n − 1 lần. … Khi i = n − 1: 1 lần.",
+          "rule": "Đếm số lần lặp trong theo từng giá trị của i"
+        },
+        {
+          "text": "Tổng $= n + (n-1) + \\cdots + 1 = \\dfrac{n(n+1)}{2}$.",
+          "rule": "Tổng cấp số cộng"
+        },
+        {
+          "text": "$\\dfrac{n(n+1)}{2} = \\dfrac{n^2}{2} + \\dfrac{n}{2}$ → bỏ hệ số 1/2 và bậc thấp → $O(n^2)$. Vòng trong ngắn dần nhưng trung bình vẫn chạy n/2 lần — không đủ để giảm bậc.",
+          "rule": "Hệ số 1/2 là hằng số",
+          "isCommonMistake": true
+        }
       ],
       "answer": "O(n²)",
-      "commonMistake": "Nghĩ O(n²/2) = O(n) — sai! O(n²/2) = O(n²) vì 1/2 là hằng số.",
+      "commonMistake": "Nghĩ rằng vì vòng trong 'ngắn dần' nên độ phức tạp là $O(n \\log n)$ hoặc $O(n)$ — thực ra $n^2/2$ vẫn là $O(n^2)$.",
       "relatedFlashcard": "fc-bigo-nested"
+    },
+    {
+      "id": "ex-bigo-apply-2",
+      "difficulty": "apply",
+      "prompt": "Phân tích Big-O: `for (i = 1; i < n; i *= 2) for (j = 0; j < i; j++) doWork();` (vòng ngoài nhân đôi i, vòng trong chạy i lần).",
+      "hints": [
+        "Vòng ngoài chạy với i = 1, 2, 4, 8, … — bao nhiêu lần?",
+        "Tổng số lần gọi `doWork()` là 1 + 2 + 4 + … + (lũy thừa lớn nhất của 2 nhỏ hơn n).",
+        "Tổng cấp số nhân $1 + 2 + \\cdots + 2^k = 2^{k+1} - 1$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Vòng ngoài chạy khoảng $\\log_2 n$ lần, với i = 1, 2, 4, …, $2^k$ trong đó $2^k < n$.",
+          "rule": "Biến đếm nhân đôi → log n lần"
+        },
+        {
+          "text": "Tổng công việc $= 1 + 2 + 4 + \\cdots + 2^k = 2^{k+1} - 1 < 2n$.",
+          "rule": "Tổng cấp số nhân"
+        },
+        {
+          "text": "Vậy độ phức tạp là $O(n)$, KHÔNG phải $O(n \\log n)$. Nhân 'số vòng ngoài × số vòng trong lớn nhất' chỉ cho một chặn trên lỏng.",
+          "rule": "Vòng trong phụ thuộc i → phải cộng thật, không nhân cận trên",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "$O(n)$ (tổng chính xác < 2n).",
+      "commonMistake": "Trả lời $O(n \\log n)$ vì nghĩ 'log n vòng ngoài × tối đa n vòng trong' — đúng là chặn trên nhưng không chặt.",
+      "relatedFlashcard": "fc-bigo-halving"
     },
     {
       "id": "ex-bigo-challenge-1",
@@ -185,13 +402,55 @@
         "O(n²) = (10⁸)² = 10¹⁶ phép tính — với 10⁹/giây mất bao lâu?"
       ],
       "solutionSteps": [
-        { "text": "n log₂ n ≈ 10⁸ × 26.6 ≈ 2.66 × 10⁹ phép tính.", "rule": "Ước tính log₂(10⁸) ≈ 26.6" },
-        { "text": "Thời gian O(n log n): 2.66×10⁹ / 10⁹ ≈ 2.66 giây — chấp nhận được.", "rule": "Chia số phép tính cho tốc độ máy" },
-        { "text": "O(n²): (10⁸)² = 10¹⁶ phép. Thời gian = 10¹⁶/10⁹ = 10⁷ giây ≈ 115 ngày — không thể dùng!", "isCommonMistake": true, "rule": "O(n²) hoàn toàn không thực tế với n lớn — đây là lý do Big-O quan trọng" }
+        {
+          "text": "$\\log_2(10^8) = 8 \\log_2 10 \\approx 8 \\times 3.32 \\approx 26.6$, nên $n \\log_2 n \\approx 10^8 \\times 26.6 \\approx 2.66 \\times 10^9$ phép tính.",
+          "rule": "Ước tính log: $\\log_2 10 \\approx 3.32$"
+        },
+        {
+          "text": "Thời gian $O(n \\log n)$: $2.66 \\times 10^9 / 10^9 \\approx 2.7$ giây — chấp nhận được (thực tế còn tùy hằng số ẩn).",
+          "rule": "Chia số phép tính cho tốc độ máy"
+        },
+        {
+          "text": "$O(n^2)$: $(10^8)^2 = 10^{16}$ phép → $10^{16}/10^9 = 10^7$ giây ≈ 116 ngày — không thể dùng. Đừng nghĩ 'máy nhanh thì bù được': nhanh gấp 10 lần vẫn mất ~12 ngày.",
+          "rule": "Bậc tăng trưởng quan trọng hơn tốc độ phần cứng",
+          "isCommonMistake": true
+        }
       ],
-      "answer": "O(n log n) ≈ 2.66 giây. O(n²) ≈ 115 ngày — không thể dùng.",
+      "answer": "$O(n \\log n)$: khoảng 2.7 giây. $O(n^2)$: khoảng $10^7$ giây ≈ 116 ngày — không thể dùng.",
       "commonMistake": "Bỏ qua sự khác biệt giữa O(n log n) và O(n²) vì nghĩ 'máy tính nhanh là được'.",
       "relatedFlashcard": "fc-bigo-order"
+    },
+    {
+      "id": "ex-bigo-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Mảng động bắt đầu với dung lượng 1, mỗi khi đầy thì nhân đôi dung lượng và chép hết phần tử cũ sang. Đếm tổng số lần chép khi push 16 phần tử, rồi suy ra chi phí khấu hao mỗi push. Nếu thay bằng 'mỗi lần đầy thì thêm 4 ô' thì sao?",
+      "hints": [
+        "Việc chép xảy ra khi push vào mảng đang đầy: dung lượng lúc đó là 1, 2, 4, 8.",
+        "Cộng số phần tử bị chép trong mỗi lần mở rộng.",
+        "Với chiến lược +4: số phần tử bị chép là 4, 8, 12, … — đó là cấp số cộng."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Push #2 (đầy ở dung lượng 1) chép 1; push #3 chép 2; push #5 chép 4; push #9 chép 8. Push #16 vừa đủ chỗ trong dung lượng 16.",
+          "rule": "Xác định thời điểm mở rộng"
+        },
+        {
+          "text": "Tổng chép = 1 + 2 + 4 + 8 = 15 < 16. Cộng 16 lần ghi → tổng 31 thao tác < 2 × 16.",
+          "rule": "Tổng cấp số nhân < n"
+        },
+        {
+          "text": "Tổng quát: n push tốn < 2n thao tác → $O(1)$ khấu hao mỗi push. Lần push đắt nhất (#9) vẫn tốn $O(n)$ — 'amortized O(1)' không có nghĩa là mọi lần đều O(1).",
+          "rule": "Phân tích khấu hao = tổng chi phí / số thao tác",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Chiến lược +4: chép 4 + 8 + 12 + … ≈ $n^2/8$ phần tử cho n push → $O(n^2)$ tổng, tức $O(n)$ khấu hao mỗi push. Tăng theo cấp số cộng là bẫy hiệu năng.",
+          "rule": "Tổng cấp số cộng là bậc hai"
+        }
+      ],
+      "answer": "Nhân đôi: 15 lần chép cho 16 push → $O(1)$ khấu hao mỗi push. Thêm 4 ô: tổng $O(n^2)$ → $O(n)$ khấu hao mỗi push.",
+      "commonMistake": "Nhầm 'amortized O(1)' với 'worst case O(1)' cho từng thao tác.",
+      "relatedFlashcard": "fc-bigo-amortized"
     }
   ],
   "quiz": [
@@ -199,30 +458,92 @@
       "id": "q-bigo-1",
       "type": "mcq",
       "question": "Rút gọn $T(n) = 3n^2 + 100n + 5$ thành Big-O:",
-      "options": ["O(n)", "O(n²)", "O(3n²)", "O(n² + n)"],
-      "correct": 1,
+      "options": [
+        "O(n²)",
+        "O(n)",
+        "O(3n²)",
+        "O(n² + n)"
+      ],
+      "correct": 0,
       "explanation": "Bỏ hệ số 3, bỏ 100n và 5 (bậc thấp hơn). Chỉ giữ bậc cao nhất: O(n²)."
     },
     {
       "id": "q-bigo-2",
       "type": "mcq",
       "question": "Vòng lặp bên ngoài chạy n lần, vòng bên trong chạy log(n) lần. Big-O là gì?",
-      "options": ["O(n + log n)", "O(n log n)", "O(n²)", "O(log n)"],
+      "options": [
+        "O(n + log n)",
+        "O(n log n)",
+        "O(n²)",
+        "O(log n)"
+      ],
       "correct": 1,
-      "explanation": "Vòng lặp lồng nhau: nhân số bước. n × log(n) = O(n log n). Đây là phức tạp của merge sort."
+      "explanation": "Vòng lặp lồng nhau: nhân số lần lặp. $n \\times \\log n = O(n \\log n)$ — cùng bậc với merge sort hay heap sort (dù cấu trúc code khác)."
     },
     {
       "id": "q-bigo-3",
       "type": "mcq",
       "question": "Thuật toán A mất 1000n bước, thuật toán B mất n² bước. Với n = 2000, cái nào nhanh hơn?",
       "options": [
-        "A nhanh hơn vì 1000 rất lớn",
-        "B nhanh hơn vì n² nhỏ hơn 1000n khi n nhỏ",
-        "A nhanh hơn vì O(n) < O(n²) với n đủ lớn",
+        "A nhanh hơn vì hệ số 1000 lớn",
+        "B nhanh hơn vì $n^2$ luôn nhỏ hơn $1000n$",
+        "A nhanh hơn vì $1000n < n^2$ khi $n > 1000$",
         "Bằng nhau"
       ],
       "correct": 2,
-      "explanation": "Với n=2000: A = 1000×2000 = 2×10⁶, B = 2000² = 4×10⁶. A nhanh hơn 2 lần. Và khoảng cách tăng dần khi n tăng vì O(n) < O(n²)."
+      "explanation": "Với n = 2000: A = 1000 × 2000 = 2×10⁶, B = 2000² = 4×10⁶ → A nhanh gấp đôi. Điểm giao là n = 1000 (1000n = n²); với n < 1000 thì B nhanh hơn, với n > 1000 thì A thắng và khoảng cách ngày càng lớn."
+    },
+    {
+      "id": "q-bigo-4",
+      "question": "Hai thuật toán chạy $O(\\log_2 n)$ và $O(\\log_{10} n)$. Kết luận nào đúng về mặt Big-O?",
+      "type": "mcq",
+      "options": [
+        "$O(\\log_2 n)$ chậm hơn hẳn một bậc",
+        "$O(\\log_{10} n)$ chậm hơn hẳn một bậc",
+        "Không so sánh được vì khác cơ số",
+        "Cùng một lớp: chúng chỉ khác nhau một hằng số"
+      ],
+      "correct": 3,
+      "explanation": "$\\log_2 n = \\log_{10} n / \\log_{10} 2 \\approx 3.32 \\log_{10} n$. Hằng số 3.32 bị Big-O bỏ qua, nên cả hai đều là $O(\\log n)$."
+    },
+    {
+      "id": "q-bigo-5",
+      "question": "Phát biểu nào ĐÚNG?",
+      "type": "mcq",
+      "options": [
+        "$n^2 = O(n \\log n)$",
+        "$n = O(n^2)$",
+        "$n = \\Theta(n^2)$",
+        "$4^n = O(2^n)$"
+      ],
+      "correct": 1,
+      "explanation": "$n \\le 1 \\cdot n^2$ với mọi n ≥ 1 nên $n = O(n^2)$ — đúng, chỉ là chặn trên lỏng. Nhưng $n \\ne \\Omega(n^2)$ nên không phải Θ. $4^n / 2^n = 2^n$ không bị chặn nên $4^n \\ne O(2^n)$."
+    },
+    {
+      "id": "q-bigo-6",
+      "question": "Push vào `ArrayList`/`vector` (nhân đôi dung lượng khi đầy). Mô tả nào chính xác nhất?",
+      "type": "mcq",
+      "options": [
+        "$O(1)$ khấu hao (amortized); một lần push đơn lẻ có thể tốn $O(n)$",
+        "Luôn luôn $O(1)$ cho mọi lần push",
+        "$O(\\log n)$ mỗi lần push",
+        "$O(n)$ mỗi lần push vì phải chép mảng"
+      ],
+      "correct": 0,
+      "explanation": "Chỉ những lần đầy mới chép, và tổng số phần tử bị chép qua n push là $1 + 2 + 4 + \\cdots < n$. Tổng $O(n)$ chia cho n push → $O(1)$ amortized. Riêng lần mở rộng thì tốn $O(n)$."
+    },
+    {
+      "id": "q-bigo-7",
+      "question": "Đoạn code: duyệt mảng A (cỡ a), sau đó (không lồng) duyệt mảng B (cỡ b), mỗi phần tử $O(1)$. Độ phức tạp là?",
+      "type": "mcq",
+      "options": [
+        "$O(a \\cdot b)$",
+        "$O(n)$",
+        "$O(a + b)$",
+        "$O(\\max(a,b)^2)$"
+      ],
+      "correct": 2,
+      "explanation": "Hai vòng NỐI TIẾP → cộng: $O(a + b)$. Không được gộp thành một biến n khi hai đầu vào có kích thước độc lập; chỉ nhân $O(a \\cdot b)$ khi vòng B lồng trong vòng A."
     }
   ]
 }

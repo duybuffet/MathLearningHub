@@ -5,13 +5,15 @@
   "unit": "a5u1",
   "order": 2,
   "icon": "dice",
-  "tagline": "Biến ngẫu nhiên gán con số cho từng kết quả ngẫu nhiên — nền tảng để mô hình hóa thời gian chạy thuật toán và phân tích phân phối.",
-  "readTime": "~15 min",
-  "prerequisites": ["area5_basic-probability"],
+  "tagline": "Biến ngẫu nhiên gán con số cho từng kết quả ngẫu nhiên — nền tảng để mô hình hóa thời gian chạy, số lỗi, số request và mọi đại lượng \"không chắc chắn\" trong hệ thống.",
+  "readTime": "~22 min",
+  "prerequisites": [
+    "area5_basic-probability"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Cho đến giờ ta đã biết xác suất của **sự kiện** (có/không xảy ra). Nhưng thực tế thường phức tạp hơn: ta muốn đặt câu hỏi như \"thời gian chạy thuật toán là bao nhiêu?\" hay \"số lỗi trong 1000 request là bao nhiêu?\"\n\nĐây là lúc **biến ngẫu nhiên (random variable)** ra đời — nó là một hàm số gán một **con số thực** cho mỗi kết quả trong không gian mẫu. Thay vì hỏi \"có ra Heads không?\", ta hỏi \"nếu ra Heads = 1, Tails = 0 thì X bằng bao nhiêu?\".\n\nCS dùng biến ngẫu nhiên để mô hình hóa: thời gian chạy (run time), số comparisons, số cache miss, số packet loss..."
+      "content": "Cho đến giờ ta đã biết xác suất của **sự kiện** (có/không xảy ra). Nhưng thực tế thường phức tạp hơn: ta muốn đặt câu hỏi như \"thời gian chạy thuật toán là bao nhiêu?\" hay \"số lỗi trong 1000 request là bao nhiêu?\"\n\nĐây là lúc **biến ngẫu nhiên (random variable)** ra đời — nó là một hàm số gán một **con số thực** cho mỗi kết quả trong không gian mẫu. Thay vì hỏi \"có ra Heads không?\", ta hỏi \"nếu ra Heads = 1, Tails = 0 thì X bằng bao nhiêu?\".\n\nCS dùng biến ngẫu nhiên để mô hình hóa: thời gian chạy (run time), số phép so sánh (comparisons), số cache miss, số packet bị mất, số request mỗi giây... Bài này giới thiệu cách mô tả một biến ngẫu nhiên (PMF, PDF, CDF) và **bộ phân phối kinh điển** mà kỹ sư nào cũng gặp: Bernoulli, Binomial, Geometric, Poisson, Uniform, Normal."
     },
     {
       "type": "analogy",
@@ -21,7 +23,7 @@
     {
       "type": "explanation",
       "title": "Biến ngẫu nhiên rời rạc vs liên tục",
-      "content": "**Biến ngẫu nhiên rời rạc (discrete):** nhận các giá trị đếm được — thường là số nguyên. Ví dụ: số heads trong 5 lần tung xu, số request trong 1 giây, số bug trong 1000 dòng code.\n\n**Biến ngẫu nhiên liên tục (continuous):** nhận giá trị trên một khoảng liên tục. Ví dụ: thời gian phản hồi (response time) của server tính bằng giây, kích thước file, nhiệt độ CPU.\n\nTrong khóa học này ta tập trung vào **rời rạc** — phù hợp nhất với CS. Phân phối quan trọng nhất:\n- **Bernoulli(p):** 1 thử nghiệm, thành công với p. Ví dụ: 1 request có lỗi hay không.\n- **Binomial(n, p):** n thử nghiệm độc lập, đếm số thành công.\n- **Geometric(p):** đếm số thử nghiệm đến lần thành công đầu tiên."
+      "content": "**Biến ngẫu nhiên rời rạc (discrete):** nhận các giá trị đếm được — thường là số nguyên. Ví dụ: số heads trong 5 lần tung xu, số request trong 1 giây, số bug trong 1000 dòng code. Mô tả bằng **PMF** — xác suất của từng giá trị.\n\n**Biến ngẫu nhiên liên tục (continuous):** nhận giá trị trên một khoảng số thực. Ví dụ: thời gian phản hồi (response time), kích thước file, nhiệt độ CPU. Mô tả bằng **PDF** (hàm mật độ) — xác suất là *diện tích* dưới đường cong trên một khoảng.\n\nCác phân phối rời rạc quan trọng nhất:\n\n- **Bernoulli(p):** 1 lần thử, X = 1 (thành công) với xác suất p, X = 0 với xác suất 1 − p. Ví dụ: 1 request có lỗi hay không.\n- **Binomial(n, p):** tổng của n biến Bernoulli độc lập — đếm số thành công trong n lần thử.\n- **Geometric(p):** số lần thử đến lần thành công đầu tiên.\n- **Poisson(λ):** số sự kiện xảy ra trong một khoảng thời gian, khi sự kiện đến ngẫu nhiên và độc lập."
     },
     {
       "type": "formula",
@@ -29,10 +31,22 @@
       "latex": "P(X = k) = p_k \\quad \\text{where} \\quad \\sum_{k} p_k = 1",
       "reading": "đọc là: \"xác suất X nhận giá trị k bằng p_k\", và tổng tất cả xác suất phải bằng 1.",
       "symbols": [
-        { "sym": "X", "meaning": "biến ngẫu nhiên rời rạc" },
-        { "sym": "k", "meaning": "một giá trị cụ thể mà X có thể nhận" },
-        { "sym": "p_k", "meaning": "xác suất X = k, tức P(X = k)" },
-        { "sym": "\\sum p_k = 1", "meaning": "mọi xác suất cộng lại phải = 1 (tính chất bắt buộc)" }
+        {
+          "sym": "X",
+          "meaning": "biến ngẫu nhiên rời rạc"
+        },
+        {
+          "sym": "k",
+          "meaning": "một giá trị cụ thể mà X có thể nhận"
+        },
+        {
+          "sym": "p_k",
+          "meaning": "xác suất X = k, tức P(X = k)"
+        },
+        {
+          "sym": "\\sum p_k = 1",
+          "meaning": "mọi xác suất cộng lại phải = 1 (tính chất bắt buộc)"
+        }
       ]
     },
     {
@@ -42,37 +56,76 @@
     },
     {
       "type": "formula",
+      "title": "Hàm phân phối tích lũy (CDF — Cumulative Distribution Function)",
+      "latex": "F(x) = P(X \\le x)",
+      "reading": "đọc là: \"F tại x bằng xác suất X không vượt quá x\". Với biến rời rạc, F(x) là tổng PMF của mọi giá trị $k \\le x$.",
+      "symbols": [
+        {
+          "sym": "F(x)",
+          "meaning": "CDF — luôn tăng dần (không giảm) từ 0 đến 1"
+        },
+        {
+          "sym": "P(a < X \\le b)",
+          "meaning": "bằng $F(b) - F(a)$ — xác suất rơi vào một khoảng"
+        }
+      ],
+      "caption": "CDF dùng được cho cả biến rời rạc lẫn liên tục. Ví dụ CS: \"p99 latency = 250ms\" nghĩa là $F(250) = 0.99$ — percentile chính là nghịch đảo của CDF."
+    },
+    {
+      "type": "formula",
       "title": "Phân phối Binomial B(n, p)",
       "latex": "P(X = k) = \\binom{n}{k} p^k (1-p)^{n-k}",
       "reading": "đọc là: \"xác suất có đúng k thành công trong n thử nghiệm, mỗi thử có xác suất thành công p\".",
       "symbols": [
-        { "sym": "n", "meaning": "số thử nghiệm độc lập" },
-        { "sym": "k", "meaning": "số thành công cần tính (0 ≤ k ≤ n)" },
-        { "sym": "p", "meaning": "xác suất thành công của mỗi thử nghiệm" },
-        { "sym": "\\binom{n}{k}", "meaning": "hệ số tổ hợp C(n,k) = n! / (k!(n−k)!) — số cách chọn k vị trí thành công" }
+        {
+          "sym": "n",
+          "meaning": "số thử nghiệm độc lập"
+        },
+        {
+          "sym": "k",
+          "meaning": "số thành công cần tính (0 ≤ k ≤ n)"
+        },
+        {
+          "sym": "p",
+          "meaning": "xác suất thành công của mỗi thử nghiệm"
+        },
+        {
+          "sym": "\\binom{n}{k}",
+          "meaning": "hệ số tổ hợp C(n,k) = n! / (k!(n−k)!) — số cách chọn k vị trí thành công"
+        }
       ]
     },
     {
-      "type": "graph",
-      "title": "PMF của Binomial B(10, 0.3) — phân phối số request lỗi",
-      "functions": [
-        { "fn": "exp(-x)", "color": "#8ac6ff" },
-        { "fn": "exp(-x/2) * 0.5", "color": "#ffe08a" }
-      ],
-      "xDomain": [0, 10],
-      "yDomain": [0, 0.4],
-      "caption": "Hình minh họa dạng phân phối giảm dần (exponential-like). Phân phối Binomial B(10, 0.3) đỉnh tại k=3 (kỳ vọng = np = 10×0.3 = 3). Hầu hết xác suất tập trung quanh k=2,3,4."
+      "type": "explanation",
+      "title": "PMF của Binomial(10, 0.3) — số request lỗi trong 10 request",
+      "content": "Mỗi request lỗi với xác suất 0.3, độc lập. Áp dụng công thức Binomial cho từng k:\n\n| k (số lỗi) | P(X = k) |\n|---|---|\n| 0 | 0.028 |\n| 1 | 0.121 |\n| 2 | 0.233 |\n| 3 | 0.267 |\n| 4 | 0.200 |\n| 5 | 0.103 |\n| 6 | 0.037 |\n| 7 – 10 | 0.011 |\n\nĐỉnh (mode) tại k = 3, đúng bằng $np = 10 \\times 0.3 = 3$. Ba giá trị k = 2, 3, 4 đã chiếm khoảng 70% xác suất; từ 7 lỗi trở lên chỉ khoảng 1%."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: Binomial — số test case thất bại",
       "problem": "Bạn chạy 5 test case độc lập, mỗi test có xác suất FAIL là p=0.2. X = số test FAIL. Tính P(X = 2).",
       "steps": [
-        { "text": "X ~ Binomial(n=5, p=0.2). Tính P(X=2).", "rule": "Nhận dạng phân phối Binomial" },
-        { "text": "P(X=2) = C(5,2) × 0.2² × 0.8³.", "rule": "Áp dụng công thức Binomial" },
-        { "text": "C(5,2) = 10 (chọn 2 test thất bại trong 5).", "rule": "Hệ số tổ hợp: 5!/(2!3!) = 10" },
-        { "text": "0.2² = 0.04 và 0.8³ = 0.512.", "isCommonMistake": true, "rule": "Lỗi hay gặp: quên số mũ (1-p)^(n-k) = 0.8^3, không phải 0.8^2" },
-        { "text": "P(X=2) = 10 × 0.04 × 0.512 = 0.2048.", "rule": "Nhân lại" }
+        {
+          "text": "X ~ Binomial(n=5, p=0.2). Tính P(X=2).",
+          "rule": "Nhận dạng phân phối Binomial"
+        },
+        {
+          "text": "P(X=2) = C(5,2) × 0.2² × 0.8³.",
+          "rule": "Áp dụng công thức Binomial"
+        },
+        {
+          "text": "C(5,2) = 10 (chọn 2 test thất bại trong 5).",
+          "rule": "Hệ số tổ hợp: 5!/(2!3!) = 10"
+        },
+        {
+          "text": "0.2² = 0.04 và 0.8³ = 0.512.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: số mũ của (1 − p) là n − k = 3, không phải 2"
+        },
+        {
+          "text": "P(X=2) = 10 × 0.04 × 0.512 = 0.2048.",
+          "rule": "Nhân lại"
+        }
       ],
       "result": "P(đúng 2 test thất bại trong 5) = **0.2048** ≈ 20.5%"
     },
@@ -81,26 +134,115 @@
       "title": "Ví dụ: Geometric — số lần retry đến thành công",
       "problem": "Mỗi request có P(thành công) = p=0.7. X = số lần thử đến lần thành công đầu. Tính P(X = 3).",
       "steps": [
-        { "text": "X ~ Geometric(p=0.7). P(X=k) = (1−p)^(k−1) × p.", "rule": "Định nghĩa phân phối Geometric" },
-        { "text": "P(X=3): lần 1 fail, lần 2 fail, lần 3 thành công.", "rule": "Sự kiện: FF...FS với k−1 lần fail" },
-        { "text": "P(X=3) = 0.3 × 0.3 × 0.7 = 0.3² × 0.7.", "isCommonMistake": true, "rule": "Lỗi hay gặp: dùng 0.3^3 × 0.7 thay vì 0.3^(k-1) × 0.7" },
-        { "text": "= 0.09 × 0.7 = 0.063.", "rule": "Tính số học" }
+        {
+          "text": "X ~ Geometric(p=0.7). P(X=k) = (1−p)^(k−1) × p.",
+          "rule": "Định nghĩa phân phối Geometric"
+        },
+        {
+          "text": "P(X=3): lần 1 fail, lần 2 fail, lần 3 thành công.",
+          "rule": "Sự kiện: FF...FS với k−1 lần fail"
+        },
+        {
+          "text": "P(X=3) = 0.3 × 0.3 × 0.7 = 0.3² × 0.7.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: dùng $0.3^3 \\times 0.7$ — số lần fail là k − 1 = 2, không phải k"
+        },
+        {
+          "text": "= 0.09 × 0.7 = 0.063.",
+          "rule": "Tính số học"
+        }
       ],
       "result": "P(cần đúng 3 lần thử) = **0.063** = 6.3%"
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Cẩn thận với Geometric:** có hai định nghĩa phổ biến — P(X=k) = (1−p)^(k−1)p (đếm cả lần thành công, k≥1) và P(X=k) = (1−p)^k × p (đếm chỉ số lần thất bại, k≥0). Luôn kiểm tra đề bài dùng định nghĩa nào!"
+      "content": "**Cẩn thận với Geometric:** có hai định nghĩa phổ biến — $P(X = k) = (1-p)^{k-1}p$ với $k \\ge 1$ (đếm cả lần thành công, kỳ vọng $1/p$) và $P(Y = k) = (1-p)^k p$ với $k \\ge 0$ (chỉ đếm số lần thất bại, kỳ vọng $(1-p)/p$). Luôn kiểm tra đề bài (hoặc thư viện như `scipy.stats.geom`) dùng định nghĩa nào!"
+    },
+    {
+      "type": "formula",
+      "title": "Phân phối Poisson — đếm sự kiện theo thời gian",
+      "latex": "P(X = k) = \\frac{\\lambda^k e^{-\\lambda}}{k!}, \\quad k = 0, 1, 2, \\dots",
+      "reading": "đọc là: \"xác suất có đúng k sự kiện trong một khoảng thời gian, khi trung bình có λ sự kiện\".",
+      "symbols": [
+        {
+          "sym": "\\lambda",
+          "meaning": "số sự kiện trung bình trong khoảng (rate) — cũng chính là kỳ vọng và phương sai"
+        },
+        {
+          "sym": "k",
+          "meaning": "số sự kiện thực tế quan sát được"
+        },
+        {
+          "sym": "k!",
+          "meaning": "giai thừa của k"
+        }
+      ],
+      "caption": "Dùng cho số request/giây, số lỗi/giờ, số packet đến router. Poisson là xấp xỉ của Binomial(n, p) khi n lớn, p nhỏ, với $\\lambda = np$."
+    },
+    {
+      "type": "explanation",
+      "title": "Biến liên tục: PDF và phân phối đều (Uniform)",
+      "content": "Với biến liên tục, $P(X = x) = 0$ cho **mọi** giá trị cụ thể x — có vô số giá trị nên mỗi điểm \"không có khối lượng\". Thay vào đó ta dùng **hàm mật độ xác suất (PDF — probability density function)** f(x):\n\n$$P(a \\le X \\le b) = \\int_a^b f(x)\\,dx$$\n\nNghĩa là xác suất = **diện tích** dưới đường f(x) từ a đến b. Tổng diện tích bằng 1. Lưu ý: f(x) là mật độ, không phải xác suất, nên f(x) có thể lớn hơn 1.\n\n**Phân phối đều Uniform(a, b):** $f(x) = \\frac{1}{b-a}$ trên [a, b] — mọi đoạn cùng độ dài có xác suất như nhau. Ví dụ CS: `Math.random()` cho Uniform(0, 1); random jitter trong exponential backoff để các client không retry cùng lúc."
+    },
+    {
+      "type": "formula",
+      "title": "Phân phối chuẩn (Normal / Gaussian)",
+      "latex": "f(x) = \\frac{1}{\\sigma\\sqrt{2\\pi}} \\, e^{-\\frac{(x-\\mu)^2}{2\\sigma^2}}",
+      "reading": "đọc là: \"đường cong hình chuông, đối xứng quanh μ, độ rộng do σ quyết định\". Ký hiệu $X \\sim \\mathcal{N}(\\mu, \\sigma^2)$.",
+      "symbols": [
+        {
+          "sym": "\\mu",
+          "meaning": "trung bình (mean) — tâm của hình chuông"
+        },
+        {
+          "sym": "\\sigma",
+          "meaning": "độ lệch chuẩn (standard deviation) — σ càng lớn chuông càng bè"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "PDF của phân phối chuẩn: σ = 1 và σ = 2",
+      "functions": [
+        {
+          "fn": "exp(-(x^2) / 2) / sqrt(2 * 3.14159265)",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "exp(-(x^2) / 8) / (2 * sqrt(2 * 3.14159265))",
+          "color": "#8ac6ff"
+        }
+      ],
+      "xDomain": [
+        -6,
+        6
+      ],
+      "yDomain": [
+        0,
+        0.45
+      ],
+      "caption": "Đường vàng: N(0, 1). Đường xanh: N(0, 4) với σ = 2 — thấp và bè hơn nhưng diện tích vẫn bằng 1. Xác suất rơi vào một khoảng = diện tích dưới đường cong trên khoảng đó."
+    },
+    {
+      "type": "callout",
+      "variant": "info",
+      "content": "**Quy tắc 68–95–99.7:** với phân phối chuẩn, khoảng 68% giá trị nằm trong $\\mu \\pm \\sigma$, 95% trong $\\mu \\pm 2\\sigma$, 99.7% trong $\\mu \\pm 3\\sigma$. Vì đối xứng, phần ngoài $\\mu \\pm 2\\sigma$ (5%) chia đều 2.5% mỗi phía.\n\n**Cảnh báo CS:** latency thực tế thường **lệch phải, đuôi dài (long tail)** — không phải phân phối chuẩn, nên đừng ước lượng p99 bằng $\\mu + 3\\sigma$. Phân phối chuẩn xuất hiện chủ yếu khi ta lấy **tổng hoặc trung bình** của nhiều yếu tố ngẫu nhiên (định lý giới hạn trung tâm — xem bài Kỳ vọng & Phương sai), ví dụ tỷ lệ chuyển đổi trung bình trong A/B test."
+    },
+    {
+      "type": "explanation",
+      "title": "Bảng tổng kết: chọn phân phối nào?",
+      "content": "| Phân phối | Mô hình | Ví dụ CS |\n|---|---|---|\n| Bernoulli(p) | 1 lần thử có/không | 1 request lỗi? |\n| Binomial(n, p) | Số thành công / n lần thử | Số packet bị drop |\n| Geometric(p) | Số lần thử đến lần đầu thành công | Số lần retry, số probe |\n| Poisson(λ) | Số sự kiện / khoảng thời gian | Request mỗi giây |\n| Uniform(a, b) | Mọi giá trị như nhau | `Math.random()`, jitter |\n| Normal(μ, σ²) | Tổng/trung bình nhiều yếu tố | Trung bình mẫu, sai số đo |"
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Biến ngẫu nhiên X là hàm gán số thực cho kết quả ngẫu nhiên — không phải số cố định.",
-        "PMF: P(X=k) = p_k, và Σp_k = 1. Biểu diễn bằng bảng rất trực quan.",
-        "Binomial B(n,p): đếm số thành công trong n thử nghiệm độc lập. Dùng cho số bug, số request lỗi.",
-        "Geometric(p): số lần thử đến lần thành công đầu. Dùng cho số retry, số probe trong open-address hashing.",
-        "CS ứng dụng: phân phối chạy thời gian, số comparisons, số cache miss, số collision đều là biến ngẫu nhiên."
+        "Biến ngẫu nhiên $X: \\Omega \\to \\mathbb{R}$ gán số thực cho mỗi kết quả — nó là một hàm, không phải số cố định.",
+        "Rời rạc → PMF $P(X = k)$ với $\\sum_k p_k = 1$. Liên tục → PDF f(x), xác suất là diện tích, $P(X = x) = 0$.",
+        "CDF $F(x) = P(X \\le x)$ dùng cho cả hai loại; percentile (p50, p99) là nghịch đảo của CDF.",
+        "Binomial(n, p): số thành công trong n lần thử độc lập. Geometric(p): số lần thử đến thành công đầu, trung bình $1/p$.",
+        "Poisson(λ): đếm sự kiện ngẫu nhiên theo thời gian (request/giây). Uniform: `Math.random()`. Normal: quy tắc 68–95–99.7.",
+        "Latency thực tế thường đuôi dài, không chuẩn — chọn phân phối theo cơ chế sinh dữ liệu, không theo thói quen."
       ]
     }
   ],
@@ -109,31 +251,55 @@
       "id": "fc-rv-def",
       "type": "definition",
       "front": "Biến ngẫu nhiên (random variable) là gì?",
-      "back": "Hàm gán một số thực cho mỗi kết quả trong không gian mẫu. X: Ω → ℝ. Không phải số cố định — giá trị phụ thuộc vào kết quả ngẫu nhiên."
+      "back": "Hàm gán một số thực cho mỗi kết quả trong không gian mẫu: $X: \\Omega \\to \\mathbb{R}$. Không phải số cố định — giá trị phụ thuộc vào kết quả ngẫu nhiên."
     },
     {
       "id": "fc-rv-pmf",
       "type": "formula",
       "front": "PMF là gì và điều kiện của nó?",
-      "back": "PMF: P(X=k) = p_k, với hai điều kiện: p_k ≥ 0 và Σp_k = 1. Mô tả toàn bộ phân phối của biến ngẫu nhiên rời rạc."
+      "back": "PMF: $P(X = k) = p_k$, với hai điều kiện: $p_k \\ge 0$ và $\\sum_k p_k = 1$. Mô tả toàn bộ phân phối của biến ngẫu nhiên rời rạc."
     },
     {
       "id": "fc-rv-binomial",
       "type": "formula",
       "front": "Công thức Binomial P(X=k) với X~B(n,p)?",
-      "back": "C(n,k) × p^k × (1−p)^(n−k). Đỉnh tại k = ⌊(n+1)p⌋. Kỳ vọng = np."
+      "back": "$\\binom{n}{k} p^k (1-p)^{n-k}$. Kỳ vọng $np$; giá trị có xác suất lớn nhất (mode) nằm sát np, cụ thể là $\\lfloor (n+1)p \\rfloor$."
     },
     {
       "id": "fc-rv-geometric",
       "type": "formula",
       "front": "Phân phối Geometric P(X=k) với xác suất thành công p?",
-      "back": "P(X=k) = (1−p)^(k−1) × p, k ≥ 1. Kỳ vọng E[X] = 1/p lần thử."
+      "back": "$P(X = k) = (1-p)^{k-1} p$ với $k \\ge 1$. Kỳ vọng $E[X] = 1/p$ lần thử (\"trung bình phải thử 1/p lần mới thành công\"). Đuôi: $P(X > k) = (1-p)^k$."
     },
     {
       "id": "fc-rv-cs",
       "type": "concept",
       "front": "Tại sao biến ngẫu nhiên quan trọng trong phân tích thuật toán?",
-      "back": "Thời gian chạy của randomized algorithm là biến ngẫu nhiên. Ví dụ: số comparisons của quicksort, số probe của hash table đều có phân phối xác suất cụ thể."
+      "back": "Thời gian chạy của randomized algorithm là biến ngẫu nhiên. Ví dụ: số phép so sánh của randomized quicksort, số probe của hash table, số request mỗi giây đều có phân phối xác suất cụ thể — phân tích phân phối cho ta average-case và tail."
+    },
+    {
+      "id": "fc-rv-cdf",
+      "type": "definition",
+      "front": "CDF là gì? Liên hệ với percentile (p99)?",
+      "back": "$F(x) = P(X \\le x)$ — xác suất X không vượt quá x, tăng dần từ 0 đến 1. $P(a < X \\le b) = F(b) - F(a)$. \"p99 = 250ms\" nghĩa là $F(250) = 0.99$."
+    },
+    {
+      "id": "fc-rv-pdf",
+      "type": "concept",
+      "front": "Với biến liên tục, $P(X = x)$ bằng bao nhiêu? Xác suất được tính thế nào?",
+      "back": "$P(X = x) = 0$ với mọi x. Xác suất là diện tích dưới PDF: $P(a \\le X \\le b) = \\int_a^b f(x)\\,dx$. f(x) là mật độ, có thể lớn hơn 1."
+    },
+    {
+      "id": "fc-rv-poisson",
+      "type": "formula",
+      "front": "Phân phối Poisson(λ): công thức và khi nào dùng?",
+      "back": "$P(X = k) = \\lambda^k e^{-\\lambda}/k!$. Đếm số sự kiện ngẫu nhiên, độc lập trong một khoảng thời gian (request/giây). $E[X] = \\operatorname{Var}(X) = \\lambda$. Xấp xỉ Binomial khi n lớn, p nhỏ."
+    },
+    {
+      "id": "fc-rv-normal",
+      "type": "concept",
+      "front": "Quy tắc 68–95–99.7 của phân phối chuẩn?",
+      "back": "Khoảng 68% giá trị trong $\\mu \\pm \\sigma$, 95% trong $\\mu \\pm 2\\sigma$, 99.7% trong $\\mu \\pm 3\\sigma$. Phần ngoài chia đều hai phía (VD 2.5% mỗi phía ngoài 2σ)."
     }
   ],
   "exercises": [
@@ -146,12 +312,46 @@
         "P(X=3) = 1 − P(X=1) − P(X=2)."
       ],
       "solutionSteps": [
-        { "text": "Tính chất PMF: Σp_k = 1.", "rule": "Tổng xác suất = 1" },
-        { "text": "P(X=3) = 1 − 0.4 − 0.35 = 0.25.", "rule": "Tính số học" }
+        {
+          "text": "Tính chất PMF: Σp_k = 1.",
+          "rule": "Tổng xác suất = 1"
+        },
+        {
+          "text": "P(X=3) = 1 − 0.4 − 0.35 = 0.25.",
+          "rule": "Tính số học"
+        }
       ],
       "answer": "P(X=3) = 0.25",
       "commonMistake": "Nhầm nghĩ xác suất còn lại phải chia đều, hoặc quên kiểm tra tổng.",
       "relatedFlashcard": "fc-rv-pmf"
+    },
+    {
+      "id": "ex-rv-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "`x = Math.random() * 10` cho biến X ~ Uniform(0, 10). Tính (a) P(2 ≤ X ≤ 5), (b) P(X = 5).",
+      "hints": [
+        "PDF của Uniform(0, 10) là hằng số $f(x) = 1/10$ trên [0, 10].",
+        "Xác suất = diện tích hình chữ nhật = chiều rộng × chiều cao.",
+        "Một điểm có chiều rộng bằng 0."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$f(x) = \\frac{1}{10 - 0} = 0.1$ trên [0, 10].",
+          "rule": "PDF của Uniform(a, b) là $1/(b-a)$"
+        },
+        {
+          "text": "(a) $P(2 \\le X \\le 5) = (5 - 2) \\times 0.1 = 0.3$.",
+          "rule": "Xác suất = diện tích dưới PDF"
+        },
+        {
+          "text": "(b) $P(X = 5) = 0$ — đoạn [5, 5] có chiều rộng 0. Không được trả lời f(5) = 0.1.",
+          "rule": "Biến liên tục: xác suất một điểm bằng 0",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "(a) 0.3; (b) 0",
+      "commonMistake": "Lấy giá trị mật độ f(5) = 0.1 làm xác suất P(X = 5). Mật độ không phải xác suất.",
+      "relatedFlashcard": "fc-rv-pdf"
     },
     {
       "id": "ex-rv-apply-1",
@@ -162,33 +362,119 @@
         "P(X=0) = C(4,0) × 0.1⁰ × 0.9⁴."
       ],
       "solutionSteps": [
-        { "text": "X ~ Binomial(n=4, p=0.1). Tính P(X=0).", "rule": "Nhận dạng Binomial" },
-        { "text": "P(X=0) = 1 × 1 × 0.9⁴ = 0.6561.", "rule": "Binomial với k=0: C(4,0)=1, p^0=1" },
-        { "text": "P(X≥1) = 1 − 0.6561 = 0.3439.", "rule": "Complement rule" },
-        { "text": "Kiểm tra: P(X≥1) ≈ 34.4% — với 10% drop rate, 4 packet thì 1/3 khả năng mất ít nhất 1 cái.", "isCommonMistake": true, "rule": "Lỗi hay gặp: tính P(X=1) rồi cộng thêm — đúng nhưng phức tạp hơn nhiều" }
+        {
+          "text": "X ~ Binomial(n=4, p=0.1). Tính P(X=0).",
+          "rule": "Nhận dạng Binomial"
+        },
+        {
+          "text": "P(X=0) = 1 × 1 × 0.9⁴ = 0.6561.",
+          "rule": "Binomial với k=0: C(4,0)=1, p^0=1"
+        },
+        {
+          "text": "P(X≥1) = 1 − 0.6561 = 0.3439.",
+          "rule": "Complement rule"
+        },
+        {
+          "text": "Đừng nhầm P(X ≥ 1) với P(X = 1) = $4 \\times 0.1 \\times 0.9^3 = 0.2916$ — đề hỏi \"ít nhất 1\", gồm cả trường hợp 2, 3, 4 packet bị drop.",
+          "isCommonMistake": true,
+          "rule": "Đọc kỹ đề: \"ít nhất 1\" ≠ \"đúng 1\""
+        }
       ],
-      "answer": "P(X ≥ 1) ≈ 0.3439 (34.4%)",
-      "commonMistake": "Tính P(X=1)+P(X=2)+... trực tiếp thay vì dùng complement.",
+      "answer": "P(X ≥ 1) = 0.3439 (≈ 34.4%)",
+      "commonMistake": "Trả lời P(X = 1) = 0.2916, hoặc tính 4 × 0.1 = 0.4 (cộng xác suất như thể các sự kiện xung khắc).",
       "relatedFlashcard": "fc-rv-binomial"
+    },
+    {
+      "id": "ex-rv-apply-2",
+      "difficulty": "apply",
+      "prompt": "Thời gian build CI xấp xỉ phân phối chuẩn với μ = 10 phút, σ = 2 phút. Dùng quy tắc 68–95–99.7: (a) P(8 ≤ T ≤ 12)? (b) P(T > 14)? (c) Đặt timeout = 16 phút thì khoảng bao nhiêu phần trăm build bị kill?",
+      "hints": [
+        "Đổi mỗi mốc thành \"μ ± bao nhiêu σ\": 8 và 12 là μ ± 1σ.",
+        "14 = μ + 2σ. Ngoài μ ± 2σ có 5%, nhưng chia cho hai phía.",
+        "16 = μ + 3σ."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) [8, 12] = [μ − σ, μ + σ] → khoảng 68%.",
+          "rule": "Quy tắc 68–95–99.7"
+        },
+        {
+          "text": "(b) 14 = μ + 2σ. Trong μ ± 2σ có 95%, bên ngoài 5%, chia đều hai phía → P(T > 14) ≈ 2.5%.",
+          "rule": "Tính đối xứng của phân phối chuẩn",
+          "isCommonMistake": true
+        },
+        {
+          "text": "(c) 16 = μ + 3σ. Bên ngoài μ ± 3σ có 0.3% → phía trên chỉ ≈ 0.15% build bị kill.",
+          "rule": "Quy tắc 99.7% + đối xứng"
+        }
+      ],
+      "answer": "(a) ≈ 68%; (b) ≈ 2.5%; (c) ≈ 0.15%",
+      "commonMistake": "Trả lời (b) là 5% — quên rằng 5% nằm ngoài ở CẢ HAI phía, còn đề chỉ hỏi phía trên.",
+      "relatedFlashcard": "fc-rv-normal"
     },
     {
       "id": "ex-rv-challenge-1",
       "difficulty": "challenge",
-      "prompt": "[CS Challenge] Open-address hash table dùng linear probing. Mỗi slot có xác suất 0.6 đã bị chiếm. Gọi X = số slot phải probe để tìm slot trống. X theo phân phối Geometric(p=0.4). Tính: (a) E[X] = 1/p, (b) P(X > 3) = xác suất phải probe hơn 3 lần.",
+      "prompt": "[CS Challenge] Hash table dùng open addressing với load factor 0.6 (60% slot đã bị chiếm). Giả định uniform hashing: mỗi lần probe như chọn một slot ngẫu nhiên, độc lập, nên mỗi probe gặp slot trống với xác suất p = 0.4. Gọi X = số probe đến khi gặp slot trống, X ~ Geometric(0.4). Tính: (a) E[X], (b) P(X > 3) — xác suất phải probe hơn 3 lần.",
       "hints": [
-        "Geometric(p=0.4): E[X] = 1/p = 1/0.4.",
-        "P(X > 3) = P(3 slot đầu đều bị chiếm) = (1-p)³ = 0.6³.",
-        "Dùng tail probability: P(X > k) = (1−p)^k."
+        "Geometric(p): $E[X] = 1/p$.",
+        "X > 3 nghĩa là 3 probe đầu đều gặp slot đã bị chiếm.",
+        "Công thức đuôi: $P(X > k) = (1-p)^k$."
       ],
       "solutionSteps": [
-        { "text": "X ~ Geometric(p=0.4). E[X] = 1/p = 1/0.4 = 2.5 slot trung bình.", "rule": "Kỳ vọng Geometric = 1/p" },
-        { "text": "P(X > 3): cần 3 slot đầu đều bị chiếm (fail), slot thứ 4 trở đi mới trống.", "rule": "Tail probability Geometric" },
-        { "text": "P(X > 3) = (1−0.4)³ = 0.6³ = 0.216.", "isCommonMistake": true, "rule": "Lỗi hay gặp: dùng (0.6)^4 — nhầm giữa P(X>k) và P(X>k+1)" },
-        { "text": "Vậy 78.4% thời gian tìm được slot trong ≤3 probe, 21.6% phải probe nhiều hơn.", "rule": "1 − P(X>3) = 78.4%" }
+        {
+          "text": "X ~ Geometric(p=0.4). E[X] = 1/p = 1/0.4 = 2.5 slot trung bình.",
+          "rule": "Kỳ vọng Geometric = 1/p"
+        },
+        {
+          "text": "P(X > 3): cần 3 slot đầu đều bị chiếm (fail), slot thứ 4 trở đi mới trống.",
+          "rule": "Tail probability Geometric"
+        },
+        {
+          "text": "P(X > 3) = (1−0.4)³ = 0.6³ = 0.216.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: dùng $0.6^4$, hoặc $0.6^3 \\times 0.4$ (đó là P(X = 4), không phải P(X > 3))"
+        },
+        {
+          "text": "Vậy 78.4% lần tìm thấy slot trống trong ≤ 3 probe, 21.6% phải probe nhiều hơn. (Thực tế linear probing bị **clustering** — các slot bị chiếm dồn thành cụm — nên số probe còn lớn hơn mô hình lý tưởng này.)",
+          "rule": "1 − P(X>3) = 78.4%"
+        }
       ],
-      "answer": "(a) E[X] = 2.5 probe trung bình; (b) P(X>3) = 21.6%",
-      "commonMistake": "Nhầm công thức P(X>k) = (1-p)^k — đây là xác suất k lần đầu đều fail.",
+      "answer": "(a) E[X] = 1/0.4 = 2.5 probe; (b) P(X > 3) = $0.6^3$ = 0.216 (21.6%)",
+      "commonMistake": "Dùng $0.6^3 \\times 0.4 = 0.0864$ — đó là xác suất đúng 4 probe, không phải \"hơn 3 probe\" (gồm 4, 5, 6, ... probe).",
       "relatedFlashcard": "fc-rv-geometric"
+    },
+    {
+      "id": "ex-rv-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "[CS Challenge] Request đến API theo Poisson với trung bình λ = 3 request/giây. Server xử lý tối đa 5 request/giây. Tính xác suất một giây bất kỳ bị quá tải (X ≥ 6). Trong 1 giờ, khoảng bao nhiêu giây bị quá tải?",
+      "hints": [
+        "$P(X \\ge 6) = 1 - P(X \\le 5)$.",
+        "Tính $P(X = k) = 3^k e^{-3}/k!$ cho k = 0..5, với $e^{-3} \\approx 0.0498$.",
+        "Nhân xác suất với 3600 giây (dùng kỳ vọng)."
+      ],
+      "solutionSteps": [
+        {
+          "text": "P(0) = 0.0498, P(1) = 0.1494, P(2) = 0.2240, P(3) = 0.2240, P(4) = 0.1680, P(5) = 0.1008.",
+          "rule": "Công thức Poisson $\\lambda^k e^{-\\lambda}/k!$"
+        },
+        {
+          "text": "$P(X \\le 5) \\approx 0.9161$.",
+          "rule": "CDF = cộng dồn PMF"
+        },
+        {
+          "text": "$P(X \\ge 6) = 1 - 0.9161 \\approx 0.084$. Lưu ý: \"quá tải\" là X ≥ 6, nên phải trừ $P(X \\le 5)$, không phải $P(X \\le 6)$ hay $P(X \\le 4)$.",
+          "rule": "Quy tắc bù — cẩn thận ranh giới",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Trong 3600 giây: $3600 \\times 0.084 \\approx 302$ giây, tức khoảng 5 phút mỗi giờ server bị quá tải — dù tải trung bình chỉ 60% công suất.",
+          "rule": "Kỳ vọng số giây quá tải = n × p"
+        }
+      ],
+      "answer": "P(X ≥ 6) ≈ 0.084 (8.4%) → khoảng 300 giây (≈ 5 phút) quá tải mỗi giờ",
+      "commonMistake": "Nghĩ \"trung bình 3 < 5 nên không bao giờ quá tải\" — dao động ngẫu nhiên của Poisson vẫn tạo burst. Đây là lý do cần headroom và hàng đợi (queue).",
+      "relatedFlashcard": "fc-rv-poisson"
     }
   ],
   "quiz": [
@@ -197,13 +483,13 @@
       "type": "mcq",
       "question": "X là biến ngẫu nhiên. PMF hợp lệ nào trong các bảng sau?",
       "options": [
-        "P(X=1)=0.3, P(X=2)=0.3, P(X=3)=0.3",
         "P(X=1)=0.5, P(X=2)=0.3, P(X=3)=0.2",
+        "P(X=1)=0.3, P(X=2)=0.3, P(X=3)=0.3",
         "P(X=1)=0.5, P(X=2)=0.6",
         "P(X=1)=−0.1, P(X=2)=1.1"
       ],
-      "correct": 1,
-      "explanation": "PMF cần tổng = 1 và tất cả ≥ 0. Chỉ đáp án B: 0.5+0.3+0.2=1.0 ✓. Đáp án A: tổng 0.9 ≠ 1. C: tổng 1.1 ≠ 1. D: có giá trị âm."
+      "correct": 0,
+      "explanation": "PMF cần mọi xác suất ≥ 0 và tổng = 1. Chỉ bảng 0.5 + 0.3 + 0.2 = 1 hợp lệ. Bảng 0.3/0.3/0.3 có tổng 0.9; bảng 0.5/0.6 có tổng 1.1; bảng −0.1/1.1 tuy tổng bằng 1 nhưng có xác suất âm."
     },
     {
       "id": "q-rv-2",
@@ -216,17 +502,59 @@
         "Số bucket trong hash table"
       ],
       "correct": 1,
-      "explanation": "Binomial(n,p) = số thành công trong n thử nghiệm độc lập, mỗi cái có xác suất p. Ví dụ B khớp hoàn toàn. Đáp án A là Geometric."
+      "explanation": "Binomial(n, p) = số thành công trong n lần thử độc lập, mỗi lần xác suất p — khớp hoàn toàn với 10 request độc lập, mỗi cái 50% thành công. \"Số lần thử đến lần thành công đầu tiên\" là Geometric."
     },
     {
       "id": "q-rv-3",
       "type": "mcq",
-      "question": "Hash table có load factor 0.7 (70% slot bị chiếm). Theo Geometric, trung bình cần bao nhiêu probe để tìm slot trống?",
+      "question": "Hash table open addressing có load factor 0.7 (70% slot bị chiếm). Theo mô hình Geometric (uniform hashing), trung bình cần bao nhiêu probe để gặp slot trống?",
       "options": [
-        "0.7 probe", "1 probe", "3.33 probe", "7 probe"
+        "0.7 probe",
+        "1 probe",
+        "3.33 probe",
+        "7 probe"
       ],
       "correct": 2,
-      "explanation": "p = P(slot trống) = 1−0.7 = 0.3. E[X] = 1/p = 1/0.3 ≈ 3.33 probe trung bình. Load factor càng cao, probe càng nhiều — lý do hash table cần resize khi load factor > 0.7."
+      "explanation": "p = P(slot trống) = 1 − 0.7 = 0.3, nên E[X] = 1/p = 1/0.3 ≈ 3.33 probe. Load factor càng cao, số probe tăng vọt ($1/(1-\\alpha)$) — lý do hash table open addressing thường resize khi load factor vượt khoảng 0.7."
+    },
+    {
+      "id": "q-rv-4",
+      "type": "mcq",
+      "question": "X là thời gian phản hồi (biến liên tục) với PDF f. Xác suất X đúng bằng 200ms, tức P(X = 200), là bao nhiêu?",
+      "options": [
+        "f(200)",
+        "1/200",
+        "Phụ thuộc vào σ",
+        "0"
+      ],
+      "correct": 3,
+      "explanation": "Với biến liên tục, xác suất tại một điểm luôn bằng 0; chỉ khoảng mới có xác suất dương (diện tích dưới PDF). f(200) là mật độ, không phải xác suất — mật độ thậm chí có thể lớn hơn 1."
+    },
+    {
+      "id": "q-rv-5",
+      "type": "mcq",
+      "question": "X ~ N(μ, σ²). Khoảng bao nhiêu phần trăm giá trị nằm NGOÀI đoạn [μ − 2σ, μ + 2σ]?",
+      "options": [
+        "32%",
+        "0.3%",
+        "5%",
+        "2.5%"
+      ],
+      "correct": 2,
+      "explanation": "95% nằm trong μ ± 2σ nên 5% nằm ngoài (2.5% mỗi phía). 32% là phần ngoài μ ± σ; 0.3% là phần ngoài μ ± 3σ; 2.5% chỉ là một phía."
+    },
+    {
+      "id": "q-rv-6",
+      "type": "mcq",
+      "question": "Request đến server độc lập, trung bình 50 request/giây. Phân phối nào mô hình tốt nhất số request đến trong 1 giây?",
+      "options": [
+        "Poisson(λ = 50)",
+        "Geometric(p = 1/50)",
+        "Uniform(0, 100)",
+        "Bernoulli(p = 0.5)"
+      ],
+      "correct": 0,
+      "explanation": "Đếm số sự kiện ngẫu nhiên, độc lập trong một khoảng thời gian với tốc độ trung bình cho trước → Poisson(λ = 50). Geometric đếm số lần thử đến thành công đầu; Uniform coi mọi giá trị 0..100 như nhau (sai); Bernoulli chỉ có 2 giá trị 0/1."
     }
   ]
 }

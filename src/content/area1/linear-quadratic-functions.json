@@ -7,16 +7,18 @@
   "icon": "function",
   "tagline": "Hàm bậc nhất (linear) là đường thẳng — tượng trưng cho O(n). Hàm bậc hai (quadratic) là parabol — tượng trưng cho O(n²). Nhận ra chúng = nhận ra hiệu năng thuật toán.",
   "readTime": "~18 min",
-  "prerequisites": ["area1_powers-and-roots"],
+  "prerequisites": [
+    "area1_powers-and-roots"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Hai dạng hàm số phổ biến nhất bạn sẽ gặp:\n\n- **Hàm bậc nhất (linear function)**: $f(x) = ax + b$ — đồ thị là đường thẳng. Mỗi đơn vị x tăng thêm một lượng cố định.\n- **Hàm bậc hai (quadratic function)**: $f(x) = ax^2 + bx + c$ — đồ thị là parabol. Tốc độ tăng ngày càng nhanh hơn.\n\nTrong CS, sự khác biệt này là sống còn: thuật toán $O(n)$ và $O(n^2)$ xử lý 1 triệu phần tử sẽ chênh nhau **1 triệu lần** về số phép tính!"
+      "content": "Hai dạng hàm số phổ biến nhất bạn sẽ gặp:\n\n- **Hàm bậc nhất (linear function)**: $f(x) = ax + b$ — đồ thị là đường thẳng. Mỗi khi x tăng 1, y thay đổi một lượng cố định là a.\n- **Hàm bậc hai (quadratic function)**: $f(x) = ax^2 + bx + c$ (với $a \\ne 0$) — đồ thị là parabol. Mức tăng ngày càng lớn dần (hoặc giảm dần nếu $a < 0$).\n\nTrong CS, sự khác biệt này là sống còn: với n = 1 triệu phần tử, thuật toán $O(n)$ tốn cỡ $10^6$ bước còn $O(n^2)$ tốn cỡ $10^{12}$ bước — **chênh nhau khoảng 1 triệu lần** (chưa tính hằng số)."
     },
     {
       "type": "analogy",
-      "title": "Lương theo giờ vs. lương theo diện tích",
-      "content": "**Hàm tuyến tính** giống lương theo giờ: làm thêm 1 giờ, được thêm 50k đồng — đều đặn, dễ đoán. Đồ thị là đường thẳng.\n\n**Hàm bậc hai** giống lương theo diện tích đất cần sơn: diện tích = cạnh², tăng cạnh từ 10m lên 20m nhưng công việc tăng 4 lần. Đồ thị là parabol — càng lớn càng nặng nề.\n\nThuật toán duyệt 2 vòng lặp lồng nhau (nested loops) trên n phần tử: $n \\times n = n^2$ phép tính → **O(n²)** — điển hình của hàm bậc hai trong CS."
+      "title": "Tiền công theo giờ vs. tiền công sơn sàn",
+      "content": "**Hàm bậc nhất** giống tiền công theo giờ: làm thêm 1 giờ được thêm 50 nghìn đồng — đều đặn, dễ đoán. Đồ thị là đường thẳng.\n\n**Hàm bậc hai** giống tiền công sơn một sàn nhà hình vuông, tính theo diện tích: diện tích = cạnh². Tăng cạnh từ 10 m lên 20 m (gấp đôi) thì khối lượng công việc tăng **gấp 4**. Đồ thị là parabol — càng lớn càng nặng nề.\n\nHai vòng lặp lồng nhau (nested loops), mỗi vòng chạy n lần: $n \\times n = n^2$ phép tính → $O(n^2)$ — dạng hàm bậc hai điển hình trong CS. Gấp đôi dữ liệu thì thời gian chạy gấp 4."
     },
     {
       "type": "formula",
@@ -24,47 +26,90 @@
       "latex": "f(x) = ax + b",
       "reading": "đọc là: f của x bằng a nhân x cộng b.",
       "symbols": [
-        { "sym": "a", "meaning": "hệ số góc (slope) — mỗi đơn vị x tăng thì y tăng a đơn vị. Nếu a > 0: tăng dần; a < 0: giảm dần." },
-        { "sym": "b", "meaning": "tung độ gốc (y-intercept) — giá trị của f(0), điểm hàm cắt trục y." },
-        { "sym": "O(n) \\text{ relation}", "meaning": "Vòng lặp đơn qua n phần tử: T(n) = c·n + d tức là hàm bậc nhất theo n." }
+        {
+          "sym": "a",
+          "meaning": "hệ số góc (slope) — mỗi đơn vị x tăng thì y tăng a đơn vị. Nếu a > 0: tăng dần; a < 0: giảm dần."
+        },
+        {
+          "sym": "b",
+          "meaning": "tung độ gốc (y-intercept) — giá trị của f(0), điểm hàm cắt trục y."
+        },
+        {
+          "sym": "T(n) = cn + d",
+          "meaning": "Vòng lặp đơn qua n phần tử, mỗi vòng tốn c bước, cộng d bước khởi tạo → hàm bậc nhất theo n → $O(n)$."
+        }
       ]
     },
     {
       "type": "formula",
       "title": "Hàm bậc hai: y = ax² + bx + c",
-      "latex": "f(x) = ax^2 + bx + c \\qquad x_{\\text{vertex}} = -\\frac{b}{2a} \\qquad f(x) = 0 \\Rightarrow x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
-      "reading": "đọc là: f của x bằng a x bình phương cộng bx cộng c; tọa độ x của đỉnh parabol bằng âm b chia 2a; nghiệm của phương trình bậc hai theo công thức nghiệm.",
+      "latex": "\\begin{gathered} f(x) = ax^2 + bx + c \\qquad x_{\\text{vertex}} = -\\frac{b}{2a} \\\\ ax^2 + bx + c = 0 \\;\\Rightarrow\\; x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a} \\end{gathered}",
+      "reading": "đọc là: f của x bằng a x bình phương cộng b x cộng c (a ≠ 0); hoành độ đỉnh parabol bằng âm b chia 2a; nghiệm của phương trình bậc hai tính bằng công thức nghiệm.",
       "symbols": [
-        { "sym": "a", "meaning": "a > 0: parabol mở lên (có đáy). a < 0: mở xuống (có đỉnh)." },
-        { "sym": "x_{\\text{vertex}} = -b/(2a)", "meaning": "Hoành độ đỉnh — điểm cực trị của parabol." },
-        { "sym": "\\Delta = b^2 - 4ac", "meaning": "Delta (discriminant): nếu >0 có 2 nghiệm thực; =0 có nghiệm kép; <0 không có nghiệm thực." }
+        {
+          "sym": "a",
+          "meaning": "a > 0: parabol mở lên (có đáy). a < 0: mở xuống (có đỉnh)."
+        },
+        {
+          "sym": "x_{\\text{vertex}} = -b/(2a)",
+          "meaning": "Hoành độ đỉnh — điểm cực trị của parabol."
+        },
+        {
+          "sym": "\\Delta = b^2 - 4ac",
+          "meaning": "Biệt thức Delta (discriminant): $\\Delta > 0$ → 2 nghiệm thực phân biệt; $\\Delta = 0$ → nghiệm kép; $\\Delta < 0$ → không có nghiệm thực (parabol không cắt trục x)."
+        }
       ]
     },
     {
       "type": "graph",
       "title": "So sánh đường thẳng O(n) và parabol O(n²)",
       "functions": [
-        { "fn": "3*x + 1", "color": "#4ade80" },
-        { "fn": "x^2", "color": "#f5a623" }
+        {
+          "fn": "3*x + 1",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "x^2",
+          "color": "#ffe08a"
+        }
       ],
-      "xDomain": [0, 6],
-      "yDomain": [0, 30],
-      "caption": "3x+1 (xanh) tăng đều — tuyến tính O(n). x² (cam) tăng ngày càng nhanh — bậc hai O(n²). Với x lớn, x² vượt xa 3x+1 dù ban đầu có vẻ nhỏ hơn."
+      "xDomain": [
+        0,
+        6
+      ],
+      "yDomain": [
+        0,
+        30
+      ],
+      "caption": "$3x + 1$ (xanh bạc hà) tăng đều — tuyến tính, như $O(n)$. $x^2$ (vàng) tăng ngày càng nhanh — bậc hai, như $O(n^2)$. Hai đường cắt nhau tại $x \\approx 3.3$; sau điểm đó $x^2$ bỏ xa $3x + 1$ mãi mãi."
     },
     {
       "type": "explanation",
       "title": "Điểm giao nhau: khi nào O(n) nhanh hơn O(n²)?",
-      "content": "Hai đường $y = 3x+1$ và $y = x^2$ giao nhau tại $x^2 = 3x+1 \\Rightarrow x \\approx 3.3$. **Với n nhỏ** (< 3.3), thuật toán O(n²) đôi khi chạy nhanh hơn thuật toán O(n) vì hằng số (constant factor) nhỏ hơn.\n\nĐây là lý do benchmark (đo hiệu năng thực tế) quan trọng: **Big-O mô tả xu hướng khi n lớn**, không phải tốc độ tuyệt đối ở n nhỏ. Thuật toán bubble sort O(n²) có thể nhanh hơn merge sort O(n log n) khi mảng chỉ có 10 phần tử."
+      "content": "Hai đường $y = 3x + 1$ và $y = x^2$ giao nhau khi $x^2 = 3x + 1$, tức $x = \\frac{3 + \\sqrt{13}}{2} \\approx 3.3$. Nếu coi chúng là chi phí của hai thuật toán thì **khi n < 3.3**, thuật toán \"bậc hai\" lại tốn ít bước hơn — vì hằng số (constant factor) của thuật toán tuyến tính lớn hơn.\n\nĐây là lý do benchmark (đo hiệu năng thực tế) vẫn quan trọng: **Big-O mô tả xu hướng khi n lớn**, không phải tốc độ tuyệt đối ở n nhỏ. Ví dụ thực tế: insertion sort $O(n^2)$ chạy nhanh hơn merge sort $O(n \\log n)$ với mảng vài chục phần tử, nên Timsort (sort mặc định của Python, Java cho object) dùng insertion sort cho các đoạn nhỏ."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: Phân tích hàm bậc nhất",
       "problem": "Hàm $f(x) = -2x + 6$. Tìm: slope, y-intercept, điểm hàm cắt trục x (x-intercept).",
       "steps": [
-        { "text": "Slope $a = -2$ — hàm giảm dần (mỗi x tăng 1, y giảm 2).", "rule": "Hệ số của x là slope" },
-        { "text": "Y-intercept $b = 6$ — khi $x=0$: $f(0) = 6$.", "rule": "Tung độ gốc = hệ số tự do" },
-        { "text": "X-intercept: đặt $f(x)=0$: $-2x+6=0 \\Rightarrow x=3$.", "rule": "Cho f(x) = 0 để tìm x-intercept" },
-        { "text": "Lỗi hay gặp: nhầm slope âm nghĩa là hàm bậc hai hoặc không có nghiệm.", "isCommonMistake": true, "rule": "Slope âm chỉ nghĩa là giảm dần — vẫn là đường thẳng bậc nhất" }
+        {
+          "text": "Slope $a = -2$ — hàm giảm dần (mỗi x tăng 1, y giảm 2).",
+          "rule": "Hệ số của x là slope"
+        },
+        {
+          "text": "Y-intercept $b = 6$ — khi $x=0$: $f(0) = 6$.",
+          "rule": "Tung độ gốc = hệ số tự do"
+        },
+        {
+          "text": "X-intercept: đặt $f(x)=0$: $-2x+6=0 \\Rightarrow x=3$.",
+          "rule": "Cho f(x) = 0 để tìm x-intercept"
+        },
+        {
+          "text": "Lỗi hay gặp ở bước tìm x-intercept: chuyển vế sai dấu, $-2x + 6 = 0 \\Rightarrow x = -3$. Kiểm tra lại: $f(-3) = 12 \\ne 0$.",
+          "isCommonMistake": true,
+          "rule": "Chuyển vế: $-2x = -6 \\Rightarrow x = 3$; luôn thay ngược lại để kiểm tra"
+        }
       ],
       "result": "Slope = $-2$; y-intercept = $6$; x-intercept = $3$."
     },
@@ -73,10 +118,23 @@
       "title": "Ví dụ 2: Tìm đỉnh và nghiệm của parabol",
       "problem": "Cho $f(x) = x^2 - 4x + 3$. Tìm tọa độ đỉnh và các nghiệm (x-intercepts).",
       "steps": [
-        { "text": "Đỉnh: $x_{\\text{vertex}} = -\\dfrac{b}{2a} = -\\dfrac{-4}{2 \\cdot 1} = 2$.", "rule": "Công thức tọa độ đỉnh" },
-        { "text": "$f(2) = 4 - 8 + 3 = -1$. Đỉnh tại $(2, -1)$ — điểm thấp nhất của parabol.", "rule": "Thay x vào hàm để tính y" },
-        { "text": "Tính Delta: $\\Delta = (-4)^2 - 4(1)(3) = 16-12 = 4 > 0$ → 2 nghiệm thực.", "rule": "Delta > 0: hai nghiệm phân biệt" },
-        { "text": "$x = \\dfrac{4 \\pm \\sqrt{4}}{2} = \\dfrac{4 \\pm 2}{2}$. Vậy $x_1 = 3$, $x_2 = 1$.", "isCommonMistake": true, "rule": "Tính $\\sqrt{\\Delta}$ rồi mới chia — đừng rút gọn vội trước khi tính $\\sqrt{}$" }
+        {
+          "text": "Đỉnh: $x_{\\text{vertex}} = -\\dfrac{b}{2a} = -\\dfrac{-4}{2 \\cdot 1} = 2$.",
+          "rule": "Công thức tọa độ đỉnh"
+        },
+        {
+          "text": "$f(2) = 4 - 8 + 3 = -1$. Đỉnh tại $(2, -1)$ — điểm thấp nhất của parabol.",
+          "rule": "Thay x vào hàm để tính y"
+        },
+        {
+          "text": "Tính Delta: $\\Delta = (-4)^2 - 4(1)(3) = 16-12 = 4 > 0$ → 2 nghiệm thực.",
+          "rule": "Delta > 0: hai nghiệm phân biệt"
+        },
+        {
+          "text": "$x = \\dfrac{-(-4) \\pm \\sqrt{4}}{2 \\cdot 1} = \\dfrac{4 \\pm 2}{2}$. Vậy $x_1 = 3$, $x_2 = 1$. Lỗi hay gặp: quên $b = -4$ nên $-b = +4$, viết $\\frac{-4 \\pm 2}{2}$ → ra $-1$ và $-3$ (sai).",
+          "isCommonMistake": true,
+          "rule": "Thay cả dấu của b vào: $-b = -(-4) = 4$"
+        }
       ],
       "result": "Đỉnh $(2, -1)$; nghiệm $x=1$ và $x=3$; $f(x) = (x-1)(x-3)$."
     },
@@ -86,13 +144,60 @@
       "content": "**Lỗi hay gặp với Delta:** $\\Delta = b^2 - 4ac$, không phải $b^2 + 4ac$ hay $(b-4ac)^2$. Dấu trừ trước $4ac$ rất dễ nhầm khi a, b, c có dấu âm. Luôn viết ra $a=, b=, c=$ trước khi thay vào công thức."
     },
     {
+      "type": "formula",
+      "title": "Ba dạng của hàm bậc hai & định lý Vi-ét (Vieta)",
+      "latex": "\\begin{gathered} f(x) = a(x - h)^2 + k \\qquad f(x) = a(x - x_1)(x - x_2) \\\\ x_1 + x_2 = -\\frac{b}{a} \\qquad x_1 x_2 = \\frac{c}{a} \\end{gathered}",
+      "reading": "đọc là: dạng đỉnh (vertex form) cho đỉnh (h, k) ngay lập tức; dạng nhân tử (factored form) cho hai nghiệm x₁, x₂ ngay lập tức; tổng hai nghiệm bằng −b/a, tích bằng c/a.",
+      "symbols": [
+        {
+          "sym": "(h, k)",
+          "meaning": "đỉnh parabol: $h = -\\frac{b}{2a}$, $k = f(h)$. Nếu $a > 0$ thì k là giá trị NHỎ NHẤT; $a < 0$ thì k là giá trị LỚN NHẤT."
+        },
+        {
+          "sym": "x_1, x_2",
+          "meaning": "hai nghiệm. Đỉnh nằm chính giữa: $h = \\frac{x_1 + x_2}{2}$ — parabol đối xứng qua đường thẳng $x = h$."
+        },
+        {
+          "sym": "\\text{Vieta}",
+          "meaning": "Mẹo nhẩm nghiệm: $x^2 - 5x + 6 = 0$ → tìm hai số có tổng 5, tích 6 → 2 và 3."
+        }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Liên hệ ML: hồi quy tuyến tính & hàm mất mát bậc hai",
+      "content": "Mô hình đơn giản nhất của Machine Learning là **hồi quy tuyến tính (linear regression)**: dự đoán $\\hat{y} = wx + b$ — chính là hàm bậc nhất, với w là slope (trọng số, weight) và b là bias.\n\nĐể đo mô hình sai bao nhiêu, ta dùng sai số bình phương trung bình (mean squared error, MSE). Nếu cố định mọi thứ khác, MSE là **hàm bậc hai theo w** với hệ số $a > 0$ → đồ thị là parabol mở lên → có **đúng một điểm thấp nhất** là đỉnh. Gradient descent thực chất là \"lăn\" dần xuống đỉnh parabol đó.\n\nMột hệ quả đẹp: hằng số c làm $\\sum (y_i - c)^2$ nhỏ nhất chính là **trung bình (mean)** của các $y_i$ — vì khai triển ra parabol theo c có đỉnh tại $c = \\bar{y}$."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 3: Khi nào thuật toán O(n) thắng O(n²)?",
+      "problem": "Thuật toán A tốn $T_A(n) = 100n$ bước, thuật toán B tốn $T_B(n) = n^2$ bước. Với n bao nhiêu thì A nhanh hơn B?",
+      "steps": [
+        {
+          "text": "A nhanh hơn B khi $100n < n^2$.",
+          "rule": "Đặt bất phương trình so sánh chi phí"
+        },
+        {
+          "text": "Vì $n > 0$, chia hai vế cho n: $100 < n$.",
+          "rule": "Chia hai vế cho số dương giữ nguyên chiều"
+        },
+        {
+          "text": "Điểm hòa vốn (crossover) là $n = 100$. Với n < 100, B (bậc hai) lại nhanh hơn! Lỗi hay gặp: kết luận A 'luôn nhanh hơn' chỉ vì Big-O nhỏ hơn.",
+          "isCommonMistake": true,
+          "rule": "Big-O bỏ hằng số — điểm giao nhau phụ thuộc hằng số"
+        }
+      ],
+      "result": "A nhanh hơn khi $n > 100$; với $n < 100$ thì B nhanh hơn; tại $n = 100$ bằng nhau."
+    },
+    {
       "type": "key_takeaways",
       "items": [
-        "Hàm bậc nhất $f(x) = ax+b$: đồ thị là đường thẳng; slope a cho biết tốc độ thay đổi; b là y-intercept.",
-        "Hàm bậc hai $f(x) = ax^2+bx+c$: đồ thị là parabol; đỉnh tại $x=-b/(2a)$; nghiệm qua công thức nghiệm.",
-        "Liên hệ CS: O(n) = bậc nhất; O(n²) = bậc hai — khác nhau 1 triệu lần khi n = 1 triệu.",
-        "Hai vòng lặp lồng nhau (nested loops) thường gây O(n²) — nhận dạng ngay.",
-        "Big-O mô tả xu hướng n lớn; với n nhỏ cần benchmark thực tế để biết thực sự cái nào nhanh hơn."
+        "Hàm bậc nhất $f(x) = ax + b$: đường thẳng; slope a là mức thay đổi của y khi x tăng 1; b là y-intercept.",
+        "Hàm bậc hai $f(x) = ax^2 + bx + c$: parabol; đỉnh tại $x = -b/(2a)$; nghiệm qua công thức nghiệm với $\\Delta = b^2 - 4ac$.",
+        "Dạng đỉnh $a(x-h)^2 + k$ cho cực trị ngay; dạng nhân tử $a(x - x_1)(x - x_2)$ cho nghiệm ngay; Vi-ét: tổng $-b/a$, tích $c/a$.",
+        "Liên hệ CS: $O(n)$ là bậc nhất, $O(n^2)$ là bậc hai — chênh khoảng 1 triệu lần khi n = 1 triệu. Hai vòng lặp lồng nhau thường gây $O(n^2)$.",
+        "Big-O mô tả xu hướng n lớn; điểm giao nhau (crossover) phụ thuộc hằng số — VD $100n$ chỉ thắng $n^2$ khi $n > 100$.",
+        "Trong ML: hồi quy tuyến tính $\\hat{y} = wx + b$; MSE là parabol theo w nên có đúng một cực tiểu."
       ]
     }
   ],
@@ -120,6 +225,36 @@
       "type": "concept",
       "front": "Trong Big-O, O(n) và O(n²) tương ứng với dạng hàm nào?",
       "back": "O(n) = hàm bậc nhất (đường thẳng); O(n²) = hàm bậc hai (parabol). Hai vòng lặp lồng nhau → O(n²)."
+    },
+    {
+      "id": "fc-lq-slope-two-points",
+      "type": "formula",
+      "front": "Đường thẳng qua hai điểm $(x_1, y_1)$ và $(x_2, y_2)$: slope và phương trình?",
+      "back": "$a = \\dfrac{y_2 - y_1}{x_2 - x_1}$, rồi $b = y_1 - a x_1$. VD qua (1, 5) và (4, 11): $a = 2$, $b = 3$ → $y = 2x + 3$."
+    },
+    {
+      "id": "fc-lq-vertex-form",
+      "type": "formula",
+      "front": "Dạng đỉnh (vertex form) của parabol là gì và cho biết gì?",
+      "back": "$f(x) = a(x - h)^2 + k$: đỉnh $(h, k)$. $a > 0$ → k là giá trị nhỏ nhất; $a < 0$ → k là giá trị lớn nhất."
+    },
+    {
+      "id": "fc-lq-vieta",
+      "type": "formula",
+      "front": "Định lý Vi-ét (Vieta) cho $ax^2 + bx + c = 0$ có nghiệm $x_1, x_2$?",
+      "back": "$x_1 + x_2 = -\\dfrac{b}{a}$, $x_1 x_2 = \\dfrac{c}{a}$. Dùng để nhẩm nghiệm và kiểm tra lại đáp án."
+    },
+    {
+      "id": "fc-lq-crossover",
+      "type": "concept",
+      "front": "Thuật toán $O(n)$ có luôn nhanh hơn $O(n^2)$ không?",
+      "back": "Không — chỉ khi n đủ lớn. VD $100n$ vs $n^2$: giao nhau ở $n = 100$; với n < 100 thuật toán bậc hai nhanh hơn. Big-O bỏ hằng số."
+    },
+    {
+      "id": "fc-lq-mse-parabola",
+      "type": "concept",
+      "front": "Vì sao hàm mất mát MSE của hồi quy tuyến tính dễ tối ưu?",
+      "back": "Theo từng tham số, MSE là hàm bậc hai có $a > 0$ → parabol mở lên → đúng một cực tiểu (đỉnh), không có bẫy cực tiểu cục bộ. Hằng số tối ưu $\\sum (y_i - c)^2$ là trung bình $\\bar{y}$."
     }
   ],
   "exercises": [
@@ -132,8 +267,15 @@
         "$4x - 8 = 0 \\Rightarrow 4x = ?$"
       ],
       "solutionSteps": [
-        { "text": "Đặt $f(x) = 0$: $4x - 8 = 0$.", "rule": "X-intercept là nghiệm của f(x) = 0" },
-        { "text": "$4x = 8 \\Rightarrow x = 2$." }
+        {
+          "text": "Đặt $f(x) = 0$: $4x - 8 = 0$.",
+          "rule": "X-intercept là nghiệm của f(x) = 0"
+        },
+        {
+          "text": "$4x = 8 \\Rightarrow x = 2$. Điểm cắt trục x là $(2, 0)$. Lỗi hay gặp: trả lời $-8$ — đó là y-intercept (khi $x = 0$).",
+          "isCommonMistake": true,
+          "rule": "x-intercept: cho y = 0; y-intercept: cho x = 0"
+        }
       ],
       "answer": "$x = 2$",
       "commonMistake": "Nhầm y-intercept (= -8, khi x=0) với x-intercept (= 2, khi y=0).",
@@ -149,9 +291,19 @@
         "Hai số có tổng 6 và tích 5 là 1 và 5."
       ],
       "solutionSteps": [
-        { "text": "(a) Đỉnh: $x = -\\dfrac{-6}{2 \\cdot 1} = 3$. Tung độ: $f(3) = 9 - 18 + 5 = -4$.", "rule": "Công thức tọa độ đỉnh" },
-        { "text": "(b) Phân tích: $x^2 - 6x + 5 = (x-1)(x-5)$.", "rule": "Nhân tử hóa: tìm hai số có tổng = -b, tích = c" },
-        { "text": "Nghiệm: $x=1$ và $x=5$.", "isCommonMistake": true, "rule": "Từ $(x-1)(x-5)=0$ suy ra $x=1$ hoặc $x=5$ — không phải $x=-1$, $x=-5$" }
+        {
+          "text": "(a) Đỉnh: $x = -\\dfrac{-6}{2 \\cdot 1} = 3$. Tung độ: $f(3) = 9 - 18 + 5 = -4$.",
+          "rule": "Công thức tọa độ đỉnh"
+        },
+        {
+          "text": "(b) Phân tích: $x^2 - 6x + 5 = (x-1)(x-5)$.",
+          "rule": "Nhân tử hóa: với a = 1, tìm hai số có tổng = −b và tích = c"
+        },
+        {
+          "text": "Nghiệm: $x=1$ và $x=5$.",
+          "isCommonMistake": true,
+          "rule": "Từ $(x-1)(x-5)=0$ suy ra $x=1$ hoặc $x=5$ — không phải $x=-1$, $x=-5$"
+        }
       ],
       "answer": "(a) Đỉnh $(3, -4)$; (b) nghiệm $x=1$ và $x=5$.",
       "commonMistake": "Từ $(x-1)(x-5)=0$ kết luận $x=-1$ và $x=-5$ (nhầm dấu).",
@@ -160,20 +312,116 @@
     {
       "id": "ex-lq-challenge-1",
       "difficulty": "challenge",
-      "prompt": "Đoạn code sau có độ phức tạp gì? Giải thích bằng ngôn ngữ hàm bậc nhất/bậc hai:\n```python\nfor i in range(n):\n    for j in range(i, n):\n        process(i, j)\n```\nSố lần `process` được gọi là bao nhiêu? Đây là O(n) hay O(n²)?",
+      "prompt": "Đoạn code Python: vòng ngoài `for i in range(n)`, bên trong là vòng `for j in range(i, n)` gọi `process(i, j)`.\n\nHàm `process` được gọi đúng bao nhiêu lần? Độ phức tạp là $O(n)$, $O(n \\log n)$ hay $O(n^2)$?",
       "hints": [
-        "Với i=0: j chạy từ 0 đến n-1 → n lần.",
-        "Với i=1: j chạy từ 1 đến n-1 → n-1 lần.",
-        "Tổng = n + (n-1) + ... + 1 = công thức tổng cấp số cộng."
+        "Với i = 0: j chạy từ 0 đến n − 1 → n lần.",
+        "Với i = 1: j chạy từ 1 đến n − 1 → n − 1 lần. ... Với i = n − 1: 1 lần.",
+        "Tổng $n + (n-1) + \\cdots + 1$ là tổng cấp số cộng."
       ],
       "solutionSteps": [
-        { "text": "Với mỗi i, vòng lặp j chạy $(n - i)$ lần.", "rule": "Đếm bước lặp phụ thuộc i" },
-        { "text": "Tổng = $\\sum_{i=0}^{n-1}(n-i) = n + (n-1) + \\ldots + 1 = \\dfrac{n(n+1)}{2}$.", "rule": "Tổng cấp số cộng: $1+2+...+n = n(n+1)/2$" },
-        { "text": "$\\dfrac{n(n+1)}{2} = \\dfrac{n^2 + n}{2}$ — đây là hàm bậc hai theo n.", "isCommonMistake": true, "rule": "Hai vòng lặp lồng nhau KHÔNG lúc nào cũng chính xác n² — có thể là n²/2, nhưng Big-O vẫn là O(n²)" }
+        {
+          "text": "Với mỗi i, vòng lặp j chạy $(n - i)$ lần.",
+          "rule": "Đếm bước lặp phụ thuộc i"
+        },
+        {
+          "text": "Tổng = $\\sum_{i=0}^{n-1}(n-i) = n + (n-1) + \\ldots + 1 = \\dfrac{n(n+1)}{2}$.",
+          "rule": "Tổng cấp số cộng: $1+2+...+n = n(n+1)/2$"
+        },
+        {
+          "text": "$\\dfrac{n(n+1)}{2} = \\dfrac{n^2}{2} + \\dfrac{n}{2}$ — hàm bậc hai theo n, số hạng trội là $\\frac{n^2}{2}$. Lỗi hay gặp: thấy vòng trong 'ngắn dần' rồi đoán $O(n \\log n)$ hoặc $O(n)$.",
+          "isCommonMistake": true,
+          "rule": "Bỏ hằng số và số hạng bậc thấp: $\\frac{n^2}{2} + \\frac{n}{2} = O(n^2)$"
+        }
       ],
-      "answer": "$\\dfrac{n(n+1)}{2}$ lần → **O(n²)**. Dù lặp ít hơn $n^2$, số hạng bậc cao nhất vẫn là $n^2/2$ → O(n²).",
-      "commonMistake": "Vội kết luận O(n²) mà không tính chính xác n(n+1)/2 — hoặc sai hướng kết luận O(n) vì vòng lặp j không bắt đầu từ 0.",
+      "answer": "Đúng $\\dfrac{n(n+1)}{2}$ lần → $O(n^2)$. Dù chỉ khoảng một nửa của $n^2$, hằng số $\\frac{1}{2}$ không đổi được bậc.",
+      "commonMistake": "Nghĩ vòng trong 'ngắn dần' nên chỉ còn $O(n \\log n)$ hoặc $O(n)$ — thực tế tổng vẫn là khoảng $n^2/2$.",
       "relatedFlashcard": "fc-lq-cs-link"
+    },
+    {
+      "id": "ex-lq-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tìm phương trình đường thẳng $y = ax + b$ đi qua hai điểm $(1, 5)$ và $(4, 11)$.",
+      "hints": [
+        "Slope $a = \\dfrac{y_2 - y_1}{x_2 - x_1}$.",
+        "Có a rồi, thay một điểm vào $y = ax + b$ để tìm b."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$a = \\dfrac{11 - 5}{4 - 1} = \\dfrac{6}{3} = 2$.",
+          "rule": "Slope = Δy / Δx"
+        },
+        {
+          "text": "Thay (1, 5): $5 = 2 \\cdot 1 + b \\Rightarrow b = 3$. Lỗi hay gặp: lấy Δx / Δy = 1/2 làm slope.",
+          "isCommonMistake": true,
+          "rule": "Slope là thay đổi của y CHIA thay đổi của x"
+        },
+        {
+          "text": "Kiểm tra với (4, 11): $2 \\cdot 4 + 3 = 11$ ✓.",
+          "rule": "Thay điểm còn lại để kiểm tra"
+        }
+      ],
+      "answer": "$y = 2x + 3$",
+      "commonMistake": "Đảo tử/mẫu thành $\\frac{\\Delta x}{\\Delta y}$, hoặc tìm b bằng cách lấy luôn y của một điểm.",
+      "relatedFlashcard": "fc-lq-slope-two-points"
+    },
+    {
+      "id": "ex-lq-apply-2",
+      "difficulty": "apply",
+      "prompt": "Thuật toán A chạy $T_A(n) = 100n$ ms; thuật toán B chạy $T_B(n) = 2n^2$ ms. Với những n nào thì B nhanh hơn A?",
+      "hints": [
+        "Giải bất phương trình $2n^2 < 100n$.",
+        "n là kích thước input nên n > 0 — chia được hai vế cho n."
+      ],
+      "solutionSteps": [
+        {
+          "text": "B nhanh hơn A khi $2n^2 < 100n$.",
+          "rule": "So sánh hai hàm chi phí"
+        },
+        {
+          "text": "Chia hai vế cho $2n > 0$: $n < 50$.",
+          "rule": "Chia cho số dương không đổi chiều bất đẳng thức"
+        },
+        {
+          "text": "Lỗi hay gặp: giải $2n^2 = 100$ (quên n ở vế phải) → $n \\approx 7.07$.",
+          "isCommonMistake": true,
+          "rule": "Giữ nguyên cả hai vế khi lập phương trình"
+        }
+      ],
+      "answer": "B nhanh hơn khi $n < 50$ (bằng nhau tại $n = 50$; từ đó trở đi A thắng).",
+      "commonMistake": "Kết luận A (tuyến tính) luôn nhanh hơn, hoặc giải nhầm $2n^2 = 100$.",
+      "relatedFlashcard": "fc-lq-crossover"
+    },
+    {
+      "id": "ex-lq-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "(ML) Có ba quan sát $y = 1, 3, 8$. Ta muốn dự đoán một hằng số w sao cho tổng sai số bình phương $L(w) = (w - 1)^2 + (w - 3)^2 + (w - 8)^2$ nhỏ nhất. Tìm w và $L$ nhỏ nhất. Nhận xét gì về w?",
+      "hints": [
+        "Khai triển L(w) thành dạng $aw^2 + bw + c$.",
+        "Đỉnh parabol tại $w = -\\frac{b}{2a}$.",
+        "So sánh w với trung bình của 1, 3, 8."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Khai triển: $L(w) = 3w^2 - 2(1 + 3 + 8)w + (1 + 9 + 64) = 3w^2 - 24w + 74$.",
+          "rule": "$(w - y)^2 = w^2 - 2yw + y^2$"
+        },
+        {
+          "text": "$a = 3 > 0$ → parabol mở lên, đỉnh là cực tiểu tại $w = -\\dfrac{-24}{2 \\cdot 3} = 4$. Lỗi hay gặp: quên dấu, ra $w = -4$.",
+          "isCommonMistake": true,
+          "rule": "$x_{\\text{vertex}} = -\\frac{b}{2a}$ với $b = -24$"
+        },
+        {
+          "text": "$L(4) = 9 + 1 + 16 = 26$.",
+          "rule": "Thay đỉnh vào hàm"
+        },
+        {
+          "text": "$w = 4 = \\frac{1 + 3 + 8}{3}$ — đúng bằng trung bình cộng. Đây là lý do mean là 'dự đoán hằng số tốt nhất' theo MSE.",
+          "rule": "Cực tiểu của tổng bình phương là trung bình"
+        }
+      ],
+      "answer": "$w = 4$ (trung bình của dữ liệu), $L_{\\min} = 26$.",
+      "commonMistake": "Sai dấu ở công thức đỉnh, hoặc khai triển $(w - 8)^2$ thành $w^2 - 64$.",
+      "relatedFlashcard": "fc-lq-mse-parabola"
     }
   ],
   "quiz": [
@@ -183,28 +431,77 @@
       "question": "Đường thẳng $y = -3x + 7$ có slope bằng bao nhiêu và đi qua điểm nào trên trục y?",
       "options": [
         "Slope = 7, qua (0, -3)",
-        "Slope = -3, qua (0, 7)",
+        "Slope = -3, qua (7, 0)",
         "Slope = 3, qua (0, 7)",
-        "Slope = -3, qua (7, 0)"
+        "Slope = -3, qua (0, 7)"
       ],
-      "correct": 1,
+      "correct": 3,
       "explanation": "Dạng $y = ax + b$: slope $a = -3$; y-intercept $b = 7$ → qua điểm $(0, 7)$."
     },
     {
       "id": "q-lq-2",
       "type": "mcq",
       "question": "Parabol $f(x) = 2x^2 - 8x + 6$ có đỉnh tại $x = ?$",
-      "options": ["$x = -2$", "$x = 2$", "$x = 4$", "$x = -4$"],
-      "correct": 1,
+      "options": [
+        "$x = 2$",
+        "$x = -2$",
+        "$x = 4$",
+        "$x = -4$"
+      ],
+      "correct": 0,
       "explanation": "$x_{\\text{vertex}} = -\\dfrac{b}{2a} = -\\dfrac{-8}{4} = 2$."
     },
     {
       "id": "q-lq-3",
       "type": "mcq",
       "question": "Thuật toán có hai vòng lặp lồng nhau, mỗi vòng từ 1 đến n, có độ phức tạp gì?",
-      "options": ["O(1)", "O(n)", "O(n²)", "O(2n)"],
+      "options": [
+        "O(1)",
+        "O(n)",
+        "O(n²)",
+        "O(2n)"
+      ],
       "correct": 2,
       "explanation": "Vòng ngoài n lần × vòng trong n lần = $n^2$ phép tính → O(n²). Giống hàm bậc hai $f(n) = n^2$."
+    },
+    {
+      "id": "q-lq-4",
+      "type": "mcq",
+      "question": "Phương trình $x^2 - 6x + 9 = 0$ có bao nhiêu nghiệm thực?",
+      "options": [
+        "Hai nghiệm phân biệt",
+        "Một nghiệm kép $x = 3$",
+        "Vô nghiệm thực",
+        "Một nghiệm kép $x = -3$"
+      ],
+      "correct": 1,
+      "explanation": "$\\Delta = 36 - 36 = 0$ → nghiệm kép $x = -\\frac{b}{2a} = 3$. Thật vậy $x^2 - 6x + 9 = (x - 3)^2$."
+    },
+    {
+      "id": "q-lq-5",
+      "type": "mcq",
+      "question": "Thuật toán A tốn $100n$ bước, B tốn $n^2$ bước. Khi nào A tốn ít bước hơn B?",
+      "options": [
+        "Với mọi n",
+        "Khi $n > 10$",
+        "Khi $n < 100$",
+        "Khi $n > 100$"
+      ],
+      "correct": 3,
+      "explanation": "$100n < n^2 \\iff n > 100$ (với n > 0). Big-O nhỏ hơn chỉ thắng khi n vượt qua điểm giao nhau."
+    },
+    {
+      "id": "q-lq-6",
+      "type": "mcq",
+      "question": "Hàm $f(x) = -2(x - 1)^2 + 5$ có tính chất nào?",
+      "options": [
+        "Giá trị lớn nhất là 5, tại $x = 1$",
+        "Giá trị nhỏ nhất là 5, tại $x = 1$",
+        "Giá trị lớn nhất là 5, tại $x = -1$",
+        "Giá trị nhỏ nhất là $-2$, tại $x = 1$"
+      ],
+      "correct": 0,
+      "explanation": "Dạng đỉnh $a(x - h)^2 + k$ với $a = -2 < 0$ → parabol mở xuống, đỉnh $(1, 5)$ là điểm cao nhất."
     }
   ]
 }

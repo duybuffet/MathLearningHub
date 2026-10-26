@@ -3,20 +3,22 @@
   "title": "Số học modular (Modular Arithmetic)",
   "area": 7,
   "unit": "a7u2",
-  "order": 3,
+  "order": 4,
   "icon": "sigma",
   "tagline": "Số học modular là toán học của 'phần dư' — nền tảng của mã hóa RSA, hàm băm (hash), tránh tràn số nguyên, và mọi hệ thống bảo mật hiện đại.",
-  "readTime": "~16 min",
-  "prerequisites": [],
+  "readTime": "~25 min",
+  "prerequisites": [
+    "area7_number-bases-binary"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Đồng hồ chỉ 12 giờ: sau 11 giờ thêm 2 giờ không phải 13 giờ mà là 1 giờ. Sau 23 giờ thêm 5 giờ là 4 giờ (sáng). Hệ thống 'đếm quay vòng' này chính là **số học modular (modular arithmetic)**.\n\nTrong CS, modular arithmetic xuất hiện khắp nơi:\n- **Hash table**: `index = key % table_size` — ánh xạ key bất kỳ vào chỉ số hợp lệ.\n- **Cryptography**: RSA encryption dùng `a^e mod n`.\n- **Tránh tràn số (integer overflow)**: xử lý số rất lớn bằng cách giữ phần dư.\n- **Circular buffer**: `next = (current + 1) % buffer_size`.\n- **Checksums và CRC**: phát hiện lỗi truyền dữ liệu."
+      "content": "Đồng hồ chỉ có 12 số: 11 giờ thêm 2 giờ không phải 13 giờ mà là 1 giờ. Với đồng hồ 24 giờ, 23 giờ thêm 5 giờ là 4 giờ sáng. Hệ thống 'đếm quay vòng' này chính là **số học modular (modular arithmetic)**.\n\nTrong CS, modular arithmetic xuất hiện khắp nơi:\n- **Bảng băm (hash table)**: `index = hash(key) % tableSize` — ánh xạ key bất kỳ vào chỉ số hợp lệ.\n- **Mật mã (cryptography)**: RSA mã hóa bằng $m^e \\bmod N$.\n- **Tránh tràn số (integer overflow)**: đề bài 'in kết quả mod 10⁹ + 7' — chỉ giữ phần dư để số luôn nhỏ.\n- **Bộ đệm vòng (circular buffer)**: `next = (current + 1) % size`.\n- **Checksum** (ISBN, số thẻ ngân hàng, CRC): phát hiện lỗi truyền dữ liệu."
     },
     {
       "type": "analogy",
       "title": "Đồng hồ 12 giờ — modular arithmetic trực quan",
-      "content": "Đồng hồ là ví dụ hoàn hảo của `mod 12`:\n- 10 + 5 = 15, nhưng 15 mod 12 = 3 → kim đồng hồ chỉ 3 giờ.\n- 9 - 11 = -2, nhưng -2 mod 12 = 10 → 2 giờ trước 9 giờ sáng = 11 giờ tối hôm qua (10 = 22 - 12).\n\nThay 12 bằng bất kỳ số n nào, bạn có 'đồng hồ mod n'. Mọi phép tính trong thế giới mod n đều cho kết quả từ 0 đến n-1 — không bao giờ 'tràn ra ngoài'.\n\nTrong JS: `(-2 % 12 + 12) % 12 === 10` — cần xử lý số âm cẩn thận vì `%` trong nhiều ngôn ngữ trả về âm."
+      "content": "Đồng hồ là ví dụ hoàn hảo của 'mod 12':\n- 10 + 5 = 15, và $15 \\bmod 12 = 3$ → kim chỉ 3 giờ.\n- 9 − 11 = −2, và $-2 \\bmod 12 = 10$ → 11 tiếng trước 9 giờ sáng là 10 giờ tối hôm trước.\n\nThay 12 bằng số n bất kỳ, ta có 'đồng hồ mod n'. Mọi kết quả trong thế giới mod n đều nằm trong 0 … n − 1 — không bao giờ 'tràn ra ngoài'.\n\nCẩn thận với số âm: trong JS/Java/C, `-2 % 12` trả về `-2` chứ không phải `10`. Cách an toàn: `((-2 % 12) + 12) % 12 === 10`."
     },
     {
       "type": "formula",
@@ -24,65 +26,147 @@
       "latex": "a \\equiv b \\pmod{n} \\iff n \\mid (a - b)",
       "reading": "đọc là: a đồng dư với b theo modulo n nếu và chỉ nếu n chia hết (a - b).",
       "symbols": [
-        { "sym": "a \\equiv b \\pmod{n}", "meaning": "a và b có cùng số dư khi chia cho n. Ký hiệu ≡ là 'đồng dư'." },
-        { "sym": "n \\mid (a-b)", "meaning": "n chia hết (a - b), tức (a-b) là bội của n." },
-        { "sym": "a \\bmod n", "meaning": "phần dư của a khi chia cho n — luôn trong [0, n-1]." }
+        {
+          "sym": "a \\equiv b \\pmod{n}",
+          "meaning": "a và b có cùng số dư khi chia cho n. Ký hiệu $\\equiv$ đọc là 'đồng dư'."
+        },
+        {
+          "sym": "n \\mid (a-b)",
+          "meaning": "n chia hết (a - b), tức (a-b) là bội của n."
+        },
+        {
+          "sym": "a \\bmod n",
+          "meaning": "phần dư của a khi chia cho n — theo quy ước toán học luôn nằm trong [0, n − 1], kể cả khi a âm."
+        }
       ],
-      "caption": "13 ≡ 1 (mod 12) vì 12 | (13-1) = 12. Trong CS: 13 % 12 === 1."
+      "caption": "Ví dụ: $13 \\equiv 1 \\pmod{12}$ vì 12 chia hết 13 − 1 = 12. Trong code: `13 % 12 === 1`. Mọi số nguyên a đều viết được duy nhất thành $a = qn + r$ với $0 \\le r < n$; r chính là $a \\bmod n$."
     },
     {
       "type": "formula",
-      "title": "Tính chất quan trọng: modular operation phân phối",
-      "latex": "(a + b) \\bmod n = ((a \\bmod n) + (b \\bmod n)) \\bmod n",
-      "reading": "đọc là: phần dư của tổng bằng tổng các phần dư rồi lấy phần dư tiếp.",
+      "title": "Tính chất quan trọng: cộng, trừ, nhân 'đi xuyên qua' phép mod",
+      "latex": "\\begin{aligned} (a + b) \\bmod n &= ((a \\bmod n) + (b \\bmod n)) \\bmod n \\\\ (a \\cdot b) \\bmod n &= ((a \\bmod n) \\cdot (b \\bmod n)) \\bmod n \\end{aligned}",
+      "reading": "đọc là: phần dư của tổng (hoặc tích) bằng phần dư của tổng (hoặc tích) các phần dư. Nghĩa là ta được phép lấy mod ở BẤT KỲ bước trung gian nào.",
       "symbols": [
-        { "sym": "(a+b) \\bmod n", "meaning": "Tính tổng rồi lấy phần dư — cùng kết quả với cách phải." },
-        { "sym": "(a \\bmod n) + (b \\bmod n)", "meaning": "Lấy phần dư từng số trước — hữu ích khi a, b rất lớn." }
+        {
+          "sym": "(a+b) \\bmod n",
+          "meaning": "tính tổng rồi mới lấy phần dư — có thể tràn số nếu a, b lớn."
+        },
+        {
+          "sym": "(a \\bmod n) + (b \\bmod n)",
+          "meaning": "lấy phần dư từng số trước — mỗi số < n nên tổng < 2n, tích < n², an toàn hơn nhiều."
+        }
       ],
-      "caption": "Tính chất này áp dụng cho cộng, trừ, nhân — nhưng KHÔNG áp dụng trực tiếp cho chia. Cho phép tính (a × b) mod n mà không cần tính a×b trước (tránh overflow)."
+      "caption": "Áp dụng cho cộng, trừ, nhân và lũy thừa — nhưng KHÔNG áp dụng trực tiếp cho chia. Với phép trừ, viết `(a - b + n) % n` để tránh kết quả âm."
+    },
+    {
+      "type": "explanation",
+      "title": "Số âm và toán tử % trong các ngôn ngữ lập trình",
+      "content": "Toán học định nghĩa $a \\bmod n$ luôn trong [0, n − 1]. Nhưng toán tử `%` của từng ngôn ngữ lại khác nhau khi a âm:\n\n| Ngôn ngữ | -7 % 3 | Dấu theo |\n|---|---|---|\n| C, C++, Java, JS, Go | -1 | số bị chia |\n| Python, Ruby | 2 | số chia |\n\nLý do: C/Java chia **làm tròn về 0** (truncation): −7 / 3 = −2, dư −7 − (−2)(3) = −1. Python chia **làm tròn xuống** (floor): −7 // 3 = −3, dư −7 − (−3)(3) = 2.\n\nHệ quả thực tế:\n- Kiểm tra số lẻ bằng `x % 2 == 1` SAI với x âm trong Java/JS (`-3 % 2` là `-1`). Dùng `x % 2 != 0`.\n- Chỉ số vòng quay ngược `(i - 1) % n` cho −1 khi i = 0 → lỗi truy cập mảng. Dùng `(i - 1 + n) % n`.\n- Công thức an toàn mọi ngôn ngữ: `((a % n) + n) % n`."
     },
     {
       "type": "explanation",
       "title": "Ứng dụng: Hàm băm (Hash Function)",
-      "content": "Hash table phổ biến nhất dùng `index = key % tableSize`. Ví dụ với `tableSize = 7`:\n\n- key = 100 → 100 % 7 = 2\n- key = 256 → 256 % 7 = 4\n- key = 1000007 → 1000007 % 7 = 6\n\nBất kể key lớn đến đâu, index luôn trong [0, 6]. Đây là ứng dụng trực tiếp của modular arithmetic.\n\n**Mẹo chọn tableSize:** Nên chọn số nguyên tố (prime number). Vì sao? Số nguyên tố ít ước số hơn → phân phối đều hơn, ít collision. Ví dụ: nếu key là bội của 4 và tableSize = 4 → toàn bộ key hash vào 0 → tệ. Nhưng với tableSize = 7 (nguyên tố), không có pattern như vậy."
+      "content": "Bảng băm đơn giản nhất dùng `index = key % tableSize`. Ví dụ với `tableSize = 7`:\n\n- key = 100 → 100 % 7 = 2\n- key = 256 → 256 % 7 = 4\n- key = 1000007 → 1000007 % 7 = 1\n\nBất kể key lớn đến đâu, index luôn trong 0 … 6.\n\n**Mẹo chọn tableSize:** nên chọn số nguyên tố. Nếu key có quy luật (ví dụ toàn bội của 4) và tableSize = 8, mọi key chỉ rơi vào ô 0 và ô 4 — chỉ 2 trên 8 ô được dùng, va chạm tăng gấp 4. Với tableSize nguyên tố như 7, bội của 4 trải đều khắp 7 ô vì gcd(4, 7) = 1.\n\n**Băm chuỗi (polynomial rolling hash):** `h = (h * B + c) % M` cho từng ký tự c, với B là cơ số (31, 131…) và M là số nguyên tố lớn như 10⁹ + 7. Lấy mod sau MỖI bước giữ h luôn < M. Java `String.hashCode()` dùng đúng công thức này với B = 31 (và để tràn tự nhiên mod 2³²): `\"abc\".hashCode()` = 97·31² + 98·31 + 99 = 96354."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: Tính (a × b) mod n không bị overflow",
-      "problem": "Tính $(10^{15} \\times 10^{15}) \\bmod (10^9 + 7)$ trong code. Số nguyên 64-bit có thể chứa tối đa ~9.2 × 10¹⁸.",
+      "problem": "Tính $(10^{15} \\times 10^{15}) \\bmod (10^9 + 7)$ trong code dùng số nguyên 64-bit có dấu (tối đa khoảng $9.2 \\times 10^{18}$).",
       "steps": [
-        { "text": "10¹⁵ × 10¹⁵ = 10³⁰ — vượt quá phạm vi int64 (~9.2×10¹⁸) → sẽ bị overflow nếu tính trực tiếp.", "rule": "Xác định nguy cơ overflow" },
-        { "text": "Dùng tính chất phân phối: (a × b) mod n = ((a mod n) × (b mod n)) mod n.", "rule": "Modular multiplication property" },
-        { "text": "a mod n = 10¹⁵ mod (10⁹+7). Chia: 10¹⁵ / (10⁹+7) ≈ 999993. Phần dư = 10¹⁵ - 999993×(10⁹+7) = 999993000001.", "isCommonMistake": true, "rule": "Cần tính a mod n TRƯỚC khi nhân — đừng nhân rồi mod" },
-        { "text": "Kết quả = (999993000001 × 999993000001) mod (10⁹+7). Hai số này < 10¹² nên tích < 10²⁴ — vẫn overflow int64. Cần dùng __int128 hoặc modular multiplication library trong C++, hay dùng BigInt trong JS." }
+        {
+          "text": "$10^{15} \\times 10^{15} = 10^{30}$ — vượt xa giới hạn int64 → tính thẳng sẽ tràn số (overflow) và cho kết quả rác.",
+          "rule": "Xác định nguy cơ overflow"
+        },
+        {
+          "text": "Dùng tính chất nhân: $(a \\cdot b) \\bmod M = ((a \\bmod M) \\cdot (b \\bmod M)) \\bmod M$ với $M = 10^9 + 7$.",
+          "rule": "Modular multiplication"
+        },
+        {
+          "text": "$10^{15} = 999999 \\times M + 993000007$, nên $a \\bmod M = 993000007$. Kết quả của mod luôn nhỏ hơn M (< 10⁹ + 7), không thể là một số cỡ 10¹².",
+          "rule": "Phần dư luôn < M",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Tích hai phần dư: $993000007^2 \\approx 9.86 \\times 10^{17} < 9.2 \\times 10^{18}$ → vừa int64. Lấy mod M lần nữa: kết quả 999657007.",
+          "rule": "Hai số < M thì tích < M² ≈ 10¹⁸ — vừa int64"
+        },
+        {
+          "text": "Đó là lý do bài toán chọn M ≈ 10⁹: tích hai phần dư luôn vừa int64. Nếu M cỡ 10¹⁸ thì cần `__int128` (C++) hoặc nhân kiểu 'Russian peasant'.",
+          "rule": "Chọn modulus phù hợp kiểu dữ liệu"
+        }
       ],
-      "result": "Trong Python: `pow(10**15, 2, 10**9 + 7)` tự xử lý — Python dùng big integer tự nhiên."
+      "result": "$(10^{15})^2 \\bmod (10^9 + 7) = 999657007$. Kiểm tra trong Python: `pow(10**15, 2, 10**9 + 7)`."
     },
     {
       "type": "worked_example",
-      "title": "Ví dụ: Modular Exponentiation — tính aⁿ mod m hiệu quả",
-      "problem": "Tính $2^{100} \\bmod 13$ mà không tính 2¹⁰⁰ (số khổng lồ).",
+      "title": "Ví dụ: Lũy thừa nhanh (fast modular exponentiation)",
+      "problem": "Tính $2^{100} \\bmod 13$ mà không tính $2^{100}$ (một số có 31 chữ số).",
       "steps": [
-        { "text": "Ý tưởng: thay vì nhân 2 tổng cộng 100 lần, dùng 'bình phương liên tiếp' (fast exponentiation): 2¹⁰⁰ = (2⁵⁰)² = ((2²⁵)²)² = ...", "rule": "Fast power by squaring — O(log n) thay vì O(n)" },
-        { "text": "Sau mỗi bình phương, lấy mod 13 để giữ số nhỏ.", "rule": "Modular property: (a×b) mod m = ((a mod m)×(b mod m)) mod m" },
-        { "text": "2¹ mod 13 = 2. 2² mod 13 = 4. 2⁴ mod 13 = 16 mod 13 = 3. 2⁸ mod 13 = 9. 2¹⁶ mod 13 = 81 mod 13 = 3. ...", "isCommonMistake": true, "rule": "Phải mod LIÊN TỤC sau mỗi bình phương — đừng để số tích lũy rồi mới mod một lần" },
-        { "text": "100 = 64 + 32 + 4. 2¹⁰⁰ = 2⁶⁴ × 2³² × 2⁴. Nhân kết quả mod 13 từng phần: (9 × 3 × 3) mod 13 = 81 mod 13 = 3." }
+        {
+          "text": "Ý tưởng 'bình phương liên tiếp' (exponentiation by squaring): viết số mũ ở hệ nhị phân, $100 = 64 + 32 + 4$, nên $2^{100} = 2^{64} \\cdot 2^{32} \\cdot 2^4$.",
+          "rule": "Phân tích số mũ thành tổng lũy thừa của 2"
+        },
+        {
+          "text": "Bình phương liên tiếp, mod 13 sau mỗi bước: $2^1 = 2$, $2^2 = 4$, $2^4 = 16 \\equiv 3$, $2^8 \\equiv 9$, $2^{16} \\equiv 81 \\equiv 3$, $2^{32} \\equiv 9$, $2^{64} \\equiv 3$.",
+          "rule": "Mỗi bước: bình phương kết quả trước rồi mod",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Nhân các phần cần dùng: $2^{64} \\cdot 2^{32} \\cdot 2^4 \\equiv 3 \\cdot 9 \\cdot 3 = 81 \\equiv 3 \\pmod{13}$.",
+          "rule": "Nhân và mod từng bước"
+        },
+        {
+          "text": "Chỉ cần khoảng $\\log_2 100 \\approx 7$ lần bình phương + vài lần nhân, thay vì 99 phép nhân. Với số mũ $10^{18}$: khoảng 60 lần bình phương thay vì $10^{18}$ phép nhân.",
+          "rule": "Độ phức tạp $O(\\log e)$"
+        },
+        {
+          "text": "Kiểm tra bằng định lý Fermat nhỏ: $2^{12} \\equiv 1 \\pmod{13}$, mà $100 = 8 \\cdot 12 + 4$ nên $2^{100} \\equiv 2^4 = 16 \\equiv 3$ ✓.",
+          "rule": "Fermat: $a^{p-1} \\equiv 1 \\pmod p$"
+        }
       ],
-      "result": "$2^{100} \\bmod 13 = 9$. (Dùng `pow(2, 100, 13)` trong Python để kiểm tra.)"
+      "result": "$2^{100} \\bmod 13 = 3$. Trong Python: `pow(2, 100, 13)` trả về 3."
+    },
+    {
+      "type": "explanation",
+      "title": "Lũy thừa nhanh trong code — O(log e)",
+      "content": "Thuật toán duyệt từng bit của số mũ e từ phải sang trái:\n\n1. `res = 1; base = a % m`\n2. Trong khi `e > 0`: nếu bit cuối của e là 1 (`e & 1`) thì `res = res * base % m`\n3. `base = base * base % m` và `e >>= 1` (bỏ bit cuối)\n4. Trả về `res`\n\nMỗi vòng lặp bỏ một bit của e, nên số vòng là số bit của e ≈ $\\log_2 e$. Python có sẵn `pow(a, e, m)`; Java có `BigInteger.modPow`. Đây là trái tim của RSA, Diffie–Hellman và kiểm tra nguyên tố Miller–Rabin."
+    },
+    {
+      "type": "formula",
+      "title": "Nghịch đảo modular (modular inverse) & định lý Fermat nhỏ",
+      "latex": "a \\cdot a^{-1} \\equiv 1 \\pmod{m}, \\qquad a^{-1} \\equiv a^{p-2} \\pmod{p} \\ \\text{ if } p \\text{ prime},\\ p \\nmid a",
+      "reading": "đọc là: nghịch đảo của a theo mod m là số x sao cho a·x chia m dư 1. Nó tồn tại khi và chỉ khi gcd(a, m) = 1. Khi m = p là số nguyên tố, theo định lý Fermat nhỏ (a^{p−1} ≡ 1) ta có ngay a⁻¹ ≡ a^{p−2}.",
+      "symbols": [
+        {
+          "sym": "a^{-1}",
+          "meaning": "'1/a' trong thế giới mod m. Ví dụ: $3^{-1} \\equiv 5 \\pmod 7$ vì $3 \\cdot 5 = 15 \\equiv 1$."
+        },
+        {
+          "sym": "a^{p-1} \\equiv 1",
+          "meaning": "định lý Fermat nhỏ (Fermat's little theorem): đúng với mọi số nguyên tố p và mọi a không chia hết cho p."
+        },
+        {
+          "sym": "a^{p-2}",
+          "meaning": "tính bằng lũy thừa nhanh trong $O(\\log p)$ — cách lấy nghịch đảo phổ biến nhất khi mod 10⁹ + 7."
+        }
+      ],
+      "caption": "Muốn 'chia' a cho b theo mod p: tính $a \\cdot b^{p-2} \\bmod p$. Khi m không nguyên tố, dùng thuật toán Euclid mở rộng (xem bài GCD)."
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Cạm bẫy: phép chia trong modular arithmetic**\n\nTrong số học thông thường: nếu ac = bc và c ≠ 0 thì a = b. Nhưng trong modular arithmetic:\n`4 × 3 ≡ 10 × 3 (mod 6)` (12 ≡ 30 mod 6) NHƯNG 4 ≢ 10 (mod 6)!\n\nChia cho c trong mod n chỉ an toàn khi `gcd(c, n) = 1` (c và n nguyên tố cùng nhau). Khi đó, dùng 'modular inverse' (nghịch đảo modular): `a/c mod n = a × c⁻¹ mod n`. Đây là nền tảng của RSA."
+      "content": "**Cạm bẫy: phép chia trong modular arithmetic**\n\nTrong số học thông thường: nếu $ac = bc$ và $c \\ne 0$ thì $a = b$. Nhưng theo mod 6: $2 \\cdot 3 \\equiv 4 \\cdot 3 \\pmod 6$ (vì 6 ≡ 12 ≡ 0) NHƯNG $2 \\not\\equiv 4 \\pmod 6$!\n\nNguyên nhân: gcd(3, 6) = 3 ≠ 1 nên 3 không có nghịch đảo mod 6. Chỉ được 'chia cho c' khi gcd(c, n) = 1, và khi đó chia nghĩa là nhân với nghịch đảo: $a / c \\equiv a \\cdot c^{-1} \\pmod n$.\n\nLỗi kinh điển trong code: tính $\\binom{n}{k} \\bmod p$ bằng `(fact[n] % p) / (fact[k] * fact[n-k] % p)` — phép chia nguyên trên các phần dư cho kết quả SAI. Phải nhân với nghịch đảo modular."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "a mod n = phần dư khi chia a cho n — luôn trong [0, n-1]. Đồng hồ 12 giờ = mod 12.",
-        "a ≡ b (mod n) nghĩa là n | (a-b) — a và b có cùng phần dư khi chia n.",
-        "Phân phối: (a+b) mod n = ((a mod n)+(b mod n)) mod n — tính trên số nhỏ trước để tránh overflow.",
-        "Ứng dụng: hash index = key % size, circular buffer, cryptography (RSA dùng aᵉ mod n).",
-        "Chia trong modular arithmetic cần modular inverse — chỉ tồn tại khi gcd(c, n) = 1."
+        "$a \\bmod n$ = phần dư khi chia a cho n — theo toán học luôn trong [0, n − 1]. Đồng hồ 12 giờ = mod 12.",
+        "$a \\equiv b \\pmod n$ nghĩa là n chia hết (a − b).",
+        "Cộng, trừ, nhân, lũy thừa: được lấy mod ở mọi bước trung gian → số luôn nhỏ, tránh overflow.",
+        "`%` trong C/Java/JS giữ dấu số bị chia (-7 % 3 = -1); Python giữ dấu số chia (= 2). Dùng `((a % n) + n) % n`.",
+        "Lũy thừa nhanh: $a^e \\bmod m$ trong $O(\\log e)$ phép nhân bằng cách bình phương liên tiếp.",
+        "Chia trong mod = nhân với nghịch đảo, chỉ tồn tại khi gcd(c, n) = 1. Với p nguyên tố: $a^{-1} \\equiv a^{p-2}$.",
+        "10⁹ + 7: số nguyên tố (mọi số khác 0 có nghịch đảo), tích hai phần dư vừa int64."
       ]
     }
   ],
@@ -91,25 +175,55 @@
       "id": "fc-mod-def",
       "type": "definition",
       "front": "$a \\bmod n$ là gì? $a \\equiv b \\pmod{n}$ nghĩa là gì?",
-      "back": "$a \\bmod n$ = phần dư khi chia a cho n, trong [0, n-1]. $a \\equiv b$ (mod n) ↔ n chia hết (a-b)."
+      "back": "$a \\bmod n$ = phần dư khi chia a cho n, nằm trong [0, n − 1]. $a \\equiv b \\pmod n$ ⟺ n chia hết (a − b), tức a và b cùng phần dư."
     },
     {
       "id": "fc-mod-dist",
       "type": "formula",
       "front": "Tính chất phân phối modular: $(a + b) \\bmod n = ?$",
-      "back": "$((a \\bmod n) + (b \\bmod n)) \\bmod n$ — cũng áp dụng cho nhân, giúp tránh overflow."
+      "back": "$((a \\bmod n) + (b \\bmod n)) \\bmod n$ — tương tự cho trừ và nhân (KHÔNG cho chia). Cho phép mod ở mọi bước trung gian để tránh overflow."
     },
     {
       "id": "fc-mod-hash",
       "type": "concept",
       "front": "Vì sao hash table dùng số nguyên tố làm tableSize?",
-      "back": "Số nguyên tố ít ước số → phân phối đều hơn, giảm collision khi key có pattern (ví dụ bội của 2, 4...)."
+      "back": "Nếu key có quy luật chung ước với tableSize (ví dụ bội của 4 với tableSize = 8), key chỉ rơi vào vài ô → nhiều va chạm (collision). Với tableSize nguyên tố, gcd(bước nhảy, size) = 1 nên key trải đều hơn."
     },
     {
       "id": "fc-mod-exp",
       "type": "concept",
-      "front": "Fast modular exponentiation aⁿ mod m dùng O(?) phép nhân?",
-      "back": "O(log n) phép nhân — dùng kỹ thuật 'bình phương liên tiếp' (square and multiply)."
+      "front": "Lũy thừa nhanh $a^e \\bmod m$ cần bao nhiêu phép nhân?",
+      "back": "$O(\\log e)$ — bình phương liên tiếp (square-and-multiply): duyệt từng bit của e, bình phương base mỗi bước, nhân vào kết quả khi bit = 1, và mod sau MỖI phép nhân."
+    },
+    {
+      "id": "fc-mod-negative",
+      "type": "concept",
+      "front": "`-7 % 3` bằng bao nhiêu trong Java/C/JS? Trong Python?",
+      "back": "Java/C/JS: −1 (chia làm tròn về 0, dấu theo số bị chia). Python: 2 (chia làm tròn xuống, dấu theo số chia). Công thức an toàn: `((a % n) + n) % n`."
+    },
+    {
+      "id": "fc-mod-inverse",
+      "type": "definition",
+      "front": "Nghịch đảo modular $a^{-1} \\bmod m$ là gì? Khi nào tồn tại?",
+      "back": "Là số x với $a x \\equiv 1 \\pmod m$. Tồn tại khi và chỉ khi gcd(a, m) = 1. Ví dụ $3^{-1} \\equiv 5 \\pmod 7$."
+    },
+    {
+      "id": "fc-mod-fermat",
+      "type": "formula",
+      "front": "Định lý Fermat nhỏ và cách tính nghịch đảo mod số nguyên tố p?",
+      "back": "$a^{p-1} \\equiv 1 \\pmod p$ khi p nguyên tố và p không chia hết a. Suy ra $a^{-1} \\equiv a^{p-2} \\pmod p$ — tính bằng lũy thừa nhanh $O(\\log p)$."
+    },
+    {
+      "id": "fc-mod-prime-modulus",
+      "type": "concept",
+      "front": "Vì sao đề thi lập trình hay dùng $10^9 + 7$?",
+      "back": "(1) Là số nguyên tố → mọi số khác 0 có nghịch đảo, chia được qua Fermat. (2) Hai phần dư < M thì tích < M² ≈ 10¹⁸ vừa int64. (3) Tổng hai phần dư < 2³¹ − 1, vừa int32. (4) Đủ lớn để ít va chạm khi băm."
+    },
+    {
+      "id": "fc-mod-sub",
+      "type": "concept",
+      "front": "Tính $(a - b) \\bmod m$ an toàn trong Java/C++ khi a, b đã trong [0, m)?",
+      "back": "`(a - b + m) % m` — cộng m để hiệu không âm trước khi lấy %. Viết `(a - b) % m` có thể ra số âm."
     }
   ],
   "exercises": [
@@ -118,16 +232,59 @@
       "difficulty": "warmup",
       "prompt": "Tính $7^3 \\bmod 5$.",
       "hints": [
-        "7³ = 343.",
-        "Hoặc dùng tính chất: (7 mod 5)³ mod 5."
+        "7 mod 5 = ?",
+        "Dùng tính chất: $7^3 \\bmod 5 = (7 \\bmod 5)^3 \\bmod 5$."
       ],
       "solutionSteps": [
-        { "text": "7 mod 5 = 2. Vậy 7³ mod 5 = 2³ mod 5.", "rule": "Phân phối modular — tính mod trước" },
-        { "text": "2³ = 8. 8 mod 5 = 3.", "isCommonMistake": false, "rule": "Tính và lấy phần dư" }
+        {
+          "text": "$7 \\bmod 5 = 2$, nên $7^3 \\bmod 5 = 2^3 \\bmod 5$.",
+          "rule": "Lấy mod cơ số trước"
+        },
+        {
+          "text": "$2^3 = 8$, và $8 \\bmod 5 = 3$.",
+          "rule": "Tính và lấy phần dư"
+        },
+        {
+          "text": "Kiểm tra: $7^3 = 343 = 68 \\times 5 + 3$ ✓. Lưu ý: KHÔNG được mod số mũ theo 5 — $7^3 \\bmod 5 \\ne 7^{3 \\bmod 5}$ nói chung.",
+          "rule": "Chỉ cơ số được mod theo m; số mũ thì không",
+          "isCommonMistake": true
+        }
       ],
       "answer": "3",
-      "commonMistake": "Tính 7³=343 rồi 343 mod 5 = 3 — cũng đúng nhưng chậm hơn khi số lớn.",
+      "commonMistake": "Lấy mod luôn cả số mũ (ví dụ $7^{8} \\bmod 5$ thành $7^{3} \\bmod 5$) — sai; số mũ chỉ được rút gọn theo p − 1 (Fermat) khi m = p nguyên tố.",
       "relatedFlashcard": "fc-mod-dist"
+    },
+    {
+      "id": "ex-mod-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Cho `x = -17`. Hãy cho biết giá trị của `x % 5` trong Java và trong Python, rồi viết biểu thức cho kết quả trong [0, 4] ở MỌI ngôn ngữ.",
+      "hints": [
+        "Java chia làm tròn về 0: −17 / 5 = ?",
+        "Python chia làm tròn xuống: −17 // 5 = ?",
+        "Phần dư = x − (thương) × 5."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Java: −17 / 5 = −3 (cắt phần thập phân về phía 0). Dư = −17 − (−3)(5) = −2.",
+          "rule": "Truncated division"
+        },
+        {
+          "text": "Python: −17 // 5 = −4 (làm tròn xuống). Dư = −17 − (−4)(5) = 3.",
+          "rule": "Floored division"
+        },
+        {
+          "text": "Hai kết quả đều 'đúng' về đồng dư: −2 ≡ 3 (mod 5) vì 5 chia hết 5. Chúng chỉ khác đại diện.",
+          "rule": "Cùng lớp đồng dư"
+        },
+        {
+          "text": "Biểu thức an toàn: `((x % 5) + 5) % 5` → Java: ((−2) + 5) % 5 = 3. Nếu chỉ viết `x % 5 + 5` thì với x dương sẽ ra kết quả ≥ 5 — cần % lần nữa.",
+          "rule": "Chuẩn hóa về [0, n − 1]",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "Java: −2. Python: 3. Biểu thức chung: `((x % 5) + 5) % 5` = 3.",
+      "commonMistake": "Viết `x % 5 + 5` (thiếu % cuối) — sai khi x ≥ 0, ví dụ x = 2 cho 7.",
+      "relatedFlashcard": "fc-mod-negative"
     },
     {
       "id": "ex-mod-apply-1",
@@ -138,31 +295,119 @@
         "(6 + 15) % 8 = ?"
       ],
       "solutionSteps": [
-        { "text": "new_pos = (6 + 15) % 8 = 21 % 8.", "rule": "Circular index: (start + steps) % size" },
-        { "text": "21 % 8 = 21 - 2×8 = 21 - 16 = 5.", "isCommonMistake": false, "rule": "Tìm bội lớn nhất của 8 nhỏ hơn 21" },
-        { "text": "Con trỏ ở vị trí 5.", "isCommonMistake": true, "rule": "Đừng nghĩ 'nhảy 15 từ 6 là 6+15=21 rồi trừ 8 một lần = 13' — phải chia đủ lần cho 8" }
+        {
+          "text": "Vị trí mới = (6 + 15) % 8 = 21 % 8.",
+          "rule": "Chỉ số vòng: (start + steps) % size"
+        },
+        {
+          "text": "21 = 2 × 8 + 5, nên 21 % 8 = 5.",
+          "rule": "Phần dư khi chia cho 8"
+        },
+        {
+          "text": "Con trỏ ở vị trí 5. Sai lầm hay gặp: chỉ trừ 8 một lần (21 − 8 = 13) — 13 vẫn ngoài 0…7. Bước nhảy có thể dài hơn cả vòng, nên phải dùng mod.",
+          "rule": "Mod thay cho 'if (i >= size) i -= size'",
+          "isCommonMistake": true
+        }
       ],
       "answer": "Vị trí 5",
-      "commonMistake": "Trừ 8 một lần: 21-8=13 — sai, vì 13 vẫn ngoài [0,7]. Phải dùng phép mod.",
+      "commonMistake": "Viết `if (pos >= size) pos -= size` — chỉ đúng khi bước nhảy < size; với 15 bước (dài hơn một vòng) kết quả là 13, sai.",
       "relatedFlashcard": "fc-mod-def"
+    },
+    {
+      "id": "ex-mod-apply-2",
+      "difficulty": "apply",
+      "prompt": "Tính $3^{200} \\bmod 7$ bằng hai cách: định lý Fermat nhỏ và bình phương liên tiếp.",
+      "hints": [
+        "7 là số nguyên tố, nên $3^6 \\equiv 1 \\pmod 7$.",
+        "200 chia 6 được bao nhiêu, dư bao nhiêu?",
+        "Cách 2: 200 = 128 + 64 + 8 ở hệ nhị phân."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Fermat: $3^{6} \\equiv 1 \\pmod 7$. Viết $200 = 6 \\times 33 + 2$.",
+          "rule": "$a^{p-1} \\equiv 1 \\pmod p$"
+        },
+        {
+          "text": "$3^{200} = (3^6)^{33} \\cdot 3^2 \\equiv 1^{33} \\cdot 9 \\equiv 2 \\pmod 7$.",
+          "rule": "Rút gọn số mũ theo p − 1 = 6 (không phải theo 7)",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Bình phương liên tiếp: $3^1 = 3$, $3^2 \\equiv 2$, $3^4 \\equiv 4$, $3^8 \\equiv 16 \\equiv 2$, $3^{16} \\equiv 4$, $3^{32} \\equiv 2$, $3^{64} \\equiv 4$, $3^{128} \\equiv 2$.",
+          "rule": "Square-and-multiply"
+        },
+        {
+          "text": "$200 = 128 + 64 + 8$ → $3^{200} \\equiv 2 \\cdot 4 \\cdot 2 = 16 \\equiv 2 \\pmod 7$ ✓.",
+          "rule": "Nhân các lũy thừa ứng với bit 1"
+        }
+      ],
+      "answer": "$3^{200} \\bmod 7 = 2$",
+      "commonMistake": "Rút gọn số mũ theo 7 (200 mod 7 = 4 → $3^4 \\equiv 4$) — sai; số mũ rút gọn theo p − 1 = 6.",
+      "relatedFlashcard": "fc-mod-fermat"
     },
     {
       "id": "ex-mod-challenge-1",
       "difficulty": "challenge",
       "prompt": "Trong competitive programming, kết quả thường yêu cầu in ra `answer mod (10⁹ + 7)`. Vì sao chọn $10^9 + 7$ và không phải số khác? Giải thích ít nhất 2 lý do.",
       "hints": [
-        "10⁹ + 7 = 1000000007 — kiểm tra xem đây có phải số nguyên tố không.",
-        "int32 chứa tối đa ~2.1 × 10⁹. int64 chứa ~9.2 × 10¹⁸.",
-        "Nếu p là số nguyên tố, (a × b) mod p với a, b < p thì tích < p² ≈ 10¹⁸ — vừa vặn int64."
+        "10⁹ + 7 = 1000000007 — nó có phải số nguyên tố không? Điều đó giúp gì cho phép chia?",
+        "int32 chứa tối đa 2³¹ − 1 ≈ 2.1 × 10⁹; int64 chứa tối đa ≈ 9.2 × 10¹⁸.",
+        "Nếu a, b < M thì a + b < ? và a × b < ?"
       ],
       "solutionSteps": [
-        { "text": "10⁹ + 7 là số nguyên tố (prime) — có thể kiểm tra bằng sieve hoặc primality test.", "rule": "Kiểm tra tính nguyên tố" },
-        { "text": "Lý do 1: Là số nguyên tố → mọi phần tử khác 0 đều có modular inverse → chia an toàn trong mod.", "rule": "Modular inverse tồn tại với mọi a khi n là nguyên tố" },
-        { "text": "Lý do 2: Đủ lớn để tránh kết quả bị 'ẩn' do mod quá nhỏ, đủ nhỏ để a × b (với a, b < 10⁹+7) vừa vào int64 (< (10⁹)² = 10¹⁸ < 9.2×10¹⁸).", "isCommonMistake": true, "rule": "Nếu chọn số không phải nguyên tố, không đảm bảo modular inverse tồn tại — nhiều phép chia trong mod sẽ sai" }
+        {
+          "text": "10⁹ + 7 là số nguyên tố (kiểm chứng bằng thử chia đến √M ≈ 31623 hoặc Miller–Rabin).",
+          "rule": "Kiểm tra tính nguyên tố"
+        },
+        {
+          "text": "Lý do 1: M nguyên tố → mọi số 1 … M − 1 đều có nghịch đảo $a^{M-2} \\bmod M$ → 'chia' được, ví dụ tính tổ hợp $\\binom{n}{k}$.",
+          "rule": "Nghịch đảo tồn tại với mọi a ≠ 0 khi modulus nguyên tố"
+        },
+        {
+          "text": "Lý do 2: a, b < M → a × b < M² ≈ 1.0 × 10¹⁸ < 9.2 × 10¹⁸ → vừa int64 trước khi mod. Đồng thời a + b < 2M ≈ 2.0 × 10⁹ < 2³¹ − 1 → tổng vừa int32.",
+          "rule": "Giới hạn kiểu dữ liệu",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Lý do 3: đủ lớn để xác suất hai đáp án khác nhau trùng phần dư rất nhỏ (khi dùng làm modulus băm).",
+          "rule": "Không gian giá trị lớn"
+        }
       ],
-      "answer": "10⁹ + 7 là số nguyên tố lớn vừa đủ để: (1) mọi modular inverse tồn tại, (2) tích hai số < modulus vừa vào int64.",
-      "commonMistake": "Chọn 10⁹ (không phải nguyên tố = 2⁹ × 5⁹) → modular inverse không tồn tại với mọi số.",
-      "relatedFlashcard": "fc-mod-hash"
+      "answer": "Vì 10⁹ + 7 là số nguyên tố (mọi nghịch đảo modular tồn tại) và đủ nhỏ để tích hai phần dư vừa int64, tổng hai phần dư vừa int32.",
+      "commonMistake": "Dùng 10⁹ (= 2⁹ × 5⁹, không nguyên tố) — khi đó các số chẵn hoặc chia hết cho 5 không có nghịch đảo, phép chia modular hỏng. Hoặc tưởng tích hai phần dư vừa int32 — không, phải dùng int64.",
+      "relatedFlashcard": "fc-mod-prime-modulus"
+    },
+    {
+      "id": "ex-mod-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Tính $\\binom{5}{2} \\bmod 7$ theo kiểu code thi đấu: $\\binom{n}{k} = n! \\cdot (k!)^{-1} \\cdot ((n-k)!)^{-1} \\bmod p$. Giải thích vì sao `(fact[5] % 7) / (fact[2] * fact[3] % 7)` cho kết quả sai.",
+      "hints": [
+        "5! = 120, 2! · 3! = 12. Lấy mod 7 từng số.",
+        "Cần nghịch đảo của 12 mod 7, tức của 5 mod 7.",
+        "$5^{-1} \\equiv 5^{7-2} = 5^5 \\pmod 7$, hoặc thử: 5 × 3 = 15 ≡ 1."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$120 \\bmod 7 = 1$ (vì 119 = 17 × 7). $12 \\bmod 7 = 5$.",
+          "rule": "Lấy mod từng giai thừa"
+        },
+        {
+          "text": "Chia nguyên trên phần dư: 1 / 5 = 0 trong code → SAI hoàn toàn. Phần dư không giữ được tính chia hết.",
+          "rule": "Phép chia không 'đi xuyên qua' mod",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Nghịch đảo: $5^{-1} \\equiv 3 \\pmod 7$ vì $5 \\times 3 = 15 \\equiv 1$. (Fermat: $5^5 = 3125 = 446 \\times 7 + 3$ ✓.)",
+          "rule": "Nghịch đảo modular qua Fermat"
+        },
+        {
+          "text": "$\\binom{5}{2} \\equiv 1 \\times 3 = 3 \\pmod 7$. Kiểm tra: $\\binom{5}{2} = 10 = 7 + 3$ ✓.",
+          "rule": "Nhân với nghịch đảo thay cho chia"
+        }
+      ],
+      "answer": "$\\binom{5}{2} \\bmod 7 = 3$. Phép chia nguyên trên phần dư (1 / 5 = 0) sai; phải nhân với nghịch đảo $5^{-1} \\equiv 3$.",
+      "commonMistake": "Chia trực tiếp các phần dư như chia số thường.",
+      "relatedFlashcard": "fc-mod-inverse"
     }
   ],
   "quiz": [
@@ -170,30 +415,92 @@
       "id": "q-mod-1",
       "type": "mcq",
       "question": "$-3 \\bmod 7$ bằng bao nhiêu (kết quả trong [0, 6])?",
-      "options": ["-3", "3", "4", "7"],
+      "options": [
+        "-3",
+        "3",
+        "4",
+        "7"
+      ],
       "correct": 2,
-      "explanation": "-3 + 7 = 4. Hoặc: -3 ≡ 4 (mod 7) vì 7 | (-3-4) = -7. Trong Python: -3 % 7 = 4. Trong JS: cần (-3 % 7 + 7) % 7 = 4."
+      "explanation": "−3 + 7 = 4. Kiểm tra: 7 chia hết (−3 − 4) = −7. Python: `-3 % 7` là 4. Java/JS: `-3 % 7` là −3, cần `((-3 % 7) + 7) % 7` = 4."
     },
     {
       "id": "q-mod-2",
       "type": "mcq",
       "question": "Hash table có 11 slot. Key = 256. Index = ?",
-      "options": ["0", "3", "256", "11"],
+      "options": [
+        "0",
+        "3",
+        "256",
+        "11"
+      ],
       "correct": 1,
-      "explanation": "256 % 11 = 256 - 23×11 = 256 - 253 = 3. Index = 3."
+      "explanation": "23 × 11 = 253, 256 − 253 = 3. Index = 3."
     },
     {
       "id": "q-mod-3",
       "type": "mcq",
-      "question": "Tính $(3 \\times 5) \\bmod 7$ bằng cách nào an toàn để tránh overflow?",
+      "question": "Trong Java (long 64-bit), a = b = 10¹⁵, M = 10⁹ + 7. Biểu thức nào tính đúng $(a \\cdot b) \\bmod M$?",
       "options": [
-        "Tính 3×5=15 rồi 15 mod 7 = 1",
-        "((3 mod 7) × (5 mod 7)) mod 7 = (3×5) mod 7 = 1",
-        "Cả hai cách đều đúng, nhưng cách 2 an toàn hơn khi số lớn",
-        "Không thể tránh overflow"
+        "`(a % M) * (b % M) % M`",
+        "`a * b % M`",
+        "`a % M * b % M`",
+        "`(a * b) / M`"
+      ],
+      "correct": 0,
+      "explanation": "`a * b` = 10³⁰ tràn long. `a % M * b` vẫn nhân một số cỡ 10⁹ với 10¹⁵ ≈ 10²⁴ → tràn. Chỉ khi mod CẢ HAI thừa số trước, tích < M² ≈ 10¹⁸ mới vừa long."
+    },
+    {
+      "id": "q-mod-4",
+      "question": "Trong Java, `-7 % 3` trả về?",
+      "type": "mcq",
+      "options": [
+        "2",
+        "1",
+        "0",
+        "−1"
+      ],
+      "correct": 3,
+      "explanation": "Java chia làm tròn về 0: −7 / 3 = −2, dư = −7 − (−2)(3) = −1. (Python trả về 2.)"
+    },
+    {
+      "id": "q-mod-5",
+      "question": "Nghịch đảo của 3 theo mod 11 ($3^{-1} \\bmod 11$) là?",
+      "type": "mcq",
+      "options": [
+        "4",
+        "3",
+        "8",
+        "Không tồn tại"
+      ],
+      "correct": 0,
+      "explanation": "3 × 4 = 12 ≡ 1 (mod 11). Theo Fermat: $3^{-1} \\equiv 3^{9} \\pmod{11}$; $3^5 = 243 \\equiv 1$ nên $3^9 \\equiv 3^4 = 81 \\equiv 4$ ✓."
+    },
+    {
+      "id": "q-mod-6",
+      "question": "Lũy thừa nhanh tính $a^{e} \\bmod m$ với $e = 10^{18}$ cần khoảng bao nhiêu lần bình phương?",
+      "type": "mcq",
+      "options": [
+        "$10^{18}$",
+        "$10^{9}$",
+        "Khoảng 60",
+        "Khoảng 18"
       ],
       "correct": 2,
-      "explanation": "Cả hai cho kết quả 1. Nhưng với số lớn (ví dụ 10¹⁵ × 10¹⁵), cách 2 — mod trước khi nhân — tránh tràn số int64."
+      "explanation": "Số lần bình phương bằng số bit của e: $\\log_2 10^{18} \\approx 59.8$ → khoảng 60 (cộng thêm tối đa 60 phép nhân vào kết quả). Không phải 18 — đó là số chữ số thập phân."
+    },
+    {
+      "id": "q-mod-7",
+      "question": "Theo mod m, khi nào 'chia cho 2' luôn thực hiện được (tồn tại $2^{-1}$)?",
+      "type": "mcq",
+      "options": [
+        "Khi m chẵn",
+        "Khi m là lũy thừa của 2",
+        "Khi m > 2",
+        "Khi m lẻ"
+      ],
+      "correct": 3,
+      "explanation": "$2^{-1}$ tồn tại khi và chỉ khi gcd(2, m) = 1, tức m lẻ. Ví dụ mod 10⁹ + 7: $2^{-1} = 500000004$ vì 2 × 500000004 = 10⁹ + 8 ≡ 1."
     }
   ]
 }

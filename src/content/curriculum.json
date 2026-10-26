@@ -42,6 +42,17 @@
               "file": "area1/exponential-log-functions.json"
             }
           ]
+        },
+        {
+          "id": "a1u3",
+          "title": "Dãy số & Tổng (Sequences & Sums)",
+          "topics": [
+            {
+              "slug": "summations-series",
+              "title": "Ký hiệu Σ & Chuỗi số (Summations & Series)",
+              "file": "area1/summations-series.json"
+            }
+          ]
         }
       ]
     },
@@ -270,6 +281,11 @@
           "id": "a7u2",
           "title": "Số học (Number Theory)",
           "topics": [
+            {
+              "slug": "number-bases-binary",
+              "title": "Hệ cơ số & Bit (Number Bases & Bits)",
+              "file": "area7/number-bases-binary.json"
+            },
             {
               "slug": "modular-arithmetic",
               "title": "Số học modular (Modular Arithmetic)",

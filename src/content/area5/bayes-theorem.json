@@ -6,8 +6,10 @@
   "order": 4,
   "icon": "dice",
   "tagline": "Định lý Bayes cập nhật niềm tin dựa trên bằng chứng mới — nền tảng của spam filter, Naive Bayes, và ML classification.",
-  "readTime": "~20 min",
-  "prerequisites": ["area5_basic-probability"],
+  "readTime": "~25 min",
+  "prerequisites": [
+    "area5_basic-probability"
+  ],
   "sections": [
     {
       "type": "intro",
@@ -16,7 +18,7 @@
     {
       "type": "analogy",
       "title": "Bayes như \"cập nhật niềm tin\" từ bằng chứng",
-      "content": "Bạn thức dậy và không biết hôm nay có mưa không. Ban đầu (prior) bạn nghĩ P(mưa) = 30% vì thống kê lịch sử.\n\nRồi bạn nhìn ra cửa sổ thấy **trời đầy mây xám**. Bằng chứng này cập nhật niềm tin của bạn — bây giờ bạn nghĩ P(mưa | mây xám) cao hơn nhiều, có thể 80%.\n\nĐây đúng là Bayes:\n- **Prior P(A):** niềm tin ban đầu trước khi có bằng chứng\n- **Likelihood P(B|A):** xác suất quan sát được bằng chứng B nếu A đúng\n- **Posterior P(A|B):** niềm tin được cập nhật sau khi thấy bằng chứng B\n\nBayes = Prior × Likelihood → Posterior. Mỗi bằng chứng mới lại cập nhật posterior."
+      "content": "Bạn thức dậy và không biết hôm nay có mưa không. Ban đầu (prior) bạn nghĩ P(mưa) = 30% vì thống kê lịch sử.\n\nRồi bạn nhìn ra cửa sổ thấy **trời đầy mây xám**. Bằng chứng này cập nhật niềm tin của bạn — bây giờ bạn nghĩ P(mưa | mây xám) cao hơn nhiều, có thể 80%.\n\nĐây đúng là Bayes:\n- **Prior P(A):** niềm tin ban đầu trước khi có bằng chứng\n- **Likelihood P(B|A):** xác suất quan sát được bằng chứng B nếu A đúng\n- **Posterior P(A|B):** niềm tin được cập nhật sau khi thấy bằng chứng B\n\nTóm gọn: **Posterior tỉ lệ thuận với Prior × Likelihood** (rồi chuẩn hóa để tổng xác suất bằng 1). Mỗi bằng chứng mới lại cập nhật tiếp — posterior hôm nay trở thành prior cho lần cập nhật sau."
     },
     {
       "type": "formula",
@@ -24,9 +26,18 @@
       "latex": "P(A \\mid B) = \\frac{P(A \\cap B)}{P(B)}",
       "reading": "đọc là: \"xác suất A xảy ra BIẾT rằng B đã xảy ra = xác suất cả hai cùng xảy ra chia xác suất B\".",
       "symbols": [
-        { "sym": "P(A \\mid B)", "meaning": "xác suất có điều kiện — A xảy ra trong không gian thu hẹp 'B đã xảy ra'" },
-        { "sym": "P(A \\cap B)", "meaning": "xác suất cả A và B cùng xảy ra" },
-        { "sym": "P(B)", "meaning": "xác suất B xảy ra (phải > 0)" }
+        {
+          "sym": "P(A \\mid B)",
+          "meaning": "xác suất có điều kiện — A xảy ra trong không gian thu hẹp 'B đã xảy ra'"
+        },
+        {
+          "sym": "P(A \\cap B)",
+          "meaning": "xác suất cả A và B cùng xảy ra"
+        },
+        {
+          "sym": "P(B)",
+          "meaning": "xác suất B xảy ra (phải > 0)"
+        }
       ],
       "caption": "Xác suất có điều kiện thu hẹp không gian mẫu về tập 'B đã xảy ra' và đo A trong đó."
     },
@@ -36,49 +47,118 @@
       "latex": "P(A \\mid B) = \\frac{P(B \\mid A) \\cdot P(A)}{P(B)}",
       "reading": "đọc là: \"xác suất A biết B = xác suất B biết A, nhân với P(A), chia cho P(B)\".",
       "symbols": [
-        { "sym": "P(A \\mid B)", "meaning": "posterior — xác suất A sau khi biết B (cái ta muốn tìm)" },
-        { "sym": "P(B \\mid A)", "meaning": "likelihood — xác suất quan sát B nếu A đúng" },
-        { "sym": "P(A)", "meaning": "prior — xác suất ban đầu của A trước khi có bằng chứng" },
-        { "sym": "P(B)", "meaning": "marginal — xác suất tổng thể của B, đóng vai trò chuẩn hóa" }
+        {
+          "sym": "P(A \\mid B)",
+          "meaning": "posterior — xác suất A sau khi biết B (cái ta muốn tìm)"
+        },
+        {
+          "sym": "P(B \\mid A)",
+          "meaning": "likelihood — xác suất quan sát B nếu A đúng"
+        },
+        {
+          "sym": "P(A)",
+          "meaning": "prior — xác suất ban đầu của A trước khi có bằng chứng"
+        },
+        {
+          "sym": "P(B)",
+          "meaning": "marginal — xác suất tổng thể của B, đóng vai trò chuẩn hóa"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Tính P(B) bằng Quy tắc xác suất toàn phần",
-      "content": "Thường thì P(B) không cho sẵn — phải tính. Dùng **Total Probability Rule**:\n\nNếu A₁, A₂, ..., Aₙ là phân hoạch của Ω (xung khắc và phủ hết), thì:\n\nP(B) = P(B|A₁)·P(A₁) + P(B|A₂)·P(A₂) + ... + P(B|Aₙ)·P(Aₙ)\n\nTrường hợp đơn giản nhất (A và Aᶜ):\n\nP(B) = P(B|A)·P(A) + P(B|Aᶜ)·P(Aᶜ)\n\nĐây là mẫu số trong Bayes — chuẩn hóa để posterior tổng = 1."
+      "content": "Thường thì P(B) không cho sẵn — phải tính. Dùng **quy tắc xác suất toàn phần (Law of Total Probability)**:\n\nNếu $A_1, A_2, \\dots, A_n$ là một phân hoạch của $\\Omega$ (đôi một xung khắc và phủ hết), thì:\n\n$$P(B) = \\sum_{i=1}^{n} P(B \\mid A_i) \\, P(A_i)$$\n\nTrường hợp đơn giản nhất (A và phần bù $A^c$):\n\n$$P(B) = P(B \\mid A)P(A) + P(B \\mid A^c)P(A^c)$$\n\nĐây chính là mẫu số trong Bayes — đóng vai trò chuẩn hóa để các posterior cộng lại bằng 1."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ kinh điển: bệnh hiếm + xét nghiệm không hoàn hảo",
       "problem": "Bệnh hiếm gặp: 1% dân số bị bệnh (P(bệnh) = 0.01). Xét nghiệm: nếu bệnh thì 99% ra dương tính (sensitivity). Nếu không bệnh thì 5% vẫn ra dương tính (false positive rate). Bạn test DƯƠNG TÍNH — xác suất bạn thực sự bị bệnh là bao nhiêu?",
       "steps": [
-        { "text": "Đặt: A = 'bị bệnh', B = 'test dương tính'. P(A)=0.01, P(Aᶜ)=0.99. P(B|A)=0.99, P(B|Aᶜ)=0.05.", "rule": "Xác định các xác suất đã biết" },
-        { "text": "Tính P(B) bằng total probability: P(B) = P(B|A)×P(A) + P(B|Aᶜ)×P(Aᶜ) = 0.99×0.01 + 0.05×0.99 = 0.0099 + 0.0495 = 0.0594.", "rule": "Total Probability Rule — tính mẫu số" },
-        { "text": "Áp dụng Bayes: P(A|B) = P(B|A)×P(A) / P(B) = (0.99×0.01) / 0.0594 = 0.0099 / 0.0594.", "rule": "Công thức Bayes" },
-        { "text": "P(A|B) = 0.0099 / 0.0594 ≈ 0.167 = **16.7%**.", "isCommonMistake": true, "rule": "Lỗi hay gặp: nghĩ test 99% chính xác thì kết quả dương tính là 99% bị bệnh — hoàn toàn sai! Prior thấp (1%) kéo posterior xuống rất nhiều" }
+        {
+          "text": "Đặt: A = 'bị bệnh', B = 'test dương tính'. P(A)=0.01, P(Aᶜ)=0.99. P(B|A)=0.99, P(B|Aᶜ)=0.05.",
+          "rule": "Xác định các xác suất đã biết"
+        },
+        {
+          "text": "Tính P(B) bằng total probability: P(B) = P(B|A)×P(A) + P(B|Aᶜ)×P(Aᶜ) = 0.99×0.01 + 0.05×0.99 = 0.0099 + 0.0495 = 0.0594.",
+          "rule": "Total Probability Rule — tính mẫu số"
+        },
+        {
+          "text": "Áp dụng Bayes: P(A|B) = P(B|A)×P(A) / P(B) = (0.99×0.01) / 0.0594 = 0.0099 / 0.0594.",
+          "rule": "Công thức Bayes"
+        },
+        {
+          "text": "P(A|B) = 0.0099 / 0.0594 ≈ 0.167 = **16.7%**.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: nghĩ test 99% chính xác thì kết quả dương tính là 99% bị bệnh — hoàn toàn sai! Prior thấp (1%) kéo posterior xuống rất nhiều"
+        }
       ],
       "result": "P(bị bệnh | test dương) ≈ **16.7%** — dù test có độ chính xác 99%!"
     },
     {
       "type": "diagram",
-      "title": "Cây xác suất — phân tích false positive",
-      "mermaid": "graph TD\n    A[1000 người xét nghiệm] --> B[10 người bị bệnh\\nP = 0.01]\n    A --> C[990 người không bệnh\\nP = 0.99]\n    B --> D[9.9 người test +\\nTP: sensitivity 99%]\n    B --> E[0.1 người test -\\nFN]\n    C --> F[49.5 người test +\\nFP: false positive 5%]\n    C --> G[940.5 người test -\\nTN]\n    D --> H[Tổng dương tính: 9.9 + 49.5 = 59.4]\n    F --> H\n    H --> I[P bị bệnh | dương tính\\n= 9.9 / 59.4 ≈ 16.7%]",
-      "caption": "Trong 1000 người: 10 bị bệnh → 9.9 test đúng dương (TP). 990 không bệnh → 49.5 test sai dương (FP). Khi dương tính: chỉ 9.9/(9.9+49.5) ≈ 16.7% thực sự bị bệnh. FP nhiều hơn TP gần 5 lần!"
+      "title": "Cây tần suất — đếm người thay vì nhân xác suất",
+      "mermaid": "graph TD\n    A[\"10000 người xét nghiệm\"] --> B[\"100 người bị bệnh (1%)\"]\n    A --> C[\"9900 người không bệnh (99%)\"]\n    B --> D[\"99 dương tính thật (TP)\"]\n    B --> E[\"1 âm tính giả (FN)\"]\n    C --> F[\"495 dương tính giả (FP)\"]\n    C --> G[\"9405 âm tính thật (TN)\"]\n    D --> H[\"Tổng dương tính: 99 + 495 = 594\"]\n    F --> H\n    H --> I[\"P(bệnh khi dương tính) = 99/594 = 16.7%\"]",
+      "caption": "Trong 10000 người: 100 người bệnh → 99 dương tính thật (TP). 9900 người khỏe → 495 dương tính giả (FP). Trong 594 ca dương tính chỉ 99 ca thật sự bệnh ≈ 16.7%. FP nhiều gấp 5 lần TP! Mẹo: quy về số người cụ thể (natural frequencies) giúp tránh base rate neglect."
+    },
+    {
+      "type": "formula",
+      "title": "Dạng odds của Bayes (Odds Form)",
+      "latex": "\\frac{P(A \\mid B)}{P(A^c \\mid B)} = \\frac{P(A)}{P(A^c)} \\times \\frac{P(B \\mid A)}{P(B \\mid A^c)}",
+      "reading": "đọc là: \"posterior odds = prior odds × likelihood ratio\". Không cần tính mẫu số P(B)!",
+      "symbols": [
+        {
+          "sym": "\\frac{P(A)}{P(A^c)}",
+          "meaning": "prior odds — tỷ lệ cược ban đầu, VD bệnh 1% → odds 1 : 99"
+        },
+        {
+          "sym": "\\frac{P(B \\mid A)}{P(B \\mid A^c)}",
+          "meaning": "likelihood ratio (LR) — bằng chứng B \"nghiêng\" về A mạnh cỡ nào"
+        },
+        {
+          "sym": "p = \\frac{o}{1 + o}",
+          "meaning": "đổi odds o về xác suất p"
+        }
+      ],
+      "caption": "Ví dụ xét nghiệm: prior odds 1 : 99, LR = 0.99 / 0.05 = 19.8 → posterior odds = 19.8 : 99 = 1 : 5 → P = 1/6 ≈ 16.7%. Mỗi bằng chứng độc lập (có điều kiện) mới chỉ cần nhân thêm một LR — rất tiện cho cập nhật tuần tự."
+    },
+    {
+      "type": "explanation",
+      "title": "Precision, Recall và Bayes — chỉ số ML là xác suất có điều kiện",
+      "content": "Các chỉ số của một classifier (spam filter, fraud detection, alert monitoring) chính là xác suất có điều kiện:\n\n| Chỉ số | Xác suất | Ý nghĩa |\n|---|---|---|\n| Recall (sensitivity) | $P(+ \\mid \\text{pos})$ | Bắt được bao nhiêu % ca thật |\n| False positive rate | $P(+ \\mid \\text{neg})$ | Báo nhầm bao nhiêu % ca âm |\n| Precision | $P(\\text{pos} \\mid +)$ | Trong các cảnh báo, bao nhiêu % là thật |\n\nRecall và false positive rate là tính chất của model; còn **precision phụ thuộc base rate** — Bayes là cầu nối giữa hai bên. Ví dụ model phát hiện gian lận (fraud) có recall 99%, false positive rate 1%: nếu gian lận chỉ chiếm 0.1% giao dịch thì precision ≈ 9% — cứ 10 cảnh báo thì khoảng 9 cái sai. Đây là gốc rễ của \"alert fatigue\" trong vận hành hệ thống."
     },
     {
       "type": "explanation",
       "title": "Liên hệ CS: Naive Bayes Spam Filter",
-      "content": "**Spam filter** là ứng dụng Bayes nổi tiếng nhất. Ta muốn tính P(spam | email) từ nội dung email.\n\nNaive Bayes giả sử mỗi từ độc lập (\"naive\") và áp dụng Bayes:\n\nP(spam | w₁, w₂, ..., wₙ) ∝ P(spam) × ∏P(wᵢ | spam)\n\nVí dụ: email chứa từ \"free\" và \"money\":\n- Prior: P(spam) = 0.3 (30% email là spam)\n- P(\"free\" | spam) = 0.8 (80% spam có từ \"free\")\n- P(\"free\" | ham) = 0.1 (10% email bình thường có \"free\")\n- P(\"money\" | spam) = 0.7, P(\"money\" | ham) = 0.05\n\nScore spam ∝ 0.3 × 0.8 × 0.7 = 0.168\nScore ham ∝ 0.7 × 0.1 × 0.05 = 0.0035\n\nP(spam | email) = 0.168/(0.168+0.0035) ≈ **97.9%** → phân loại là SPAM.\n\nĐây chính là thuật toán phía sau bộ lọc email của bạn!"
+      "content": "**Spam filter** là ứng dụng Bayes nổi tiếng nhất. Ta muốn tính P(spam | email) từ các từ trong email.\n\nNaive Bayes giả sử các từ **độc lập có điều kiện khi biết class** (giả định \"naive\") và áp dụng Bayes:\n\n$$P(\\text{spam} \\mid w_1, \\dots, w_n) \\propto P(\\text{spam}) \\prod_{i} P(w_i \\mid \\text{spam})$$\n\nVí dụ: email chứa từ \"free\" và \"money\":\n\n- Prior: P(spam) = 0.3 (30% email là spam), P(ham) = 0.7\n- P(\"free\" | spam) = 0.8, P(\"free\" | ham) = 0.1\n- P(\"money\" | spam) = 0.7, P(\"money\" | ham) = 0.05\n\nScore spam = 0.3 × 0.8 × 0.7 = 0.168\n\nScore ham = 0.7 × 0.1 × 0.05 = 0.0035\n\nP(spam | email) = 0.168 / (0.168 + 0.0035) ≈ **98.0%** → phân loại là SPAM.\n\nĐây là ý tưởng đằng sau các bộ lọc spam thế hệ đầu (Paul Graham, 2002) và vẫn là baseline mạnh cho phân loại văn bản."
+    },
+    {
+      "type": "callout",
+      "variant": "tip",
+      "content": "**Naive Bayes trong thực tế:** (1) Nhân hàng trăm xác suất nhỏ gây **underflow** về 0 → cộng log-xác suất thay vì nhân: $\\log P(c) + \\sum_i \\log P(w_i \\mid c)$. (2) Một từ chưa từng xuất hiện trong class c lúc training cho $P(w \\mid c) = 0$, xóa sổ cả tích → dùng **Laplace smoothing** (add-one): $P(w \\mid c) = \\frac{\\text{count}(w, c) + 1}{\\text{count}(c) + V}$, với V là kích thước từ vựng."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: Naive Bayes phân loại bug report",
       "problem": "Công cụ phân loại bug: P(critical) = 0.2. P(từ 'crash' | critical) = 0.9, P('crash' | non-critical) = 0.1. Bug report chứa từ 'crash'. P(critical | 'crash') = ?",
       "steps": [
-        { "text": "Prior: P(critical) = 0.2, P(non-critical) = 0.8.", "rule": "Xác định prior từ lịch sử dữ liệu" },
-        { "text": "Likelihood: P('crash'|critical) = 0.9, P('crash'|non-critical) = 0.1.", "rule": "Tần suất từ 'crash' trong mỗi loại bug từ training data" },
-        { "text": "P('crash') = 0.9×0.2 + 0.1×0.8 = 0.18 + 0.08 = 0.26.", "rule": "Total probability rule" },
-        { "text": "P(critical|'crash') = (0.9×0.2)/0.26 = 0.18/0.26 ≈ 0.692.", "isCommonMistake": true, "rule": "Lỗi hay gặp: dùng P('crash'|critical)=0.9 trực tiếp thay vì áp dụng Bayes" }
+        {
+          "text": "Prior: P(critical) = 0.2, P(non-critical) = 0.8.",
+          "rule": "Xác định prior từ lịch sử dữ liệu"
+        },
+        {
+          "text": "Likelihood: P('crash'|critical) = 0.9, P('crash'|non-critical) = 0.1.",
+          "rule": "Tần suất từ 'crash' trong mỗi loại bug từ training data"
+        },
+        {
+          "text": "P('crash') = 0.9×0.2 + 0.1×0.8 = 0.18 + 0.08 = 0.26.",
+          "rule": "Total probability rule"
+        },
+        {
+          "text": "P(critical|'crash') = (0.9×0.2)/0.26 = 0.18/0.26 ≈ 0.692.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: dùng P('crash'|critical)=0.9 trực tiếp thay vì áp dụng Bayes"
+        }
       ],
       "result": "P(critical | chứa 'crash') ≈ **69.2%** — từ 20% prior tăng lên 69% sau bằng chứng"
     },
@@ -86,11 +166,23 @@
       "type": "graph",
       "title": "Posterior P(A|B) theo Prior P(A) — ảnh hưởng của prior",
       "functions": [
-        { "fn": "(0.9 * x) / (0.9 * x + 0.1 * (1-x))", "color": "#ffe08a" },
-        { "fn": "(0.7 * x) / (0.7 * x + 0.3 * (1-x))", "color": "#7fded1" }
+        {
+          "fn": "(0.9 * x) / (0.9 * x + 0.1 * (1-x))",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "(0.7 * x) / (0.7 * x + 0.3 * (1-x))",
+          "color": "#7fded1"
+        }
       ],
-      "xDomain": [0, 1],
-      "yDomain": [0, 1],
+      "xDomain": [
+        0,
+        1
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
       "caption": "Posterior P(A|B) phụ thuộc vào prior P(A). Đường vàng (test nhạy 90%, FP=10%) và đường xanh (70%/30%). Khi prior thấp (x gần 0), posterior cũng thấp dù test khá chính xác — đây là bản chất của false positive paradox."
     },
     {
@@ -101,11 +193,12 @@
     {
       "type": "key_takeaways",
       "items": [
-        "P(A|B) = P(B|A)·P(A) / P(B) — đảo chiều suy luận: từ bằng chứng về nguyên nhân.",
-        "Ba thành phần: Prior P(A) + Likelihood P(B|A) → Posterior P(A|B). Posterior là prior được cập nhật.",
-        "False positive paradox: test chính xác 99% vẫn cho posterior thấp nếu prior (bệnh hiếm) rất nhỏ.",
-        "Total probability: P(B) = P(B|A)·P(A) + P(B|Aᶜ)·P(Aᶜ) — thường phải tính mẫu số này.",
-        "CS ứng dụng: Naive Bayes spam filter, ML classification, medical diagnosis, document classification đều dùng Bayes."
+        "$P(A \\mid B) = P(B \\mid A)P(A)/P(B)$ — đảo chiều suy luận: từ bằng chứng về nguyên nhân.",
+        "Posterior ∝ Prior × Likelihood; mẫu số P(B) tính bằng quy tắc xác suất toàn phần.",
+        "$P(A \\mid B) \\ne P(B \\mid A)$ — nhầm hai đại lượng này là lỗi suy luận kinh điển.",
+        "Base rate neglect: test 99% nhạy vẫn cho posterior thấp nếu prior rất nhỏ. Mẹo: đếm trên 10000 người.",
+        "Dạng odds: posterior odds = prior odds × likelihood ratio — tiện cho cập nhật tuần tự nhiều bằng chứng.",
+        "CS: precision của classifier/alert phụ thuộc base rate; Naive Bayes = Bayes + giả định độc lập có điều kiện, dùng log-xác suất và Laplace smoothing."
       ]
     }
   ],
@@ -139,6 +232,30 @@
       "type": "concept",
       "front": "Naive Bayes classifier hoạt động như thế nào?",
       "back": "P(class|features) ∝ P(class) × ∏P(feature_i|class). Giả sử features độc lập ('naive'). Train bằng đếm tần suất từ trong mỗi class. Dùng cho spam filter, text classification."
+    },
+    {
+      "id": "fc-bayes-odds",
+      "type": "formula",
+      "front": "Dạng odds của Bayes là gì?",
+      "back": "Posterior odds = prior odds × likelihood ratio, với LR = $P(B \\mid A)/P(B \\mid A^c)$. Đổi về xác suất: $p = o/(1+o)$. Nhiều bằng chứng độc lập có điều kiện → nhân nhiều LR."
+    },
+    {
+      "id": "fc-bayes-precision-recall",
+      "type": "concept",
+      "front": "Precision và recall tương ứng với xác suất có điều kiện nào?",
+      "back": "Recall = $P(+ \\mid \\text{pos})$ (bắt được bao nhiêu ca thật). Precision = $P(\\text{pos} \\mid +)$ (cảnh báo đúng bao nhiêu %). Precision phụ thuộc base rate — tính bằng Bayes."
+    },
+    {
+      "id": "fc-bayes-laplace",
+      "type": "concept",
+      "front": "Hai kỹ thuật thực tế khi cài Naive Bayes?",
+      "back": "(1) Cộng log-xác suất thay vì nhân để tránh underflow. (2) Laplace smoothing $\\frac{\\text{count}(w, c) + 1}{\\text{count}(c) + V}$ để từ chưa gặp không làm cả tích bằng 0."
+    },
+    {
+      "id": "fc-bayes-inverse",
+      "type": "concept",
+      "front": "$P(A \\mid B)$ và $P(B \\mid A)$ có bằng nhau không?",
+      "back": "Nói chung không: $P(A \\mid B) = P(B \\mid A) \\cdot \\frac{P(A)}{P(B)}$. Chỉ bằng nhau khi P(A) = P(B) (hoặc cả hai bằng 0). VD: P(dương tính | bệnh) = 99% nhưng P(bệnh | dương tính) chỉ 16.7%."
     }
   ],
   "exercises": [
@@ -152,32 +269,118 @@
         "Áp dụng Bayes: P(A|B) = P(B|A)×P(A)/P(B)."
       ],
       "solutionSteps": [
-        { "text": "P(Aᶜ) = 1 − 0.4 = 0.6.", "rule": "Complement" },
-        { "text": "P(B) = 0.7×0.4 + 0.2×0.6 = 0.28 + 0.12 = 0.40.", "rule": "Total Probability Rule" },
-        { "text": "P(A|B) = P(B|A)×P(A)/P(B) = (0.7×0.4)/0.40 = 0.28/0.40 = 0.70.", "rule": "Bayes' Theorem" }
+        {
+          "text": "P(Aᶜ) = 1 − 0.4 = 0.6.",
+          "rule": "Complement"
+        },
+        {
+          "text": "P(B) = 0.7×0.4 + 0.2×0.6 = 0.28 + 0.12 = 0.40.",
+          "rule": "Total Probability Rule"
+        },
+        {
+          "text": "P(A|B) = P(B|A)×P(A)/P(B) = (0.7×0.4)/0.40 = 0.28/0.40 = 0.70.",
+          "rule": "Bayes' Theorem"
+        }
       ],
       "answer": "P(A|B) = 0.70",
       "commonMistake": "Nhầm P(A|B) = P(B|A) = 0.7. Hai xác suất này khác nhau! P(A|B) ≠ P(B|A) trừ khi P(A) = P(B).",
       "relatedFlashcard": "fc-bayes-theorem"
     },
     {
+      "id": "ex-bayes-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Test spam filter trên 1000 email: 200 spam, 800 ham. Filter chặn 180 email spam và 40 email ham. Tính (a) recall P(chặn | spam), (b) precision P(spam | chặn), (c) false positive rate P(chặn | ham).",
+      "hints": [
+        "Recall: trong 200 spam, bao nhiêu bị chặn?",
+        "Precision: trong tổng số email bị chặn (180 + 40), bao nhiêu là spam?",
+        "FPR: trong 800 ham, bao nhiêu bị chặn nhầm?"
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) Recall = 180/200 = 0.90.",
+          "rule": "Xác suất có điều kiện = đếm trong nhóm điều kiện"
+        },
+        {
+          "text": "(b) Tổng bị chặn = 180 + 40 = 220. Precision = 180/220 = 9/11 ≈ 0.818.",
+          "rule": "Đổi chiều điều kiện: mẫu số là nhóm \"bị chặn\"",
+          "isCommonMistake": true
+        },
+        {
+          "text": "(c) FPR = 40/800 = 0.05.",
+          "rule": "Xác suất có điều kiện trên nhóm ham"
+        },
+        {
+          "text": "Kiểm tra bằng Bayes: $\\frac{0.9 \\times 0.2}{0.9 \\times 0.2 + 0.05 \\times 0.8} = \\frac{0.18}{0.22} \\approx 0.818$, khớp.",
+          "rule": "Bayes + xác suất toàn phần"
+        }
+      ],
+      "answer": "(a) 0.90; (b) 9/11 ≈ 0.818; (c) 0.05",
+      "commonMistake": "Dùng nhầm mẫu số: chia 180 cho 200 khi tính precision (đó là recall) — luôn hỏi \"điều kiện là nhóm nào?\".",
+      "relatedFlashcard": "fc-bayes-precision-recall"
+    },
+    {
       "id": "ex-bayes-apply-1",
       "difficulty": "apply",
-      "prompt": "Hệ thống phát hiện DDoS attack: P(attack) = 0.05 (5% thời gian bị tấn công). Khi bị attack, alarm reng với P = 0.95. Khi bình thường, false alarm với P = 0.10. Khi alarm reng, P(thực sự bị attack) = ?",
+      "prompt": "Hệ thống phát hiện DDoS: P(attack) = 0.05 (5% thời gian bị tấn công). Khi bị tấn công, báo động kêu với xác suất 0.95. Khi bình thường, vẫn báo động nhầm (false alarm) với xác suất 0.10. Khi báo động kêu, xác suất thực sự đang bị tấn công là bao nhiêu?",
       "hints": [
-        "A = 'đang bị attack', B = 'alarm reng'.",
+        "A = \"đang bị tấn công\", B = \"báo động kêu\".",
         "Tính P(B) = P(B|A)×P(A) + P(B|Aᶜ)×P(Aᶜ).",
         "Áp dụng Bayes."
       ],
       "solutionSteps": [
-        { "text": "P(A)=0.05, P(Aᶜ)=0.95. P(B|A)=0.95, P(B|Aᶜ)=0.10.", "rule": "Xác định prior và likelihood" },
-        { "text": "P(B) = 0.95×0.05 + 0.10×0.95 = 0.0475 + 0.095 = 0.1425.", "rule": "Total Probability" },
-        { "text": "P(A|B) = (0.95×0.05)/0.1425 = 0.0475/0.1425 ≈ 0.333.", "rule": "Bayes" },
-        { "text": "Alarm reng chỉ có 33.3% khả năng là attack thật! False positive rate cao (10%) + prior thấp (5%) = 2/3 alarm là false alarm.", "isCommonMistake": true, "rule": "Lỗi hay gặp: nghĩ accuracy 95% nghĩa là alarm thật 95% — bỏ qua prior" }
+        {
+          "text": "P(A)=0.05, P(Aᶜ)=0.95. P(B|A)=0.95, P(B|Aᶜ)=0.10.",
+          "rule": "Xác định prior và likelihood"
+        },
+        {
+          "text": "P(B) = 0.95×0.05 + 0.10×0.95 = 0.0475 + 0.095 = 0.1425.",
+          "rule": "Total Probability"
+        },
+        {
+          "text": "P(A|B) = (0.95×0.05)/0.1425 = 0.0475/0.1425 ≈ 0.333.",
+          "rule": "Bayes"
+        },
+        {
+          "text": "Báo động kêu chỉ có 33.3% khả năng là tấn công thật! False alarm rate 10% trên 95% thời gian bình thường tạo ra 0.095, gấp đôi 0.0475 báo động thật → 2/3 số lần báo động là báo nhầm.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: nghĩ sensitivity 95% nghĩa là báo động đúng 95% — bỏ qua prior"
+        }
       ],
-      "answer": "P(attack | alarm) ≈ 33.3% — 2/3 alarm là false alarm, cần giảm false positive rate",
-      "commonMistake": "Nhầm sensitivity 95% với precision — cần cả hai chỉ số để đánh giá classifier.",
+      "answer": "P(attack | báo động) = 1/3 ≈ 33.3% — 2/3 số báo động là báo nhầm, cần giảm false positive rate",
+      "commonMistake": "Nhầm sensitivity P(báo động | attack) = 95% với precision P(attack | báo động) — hai xác suất có điều kiện theo hai chiều ngược nhau.",
       "relatedFlashcard": "fc-bayes-false-positive"
+    },
+    {
+      "id": "ex-bayes-apply-2",
+      "difficulty": "apply",
+      "prompt": "Bệnh có tỷ lệ 1%. Test có sensitivity 99% và false positive rate 5%. Một người test dương tính **hai lần** (giả sử hai lần test độc lập khi đã biết tình trạng bệnh). Dùng dạng odds, tính P(bệnh | 2 lần dương tính).",
+      "hints": [
+        "Prior odds = 0.01 / 0.99 = 1/99.",
+        "Likelihood ratio của mỗi lần dương tính = 0.99 / 0.05.",
+        "Nhân LR hai lần, rồi đổi odds o về xác suất bằng $o/(1+o)$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Prior odds = 1/99. LR = 0.99 / 0.05 = 19.8.",
+          "rule": "Dạng odds của Bayes"
+        },
+        {
+          "text": "Sau lần 1: odds = 19.8/99 = 0.2 → P = 0.2/1.2 ≈ 16.7% (khớp ví dụ ở trên).",
+          "rule": "Posterior odds = prior odds × LR"
+        },
+        {
+          "text": "Sau lần 2: posterior lần 1 thành prior mới: odds = 0.2 × 19.8 = 3.96.",
+          "rule": "Cập nhật tuần tự"
+        },
+        {
+          "text": "Đổi về xác suất: P = 3.96 / (1 + 3.96) = 3.96/4.96 ≈ 79.8%. Không được trả lời 3.96 hay \"396%\" — odds không phải xác suất.",
+          "rule": "$p = o/(1+o)$",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "P(bệnh | 2 lần dương tính) ≈ 79.8% (so với 16.7% sau 1 lần)",
+      "commonMistake": "Quên đổi odds sang xác suất, hoặc coi hai lần test là độc lập dù thực tế cùng phòng lab, cùng mẫu bệnh phẩm (lỗi tương quan) — khi đó LR lần 2 nhỏ hơn và kết quả 79.8% là quá lạc quan.",
+      "relatedFlashcard": "fc-bayes-odds"
     },
     {
       "id": "ex-bayes-challenge-1",
@@ -189,14 +392,59 @@
         "Score spam = 0.6 × 0.8 × 0.6. Score ham = 0.4 × 0.1 × 0.05."
       ],
       "solutionSteps": [
-        { "text": "Score spam = P(spam) × P('win'|spam) × P('prize'|spam) = 0.6 × 0.8 × 0.6 = 0.288.", "rule": "Naive Bayes: nhân prior × likelihood các features (giả sử độc lập)" },
-        { "text": "Score ham = P(ham) × P('win'|ham) × P('prize'|ham) = 0.4 × 0.1 × 0.05 = 0.002.", "rule": "Tương tự cho class ham" },
-        { "text": "Tổng = 0.288 + 0.002 = 0.290 (chuẩn hóa).", "rule": "Marginal probability P(features)" },
-        { "text": "P(spam|'win','prize') = 0.288/0.290 ≈ 0.993 = 99.3%.", "isCommonMistake": true, "rule": "Lỗi hay gặp: quên chuẩn hóa (normalize) — phải chia cho tổng hai score" }
+        {
+          "text": "Score spam = P(spam) × P('win'|spam) × P('prize'|spam) = 0.6 × 0.8 × 0.6 = 0.288.",
+          "rule": "Naive Bayes: nhân prior × likelihood các features (giả sử độc lập)"
+        },
+        {
+          "text": "Score ham = P(ham) × P('win'|ham) × P('prize'|ham) = 0.4 × 0.1 × 0.05 = 0.002.",
+          "rule": "Tương tự cho class ham"
+        },
+        {
+          "text": "Tổng = 0.288 + 0.002 = 0.290 (chuẩn hóa).",
+          "rule": "Marginal probability P(features)"
+        },
+        {
+          "text": "P(spam|'win','prize') = 0.288/0.290 ≈ 0.993 = 99.3%.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: quên chuẩn hóa (normalize) — phải chia cho tổng hai score"
+        }
       ],
       "answer": "P(spam | 'win', 'prize') ≈ 99.3% — email bị phân loại spam với độ tự tin rất cao",
-      "commonMistake": "Dùng log-probabilities trong thực tế để tránh underflow khi nhân nhiều số nhỏ — nhưng kết quả logically tương đương.",
+      "commonMistake": "Quên chuẩn hóa và báo 0.288 là xác suất spam — score chỉ tỉ lệ thuận với posterior, phải chia cho tổng các score. (Trong thực tế còn cộng log-xác suất để tránh underflow.)",
       "relatedFlashcard": "fc-bayes-naive-bayes"
+    },
+    {
+      "id": "ex-bayes-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "[Interview Classic] Monty Hall: có 3 cửa, sau 1 cửa là xe hơi, 2 cửa còn lại là dê. Bạn chọn cửa 1. Người dẫn chương trình (biết xe ở đâu, luôn mở một cửa có dê mà bạn không chọn, nếu có hai lựa chọn thì chọn ngẫu nhiên) mở cửa 3 — là dê. Dùng Bayes tính xác suất xe ở cửa 1 và cửa 2. Có nên đổi sang cửa 2 không?",
+      "hints": [
+        "Gọi $C_i$ = xe ở cửa i, prior $P(C_i) = 1/3$. Gọi H = \"host mở cửa 3\".",
+        "Likelihood: nếu xe ở cửa 1, host chọn ngẫu nhiên cửa 2 hoặc 3 → $P(H \\mid C_1) = 1/2$. Nếu xe ở cửa 2? cửa 3?",
+        "Tính P(H) bằng xác suất toàn phần rồi áp dụng Bayes."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Likelihood: $P(H \\mid C_1) = 1/2$, $P(H \\mid C_2) = 1$ (host buộc phải mở cửa 3), $P(H \\mid C_3) = 0$ (không mở cửa có xe).",
+          "rule": "Mô hình hóa hành vi của host"
+        },
+        {
+          "text": "$P(H) = \\frac{1}{3}\\left(\\frac{1}{2} + 1 + 0\\right) = \\frac{1}{2}$.",
+          "rule": "Quy tắc xác suất toàn phần"
+        },
+        {
+          "text": "$P(C_1 \\mid H) = \\frac{(1/2)(1/3)}{1/2} = \\frac{1}{3}$, $P(C_2 \\mid H) = \\frac{1 \\cdot (1/3)}{1/2} = \\frac{2}{3}$.",
+          "rule": "Định lý Bayes"
+        },
+        {
+          "text": "Trực giác \"còn 2 cửa nên 50/50\" sai vì bỏ qua likelihood: host bị **ép** mở cửa 3 khi xe ở cửa 2, nhưng chỉ mở cửa 3 với xác suất 1/2 khi xe ở cửa 1 — bằng chứng nghiêng về cửa 2.",
+          "rule": "Bằng chứng phụ thuộc vào cơ chế sinh ra nó",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "P(xe ở cửa 1 | host mở cửa 3) = 1/3, P(xe ở cửa 2 | host mở cửa 3) = 2/3 → nên đổi cửa (thắng 2/3 thay vì 1/3)",
+      "commonMistake": "Cho rằng hai cửa còn lại đồng khả năng 1/2 — điều đó chỉ đúng nếu host mở cửa ngẫu nhiên (có thể lộ xe). Thông tin nằm ở chỗ host BIẾT và bị ràng buộc.",
+      "relatedFlashcard": "fc-bayes-theorem"
     }
   ],
   "quiz": [
@@ -206,35 +454,77 @@
       "question": "P(A|B) và P(B|A) có bằng nhau không?",
       "options": [
         "Luôn bằng nhau",
-        "Không, trừ khi P(A) = P(B)",
         "Chỉ bằng nhau khi A và B độc lập",
-        "Bằng nhau khi P(A ∩ B) = 0"
+        "Nói chung không; chỉ bằng nhau khi P(A) = P(B) (hoặc cả hai bằng 0)",
+        "Luôn bằng nhau nếu A là nguyên nhân của B"
       ],
-      "correct": 1,
-      "explanation": "P(A|B) = P(A∩B)/P(B) và P(B|A) = P(A∩B)/P(A). Chúng bằng nhau khi P(A)=P(B). Nhầm P(A|B)=P(B|A) gọi là 'base rate fallacy' — lỗi rất phổ biến trong y tế và ML."
+      "correct": 2,
+      "explanation": "$P(A \\mid B) = P(A \\cap B)/P(B)$ và $P(B \\mid A) = P(A \\cap B)/P(A)$ — cùng tử số, khác mẫu số. Chúng bằng nhau khi P(A) = P(B), hoặc khi $P(A \\cap B) = 0$ (cả hai bằng 0). Nhầm P(A|B) với P(B|A) là lỗi \"confusion of the inverse\" (còn gọi là prosecutor's fallacy) — rất phổ biến trong y tế, pháp lý và đánh giá model ML."
     },
     {
       "id": "q-bayes-2",
       "type": "mcq",
       "question": "Bệnh hiếm với P(bệnh)=0.001. Test có sensitivity=0.99 và specificity=0.99. P(bệnh|test dương) xấp xỉ bao nhiêu?",
       "options": [
-        "~99%", "~50%", "~9%", "~0.1%"
+        "~99%",
+        "~50%",
+        "~0.1%",
+        "~9%"
       ],
-      "correct": 2,
-      "explanation": "P(B) = 0.99×0.001 + 0.01×0.999 ≈ 0.001+0.01 ≈ 0.011. P(A|B) = 0.00099/0.011 ≈ 9%. Prior rất thấp (0.1%) làm posterior chỉ ~9% dù test 99% chính xác — đây là false positive paradox."
+      "correct": 3,
+      "explanation": "P(dương) = 0.99 × 0.001 + 0.01 × 0.999 ≈ 0.00099 + 0.00999 = 0.01098. P(bệnh | dương) = 0.00099 / 0.01098 ≈ 9%. Prior rất thấp (0.1%) làm posterior chỉ ~9% dù test 99% chính xác — base rate neglect."
     },
     {
       "id": "q-bayes-3",
       "type": "mcq",
       "question": "Naive Bayes gọi là 'naive' vì điều gì?",
       "options": [
+        "Vì nó giả sử các feature độc lập với nhau khi đã biết class",
         "Vì nó không chính xác",
-        "Vì nó giả sử tất cả features độc lập với nhau khi biết class",
         "Vì nó chỉ dùng được với dữ liệu nhỏ",
         "Vì nó không cần training data"
       ],
+      "correct": 0,
+      "explanation": "Naive Bayes giả sử $P(w_1, w_2, \\dots \\mid c) = \\prod_i P(w_i \\mid c)$ — các feature độc lập có điều kiện khi biết class. Giả định này thường sai trong thực tế (các từ có tương quan), nhưng mô hình vẫn phân loại tốt vì chỉ cần xếp hạng đúng class, không cần xác suất chính xác."
+    },
+    {
+      "id": "q-bayes-4",
+      "type": "mcq",
+      "question": "20% bug report là critical (prior odds 1 : 4). Từ \"crash\" có likelihood ratio bằng 6 (xuất hiện trong report critical nhiều gấp 6 lần so với non-critical). P(critical | có từ \"crash\") = ?",
+      "options": [
+        "20%",
+        "60%",
+        "86%",
+        "6%"
+      ],
       "correct": 1,
-      "explanation": "Naive Bayes giả sử P(w₁,w₂,...|class) = ∏P(wᵢ|class) — các features độc lập có điều kiện. Giả sử này thường không đúng trong thực tế (các từ có tương quan), nhưng mô hình vẫn hoạt động tốt trong thực tiễn."
+      "explanation": "Posterior odds = (1/4) × 6 = 1.5, tức 3 : 2. Đổi về xác suất: 1.5 / (1 + 1.5) = 0.6 = 60%. Đáp án 86% (= 6/7) là lỗi bỏ qua prior odds, coi như prior 50/50."
+    },
+    {
+      "id": "q-bayes-5",
+      "type": "mcq",
+      "question": "Naive Bayes không dùng smoothing. Từ \"blockchain\" chưa từng xuất hiện trong email ham nào ở tập training. Với một email mới chứa từ này, điều gì xảy ra?",
+      "options": [
+        "Không ảnh hưởng gì vì chỉ là một từ",
+        "Score ham tăng lên",
+        "Score ham bằng 0 — email không thể được phân loại là ham, bất kể các từ khác",
+        "Model tự động bỏ qua từ lạ"
+      ],
+      "correct": 2,
+      "explanation": "P(\"blockchain\" | ham) = 0 nên cả tích $P(\\text{ham})\\prod_i P(w_i \\mid \\text{ham})$ bằng 0. Một từ duy nhất phủ quyết mọi bằng chứng khác — Laplace smoothing (add-one) khắc phục bằng cách cộng 1 vào mọi số đếm."
+    },
+    {
+      "id": "q-bayes-6",
+      "type": "mcq",
+      "question": "Spam filter chặn một số email. Câu hỏi \"Trong các email bị chặn, bao nhiêu phần trăm thực sự là spam?\" ứng với đại lượng nào?",
+      "options": [
+        "P(spam | bị chặn) — precision",
+        "P(bị chặn | spam) — recall",
+        "P(spam) — base rate",
+        "P(bị chặn) — tỷ lệ chặn"
+      ],
+      "correct": 0,
+      "explanation": "Điều kiện là \"bị chặn\" (ta đang xét trong nhóm bị chặn), sự kiện cần đo là \"spam\" → P(spam | bị chặn) = precision. Recall là chiều ngược lại: trong các email spam, bao nhiêu % bị chặn."
     }
   ]
 }

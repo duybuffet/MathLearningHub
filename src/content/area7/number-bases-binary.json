@@ -1,0 +1,560 @@
+{
+  "id": "area7_number-bases-binary",
+  "title": "Hệ cơ số & Bit (Number Bases & Bits)",
+  "area": 7,
+  "unit": "a7u2",
+  "order": 3,
+  "icon": "sigma",
+  "tagline": "Máy tính chỉ biết 0 và 1. Hiểu hệ nhị phân, bù hai và các phép toán bit giúp bạn đọc được hex, tránh tràn số và giải gọn hàng loạt bài phỏng vấn.",
+  "readTime": "~28 min",
+  "prerequisites": [
+    "area1_powers-and-roots",
+    "area1_logarithms"
+  ],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Mọi thứ trong máy tính — số nguyên, ký tự, màu sắc, địa chỉ bộ nhớ — cuối cùng đều là dãy **bit** (0 hoặc 1). Lập trình viên gặp hệ cơ số mỗi ngày: màu `#FF8800` là hex, quyền `chmod 755` là bát phân (octal), `Integer.MAX_VALUE = 2147483647` là $2^{31} - 1$, và `0.1 + 0.2` ra `0.30000000000000004`.\n\nBài này đi qua:\n- **Ký hiệu vị trí (positional notation)** ở cơ số 10, 2, 16 và cách chuyển đổi qua lại.\n- Vì sao k bit biểu diễn được $2^k$ giá trị, và cần bao nhiêu bit cho một số n.\n- **Số bù hai (two's complement)** — cách máy lưu số âm, và vì sao `INT_MAX + 1` thành số âm.\n- **Phép toán bit (bitwise operations)** cùng các mẹo kinh điển trong phỏng vấn.\n- Sơ lược **số thực dấu phẩy động (floating point)**."
+    },
+    {
+      "type": "analogy",
+      "title": "Đồng hồ công-tơ-mét chỉ có hai chữ số",
+      "content": "Đồng hồ đo quãng đường (odometer) của xe máy có mỗi bánh xe 10 chữ số 0–9. Khi bánh hàng đơn vị quay từ 9 về 0, nó đẩy bánh hàng chục lên 1 — đó là 'nhớ 1' (carry).\n\nBây giờ tưởng tượng mỗi bánh xe chỉ có **hai** chữ số: 0 và 1. Đếm: 0, 1, rồi bánh đầu quay về 0 và đẩy bánh kế tiếp → 10, 11, 100, 101, 110, 111, 1000… Đó chính là hệ nhị phân (binary).\n\nVà khi mọi bánh đều là 1 rồi cộng thêm 1? Tất cả quay về 0 và 'nhớ 1' bị rơi ra ngoài vì không còn bánh nào — đó là **tràn số (overflow)**: với 8 bit, 11111111 + 1 = 00000000."
+    },
+    {
+      "type": "formula",
+      "title": "Ký hiệu vị trí (positional notation)",
+      "latex": "(d_{k-1} \\ldots d_1 d_0)_b = \\sum_{i=0}^{k-1} d_i \\cdot b^i",
+      "reading": "đọc là: trong cơ số b, chữ số d_i ở vị trí i (đếm từ phải, bắt đầu từ 0) có giá trị d_i nhân b mũ i. Cộng tất cả lại ra giá trị của số.",
+      "symbols": [
+        {
+          "sym": "b",
+          "meaning": "cơ số (base): 10 (thập phân), 2 (nhị phân), 16 (thập lục phân — hexadecimal), 8 (bát phân)."
+        },
+        {
+          "sym": "d_i",
+          "meaning": "chữ số ở vị trí i, với $0 \\le d_i < b$. Hex dùng 0–9 và A–F (A = 10, …, F = 15)."
+        },
+        {
+          "sym": "b^i",
+          "meaning": "trọng số của vị trí i. Nhị phân: 1, 2, 4, 8, 16, …"
+        }
+      ],
+      "caption": "Ví dụ: $1011_2 = 8 + 0 + 2 + 1 = 11$. $2F_{16} = 2 \\cdot 16 + 15 = 47$. $755_8 = 7 \\cdot 64 + 5 \\cdot 8 + 5 = 493$."
+    },
+    {
+      "type": "explanation",
+      "title": "Chuyển đổi: thập phân ↔ nhị phân ↔ hex",
+      "content": "**Nhị phân → thập phân:** cộng các trọng số ở vị trí có bit 1. $110010_2 = 32 + 16 + 2 = 50$.\n\n**Thập phân → nhị phân (chia 2 lặp lại):** chia liên tiếp cho 2, ghi lại số dư; đọc các số dư **từ dưới lên** (số dư đầu tiên là bit thấp nhất). Cùng cách đó với cơ số b bất kỳ: chia cho b.\n\n**Nhị phân ↔ hex (nhóm 4 bit):** vì $16 = 2^4$, mỗi chữ số hex ứng đúng 4 bit. Nhóm từ PHẢI sang trái, thêm 0 bên trái nếu thiếu.\n\n| Hex | Nhị phân | Thập phân |\n|---|---|---|\n| 0x9 | 1001 | 9 |\n| 0xA | 1010 | 10 |\n| 0xC | 1100 | 12 |\n| 0xF | 1111 | 15 |\n| 0xFF | 1111 1111 | 255 |\n\nMột **byte** = 8 bit = đúng 2 chữ số hex, nên màu `#FF8800` là ba byte R = 255, G = 136, B = 0. Tiền tố trong code: `0b` (nhị phân), `0x` (hex), `0o` hoặc `0` (bát phân)."
+    },
+    {
+      "type": "diagram",
+      "title": "Sơ đồ chuyển đổi",
+      "mermaid": "graph LR\n  D[\"Thập phân 156\"] -->|\"chia 2 lặp lại\"| B[\"Nhị phân 1001 1100\"]\n  B -->|\"nhóm 4 bit\"| H[\"Hex 0x9C\"]\n  H -->|\"nhân 16 mũ i rồi cộng\"| D",
+      "caption": "Thập phân → nhị phân bằng chia 2; nhị phân → hex bằng nhóm 4 bit; hex → thập phân bằng tổng chữ số × 16^i."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Đổi 156 sang nhị phân và hex",
+      "problem": "Đổi $156_{10}$ sang nhị phân và hex.",
+      "steps": [
+        {
+          "text": "Chia 2 lặp lại: 156 → 78 dư 0; 78 → 39 dư 0; 39 → 19 dư 1; 19 → 9 dư 1; 9 → 4 dư 1; 4 → 2 dư 0; 2 → 1 dư 0; 1 → 0 dư 1.",
+          "rule": "Chia cho cơ số, ghi số dư"
+        },
+        {
+          "text": "Đọc số dư từ DƯỚI LÊN: 1 0 0 1 1 1 0 0 → $10011100_2$. Đọc từ trên xuống sẽ ra 00111001 — sai (đảo ngược).",
+          "rule": "Số dư đầu tiên là bit thấp nhất",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Kiểm tra: 128 + 16 + 8 + 4 = 156 ✓.",
+          "rule": "Đổi ngược để kiểm tra"
+        },
+        {
+          "text": "Nhóm 4 bit từ phải: 1001 | 1100 → 9 | C → $9C_{16}$. Kiểm tra: 9 × 16 + 12 = 156 ✓.",
+          "rule": "Mỗi nhóm 4 bit = 1 chữ số hex"
+        }
+      ],
+      "result": "$156 = 10011100_2 = \\text{0x9C}$."
+    },
+    {
+      "type": "formula",
+      "title": "k bit biểu diễn bao nhiêu giá trị? Số n cần bao nhiêu bit?",
+      "latex": "k \\text{ bits} \\to 2^k \\text{ values } (0 \\ldots 2^k - 1), \\qquad \\text{bits}(n) = \\lceil \\log_2(n + 1) \\rceil",
+      "reading": "đọc là: mỗi bit có 2 lựa chọn, k bit độc lập cho 2^k tổ hợp. Ngược lại, để lưu số n ≥ 1 cần ⌈log₂(n + 1)⌉ = ⌊log₂ n⌋ + 1 bit.",
+      "symbols": [
+        {
+          "sym": "2^k",
+          "meaning": "số giá trị khác nhau: 8 bit → 256, 16 bit → 65,536, 32 bit → khoảng 4.29 tỉ."
+        },
+        {
+          "sym": "\\lceil \\log_2(n+1) \\rceil",
+          "meaning": "số bit tối thiểu. Ví dụ n = 1000 → 10 bit (vì $2^{10} = 1024 > 1000$); n = 1024 → 11 bit."
+        }
+      ],
+      "caption": "Mẹo nhẩm: $2^{10} \\approx 10^3$, nên 10⁹ cần khoảng 30 bit, 10¹⁸ cần khoảng 60 bit. Đây cũng là lý do binary search trên 10⁹ phần tử chỉ cần ~30 bước."
+    },
+    {
+      "type": "graph",
+      "title": "Số bit cần để lưu n",
+      "functions": [
+        {
+          "fn": "ceil(log(x + 1) / log(2))",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "log(x) / log(2)",
+          "color": "#7fded1"
+        }
+      ],
+      "xDomain": [
+        1,
+        64
+      ],
+      "yDomain": [
+        0,
+        8
+      ],
+      "caption": "Vàng: số bit cần cho n (hàm bậc thang, nhảy lên 1 tại mỗi lũy thừa của 2). Bạc hà: log₂ n. Số bit tăng theo logarit — gấp đôi n chỉ thêm 1 bit."
+    },
+    {
+      "type": "formula",
+      "title": "Số bù hai (two's complement) — cách máy lưu số âm",
+      "latex": "\\text{value} = -b_{k-1} 2^{k-1} + \\sum_{i=0}^{k-2} b_i 2^i, \\qquad \\text{range: } -2^{k-1} \\ldots 2^{k-1} - 1",
+      "reading": "đọc là: với số có dấu k bit, bit cao nhất (MSB) mang trọng số ÂM −2^{k−1}, các bit còn lại vẫn dương như thường. Vì vậy dải giá trị là từ −2^{k−1} đến 2^{k−1} − 1.",
+      "symbols": [
+        {
+          "sym": "b_{k-1}",
+          "meaning": "bit dấu (sign bit): 1 nghĩa là số âm."
+        },
+        {
+          "sym": "-2^{k-1}",
+          "meaning": "8 bit: −128 … 127. 32 bit (`int`): −2,147,483,648 … 2,147,483,647."
+        },
+        {
+          "sym": "0 \\ldots 2^k - 1",
+          "meaning": "dải của số KHÔNG dấu (unsigned) cùng k bit: 8 bit → 0 … 255."
+        }
+      ],
+      "caption": "Ví dụ 8 bit: $11111011_2 = -128 + 64 + 32 + 16 + 8 + 2 + 1 = -5$. Phía âm có nhiều hơn một giá trị (−128 nhưng chỉ tới +127) vì số 0 chiếm một chỗ ở phía 'dương'."
+    },
+    {
+      "type": "explanation",
+      "title": "Vì sao −x = ~x + 1? Và tràn số",
+      "content": "Phép NOT `~x` lật mọi bit. Cộng x với ~x được toàn bit 1 — trong bù hai, toàn bit 1 chính là −1. Vậy $x + \\sim x = -1$, suy ra $-x = \\sim x + 1$.\n\nVí dụ 8 bit: 5 = `00000101` → `~5` = `11111010` → cộng 1 = `11111011` = −5 ✓. Ưu điểm lớn của bù hai: phần cứng dùng CÙNG một mạch cộng cho số có dấu và không dấu.\n\n**Tràn số (overflow):** phép cộng chỉ giữ k bit thấp, nên kết quả 'quay vòng' modulo $2^k$:\n- Java: `Integer.MAX_VALUE + 1` = `Integer.MIN_VALUE` = −2,147,483,648.\n- `Math.abs(Integer.MIN_VALUE)` vẫn âm, vì +2,147,483,648 không biểu diễn được.\n- Trong C/C++, tràn số NGUYÊN CÓ DẤU là hành vi không xác định (undefined behavior) — trình biên dịch có thể làm bất cứ điều gì. Số không dấu thì quay vòng mod $2^k$ một cách hợp lệ.\n\nLỗi kinh điển: binary search viết `mid = (lo + hi) / 2` bị tràn khi lo + hi > $2^{31} - 1$. Viết `mid = lo + (hi - lo) / 2`."
+    },
+    {
+      "type": "explanation",
+      "title": "Phép toán bit (bitwise operations)",
+      "content": "Các phép toán thực hiện trên từng cặp bit, ví dụ với a = 12 = `1100` và b = 10 = `1010`:\n\n- **AND** `a & b` = `1000` = 8 — bit là 1 khi CẢ HAI đều 1. Dùng để 'lọc' (mask) bit.\n- **OR** `a | b` = `1110` = 14 — bit là 1 khi ÍT NHẤT một bên là 1. Dùng để bật bit.\n- **XOR** `a ^ b` = `0110` = 6 — bit là 1 khi hai bit KHÁC nhau. Dùng để lật bit, so sánh.\n- **NOT** `~a` — lật mọi bit. Với `int` 32 bit, `~12` = −13 (vì $\\sim x = -x - 1$).\n- **Dịch trái** `a << k` = $a \\times 2^k$ (nếu không tràn). `3 << 4` = 48.\n- **Dịch phải** `a >> k` = $\\lfloor a / 2^k \\rfloor$. Với số âm, `>>` là dịch số học (giữ bit dấu, làm tròn xuống: `-7 >> 1` = −4); Java/JS có thêm `>>>` dịch logic (điền 0).\n\nThao tác với bit thứ i (đếm từ 0):\n- Kiểm tra: `(x >> i) & 1`\n- Bật: `x | (1 << i)`\n- Tắt: `x & ~(1 << i)`\n- Lật: `x ^ (1 << i)`"
+    },
+    {
+      "type": "explanation",
+      "title": "Các mẹo bit kinh điển trong phỏng vấn",
+      "content": "1. **Chẵn lẻ:** `x & 1` bằng 1 khi x lẻ (đúng cả với số âm trong bù hai, khác với `x % 2` trong Java/JS cho −1).\n2. **Xóa bit 1 thấp nhất:** `x & (x - 1)`. Trừ 1 lật bit 1 thấp nhất thành 0 và mọi bit 0 phía dưới thành 1; AND với x xóa chúng. 12 = `1100` → 11 = `1011` → `1100 & 1011` = `1000`.\n3. **Kiểm tra lũy thừa của 2:** `x > 0 && (x & (x - 1)) == 0` — lũy thừa của 2 có đúng một bit 1.\n4. **Đếm bit 1 (popcount, thuật toán Kernighan):** lặp `x = x & (x - 1)` đến khi x = 0; số vòng = số bit 1.\n5. **Lấy bit 1 thấp nhất:** `x & -x` (dùng trong Fenwick tree). 12 & −12 = 4.\n6. **XOR:** $a \\oplus a = 0$, $a \\oplus 0 = a$, có giao hoán và kết hợp. XOR toàn bộ mảng mà mọi số xuất hiện hai lần trừ một số → các cặp triệt tiêu, còn lại số đơn lẻ: $O(n)$ thời gian, $O(1)$ bộ nhớ.\n7. **Hoán đổi bằng XOR:** `a ^= b; b ^= a; a ^= b;` — mẹo hay, nhưng hỏng khi a và b là CÙNG một biến/ô nhớ (ra 0); thực tế cứ dùng biến tạm."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Liệt kê tập con bằng bitmask",
+      "problem": "Cho tập {a, b, c}. Dùng số nguyên `mask` từ 0 đến 7 để liệt kê mọi tập con. Phần tử thứ i có trong tập con khi bit i của mask bằng 1.",
+      "steps": [
+        {
+          "text": "n = 3 phần tử → $2^3 = 8$ tập con, ứng với mask 0 … 7 (`000` … `111`). Mỗi tập con ↔ đúng một mask.",
+          "rule": "Song ánh: tập con ↔ dãy n bit"
+        },
+        {
+          "text": "mask = 5 = `101`: bit 0 = 1 (a), bit 1 = 0, bit 2 = 1 (c) → {a, c}. mask = 6 = `110` → {b, c}.",
+          "rule": "Kiểm tra bit i bằng `(mask >> i) & 1`"
+        },
+        {
+          "text": "Bit 0 là bit bên PHẢI nhất, ứng với phần tử đầu tiên — đọc `101` từ trái sang dễ nhầm thứ tự phần tử.",
+          "rule": "Bit thấp nhất ở bên phải",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Vòng lặp: `for (mask = 0; mask < (1 << n); mask++)` rồi duyệt i từ 0 đến n − 1. Tổng chi phí $O(2^n \\cdot n)$: n = 20 → ~2 × 10⁷ (ổn), n = 40 → bất khả thi.",
+          "rule": "Độ phức tạp vét cạn tập con"
+        }
+      ],
+      "result": "8 mask ↔ 8 tập con: {}, {a}, {b}, {a,b}, {c}, {a,c}, {b,c}, {a,b,c}."
+    },
+    {
+      "type": "explanation",
+      "title": "Số thực dấu phẩy động — vì sao 0.1 + 0.2 ≠ 0.3",
+      "content": "Kiểu `double` (chuẩn IEEE 754) lưu số thực bằng 64 bit: 1 bit dấu, 11 bit số mũ, 52 bit phần định trị — tức dạng $\\pm 1.f \\times 2^{e}$, giống ký hiệu khoa học nhưng ở cơ số 2.\n\nVấn đề: 0.1 trong hệ nhị phân là số **vô hạn tuần hoàn** $0.000110011001\\ldots_2$ (giống 1/3 = 0.333… trong hệ thập phân). Máy phải làm tròn, nên 0.1 được lưu là một số rất gần nhưng không đúng 0.1. Cộng hai số đã làm tròn: `0.1 + 0.2` = `0.30000000000000004`, nên `0.1 + 0.2 === 0.3` là `false`.\n\nHệ quả thực tế:\n- So sánh số thực bằng sai số cho phép: `Math.abs(a - b) < 1e-9`.\n- KHÔNG dùng float/double cho tiền: lưu số nguyên theo đơn vị nhỏ nhất (xu, đồng) hoặc dùng `BigDecimal`/`Decimal`.\n- `double` biểu diễn chính xác mọi số nguyên đến $2^{53}$; vượt quá đó bắt đầu mất chính xác. JS: `Number.MAX_SAFE_INTEGER` = $2^{53} - 1$."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Bẫy thường gặp với bit:**\n\n- **Độ ưu tiên toán tử:** `x & 1 == 0` trong C/JS được hiểu là `x & (1 == 0)` vì `==` ưu tiên cao hơn `&`. Luôn viết `(x & 1) == 0`.\n- **Dịch quá độ rộng kiểu:** trong Java, `1 << 32` với `int` bằng 1 (số bước dịch bị lấy mod 32). Cần `1L << 32`. Trong C, dịch ≥ độ rộng là undefined behavior.\n- `1 << 31` trong `int` 32 bit là số âm −2,147,483,648.\n- **JavaScript:** mọi phép bit chuyển số về int 32 bit có dấu — `2 ** 32 | 0` bằng 0. Dùng `BigInt` cho bitmask > 31 bit."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Ký hiệu vị trí: chữ số $d_i$ ở vị trí i có giá trị $d_i \\cdot b^i$. Thập phân → cơ số b: chia b lặp lại, đọc số dư từ dưới lên.",
+        "1 chữ số hex = 4 bit; 1 byte = 8 bit = 2 chữ số hex (0xFF = 255).",
+        "k bit → $2^k$ giá trị; số n cần $\\lceil \\log_2(n+1) \\rceil$ bit. $2^{10} \\approx 10^3$.",
+        "Bù hai k bit: dải $-2^{k-1} \\ldots 2^{k-1} - 1$; $-x = \\sim x + 1$; tràn số quay vòng (Java) hoặc là undefined behavior (C, số có dấu).",
+        "Mẹo bit: `x & 1` (lẻ), `x & (x - 1)` (xóa bit 1 thấp nhất → test lũy thừa 2), XOR triệt tiêu cặp, `x << k` = x·2^k, bitmask liệt kê $2^n$ tập con.",
+        "Số thực nhị phân không biểu diễn chính xác 0.1 → so sánh bằng sai số, không dùng double cho tiền."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-bin-positional",
+      "type": "formula",
+      "front": "Giá trị của số $(d_{k-1} \\ldots d_1 d_0)_b$ là gì? Ví dụ $1011_2$?",
+      "back": "$\\sum d_i \\cdot b^i$ — chữ số nhân trọng số của vị trí. $1011_2 = 8 + 0 + 2 + 1 = 11$."
+    },
+    {
+      "id": "fc-bin-dec-to-bin",
+      "type": "concept",
+      "front": "Đổi số thập phân sang nhị phân bằng cách nào?",
+      "back": "Chia 2 lặp lại, ghi số dư, đọc số dư từ DƯỚI LÊN (số dư đầu tiên là bit thấp nhất). Ví dụ 6 → dư 0, 1, 1 → $110_2$."
+    },
+    {
+      "id": "fc-bin-hex-group",
+      "type": "concept",
+      "front": "Vì sao 1 chữ số hex ứng với đúng 4 bit? 0xFF bằng bao nhiêu?",
+      "back": "Vì $16 = 2^4$. Nhóm bit từ phải sang theo từng 4 bit. 0xFF = 1111 1111 = 255 (một byte đầy)."
+    },
+    {
+      "id": "fc-bin-bit-count",
+      "type": "formula",
+      "front": "k bit biểu diễn bao nhiêu giá trị? Số n cần bao nhiêu bit?",
+      "back": "$2^k$ giá trị (0 … $2^k - 1$). Số n ≥ 1 cần $\\lceil \\log_2(n+1) \\rceil = \\lfloor \\log_2 n \\rfloor + 1$ bit. Ví dụ 1000 cần 10 bit, 10⁹ cần 30 bit."
+    },
+    {
+      "id": "fc-bin-twos-range",
+      "type": "definition",
+      "front": "Dải giá trị của số có dấu k bit (bù hai)? Ví dụ 8 bit, 32 bit?",
+      "back": "$-2^{k-1} \\ldots 2^{k-1} - 1$. 8 bit: −128 … 127. 32 bit: −2,147,483,648 … 2,147,483,647. Bit cao nhất có trọng số $-2^{k-1}$."
+    },
+    {
+      "id": "fc-bin-negate",
+      "type": "concept",
+      "front": "Vì sao trong bù hai $-x = \\sim x + 1$?",
+      "back": "Vì x + ~x = toàn bit 1 = −1. Ví dụ 8 bit: 5 = 00000101 → ~5 = 11111010 → +1 = 11111011 = −5."
+    },
+    {
+      "id": "fc-bin-overflow",
+      "type": "concept",
+      "front": "Java: `Integer.MAX_VALUE + 1` bằng gì? Trong C thì sao?",
+      "back": "Java: quay vòng thành `Integer.MIN_VALUE` = −2,147,483,648. C/C++: tràn số nguyên có dấu là undefined behavior (số không dấu thì quay vòng mod $2^k$ hợp lệ)."
+    },
+    {
+      "id": "fc-bin-clear-lowest",
+      "type": "concept",
+      "front": "`x & (x - 1)` làm gì? Dùng để làm gì?",
+      "back": "Xóa bit 1 thấp nhất của x. Ứng dụng: x > 0 là lũy thừa của 2 ⟺ `(x & (x - 1)) == 0`; đếm bit 1 bằng cách lặp đến khi x = 0."
+    },
+    {
+      "id": "fc-bin-xor",
+      "type": "concept",
+      "front": "Ba tính chất của XOR giúp tìm \"số xuất hiện một lần\" trong mảng mà mọi số khác xuất hiện hai lần?",
+      "back": "$a \\oplus a = 0$, $a \\oplus 0 = a$, giao hoán + kết hợp. XOR cả mảng: các cặp triệt tiêu, còn lại số đơn lẻ — $O(n)$ thời gian, $O(1)$ bộ nhớ."
+    },
+    {
+      "id": "fc-bin-subset-mask",
+      "type": "concept",
+      "front": "Liệt kê mọi tập con của n phần tử bằng bitmask như thế nào?",
+      "back": "Duyệt mask từ 0 đến $2^n - 1$; phần tử i thuộc tập con khi `(mask >> i) & 1` bằng 1. Tổng $O(2^n \\cdot n)$."
+    },
+    {
+      "id": "fc-bin-float",
+      "type": "concept",
+      "front": "Vì sao `0.1 + 0.2 !== 0.3` trong JS/Python/Java?",
+      "back": "0.1 và 0.2 là số vô hạn tuần hoàn trong hệ nhị phân nên bị làm tròn khi lưu (IEEE 754). Tổng ra 0.30000000000000004. So sánh bằng sai số `abs(a - b) < eps`."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-bin-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Đổi $44_{10}$ sang nhị phân và hex.",
+      "hints": [
+        "Chia 2 lặp lại và ghi số dư.",
+        "Đọc số dư từ dưới lên.",
+        "Nhóm 4 bit từ phải để ra hex."
+      ],
+      "solutionSteps": [
+        {
+          "text": "44 → 22 dư 0; 22 → 11 dư 0; 11 → 5 dư 1; 5 → 2 dư 1; 2 → 1 dư 0; 1 → 0 dư 1.",
+          "rule": "Chia 2 lặp lại"
+        },
+        {
+          "text": "Đọc từ dưới lên: $101100_2$. Kiểm tra: 32 + 8 + 4 = 44 ✓. Đọc từ trên xuống sẽ ra 001101 = 13 — sai.",
+          "rule": "Số dư cuối cùng là bit cao nhất",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Nhóm 4 bit từ phải: 0010 | 1100 → 2 | C → 0x2C. Kiểm tra: 2 × 16 + 12 = 44 ✓.",
+          "rule": "Nhóm từ phải, thêm 0 bên trái"
+        }
+      ],
+      "answer": "$44 = 101100_2 = \\text{0x2C}$",
+      "commonMistake": "Đọc số dư từ trên xuống (ra 001101 = 13), hoặc nhóm 4 bit từ TRÁI (1011 | 00 → 0xB0, sai).",
+      "relatedFlashcard": "fc-bin-dec-to-bin"
+    },
+    {
+      "id": "ex-bin-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Đổi 0xB7 sang nhị phân và thập phân. Nếu cùng 8 bit đó được hiểu là số có dấu (bù hai) thì giá trị là bao nhiêu?",
+      "hints": [
+        "B = 11, 7 = 7. Mỗi chữ số hex → 4 bit.",
+        "Thập phân: 11 × 16 + 7.",
+        "Số có dấu: bit cao nhất có trọng số −128."
+      ],
+      "solutionSteps": [
+        {
+          "text": "B = 1011, 7 = 0111 → 0xB7 = `1011 0111`.",
+          "rule": "1 chữ số hex = 4 bit"
+        },
+        {
+          "text": "Không dấu: 11 × 16 + 7 = 183.",
+          "rule": "Ký hiệu vị trí cơ số 16"
+        },
+        {
+          "text": "Có dấu: bit 7 là 1 nên số âm: −128 + (0110111)₂ = −128 + 55 = −73. Cách nhanh: 183 − 256 = −73.",
+          "rule": "Bù hai: giá trị có dấu = không dấu − 2^k khi MSB = 1",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "0xB7 = 10110111₂ = 183 (không dấu) = −73 (có dấu 8 bit).",
+      "commonMistake": "Nghĩ bit dấu chỉ đổi dấu phần còn lại (ra −55) — đó là kiểu 'dấu-độ lớn' (sign-magnitude), không phải bù hai.",
+      "relatedFlashcard": "fc-bin-twos-range"
+    },
+    {
+      "id": "ex-bin-apply-1",
+      "difficulty": "apply",
+      "prompt": "Biểu diễn −20 ở dạng bù hai 8 bit (viết cả nhị phân và hex), rồi kiểm tra bằng trọng số.",
+      "hints": [
+        "Viết 20 ở nhị phân 8 bit.",
+        "Lật mọi bit rồi cộng 1.",
+        "Kiểm tra: −128 + các trọng số dương còn lại."
+      ],
+      "solutionSteps": [
+        {
+          "text": "20 = 16 + 4 → `00010100`.",
+          "rule": "Nhị phân của giá trị tuyệt đối"
+        },
+        {
+          "text": "Lật bit: `~20` = `11101011`.",
+          "rule": "NOT"
+        },
+        {
+          "text": "Cộng 1: `11101011` + 1 = `11101100`. Đừng quên bước +1 — chỉ lật bit cho ra −21, không phải −20.",
+          "rule": "−x = ~x + 1",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Kiểm tra: −128 + 64 + 32 + 8 + 4 = −20 ✓. Hex: 1110 | 1100 = 0xEC (= 236 = 256 − 20).",
+          "rule": "Trọng số âm của MSB"
+        }
+      ],
+      "answer": "−20 = `11101100` = 0xEC (8 bit).",
+      "commonMistake": "Chỉ lật bit mà quên cộng 1 (ra `11101011` = −21).",
+      "relatedFlashcard": "fc-bin-negate"
+    },
+    {
+      "id": "ex-bin-apply-2",
+      "difficulty": "apply",
+      "prompt": "Mảng có $10^5$ phần tử, mỗi phần tử trong khoảng 0 … $10^9$. Mỗi phần tử cần bao nhiêu bit? Tổng của cả mảng có vừa `int` 32 bit có dấu không?",
+      "hints": [
+        "$2^{10} \\approx 10^3$, nên $2^{30} \\approx 10^9$ — nhưng so sánh chính xác.",
+        "Tổng lớn nhất là $10^5 \\times 10^9$.",
+        "`int` 32 bit có dấu tối đa $2^{31} - 1 \\approx 2.147 \\times 10^9$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$2^{29} = 536,870,912 < 10^9 < 2^{30} = 1,073,741,824$ → mỗi phần tử cần 30 bit, vừa `int`.",
+          "rule": "bits(n) = ⌈log₂(n + 1)⌉"
+        },
+        {
+          "text": "Tổng lớn nhất $= 10^5 \\times 10^9 = 10^{14}$.",
+          "rule": "Chặn trên của tổng"
+        },
+        {
+          "text": "$10^{14} \\gg 2^{31} - 1 \\approx 2.1 \\times 10^9$ → tràn `int`. Cần $\\lceil \\log_2(10^{14} + 1) \\rceil = 47$ bit → dùng `long` (64 bit). Mỗi phần tử vừa int không có nghĩa tổng vừa int.",
+          "rule": "Kiểm tra tổng, không chỉ từng phần tử",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "Mỗi phần tử: 30 bit (vừa `int`). Tổng tới $10^{14}$ cần 47 bit → phải dùng `long`.",
+      "commonMistake": "Khai báo `int sum` vì 'mỗi số đều vừa int' — tổng tràn số và ra kết quả âm.",
+      "relatedFlashcard": "fc-bin-bit-count"
+    },
+    {
+      "id": "ex-bin-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Mảng `[4, 1, 2, 1, 2]`: mọi số xuất hiện đúng hai lần trừ một số. Tìm số đó trong $O(n)$ thời gian, $O(1)$ bộ nhớ, và giải thích vì sao cách làm đúng. Mở rộng: mảng chứa n số khác nhau từ 0 … n, thiếu đúng một số — tìm nó bằng XOR.",
+      "hints": [
+        "XOR một số với chính nó ra 0; XOR với 0 giữ nguyên.",
+        "XOR có giao hoán và kết hợp nên thứ tự không quan trọng.",
+        "Bài mở rộng: XOR tất cả chỉ số 0 … n với tất cả phần tử."
+      ],
+      "solutionSteps": [
+        {
+          "text": "XOR cả mảng: 4 ⊕ 1 ⊕ 2 ⊕ 1 ⊕ 2.",
+          "rule": "Ý tưởng triệt tiêu cặp"
+        },
+        {
+          "text": "Sắp xếp lại (giao hoán, kết hợp): 4 ⊕ (1 ⊕ 1) ⊕ (2 ⊕ 2) = 4 ⊕ 0 ⊕ 0 = 4.",
+          "rule": "$a \\oplus a = 0$, $a \\oplus 0 = a$"
+        },
+        {
+          "text": "Không cần các cặp đứng cạnh nhau — XOR không quan tâm thứ tự. Nhưng cách này CHỈ đúng khi mọi số khác xuất hiện số lần CHẴN; nếu xuất hiện 3 lần thì không triệt tiêu.",
+          "rule": "Điều kiện áp dụng",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Mở rộng: ví dụ `[3, 0, 1]` (n = 3, thiếu 2): (0 ⊕ 1 ⊕ 2 ⊕ 3) ⊕ (3 ⊕ 0 ⊕ 1) = 2 — mọi số có mặt xuất hiện hai lần và triệt tiêu, còn lại số thiếu.",
+          "rule": "Ghép cặp chỉ số với phần tử"
+        }
+      ],
+      "answer": "Số đơn lẻ là 4 (XOR cả mảng). Số thiếu: XOR của 0 … n với mọi phần tử.",
+      "commonMistake": "Dùng HashMap đếm tần suất — đúng nhưng tốn $O(n)$ bộ nhớ; hoặc áp dụng XOR khi các số khác xuất hiện 3 lần.",
+      "relatedFlashcard": "fc-bin-xor"
+    },
+    {
+      "id": "ex-bin-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Cho `nums = [3, 5, 7]`. Dùng bitmask liệt kê mọi tập con và tìm tất cả mask có tổng bằng 10. Kiểm tra lũy thừa của 2 bằng `x & (x - 1)` cho các mask tìm được, và cho biết độ phức tạp khi n = 20 và n = 40.",
+      "hints": [
+        "Có $2^3 = 8$ mask từ 0 đến 7; bit i ứng với `nums[i]`.",
+        "Tính tổng cho từng mask có ít nhất hai bit 1.",
+        "Mask là lũy thừa của 2 ⟺ tập con có đúng một phần tử."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Các mask có ≥ 2 phần tử: 3 = `011` → 3 + 5 = 8; 5 = `101` → 3 + 7 = 10 ✓; 6 = `110` → 5 + 7 = 12; 7 = `111` → 15. Các mask một phần tử (1, 2, 4) cho 3, 5, 7.",
+          "rule": "Bit i của mask ↔ nums[i]"
+        },
+        {
+          "text": "Chỉ mask 5 = `101` (chọn nums[0] = 3 và nums[2] = 7) cho tổng 10. Đọc `101` từ trái sang là 'bit 2, bit 1, bit 0' — bit 0 (bên phải) là nums[0].",
+          "rule": "Bit 0 là bit bên phải nhất",
+          "isCommonMistake": true
+        },
+        {
+          "text": "5 & 4 = `101 & 100` = `100` ≠ 0 → 5 không phải lũy thừa của 2, đúng vì tập con có 2 phần tử. Mask 1, 2, 4 cho `x & (x - 1)` = 0.",
+          "rule": "Lũy thừa của 2 có đúng một bit 1"
+        },
+        {
+          "text": "Độ phức tạp $O(2^n \\cdot n)$: n = 20 → khoảng $2 \\times 10^7$ (ổn); n = 40 → khoảng $4.4 \\times 10^{13}$ (bất khả thi; cần meet-in-the-middle hoặc quy hoạch động).",
+          "rule": "Vét cạn tập con tăng theo mũ"
+        }
+      ],
+      "answer": "Chỉ mask 5 (`101`) = {3, 7} có tổng 10. Liệt kê bitmask tốn $O(2^n \\cdot n)$: chạy được với n ≈ 20, không chạy được với n = 40.",
+      "commonMistake": "Hiểu ngược thứ tự bit (cho rằng `101` nghĩa là chọn nums[2] trước — ở đây đối xứng nên vô tình đúng, nhưng với `110` sẽ ra {3, 5} thay vì {5, 7}).",
+      "relatedFlashcard": "fc-bin-subset-mask"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-bin-1",
+      "question": "0x2F bằng bao nhiêu trong hệ thập phân?",
+      "type": "mcq",
+      "options": [
+        "32",
+        "45",
+        "47",
+        "215"
+      ],
+      "correct": 2,
+      "explanation": "2 × 16 + F (= 15) = 47. Nhị phân: 0010 1111."
+    },
+    {
+      "id": "q-bin-2",
+      "question": "Dải giá trị của số nguyên có dấu 8 bit (bù hai)?",
+      "type": "mcq",
+      "options": [
+        "−128 … 127",
+        "−127 … 127",
+        "−128 … 128",
+        "0 … 255"
+      ],
+      "correct": 0,
+      "explanation": "$-2^{7} \\ldots 2^{7} - 1$. Bit cao nhất có trọng số −128; phía âm nhiều hơn một giá trị vì 0 nằm ở 'phía dương'. 0 … 255 là dải KHÔNG dấu."
+    },
+    {
+      "id": "q-bin-3",
+      "question": "Với x > 0, điều kiện `(x & (x - 1)) == 0` kiểm tra điều gì?",
+      "type": "mcq",
+      "options": [
+        "x là số lẻ",
+        "x là số chẵn",
+        "x chia hết cho 4",
+        "x là lũy thừa của 2"
+      ],
+      "correct": 3,
+      "explanation": "`x & (x - 1)` xóa bit 1 thấp nhất. Kết quả bằng 0 ⟺ x chỉ có đúng một bit 1 ⟺ x là lũy thừa của 2."
+    },
+    {
+      "id": "q-bin-4",
+      "question": "Trong Java, `Integer.MAX_VALUE + 1` bằng?",
+      "type": "mcq",
+      "options": [
+        "2147483648",
+        "−2147483648",
+        "0",
+        "Ném ra ngoại lệ (exception)"
+      ],
+      "correct": 1,
+      "explanation": "Java quay vòng modulo $2^{32}$: `0111…1` + 1 = `1000…0` = $-2^{31}$ = −2147483648. Java không ném lỗi khi tràn số `int` (trừ khi dùng `Math.addExact`)."
+    },
+    {
+      "id": "q-bin-5",
+      "question": "Vì sao `0.1 + 0.2 === 0.3` trả về `false` trong JavaScript?",
+      "type": "mcq",
+      "options": [
+        "Lỗi riêng của JavaScript",
+        "Phép cộng số thực không có tính giao hoán",
+        "0.1 và 0.2 không biểu diễn chính xác được ở hệ nhị phân nên bị làm tròn",
+        "Do `===` so sánh kiểu dữ liệu"
+      ],
+      "correct": 2,
+      "explanation": "0.1 = 0.000110011…₂ (vô hạn tuần hoàn) nên được làm tròn khi lưu ở IEEE 754. Python, Java, C đều cho cùng kết quả 0.30000000000000004 — không phải lỗi riêng của JS."
+    },
+    {
+      "id": "q-bin-6",
+      "question": "Cần tối thiểu bao nhiêu bit để lưu số không dấu n = 1000?",
+      "type": "mcq",
+      "options": [
+        "9",
+        "11",
+        "32",
+        "10"
+      ],
+      "correct": 3,
+      "explanation": "$2^9 = 512 < 1000 < 2^{10} = 1024$ → $\\lceil \\log_2(1001) \\rceil = 10$ bit."
+    },
+    {
+      "id": "q-bin-7",
+      "question": "XOR tất cả phần tử của `[7, 3, 5, 3, 7]` được?",
+      "type": "mcq",
+      "options": [
+        "5",
+        "0",
+        "7",
+        "3"
+      ],
+      "correct": 0,
+      "explanation": "7 ⊕ 7 = 0 và 3 ⊕ 3 = 0, còn lại 5. XOR giao hoán và kết hợp nên vị trí các cặp không quan trọng."
+    },
+    {
+      "id": "q-bin-8",
+      "question": "`x << 3` (không tràn) tương đương với?",
+      "type": "mcq",
+      "options": [
+        "x + 3",
+        "x × 3",
+        "x × 8",
+        "x / 8"
+      ],
+      "correct": 2,
+      "explanation": "Dịch trái k bit nhân với $2^k$: `x << 3` = x × 8. Dịch phải `x >> 3` mới là chia 8 (làm tròn xuống)."
+    }
+  ]
+}

@@ -5,34 +5,48 @@
   "unit": "a3u2",
   "order": 5,
   "icon": "matrix",
-  "tagline": "Hệ phương trình tuyến tính là nền tảng của mọi bài toán tối ưu hóa — từ giải mạch điện, tìm điểm giao thông đến huấn luyện linear regression.",
-  "readTime": "~18 min",
-  "prerequisites": ["area3_determinant-inverse"],
+  "tagline": "Hệ phương trình tuyến tính xuất hiện từ đồ họa, mạch điện đến linear regression — khử Gauss giải nó trong O(n³), còn rank cho biết hệ có 0, 1 hay vô số nghiệm.",
+  "readTime": "~22 min",
+  "prerequisites": [
+    "area3_determinant-inverse"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Hệ phương trình tuyến tính (linear system) là tập hợp nhiều phương trình bậc nhất với nhiều ẩn số. Ví dụ đơn giản:\n\n$$2x + y = 5$$\n$$x - y = 1$$\n\nHai phương trình, hai ẩn. Về hình học: mỗi phương trình là một đường thẳng; nghiệm là giao điểm.\n\nTrong CS, hệ tuyến tính xuất hiện ở:\n- **Linear Regression:** tìm tham số $\\mathbf{w}$ thỏa $X\\mathbf{w} = \\mathbf{y}$ (overdetermined — nhiều phương trình hơn ẩn).\n- **Computer graphics:** tìm tọa độ giao điểm, barycentrics, ray intersection.\n- **Network flow:** bảo toàn dòng chảy tại mỗi node là hệ phương trình tuyến tính.\n- **Giải mạch điện (Kirchhoff's laws):** điện thế và dòng điện tại mỗi nút là hệ tuyến tính."
+      "content": "Hệ phương trình tuyến tính (linear system) là tập hợp nhiều phương trình bậc nhất với nhiều ẩn số. Ví dụ đơn giản:\n\n$$\\begin{cases} 2x + y = 5 \\\\ x - y = 1 \\end{cases}$$\n\nHai phương trình, hai ẩn. Về hình học: mỗi phương trình là một đường thẳng; nghiệm là giao điểm. Với 3 ẩn, mỗi phương trình là một mặt phẳng.\n\nTrong CS, hệ tuyến tính xuất hiện ở:\n\n- **Linear regression:** tìm tham số $\\mathbf{w}$ sao cho $X\\mathbf{w} \\approx \\mathbf{y}$ (overdetermined — nhiều phương trình hơn ẩn).\n- **Computer graphics:** tìm giao điểm tia–mặt phẳng (ray tracing), tọa độ barycentric khi tô màu tam giác.\n- **Mô phỏng & khoa học:** phương pháp phần tử hữu hạn, mô phỏng vật lý, giải mạch điện theo định luật Kirchhoff — đều quy về hệ $A\\mathbf{x} = \\mathbf{b}$ rất lớn và thưa.\n- **Đồ thị & xác suất:** thời gian kỳ vọng để random walk chạm đích, PageRank, xác suất hấp thụ của Markov chain đều là nghiệm của một hệ tuyến tính."
     },
     {
       "type": "analogy",
       "title": "Hệ phương trình = \"ràng buộc đồng thời\"",
-      "content": "Hãy nghĩ về bài toán phân bổ ngân sách: bạn có 2 sản phẩm A và B. Ràng buộc 1: tổng chi phí = 100 triệu. Ràng buộc 2: A phải nhiều hơn B 20 triệu. Đây là hệ 2 phương trình 2 ẩn.\n\nNghiệm của hệ = điểm duy nhất thỏa **TẤT CẢ** ràng buộc đồng thời — không chỉ một ràng buộc.\n\nKhi có nhiều ràng buộc hơn ẩn số (như trong ML với triệu điểm dữ liệu nhưng vài chục tham số), không có điểm nào thỏa TẤT CẢ → ta tìm điểm thỏa tốt nhất có thể → đó là **bài toán least squares.**"
+      "content": "Hãy nghĩ về bài toán phân bổ ngân sách: bạn có 2 sản phẩm A và B. Ràng buộc 1: tổng ngân sách $A + B = 100$ (triệu). Ràng buộc 2: A nhiều hơn B 20 triệu, $A - B = 20$. Đây là hệ 2 phương trình 2 ẩn, nghiệm $A = 60$, $B = 40$.\n\nNghiệm của hệ = điểm duy nhất thỏa **TẤT CẢ** ràng buộc đồng thời — không chỉ một ràng buộc.\n\nKhi có nhiều ràng buộc hơn ẩn số (như trong ML với triệu điểm dữ liệu nhưng vài chục tham số), không có điểm nào thỏa TẤT CẢ → ta tìm điểm thỏa tốt nhất có thể → đó là **bài toán least squares.**"
     },
     {
       "type": "diagram",
-      "title": "Ba trường hợp của hệ phương trình tuyến tính",
-      "mermaid": "graph TD\n    A[\"Hệ Ax = b\"] --> B{\"det(A) = 0?\"}\n    B -->|\"Không (det ≠ 0)\"| C[\"Nghiệm DUY NHẤT\\n(hai đường thẳng cắt nhau)\"]\n    B -->|\"Có (det = 0)\"| D{\"b có trong\\ncolumn space của A?\"}\n    D -->|\"Có\"| E[\"Vô số nghiệm\\n(hai đường thẳng trùng nhau)\"]\n    D -->|\"Không\"| F[\"Vô nghiệm\\n(hai đường thẳng song song)\"]",
-      "caption": "Ba trường hợp hoàn toàn xác định bởi định thức và tính nhất quán của hệ."
+      "title": "Ba trường hợp của hệ vuông Ax = b",
+      "mermaid": "graph TD\n    A[\"Hệ vuông Ax = b\"] --> B{\"det(A) = 0?\"}\n    B -->|\"Không\"| C[\"Nghiệm DUY NHẤT\\n(hai đường thẳng cắt nhau)\"]\n    B -->|\"Có\"| D{\"rank(A) = rank của ma trận tăng cường?\"}\n    D -->|\"Có\"| E[\"Vô số nghiệm\\n(hai đường thẳng trùng nhau)\"]\n    D -->|\"Không\"| F[\"Vô nghiệm\\n(hai đường thẳng song song)\"]",
+      "caption": "Định thức chỉ dùng được cho hệ vuông (số phương trình = số ẩn). Tiêu chí tổng quát cho mọi hệ là so sánh rank — xem phần rank bên dưới."
     },
     {
       "type": "graph",
       "title": "Nghiệm hệ 2 phương trình = giao điểm 2 đường thẳng",
       "functions": [
-        { "fn": "5 - 2*x", "color": "#ffe08a" },
-        { "fn": "x - 1", "color": "#7fded1" }
+        {
+          "fn": "5 - 2*x",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "x - 1",
+          "color": "#7fded1"
+        }
       ],
-      "xDomain": [-1, 5],
-      "yDomain": [-2, 6],
+      "xDomain": [
+        -1,
+        5
+      ],
+      "yDomain": [
+        -2,
+        6
+      ],
       "caption": "Đường vàng: 2x+y=5 → y=5-2x. Đường xanh: x-y=1 → y=x-1. Giao điểm tại (2,1) là nghiệm của hệ."
     },
     {
@@ -41,39 +55,110 @@
       "latex": "\\begin{cases} 2x + y = 5 \\\\ x - y = 1 \\end{cases} \\iff \\underbrace{\\begin{bmatrix} 2 & 1 \\\\ 1 & -1 \\end{bmatrix}}_{A} \\underbrace{\\begin{bmatrix} x \\\\ y \\end{bmatrix}}_{\\mathbf{x}} = \\underbrace{\\begin{bmatrix} 5 \\\\ 1 \\end{bmatrix}}_{\\mathbf{b}}",
       "reading": "đọc là: hệ phương trình tuyến tính tương đương với phương trình ma trận A nhân x bằng b.",
       "symbols": [
-        { "sym": "A", "meaning": "ma trận hệ số (coefficient matrix) — các hệ số của ẩn trong từng phương trình" },
-        { "sym": "\\mathbf{x}", "meaning": "vector ẩn số cần tìm" },
-        { "sym": "\\mathbf{b}", "meaning": "vector vế phải (right-hand side)" }
+        {
+          "sym": "A",
+          "meaning": "ma trận hệ số (coefficient matrix) — các hệ số của ẩn trong từng phương trình"
+        },
+        {
+          "sym": "\\mathbf{x}",
+          "meaning": "vector ẩn số cần tìm"
+        },
+        {
+          "sym": "\\mathbf{b}",
+          "meaning": "vector vế phải (right-hand side)"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Khử Gauss (Gaussian Elimination) — thuật toán cốt lõi",
-      "content": "Khử Gauss là thuật toán hệ thống để giải hệ phương trình. Ý tưởng: biến đổi hệ về dạng **tam giác trên (upper triangular)** rồi **thế ngược (back substitution)**.\n\n**Ba phép biến đổi hàng hợp lệ (Elementary Row Operations):**\n1. Đổi chỗ hai hàng\n2. Nhân một hàng với hằng số khác 0\n3. Cộng bội của một hàng vào hàng khác\n\nTất cả đều **giữ nguyên tập nghiệm** của hệ.\n\n**Ma trận tăng cường (augmented matrix) [A|b]:** ghép ma trận A với vector b, thực hiện row operations trên [A|b] thay vì hai bên riêng lẻ.\n\nSau khi A về dạng tam giác trên, thế ngược từ phương trình cuối lên đầu để tìm từng ẩn."
+      "content": "Khử Gauss là thuật toán hệ thống để giải hệ phương trình. Ý tưởng: biến đổi hệ về dạng **tam giác trên (upper triangular)** rồi **thế ngược (back substitution)**.\n\n**Ba phép biến đổi hàng hợp lệ (Elementary Row Operations):**\n1. Đổi chỗ hai hàng\n2. Nhân một hàng với hằng số khác 0\n3. Cộng bội của một hàng vào hàng khác\n\nTất cả đều **giữ nguyên tập nghiệm** của hệ.\n\n**Ma trận tăng cường (augmented matrix) [A|b]:** ghép ma trận A với vector b, thực hiện row operations trên [A|b] thay vì hai bên riêng lẻ.\n\nSau khi A về dạng tam giác trên, thế ngược từ phương trình cuối lên đầu để tìm từng ẩn.\n\n**Pivoting:** nếu pivot (phần tử dùng để khử) bằng 0 thì phải đổi hàng. Trên máy tính, ngay cả pivot rất nhỏ cũng nguy hiểm vì chia cho nó khuếch đại sai số làm tròn — nên các thư viện dùng **partial pivoting**: ở mỗi cột, đổi lên hàng có phần tử lớn nhất về trị tuyệt đối."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: Giải hệ bằng khử Gauss",
       "problem": "Giải hệ: $2x + y = 5$ và $x - y = 1$ bằng khử Gauss.",
       "steps": [
-        { "text": "Viết ma trận tăng cường $[A|\\mathbf{b}] = \\begin{bmatrix} 2 & 1 & | & 5 \\\\ 1 & -1 & | & 1 \\end{bmatrix}$.", "rule": "Ma trận tăng cường" },
-        { "text": "Đổi hàng 1 và hàng 2 để pivot (phần tử góc trái trên) là 1: $\\begin{bmatrix} 1 & -1 & | & 1 \\\\ 2 & 1 & | & 5 \\end{bmatrix}$.", "rule": "Phép biến đổi hàng: đổi chỗ" },
-        { "text": "Hàng 2 = Hàng 2 − 2×Hàng 1: $R_2 \\leftarrow R_2 - 2R_1$. Kết quả: $\\begin{bmatrix} 1 & -1 & | & 1 \\\\ 0 & 3 & | & 3 \\end{bmatrix}$.", "rule": "Khử phần tử dưới pivot" },
-        { "text": "Từ hàng 2: $3y = 3 \\Rightarrow y = 1$. Thế ngược vào hàng 1: $x - 1 = 1 \\Rightarrow x = 2$.", "rule": "Back substitution" },
-        { "text": "Lỗi hay gặp: sau khi khử, nhầm chiều thế ngược — phải đi từ DƯỚI lên TRÊN, không phải từ trên xuống.", "isCommonMistake": true, "rule": "Back substitution: giải từ phương trình cuối (đơn giản nhất) rồi thế lên dần" }
+        {
+          "text": "Viết ma trận tăng cường $[A|\\mathbf{b}] = \\begin{bmatrix} 2 & 1 & | & 5 \\\\ 1 & -1 & | & 1 \\end{bmatrix}$.",
+          "rule": "Ma trận tăng cường"
+        },
+        {
+          "text": "Đổi hàng 1 và hàng 2 để pivot (phần tử góc trái trên) là 1: $\\begin{bmatrix} 1 & -1 & | & 1 \\\\ 2 & 1 & | & 5 \\end{bmatrix}$.",
+          "rule": "Phép biến đổi hàng: đổi chỗ"
+        },
+        {
+          "text": "Hàng 2 = Hàng 2 − 2×Hàng 1: $R_2 \\leftarrow R_2 - 2R_1$. Kết quả: $\\begin{bmatrix} 1 & -1 & | & 1 \\\\ 0 & 3 & | & 3 \\end{bmatrix}$.",
+          "rule": "Khử phần tử dưới pivot"
+        },
+        {
+          "text": "Từ hàng 2: $3y = 3 \\Rightarrow y = 1$. Thế ngược vào hàng 1: $x - 1 = 1 \\Rightarrow x = 2$.",
+          "rule": "Back substitution"
+        },
+        {
+          "text": "Lỗi hay gặp: sau khi khử, nhầm chiều thế ngược — phải đi từ DƯỚI lên TRÊN, không phải từ trên xuống.",
+          "isCommonMistake": true,
+          "rule": "Back substitution: giải từ phương trình cuối (đơn giản nhất) rồi thế lên dần"
+        }
       ],
       "result": "$x = 2$, $y = 1$ — giao điểm hai đường thẳng tại $(2, 1)$"
+    },
+    {
+      "type": "callout",
+      "variant": "info",
+      "content": "**Độ phức tạp:** khử Gauss cho hệ $n \\times n$ tốn khoảng $\\frac{2}{3}n^3$ phép tính — $O(n^3)$; thế ngược chỉ $O(n^2)$. Nếu cần giải nhiều hệ cùng ma trận $A$ nhưng khác $\\mathbf{b}$, hãy phân rã **LU** một lần ($A = LU$, chính là ghi lại các bước khử Gauss) rồi mỗi $\\mathbf{b}$ chỉ tốn $O(n^2)$ — `scipy.linalg.lu_factor` / `lu_solve`. Hệ rất lớn và thưa (hàng triệu ẩn) thì dùng phương pháp lặp như Conjugate Gradient thay vì khử trực tiếp."
+    },
+    {
+      "type": "explanation",
+      "title": "Rank — đếm số phương trình \"thật sự độc lập\"",
+      "content": "**Rank** (hạng) của ma trận = số pivot sau khi khử Gauss = số hàng (hoặc cột) độc lập tuyến tính. Trực giác: rank là **số ràng buộc thật sự**, sau khi bỏ các phương trình chỉ là tổ hợp của phương trình khác.\n\nVới hệ $A\\mathbf{x} = \\mathbf{b}$ có $n$ ẩn (định lý Rouché–Capelli):\n\n- $\\text{rank}(A) < \\text{rank}([A|\\mathbf{b}])$: khử Gauss sinh ra hàng $0 = c$ với $c \\neq 0$ → **vô nghiệm**.\n- $\\text{rank}(A) = \\text{rank}([A|\\mathbf{b}]) = n$: mỗi ẩn đều có pivot → **nghiệm duy nhất**.\n- $\\text{rank}(A) = \\text{rank}([A|\\mathbf{b}]) = r < n$: còn $n - r$ **ẩn tự do (free variables)** → **vô số nghiệm**.\n\nKhông bao giờ có đúng 2 nghiệm: nếu $\\mathbf{x}_1 \\neq \\mathbf{x}_2$ đều là nghiệm thì mọi điểm trên đường thẳng nối chúng, $\\mathbf{x}_1 + t(\\mathbf{x}_2 - \\mathbf{x}_1)$, cũng là nghiệm.\n\nTrong ML: nếu ma trận feature $X$ không đủ rank cột (ví dụ một feature là tổ hợp tuyến tính của các feature khác — đa cộng tuyến, multicollinearity) thì trọng số của linear regression không xác định duy nhất. Trong hệ gợi ý, ý tưởng \"ma trận user × item có rank thấp\" là nền tảng của matrix factorization."
+    },
+    {
+      "type": "formula",
+      "title": "Tiêu chí số nghiệm theo rank",
+      "latex": "\\begin{aligned} \\text{rank}(A) < \\text{rank}([A \\mid \\mathbf{b}]) &\\implies \\text{no solution} \\\\ \\text{rank}(A) = \\text{rank}([A \\mid \\mathbf{b}]) = n &\\implies \\text{unique solution} \\\\ \\text{rank}(A) = \\text{rank}([A \\mid \\mathbf{b}]) < n &\\implies \\text{infinitely many} \\end{aligned}",
+      "reading": "đọc là: rank của A nhỏ hơn rank ma trận tăng cường thì vô nghiệm; bằng nhau và bằng số ẩn n thì nghiệm duy nhất; bằng nhau nhưng nhỏ hơn n thì vô số nghiệm.",
+      "symbols": [
+        {
+          "sym": "\\text{rank}(A)",
+          "meaning": "số pivot khi khử Gauss A — số phương trình độc lập"
+        },
+        {
+          "sym": "[A \\mid \\mathbf{b}]",
+          "meaning": "ma trận tăng cường; rank tăng lên nghĩa là có hàng dạng 0 = c ≠ 0 (mâu thuẫn)"
+        },
+        {
+          "sym": "n - r",
+          "meaning": "số ẩn tự do — số chiều của tập nghiệm (đường thẳng, mặt phẳng…)"
+        }
+      ]
     },
     {
       "type": "formula",
       "title": "Bài toán Least Squares (Overdetermined System)",
       "latex": "\\min_{\\mathbf{w}} \\|X\\mathbf{w} - \\mathbf{y}\\|^2 \\implies \\hat{\\mathbf{w}} = (X^T X)^{-1} X^T \\mathbf{y}",
-      "reading": "đọc là: tìm w tối thiểu hóa tổng bình phương sai số; nghiệm là nghịch đảo của XᵀX nhân với Xᵀy.",
+      "reading": "đọc là: tìm w làm tổng bình phương sai số nhỏ nhất; nếu X có các cột độc lập tuyến tính thì nghiệm là nghịch đảo của X-chuyển-vị-X nhân với X-chuyển-vị-y.",
       "symbols": [
-        { "sym": "X", "meaning": "ma trận đặc trưng (feature matrix) — mỗi hàng là một mẫu, mỗi cột là một feature" },
-        { "sym": "\\mathbf{y}", "meaning": "vector nhãn (labels/targets)" },
-        { "sym": "(X^TX)^{-1}X^T", "meaning": "pseudoinverse (Moore-Penrose) của X — ký hiệu $X^+$" },
-        { "sym": "\\hat{\\mathbf{w}}", "meaning": "nghiệm least squares — tham số tối ưu của linear regression" }
+        {
+          "sym": "X",
+          "meaning": "ma trận đặc trưng (feature matrix) — mỗi hàng là một mẫu, mỗi cột là một feature"
+        },
+        {
+          "sym": "\\mathbf{y}",
+          "meaning": "vector nhãn (labels/targets)"
+        },
+        {
+          "sym": "X^TX\\hat{\\mathbf{w}} = X^T\\mathbf{y}",
+          "meaning": "phương trình chuẩn (normal equations) — cái ta thực sự giải, không cần tính nghịch đảo"
+        },
+        {
+          "sym": "(X^TX)^{-1}X^T",
+          "meaning": "pseudoinverse (Moore–Penrose) $X^+$ của X — công thức này chỉ đúng khi X có đủ rank cột"
+        },
+        {
+          "sym": "\\hat{\\mathbf{w}}",
+          "meaning": "nghiệm least squares — tham số tối ưu của linear regression; $X\\hat{\\mathbf{w}}$ là hình chiếu của y lên không gian cột của X"
+        }
       ]
     },
     {
@@ -81,26 +166,46 @@
       "title": "Ví dụ 2: Linear Regression là bài toán hệ tuyến tính",
       "problem": "Bộ dữ liệu: (x=1, y=2), (x=2, y=4), (x=3, y=5). Tìm đường thẳng $y = w_1 x + w_0$ khớp nhất bằng least squares.",
       "steps": [
-        { "text": "Viết dạng ma trận $X\\mathbf{w} = \\mathbf{y}$, thêm cột 1 cho bias: $X = \\begin{bmatrix} 1 & 1 \\\\ 2 & 1 \\\\ 3 & 1 \\end{bmatrix}$, $\\mathbf{y} = \\begin{bmatrix} 2 \\\\ 4 \\\\ 5 \\end{bmatrix}$, $\\mathbf{w} = \\begin{bmatrix} w_1 \\\\ w_0 \\end{bmatrix}$.", "rule": "Ma trận đặc trưng với bias" },
-        { "text": "$X^T X = \\begin{bmatrix} 1 & 2 & 3 \\\\ 1 & 1 & 1 \\end{bmatrix} \\begin{bmatrix} 1 & 1 \\\\ 2 & 1 \\\\ 3 & 1 \\end{bmatrix} = \\begin{bmatrix} 14 & 6 \\\\ 6 & 3 \\end{bmatrix}$.", "rule": "Nhân ma trận để tính $X^TX$" },
-        { "text": "$X^T \\mathbf{y} = \\begin{bmatrix} 1 & 2 & 3 \\\\ 1 & 1 & 1 \\end{bmatrix} \\begin{bmatrix} 2 \\\\ 4 \\\\ 5 \\end{bmatrix} = \\begin{bmatrix} 25 \\\\ 11 \\end{bmatrix}$." },
-        { "text": "Giải $(X^TX)\\mathbf{w} = X^T\\mathbf{y}$ bằng `np.linalg.solve`: $\\hat{\\mathbf{w}} \\approx \\begin{bmatrix} 1.5 \\\\ 0.33 \\end{bmatrix}$.", "isCommonMistake": false },
-        { "text": "Lỗi hay gặp: quên cột 1 cho bias — kết quả là đường thẳng qua gốc tọa độ, không phải đường thẳng tổng quát.", "isCommonMistake": true, "rule": "Luôn thêm cột bias = 1 (augmented feature matrix)" }
+        {
+          "text": "Viết dạng ma trận $X\\mathbf{w} = \\mathbf{y}$, thêm cột 1 cho bias: $X = \\begin{bmatrix} 1 & 1 \\\\ 2 & 1 \\\\ 3 & 1 \\end{bmatrix}$, $\\mathbf{y} = \\begin{bmatrix} 2 \\\\ 4 \\\\ 5 \\end{bmatrix}$, $\\mathbf{w} = \\begin{bmatrix} w_1 \\\\ w_0 \\end{bmatrix}$.",
+          "rule": "Ma trận đặc trưng với bias"
+        },
+        {
+          "text": "$X^T X = \\begin{bmatrix} 1 & 2 & 3 \\\\ 1 & 1 & 1 \\end{bmatrix} \\begin{bmatrix} 1 & 1 \\\\ 2 & 1 \\\\ 3 & 1 \\end{bmatrix} = \\begin{bmatrix} 14 & 6 \\\\ 6 & 3 \\end{bmatrix}$.",
+          "rule": "Nhân ma trận để tính $X^TX$"
+        },
+        {
+          "text": "$X^T \\mathbf{y} = \\begin{bmatrix} 1 & 2 & 3 \\\\ 1 & 1 & 1 \\end{bmatrix} \\begin{bmatrix} 2 \\\\ 4 \\\\ 5 \\end{bmatrix} = \\begin{bmatrix} 25 \\\\ 11 \\end{bmatrix}$."
+        },
+        {
+          "text": "Giải $\\begin{bmatrix} 14 & 6 \\\\ 6 & 3 \\end{bmatrix}\\mathbf{w} = \\begin{bmatrix} 25 \\\\ 11 \\end{bmatrix}$: det $= 42 - 36 = 6$, $w_1 = \\frac{3 \\cdot 25 - 6 \\cdot 11}{6} = \\frac{9}{6} = 1.5$, $w_0 = \\frac{14 \\cdot 11 - 6 \\cdot 25}{6} = \\frac{4}{6} = \\frac{2}{3} \\approx 0.67$.",
+          "rule": "Giải normal equations (quy tắc Cramer cho 2×2)"
+        },
+        {
+          "text": "Kiểm tra: đường thẳng least squares luôn đi qua điểm trung bình $(\\bar{x}, \\bar{y}) = (2, 11/3)$: $1.5 \\times 2 + 2/3 = 11/3$ ✓. Sai số tại 3 điểm: $2 - 2.17 = -0.17$, $4 - 3.67 = 0.33$, $5 - 5.17 = -0.17$ — tổng bằng 0.",
+          "rule": "Kiểm tra nghiệm"
+        },
+        {
+          "text": "Lỗi hay gặp: quên cột 1 cho bias — kết quả là đường thẳng qua gốc tọa độ, không phải đường thẳng tổng quát.",
+          "isCommonMistake": true,
+          "rule": "Luôn thêm cột bias = 1 (augmented feature matrix)"
+        }
       ],
-      "result": "$y \\approx 1.5x + 0.33$ — đường thẳng least squares khớp tốt nhất với 3 điểm dữ liệu."
+      "result": "$y = 1.5x + \\frac{2}{3} \\approx 1.5x + 0.67$ — đường thẳng least squares khớp tốt nhất với 3 điểm dữ liệu."
     },
     {
       "type": "callout",
       "variant": "tip",
-      "content": "**Mẹo thực tế cho ML:** Thay vì tính $(X^TX)^{-1}X^T\\mathbf{y}$ thủ công, dùng `np.linalg.lstsq(X, y, rcond=None)` — hàm này dùng SVD decomposition, ổn định hơn và xử lý được cả trường hợp $X^TX$ gần singular. Trong scikit-learn: `LinearRegression().fit(X, y)` cũng dùng cách này."
+      "content": "**Mẹo thực tế cho ML:** thay vì tính $(X^TX)^{-1}X^T\\mathbf{y}$ thủ công, dùng `np.linalg.lstsq(X, y, rcond=None)` — hàm này dùng SVD, ổn định hơn và vẫn cho nghiệm hợp lý khi $X^TX$ singular hoặc gần singular. Lập $X^TX$ tường minh làm **bình phương condition number**, mất gấp đôi số chữ số chính xác. Trong scikit-learn, `LinearRegression().fit(X, y)` cũng giải bằng least squares (qua `scipy.linalg.lstsq`)."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Hệ $A\\mathbf{x}=\\mathbf{b}$: nghiệm duy nhất ↔ det(A)≠0; vô nghiệm hoặc vô số nghiệm ↔ det(A)=0.",
-        "Khử Gauss: biến ma trận tăng cường [A|b] về tam giác trên bằng row operations, rồi back substitution.",
-        "Overdetermined system (nhiều pt hơn ẩn): dùng least squares $\\hat{\\mathbf{w}}=(X^TX)^{-1}X^T\\mathbf{y}$.",
-        "Linear regression = giải hệ tuyến tính overdetermined bằng least squares.",
+        "Hệ $A\\mathbf{x}=\\mathbf{b}$ luôn có 0, 1 hoặc vô số nghiệm — không bao giờ đúng 2.",
+        "Hệ vuông: nghiệm duy nhất ⇔ $\\det(A) \\neq 0$. Tổng quát: so sánh $\\text{rank}(A)$, $\\text{rank}([A|\\mathbf{b}])$ và số ẩn n.",
+        "Khử Gauss: dùng 3 phép biến đổi hàng đưa [A|b] về tam giác trên, rồi thế ngược từ dưới lên. Chi phí $O(n^3)$; partial pivoting để ổn định số học.",
+        "Giải nhiều vế phải với cùng A: phân rã LU một lần, mỗi b chỉ tốn $O(n^2)$.",
+        "Overdetermined (nhiều phương trình hơn ẩn): least squares, giải $X^TX\\hat{\\mathbf{w}} = X^T\\mathbf{y}$ — chính là linear regression.",
         "Thực tế: `np.linalg.solve` cho hệ vuông, `np.linalg.lstsq` cho overdetermined."
       ]
     }
@@ -110,7 +215,7 @@
       "id": "fc-linsys-cases",
       "type": "concept",
       "front": "Ba trường hợp của hệ $A\\mathbf{x}=\\mathbf{b}$ là gì?",
-      "back": "1. $\\det(A)\\neq0$: nghiệm DUY NHẤT. 2. $\\det(A)=0$ và b khả năng: VÔ SỐ nghiệm. 3. $\\det(A)=0$ và b mâu thuẫn: VÔ NGHIỆM."
+      "back": "1. Nghiệm DUY NHẤT: $\\text{rank}(A) = \\text{rank}([A|b]) = n$ (hệ vuông: $\\det(A)\\neq0$). 2. VÔ SỐ nghiệm: $\\text{rank}(A) = \\text{rank}([A|b]) < n$. 3. VÔ NGHIỆM: $\\text{rank}(A) < \\text{rank}([A|b])$ (xuất hiện hàng $0 = c \\neq 0$)."
     },
     {
       "id": "fc-linsys-gauss",
@@ -128,13 +233,31 @@
       "id": "fc-linsys-lstsq",
       "type": "formula",
       "front": "Công thức least squares solution là gì?",
-      "back": "$\\hat{\\mathbf{w}} = (X^TX)^{-1}X^T\\mathbf{y}$ — nghiệm tối thiểu tổng bình phương sai số khi hệ overdetermined."
+      "back": "Giải normal equations $X^TX\\hat{\\mathbf{w}} = X^T\\mathbf{y}$; nếu X có đủ rank cột thì $\\hat{\\mathbf{w}} = (X^TX)^{-1}X^T\\mathbf{y}$ — làm tổng bình phương sai số $\\|X\\mathbf{w}-\\mathbf{y}\\|^2$ nhỏ nhất."
     },
     {
       "id": "fc-linsys-linreg",
       "type": "concept",
       "front": "Linear Regression liên quan đến hệ tuyến tính như thế nào?",
       "back": "Linear regression = giải overdetermined system $X\\mathbf{w}\\approx\\mathbf{y}$ bằng least squares. Ma trận X (feature) và vector y (labels) xác định nghiệm $\\hat{\\mathbf{w}}$ tối ưu."
+    },
+    {
+      "id": "fc-linsys-rank",
+      "type": "definition",
+      "front": "Rank của ma trận là gì (trực giác)?",
+      "back": "Số pivot sau khử Gauss = số hàng (cột) độc lập tuyến tính = số ràng buộc thật sự. Hệ n ẩn có rank r (và nhất quán) thì có n − r ẩn tự do."
+    },
+    {
+      "id": "fc-linsys-cost",
+      "type": "concept",
+      "front": "Độ phức tạp của khử Gauss, và khi giải nhiều vế phải b thì làm gì?",
+      "back": "Khoảng $\\frac{2}{3}n^3$ — $O(n^3)$; thế ngược $O(n^2)$. Với cùng A, nhiều b: phân rã LU một lần, mỗi b chỉ còn $O(n^2)$."
+    },
+    {
+      "id": "fc-linsys-pivoting",
+      "type": "concept",
+      "front": "Partial pivoting là gì và vì sao cần?",
+      "back": "Ở mỗi bước khử, đổi lên hàng có phần tử lớn nhất (trị tuyệt đối) trong cột làm pivot. Tránh chia cho số 0 hoặc số rất nhỏ — thứ khuếch đại sai số làm tròn."
     }
   ],
   "exercises": [
@@ -147,14 +270,59 @@
         "Khử phần tử bên dưới pivot đầu tiên: $R_2 \\leftarrow R_2 - 3R_1$."
       ],
       "solutionSteps": [
-        { "text": "Ma trận tăng cường: $\\begin{bmatrix} 1 & 2 & | & 8 \\\\ 3 & -1 & | & 3 \\end{bmatrix}$.", "rule": "Viết dạng [A|b]" },
-        { "text": "$R_2 \\leftarrow R_2 - 3R_1$: $\\begin{bmatrix} 1 & 2 & | & 8 \\\\ 0 & -7 & | & -21 \\end{bmatrix}$.", "rule": "Row operation: khử phần tử dưới pivot" },
-        { "text": "Từ hàng 2: $-7y = -21 \\Rightarrow y = 3$.", "rule": "Back substitution từ dưới lên" },
-        { "text": "Thế vào hàng 1: $x + 2\\times3 = 8 \\Rightarrow x = 2$.", "isCommonMistake": false }
+        {
+          "text": "Ma trận tăng cường: $\\left[\\begin{array}{cc|c} 1 & 2 & 8 \\\\ 3 & -1 & 3 \\end{array}\\right]$.",
+          "rule": "Viết dạng [A|b]"
+        },
+        {
+          "text": "$R_2 \\leftarrow R_2 - 3R_1$: hàng 2 thành $(3 - 3,\\ -1 - 6 \\mid 3 - 24) = (0,\\ -7 \\mid -21)$.",
+          "rule": "Row operation: khử phần tử dưới pivot"
+        },
+        {
+          "text": "Lỗi hay gặp: chỉ trừ ở các hệ số mà quên trừ ở cột vế phải, được $-7y = 3$. Phép biến đổi hàng phải áp lên **cả hàng**, kể cả cột b.",
+          "rule": "Biến đổi trên toàn bộ hàng của [A|b]",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Từ hàng 2: $-7y = -21 \\Rightarrow y = 3$. Thế lên hàng 1: $x + 2 \\times 3 = 8 \\Rightarrow x = 2$.",
+          "rule": "Back substitution từ dưới lên"
+        }
       ],
       "answer": "$x = 2$, $y = 3$",
-      "commonMistake": "Thực hiện back substitution từ trên xuống thay vì từ dưới lên — phải giải phương trình đơn giản nhất trước.",
+      "commonMistake": "Quên áp phép biến đổi hàng lên cột vế phải b.",
       "relatedFlashcard": "fc-linsys-gauss"
+    },
+    {
+      "id": "ex-linsys-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Không cần giải chi tiết, cho biết hệ $2x - y = 3$ và $4x - 2y = 5$ có bao nhiêu nghiệm. Giải thích bằng khử Gauss và hình học.",
+      "hints": [
+        "Tính $\\det\\begin{bmatrix} 2 & -1 \\\\ 4 & -2 \\end{bmatrix}$.",
+        "Thử $R_2 \\leftarrow R_2 - 2R_1$ trên ma trận tăng cường.",
+        "Hai đường thẳng có cùng hệ số góc không?"
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\det = 2\\times(-2) - (-1)\\times4 = -4 + 4 = 0$ → không có nghiệm duy nhất (vô nghiệm hoặc vô số nghiệm).",
+          "rule": "Hệ vuông: det = 0"
+        },
+        {
+          "text": "$R_2 \\leftarrow R_2 - 2R_1$: $(4 - 4,\\ -2 + 2 \\mid 5 - 6) = (0,\\ 0 \\mid -1)$, tức $0 = -1$ — mâu thuẫn.",
+          "rule": "Khử Gauss"
+        },
+        {
+          "text": "Lỗi hay gặp: thấy det = 0 rồi kết luận ngay \\\"vô số nghiệm\\\" (hoặc ngay \\\"vô nghiệm\\\"). det = 0 chỉ loại trừ nghiệm duy nhất; phải xem vế phải để biết hệ nhất quán hay không.",
+          "rule": "det = 0 chưa đủ để kết luận",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Hình học: $y = 2x - 3$ và $y = 2x - 2.5$ cùng hệ số góc 2 nhưng khác tung độ gốc → hai đường song song, không cắt nhau.",
+          "rule": "Đường thẳng song song ⇔ vô nghiệm"
+        }
+      ],
+      "answer": "Vô nghiệm — khử Gauss cho 0 = −1; hai đường thẳng song song.",
+      "commonMistake": "Đồng nhất det = 0 với vô số nghiệm.",
+      "relatedFlashcard": "fc-linsys-cases"
     },
     {
       "id": "ex-linsys-apply-1",
@@ -165,35 +333,139 @@
         "det=0 → singular. Kiểm tra xem b có nhất quán không: phương trình 2 có phải bội của phương trình 1?"
       ],
       "solutionSteps": [
-        { "text": "$\\det\\begin{bmatrix}2&4\\\\1&2\\end{bmatrix} = 2\\times2 - 4\\times1 = 0$ → singular.", "rule": "$ad-bc$" },
-        { "text": "Phương trình 2: $x+2y=3$ — chính là $\\frac{1}{2}$ × phương trình 1: $2x+4y=6$. Hai phương trình TRÙNG nhau.", "rule": "Kiểm tra nhất quán" },
-        { "text": "Vì hai phương trình là một, có VÔ SỐ nghiệm: $x = 3 - 2t$, $y = t$ với $t$ bất kỳ.", "isCommonMistake": false },
-        { "text": "Hình học: hai đường thẳng trùng nhau hoàn toàn (không phải song song). Mọi điểm trên đường là nghiệm.", "isCommonMistake": false },
-        { "text": "Lỗi: kết luận vô nghiệm vì det=0 — det=0 chưa đủ để kết luận, phải kiểm tra thêm tính nhất quán của b.", "isCommonMistake": true, "rule": "det=0: có thể vô nghiệm HOẶC vô số nghiệm — phải kiểm tra b" }
+        {
+          "text": "$\\det\\begin{bmatrix}2&4\\\\1&2\\end{bmatrix} = 2\\times2 - 4\\times1 = 0$ → singular.",
+          "rule": "$ad-bc$"
+        },
+        {
+          "text": "Phương trình 2: $x+2y=3$ — chính là $\\frac{1}{2}$ × phương trình 1: $2x+4y=6$. Hai phương trình TRÙNG nhau.",
+          "rule": "Kiểm tra nhất quán"
+        },
+        {
+          "text": "Hai phương trình là một, nên có VÔ SỐ nghiệm. Đặt $y = t$ (ẩn tự do), từ $x + 2y = 3$: $x = 3 - 2t$. Rank của A và [A|b] đều bằng 1 < 2 ẩn → 1 ẩn tự do.",
+          "rule": "rank(A) = rank([A|b]) < n"
+        },
+        {
+          "text": "Hình học: hai đường thẳng trùng nhau hoàn toàn (không phải song song rời nhau). Mọi điểm trên đường $x + 2y = 3$ đều là nghiệm.",
+          "rule": "Hai phương trình tỉ lệ ⇔ hai đường thẳng trùng nhau"
+        },
+        {
+          "text": "Lỗi: kết luận vô nghiệm vì det=0 — det=0 chưa đủ để kết luận, phải kiểm tra thêm tính nhất quán của b.",
+          "isCommonMistake": true,
+          "rule": "det=0: có thể vô nghiệm HOẶC vô số nghiệm — phải kiểm tra b"
+        }
       ],
       "answer": "Vô số nghiệm: $x=3-2t$, $y=t$ — hai đường thẳng trùng nhau.",
       "commonMistake": "det=0 không nhất thiết là vô nghiệm — cần kiểm tra rank của [A|b].",
       "relatedFlashcard": "fc-linsys-cases"
     },
     {
+      "id": "ex-linsys-apply-2",
+      "difficulty": "apply",
+      "prompt": "Giải hệ 3 ẩn bằng khử Gauss: $x + y + z = 6$, $2x + y - z = 1$, $x - y + 2z = 5$.",
+      "hints": [
+        "Dùng hàng 1 làm pivot: $R_2 \\leftarrow R_2 - 2R_1$, $R_3 \\leftarrow R_3 - R_1$.",
+        "Sau đó dùng hàng 2 (mới) để khử y ở hàng 3.",
+        "Thế ngược: tìm z, rồi y, rồi x."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\left[\\begin{array}{ccc|c} 1 & 1 & 1 & 6 \\\\ 2 & 1 & -1 & 1 \\\\ 1 & -1 & 2 & 5 \\end{array}\\right]$; $R_2 - 2R_1 \\to (0, -1, -3 \\mid -11)$; $R_3 - R_1 \\to (0, -2, 1 \\mid -1)$.",
+          "rule": "Khử cột 1"
+        },
+        {
+          "text": "$R_3 \\leftarrow R_3 - 2R_2$: $(0,\\ -2 + 2,\\ 1 + 6 \\mid -1 + 22) = (0, 0, 7 \\mid 21)$.",
+          "rule": "Khử cột 2"
+        },
+        {
+          "text": "Lỗi hay gặp: sai dấu khi trừ số âm, ví dụ $1 - 2 \\times (-3) = -5$ thay vì $1 + 6 = 7$. Viết rõ từng phép tính khi hệ số âm.",
+          "rule": "Cẩn thận dấu khi trừ bội của hàng",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Thế ngược: $7z = 21 \\Rightarrow z = 3$; $-y - 3 \\cdot 3 = -11 \\Rightarrow y = 2$; $x + 2 + 3 = 6 \\Rightarrow x = 1$.",
+          "rule": "Back substitution"
+        },
+        {
+          "text": "Kiểm tra phương trình 3: $1 - 2 + 2 \\times 3 = 5$ ✓.",
+          "rule": "Thế nghiệm vào hệ gốc"
+        }
+      ],
+      "answer": "$(x, y, z) = (1, 2, 3)$",
+      "commonMistake": "Sai dấu khi trừ bội của hàng có hệ số âm — luôn thế nghiệm lại vào hệ gốc để kiểm tra.",
+      "relatedFlashcard": "fc-linsys-gauss"
+    },
+    {
       "id": "ex-linsys-challenge-1",
       "difficulty": "challenge",
-      "prompt": "Một mô hình linear regression đơn giản: dữ liệu (x=1,y=1), (x=2,y=3), (x=3,y=2). Thiết lập ma trận tăng cường [X|y] (với bias), nêu cách dùng least squares, và giải thích tại sao không tồn tại đường thẳng đi qua cả 3 điểm.",
+      "prompt": "Dữ liệu (x=1, y=1), (x=2, y=3), (x=3, y=2). Lập hệ $X\\mathbf{w} = \\mathbf{y}$ cho mô hình $y = w_1x + w_0$ (thêm cột bias), giải thích vì sao hệ không có nghiệm chính xác, rồi tìm nghiệm least squares.",
       "hints": [
         "Hệ có 3 phương trình (3 điểm), 2 ẩn ($w_1, w_0$) → overdetermined.",
-        "Ma trận X (augmented với bias): mỗi hàng là [x_i, 1].",
+        "Mỗi hàng của X là $[x_i, 1]$.",
         "Least squares: giải $(X^TX)\\hat{\\mathbf{w}} = X^T\\mathbf{y}$."
       ],
       "solutionSteps": [
-        { "text": "Hệ overdetermined: $X = \\begin{bmatrix}1&1\\\\2&1\\\\3&1\\end{bmatrix}$, $\\mathbf{y} = \\begin{bmatrix}1\\\\3\\\\2\\end{bmatrix}$ — 3 phương trình, 2 ẩn.", "rule": "Feature matrix với bias column" },
-        { "text": "3 điểm không thẳng hàng (kiểm tra: (1,1),(2,3),(3,2) — không cùng đường thẳng) nên không có nghiệm chính xác.", "isCommonMistake": false },
-        { "text": "$X^TX = \\begin{bmatrix}14&6\\\\6&3\\end{bmatrix}$, $X^T\\mathbf{y} = \\begin{bmatrix}1\\cdot1+2\\cdot3+3\\cdot2\\\\1+3+2\\end{bmatrix} = \\begin{bmatrix}13\\\\6\\end{bmatrix}$.", "rule": "Tính normal equations" },
-        { "text": "Giải $(X^TX)\\hat{\\mathbf{w}}=X^T\\mathbf{y}$: $\\det(X^TX)=14\\times3-6\\times6=42-36=6$. $\\hat{w}_1 = 0.5$, $\\hat{w}_0 = 1$.", "rule": "Least squares solution" },
-        { "text": "Lỗi: tính đúng $X^TX$ nhưng dùng $\\det=0$ làm ví dụ — $X^TX$ hầu như luôn invertible khi X full column rank.", "isCommonMistake": true, "rule": "X full column rank → $X^TX$ invertible — quan trọng trong regression" }
+        {
+          "text": "$X = \\begin{bmatrix}1&1\\\\2&1\\\\3&1\\end{bmatrix}$, $\\mathbf{y} = \\begin{bmatrix}1\\\\3\\\\2\\end{bmatrix}$ — 3 phương trình, 2 ẩn.",
+          "rule": "Feature matrix với cột bias"
+        },
+        {
+          "text": "Không có nghiệm chính xác: đường qua (1,1) và (2,3) có hệ số góc 2, khi $x = 3$ cho $y = 5 \\neq 2$ — ba điểm không thẳng hàng. Theo rank: rank(X) = 2 nhưng rank([X|y]) = 3.",
+          "rule": "rank(A) < rank([A|b]) ⇒ vô nghiệm"
+        },
+        {
+          "text": "$X^TX = \\begin{bmatrix}14&6\\\\6&3\\end{bmatrix}$, $X^T\\mathbf{y} = \\begin{bmatrix}1\\cdot1+2\\cdot3+3\\cdot2\\\\1+3+2\\end{bmatrix} = \\begin{bmatrix}13\\\\6\\end{bmatrix}$.",
+          "rule": "Lập normal equations"
+        },
+        {
+          "text": "Lỗi hay gặp: tính $X^T\\mathbf{y}$ bằng cách nhân $X\\mathbf{y}$ (kích thước $(3\\times2)(3\\times1)$ không khớp), hoặc quên chuyển vị. Hàng 1 của $X^T$ là các giá trị x, hàng 2 là các số 1.",
+          "rule": "Kiểm tra kích thước trước khi nhân",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Giải: det $= 14\\times3 - 6\\times6 = 6$; $\\hat{w}_1 = \\frac{3\\cdot13 - 6\\cdot6}{6} = 0.5$, $\\hat{w}_0 = \\frac{14\\cdot6 - 6\\cdot13}{6} = 1$. Kiểm tra: đường đi qua điểm trung bình $(2, 2)$ ✓.",
+          "rule": "Least squares solution"
+        }
       ],
-      "answer": "$\\hat{y} = 0.5x + 1$ — đường thẳng least squares (sai số trung bình bình phương nhỏ nhất). Không có đường thẳng nào đi qua cả 3 điểm vì chúng không thẳng hàng.",
-      "commonMistake": "Nghĩ rằng 3 điểm luôn xác định đường thẳng — chỉ 2 điểm mới xác định đường thẳng duy nhất.",
+      "answer": "$\\hat{y} = 0.5x + 1$ — đường thẳng có tổng bình phương sai số nhỏ nhất (sai số tại 3 điểm: $-0.5, 1, -0.5$). Không có đường nào đi qua cả 3 điểm vì chúng không thẳng hàng.",
+      "commonMistake": "Nghĩ rằng 3 điểm luôn nằm trên một đường thẳng — 2 điểm xác định một đường thẳng, điểm thứ 3 thường lệch khỏi nó.",
       "relatedFlashcard": "fc-linsys-lstsq"
+    },
+    {
+      "id": "ex-linsys-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Xét hệ $x + y + z = 2$, $x + 2y + 3z = 5$, $2x + 3y + 4z = c$. (a) Với $c = 7$, tìm rank của A và mô tả tập nghiệm. (b) Với $c = 8$ thì sao? (c) Đây là ví dụ \\\"3 phương trình 3 ẩn nhưng không có nghiệm duy nhất\\\" — liên hệ với det(A).",
+      "hints": [
+        "Để ý: hàng 3 của A bằng hàng 1 + hàng 2.",
+        "Khử Gauss: $R_2 - R_1$, $R_3 - 2R_1$, rồi $R_3 - R_2$.",
+        "Có hàng 0 = 0 thì có ẩn tự do; hàng 0 = c ≠ 0 thì vô nghiệm."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$R_2 - R_1 \\to (0, 1, 2 \\mid 3)$; $R_3 - 2R_1 \\to (0, 1, 2 \\mid c - 4)$; $R_3 - R_2 \\to (0, 0, 0 \\mid c - 7)$.",
+          "rule": "Khử Gauss"
+        },
+        {
+          "text": "(a) $c = 7$: hàng cuối là $0 = 0$. Chỉ có 2 pivot → rank(A) = rank([A|b]) = 2 < 3 ẩn → 1 ẩn tự do. Đặt $z = t$: $y = 3 - 2t$, $x = 2 - y - z = -1 + t$.",
+          "rule": "rank = rank tăng cường < n ⇒ vô số nghiệm"
+        },
+        {
+          "text": "Kiểm tra với $t = 0$: $(-1, 3, 0)$ → $-1 + 3 = 2$ ✓, $-1 + 6 = 5$ ✓, $-2 + 9 = 7$ ✓. Tập nghiệm là một **đường thẳng** trong không gian 3D: $(-1, 3, 0) + t(1, -2, 1)$.",
+          "rule": "Nghiệm tổng quát = nghiệm riêng + t × hướng"
+        },
+        {
+          "text": "(b) $c = 8$: hàng cuối là $0 = 1$ — mâu thuẫn. rank(A) = 2 < rank([A|b]) = 3 → vô nghiệm.",
+          "rule": "rank(A) < rank([A|b]) ⇒ vô nghiệm"
+        },
+        {
+          "text": "Lỗi hay gặp: cho rằng \\\"3 phương trình, 3 ẩn thì luôn có nghiệm duy nhất\\\". Số phương trình không quan trọng bằng số phương trình **độc lập**: ở đây phương trình 3 chỉ là tổng của hai phương trình đầu, nên $\\det(A) = 0$.",
+          "rule": "Đếm rank, không đếm số phương trình",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "(a) rank 2, vô số nghiệm: $(x, y, z) = (-1 + t,\\ 3 - 2t,\\ t)$. (b) Vô nghiệm (0 = 1). (c) Hàng 3 = hàng 1 + hàng 2 nên $\\det(A) = 0$ — không bao giờ có nghiệm duy nhất, bất kể c.",
+      "commonMistake": "Đếm số phương trình thay vì số phương trình độc lập (rank).",
+      "relatedFlashcard": "fc-linsys-rank"
     }
   ],
   "quiz": [
@@ -205,10 +477,10 @@
         "Nghiệm duy nhất: (1,1)",
         "Vô số nghiệm",
         "Vô nghiệm",
-        "Hai nghiệm"
+        "Đúng hai nghiệm"
       ],
       "correct": 1,
-      "explanation": "Phương trình 1 = 3 × phương trình 2 → hai phương trình trùng nhau → vô số nghiệm. $\\det = 3\\times2-6\\times1 = 0$ xác nhận singular."
+      "explanation": "Phương trình 1 = 3 × phương trình 2 → hai phương trình trùng nhau → vô số nghiệm ($\\det = 3\\times2-6\\times1 = 0$ và hệ nhất quán). (1, 1) chỉ là **một** trong các nghiệm. Hệ tuyến tính không bao giờ có đúng hai nghiệm."
     },
     {
       "id": "q-linsys-2",
@@ -228,13 +500,52 @@
       "type": "mcq",
       "question": "Trong scikit-learn, `LinearRegression().fit(X, y)` giải bài toán tối ưu nào?",
       "options": [
-        "$\\max \\|X\\mathbf{w} - \\mathbf{y}\\|^2$",
         "$\\min \\|X\\mathbf{w} - \\mathbf{y}\\|^2$ (Least Squares)",
+        "$\\max \\|X\\mathbf{w} - \\mathbf{y}\\|^2$",
         "Giải hệ $X\\mathbf{w} = \\mathbf{y}$ chính xác",
         "$\\min \\|\\mathbf{w}\\|^2$ (chỉ minimize norm của w)"
       ],
-      "correct": 1,
-      "explanation": "Linear regression = ordinary least squares: minimize tổng bình phương sai số $\\|X\\mathbf{w}-\\mathbf{y}\\|^2$. Nghiệm: $\\hat{\\mathbf{w}}=(X^TX)^{-1}X^T\\mathbf{y}$."
+      "correct": 0,
+      "explanation": "Linear regression = ordinary least squares: minimize tổng bình phương sai số $\\|X\\mathbf{w}-\\mathbf{y}\\|^2$. Giải hệ $X\\mathbf{w} = \\mathbf{y}$ chính xác thường không được vì hệ overdetermined (nhiều điểm dữ liệu hơn tham số)."
+    },
+    {
+      "id": "q-linsys-4",
+      "type": "mcq",
+      "question": "Hệ 4 phương trình, 3 ẩn có $\\text{rank}(A) = 3$ và $\\text{rank}([A|\\mathbf{b}]) = 4$. Hệ có bao nhiêu nghiệm?",
+      "options": [
+        "Nghiệm duy nhất vì rank(A) bằng số ẩn",
+        "Vô số nghiệm",
+        "Vô nghiệm",
+        "Không xác định được nếu không biết b"
+      ],
+      "correct": 2,
+      "explanation": "rank(A) < rank([A|b]) nghĩa là khử Gauss sinh ra hàng 0 = c ≠ 0 → mâu thuẫn → vô nghiệm. (Đây là tình huống thường gặp với dữ liệu thật — nên ta dùng least squares.)"
+    },
+    {
+      "id": "q-linsys-5",
+      "type": "mcq",
+      "question": "Bạn cần giải $A\\mathbf{x} = \\mathbf{b}_k$ với cùng một ma trận $A$ (n×n) cho 1000 vector $\\mathbf{b}_k$ khác nhau. Cách nào hiệu quả nhất?",
+      "options": [
+        "Khử Gauss lại từ đầu cho mỗi $\\mathbf{b}_k$: tổng $O(1000 n^3)$",
+        "Tính $\\det(A)$ cho mỗi $\\mathbf{b}_k$",
+        "Phân rã LU một lần $O(n^3)$, rồi mỗi $\\mathbf{b}_k$ chỉ thế xuôi/ngược $O(n^2)$",
+        "Dùng quy tắc Cramer cho từng ẩn"
+      ],
+      "correct": 2,
+      "explanation": "LU ghi lại các bước khử Gauss; sau đó mỗi vế phải chỉ cần hai lần thế (tam giác dưới rồi tam giác trên), mỗi lần $O(n^2)$. Quy tắc Cramer cần n + 1 định thức — rất chậm với n lớn."
+    },
+    {
+      "id": "q-linsys-6",
+      "type": "mcq",
+      "question": "Hệ 5 ẩn, nhất quán, có rank(A) = 3. Tập nghiệm có bao nhiêu ẩn tự do?",
+      "options": [
+        "0 — nghiệm duy nhất",
+        "3",
+        "5",
+        "2"
+      ],
+      "correct": 3,
+      "explanation": "Số ẩn tự do = n − r = 5 − 3 = 2. Tập nghiệm là một \"mặt phẳng\" 2 chiều trong không gian 5 chiều."
     }
   ]
 }

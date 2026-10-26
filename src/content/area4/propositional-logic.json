@@ -6,7 +6,7 @@
   "order": 1,
   "icon": "logic",
   "tagline": "Logic mệnh đề là ngôn ngữ của máy tính — mọi câu lệnh if, mọi cổng logic, mọi mệnh đề SQL WHERE đều được xây từ AND, OR, NOT.",
-  "readTime": "~18 min",
+  "readTime": "~25 min",
   "prerequisites": [],
   "sections": [
     {
@@ -24,30 +24,61 @@
       "latex": "\\lnot p \\quad p \\land q \\quad p \\lor q \\quad p \\Rightarrow q \\quad p \\Leftrightarrow q",
       "reading": "đọc là: NOT p; p AND q; p OR q; p kéo theo q (if p then q); p tương đương q.",
       "symbols": [
-        { "sym": "\\lnot p", "meaning": "NOT p — phủ định: đảo True↔False" },
-        { "sym": "p \\land q", "meaning": "p AND q — hội: True khi cả hai đều True" },
-        { "sym": "p \\lor q", "meaning": "p OR q — tuyển: True khi ít nhất một True" },
-        { "sym": "p \\Rightarrow q", "meaning": "p implies q — kéo theo: chỉ False khi p=True, q=False" },
-        { "sym": "p \\Leftrightarrow q", "meaning": "p iff q — tương đương: True khi p và q cùng giá trị" }
+        {
+          "sym": "\\lnot p",
+          "meaning": "NOT p — phủ định: đảo True↔False"
+        },
+        {
+          "sym": "p \\land q",
+          "meaning": "p AND q — hội: True khi cả hai đều True"
+        },
+        {
+          "sym": "p \\lor q",
+          "meaning": "p OR q — tuyển: True khi ít nhất một True"
+        },
+        {
+          "sym": "p \\Rightarrow q",
+          "meaning": "p implies q — kéo theo: chỉ False khi p=True, q=False"
+        },
+        {
+          "sym": "p \\Leftrightarrow q",
+          "meaning": "p iff q — tương đương: True khi p và q cùng giá trị"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Bảng chân trị (Truth Table) — công cụ kiểm tra mọi trường hợp",
-      "content": "Bảng chân trị liệt kê **tất cả tổ hợp** giá trị đầu vào và kết quả. Với n biến → $2^n$ hàng.\n\n**AND (∧) và OR (∨):**\n\n| $p$ | $q$ | $p \\land q$ | $p \\lor q$ |\n|-----|-----|-------------|------------|\n| T | T | T | T |\n| T | F | F | T |\n| F | T | F | T |\n| F | F | F | F |\n\n**NOT (¬) và Implication (⇒):**\n\n| $p$ | $q$ | $\\lnot p$ | $p \\Rightarrow q$ |\n|-----|-----|-----------|-------------------|\n| T | T | F | T |\n| T | F | F | F |\n| F | T | T | T |\n| F | F | T | T |\n\nHàng đáng ngạc nhiên nhất: khi p=False, `p⇒q` luôn True — \"nếu mặt trời mọc ở hướng Tây thì 1+1=3\" là True trong logic hình thức vì điều kiện không bao giờ xảy ra."
+      "content": "Bảng chân trị liệt kê **tất cả tổ hợp** giá trị đầu vào và kết quả. Với n biến → $2^n$ hàng.\n\n**AND (∧) và OR (∨):**\n\n| $p$ | $q$ | $p \\land q$ | $p \\lor q$ |\n|-----|-----|-------------|------------|\n| T | T | T | T |\n| T | F | F | T |\n| F | T | F | T |\n| F | F | F | F |\n\n**NOT (¬) và Implication (⇒):**\n\n| $p$ | $q$ | $\\lnot p$ | $p \\Rightarrow q$ |\n|-----|-----|-----------|-------------------|\n| T | T | F | T |\n| T | F | F | F |\n| F | T | T | T |\n| F | F | T | T |\n\nHàng đáng ngạc nhiên nhất: khi p=False, $p \\Rightarrow q$ luôn True — gọi là **chân lý rỗng (vacuous truth)**. \"Nếu mặt trời mọc ở hướng Tây thì 1+1=3\" là True trong logic hình thức vì điều kiện không bao giờ xảy ra, nên lời hứa không bị phá.\n\nCách nhớ gọn nhất: $p \\Rightarrow q \\equiv \\lnot p \\lor q$ — \"hoặc điều kiện không xảy ra, hoặc kết quả đúng\". Kéo theo chỉ bị vi phạm bởi đúng một hàng: p=T, q=F."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: phân tích điều kiện if trong code",
       "problem": "Code có điều kiện: `if (isLoggedIn && (isAdmin || hasPermission))`. Khi nào điều kiện này True?",
       "steps": [
-        { "text": "Đặt: p = isLoggedIn, q = isAdmin, r = hasPermission.", "rule": "Đặt biến mệnh đề cho từng điều kiện" },
-        { "text": "Biểu thức: $p \\land (q \\lor r)$.", "rule": "Dịch code → ký hiệu logic" },
-        { "text": "AND yêu cầu cả hai vế True. Vậy cần p = True.", "isCommonMistake": true, "rule": "isLoggedIn phải True — nếu chưa đăng nhập, phần còn lại không quan trọng" },
-        { "text": "Và $(q \\lor r)$ = True, tức là isAdmin=True HOẶC hasPermission=True (hoặc cả hai)." },
-        { "text": "Kết luận: chỉ True khi đã đăng nhập VÀ (là admin HOẶC có quyền)." }
+        {
+          "text": "Đặt: p = isLoggedIn, q = isAdmin, r = hasPermission.",
+          "rule": "Đặt biến mệnh đề cho từng điều kiện"
+        },
+        {
+          "text": "Biểu thức: $p \\land (q \\lor r)$ — dấu ngoặc bắt buộc phải giữ.",
+          "rule": "Dịch code sang ký hiệu logic"
+        },
+        {
+          "text": "Nếu bỏ ngoặc, `isLoggedIn && isAdmin || hasPermission` được hiểu là $(p \\land q) \\lor r$ vì AND ưu tiên hơn OR — khi đó user **chưa đăng nhập** nhưng có hasPermission vẫn lọt qua.",
+          "isCommonMistake": true,
+          "rule": "Thứ tự ưu tiên: NOT > AND > OR"
+        },
+        {
+          "text": "AND yêu cầu cả hai vế True: cần p = True và $(q \\lor r)$ = True, tức isAdmin=True HOẶC hasPermission=True (hoặc cả hai).",
+          "rule": "Định nghĩa AND, OR"
+        },
+        {
+          "text": "Đếm: 3 biến có $2^3 = 8$ tổ hợp; điều kiện đúng ở đúng 3 tổ hợp (p=T và (q,r) ≠ (F,F)). Nhờ short-circuit, khi p=False thì `(isAdmin || hasPermission)` không được tính.",
+          "rule": "Bảng chân trị + short-circuit evaluation"
+        }
       ],
-      "result": "True khi isLoggedIn=True và (isAdmin=True hoặc hasPermission=True)"
+      "result": "True khi isLoggedIn=True và (isAdmin=True hoặc hasPermission=True) — 3 trên 8 tổ hợp."
     },
     {
       "type": "formula",
@@ -55,15 +86,26 @@
       "latex": "\\lnot(p \\land q) = \\lnot p \\lor \\lnot q \\qquad \\lnot(p \\lor q) = \\lnot p \\land \\lnot q",
       "reading": "đọc là: NOT(p AND q) = (NOT p) OR (NOT q); NOT(p OR q) = (NOT p) AND (NOT q). Đây là luật De Morgan.",
       "symbols": [
-        { "sym": "\\lnot(p \\land q)", "meaning": "phủ định của AND — đảo thành OR của các phủ định" },
-        { "sym": "\\lnot(p \\lor q)", "meaning": "phủ định của OR — đảo thành AND của các phủ định" }
+        {
+          "sym": "\\lnot(p \\land q)",
+          "meaning": "phủ định của AND — đảo thành OR của các phủ định"
+        },
+        {
+          "sym": "\\lnot(p \\lor q)",
+          "meaning": "phủ định của OR — đảo thành AND của các phủ định"
+        }
       ],
       "caption": "Luật De Morgan: khi phủ định một biểu thức hợp/tuyển, đảo dấu phép toán và phủ định từng vế."
     },
     {
       "type": "explanation",
       "title": "De Morgan trong code — tối ưu điều kiện",
-      "content": "Lập trình viên dùng De Morgan liên tục khi đảo điều kiện:\n\n```\n// Gốc: không cho phép nếu KHÔNG đăng nhập VÀ KHÔNG phải admin\nif (!isLoggedIn && !isAdmin) { deny(); }\n\n// Đảo điều kiện (De Morgan): cho phép nếu đăng nhập HOẶC là admin\nif (isLoggedIn || isAdmin) { allow(); }\n```\n\nHai đoạn code trên **tương đương nhau** — ¬(¬p ∧ ¬q) = p ∨ q theo De Morgan.\n\nTrong SQL WHERE clause:\n```sql\n-- Tìm user không active VÀ không phải admin:\nWHERE NOT active AND NOT is_admin\n-- Tương đương với phủ định của:\nWHERE active OR is_admin\n```"
+      "content": "Lập trình viên dùng De Morgan liên tục khi đảo điều kiện, ví dụ khi viết guard clause (return sớm):\n\n- Điều kiện cho phép: `if (isLoggedIn || isAdmin) allow();`\n- Điều kiện từ chối: `if (!isLoggedIn && !isAdmin) deny();`\n\nĐiều kiện từ chối chính là **phủ định** của điều kiện cho phép: $\\lnot(p \\lor q) \\equiv \\lnot p \\land \\lnot q$. Vì vậy hai nhánh không bao giờ cùng đúng và luôn có đúng một nhánh chạy.\n\nMẹo: khi đẩy `!` vào trong ngoặc, **đổi `&&` thành `||` (và ngược lại)** rồi **phủ định từng vế** — kể cả phép so sánh: `!(x > 5 || y <= 3)` thành `x <= 5 && y > 3`. Lỗi kinh điển là phủ định `>` thành `<` (quên dấu bằng).\n\nTrong SQL cũng vậy: `WHERE NOT (active OR is_admin)` tương đương `WHERE NOT active AND NOT is_admin`. Lưu ý SQL dùng logic ba giá trị (có NULL): `NOT NULL` vẫn là NULL, nên hàng có giá trị NULL bị loại ở **cả hai** phía của điều kiện."
+    },
+    {
+      "type": "explanation",
+      "title": "Short-circuit evaluation — AND/OR trong code có thứ tự",
+      "content": "Trong toán, $p \\land q \\equiv q \\land p$. Trong code, `&&` và `||` **đánh giá từ trái sang phải và dừng sớm** (short-circuit):\n\n- `a && b`: nếu `a` là false thì kết quả chắc chắn false → **không tính** `b`.\n- `a || b`: nếu `a` là true thì kết quả chắc chắn true → **không tính** `b`.\n\nVì vậy thứ tự vế quan trọng khi vế sau có thể crash hoặc tốn kém: `user != null && user.isAdmin` an toàn, còn `user.isAdmin && user != null` có thể ném lỗi. Tương tự, đặt kiểm tra rẻ (so sánh biến) trước kiểm tra đắt (query DB) để tiết kiệm.\n\nGiá trị logic giống nhau, nhưng **hiệu ứng phụ (side effect)** và hiệu năng thì khác — đó là chỗ logic toán và code tách nhau."
     },
     {
       "type": "diagram",
@@ -76,26 +118,95 @@
       "title": "Ví dụ: kiểm tra tautology bằng bảng chân trị",
       "problem": "Kiểm tra xem $p \\lor \\lnot p$ có phải tautology (luôn True) không.",
       "steps": [
-        { "text": "Lập bảng chân trị cho tất cả giá trị của p." },
-        { "text": "p=True: $\\lnot p$ = False, $p \\lor \\lnot p$ = True ∨ False = **True**.", "rule": "OR True với bất kỳ = True" },
-        { "text": "p=False: $\\lnot p$ = True, $p \\lor \\lnot p$ = False ∨ True = **True**.", "rule": "OR với True = True" },
-        { "text": "Mọi hàng đều True → đây là tautology.", "isCommonMistake": true, "rule": "Cần kiểm tra TẤT CẢ hàng — không chỉ một hàng đại diện" }
+        {
+          "text": "Lập bảng chân trị cho tất cả giá trị của p."
+        },
+        {
+          "text": "p=True: $\\lnot p$ = False, $p \\lor \\lnot p$ = True ∨ False = **True**.",
+          "rule": "OR True với bất kỳ = True"
+        },
+        {
+          "text": "p=False: $\\lnot p$ = True, $p \\lor \\lnot p$ = False ∨ True = **True**.",
+          "rule": "OR với True = True"
+        },
+        {
+          "text": "Mọi hàng đều True → đây là tautology.",
+          "isCommonMistake": true,
+          "rule": "Cần kiểm tra TẤT CẢ hàng — không chỉ một hàng đại diện"
+        }
       ],
       "result": "$p \\lor \\lnot p$ là tautology — luôn True, dù p là True hay False."
     },
     {
+      "type": "explanation",
+      "title": "Đảo, phản, phản đảo — chỉ phản đảo tương đương",
+      "content": "Từ $p \\Rightarrow q$ có thể tạo ba mệnh đề khác. Ví dụ p = \"n chia hết cho 4\", q = \"n chẵn\":\n\n| Tên | Dạng | Ví dụ | Đúng? |\n|---|---|---|---|\n| Gốc | $p \\Rightarrow q$ | 4 chia hết n thì n chẵn | Đúng |\n| Đảo (converse) | $q \\Rightarrow p$ | n chẵn thì 4 chia hết n | Sai (n=6) |\n| Phản (inverse) | $\\lnot p \\Rightarrow \\lnot q$ | 4 không chia hết n thì n lẻ | Sai (n=6) |\n| Phản đảo (contrapositive) | $\\lnot q \\Rightarrow \\lnot p$ | n lẻ thì 4 không chia hết n | Đúng |\n\nQuy luật: **gốc ≡ phản đảo**, và **đảo ≡ phản** (đảo và phản tương đương với nhau nhưng không tương đương với gốc).\n\nTrong debug: \"nếu có bug thì test fail\" **không** cho phép kết luận \"test fail thì có bug\" (đảo — test có thể sai). Nhưng được kết luận \"test pass thì không có bug **đó**\" (phản đảo)."
+    },
+    {
       "type": "callout",
       "variant": "warning",
-      "content": "**Lỗi hay gặp với Implication (⇒):** Nhiều người nghĩ \"p⇒q\" giống như \"p nguyên nhân dẫn đến q\". KHÔNG phải. Trong logic hình thức, `p⇒q` chỉ sai khi p=True và q=False. Khi p=False, kéo theo luôn True — bất kể q là gì. Điều này hay gây nhầm lẫn khi viết điều kiện ngược (contrapositive): ¬q⇒¬p tương đương p⇒q, nhưng q⇒p thì KHÔNG."
+      "content": "**Lỗi hay gặp với kéo theo (implication):** \"p⇒q\" KHÔNG có nghĩa \"p là nguyên nhân của q\". Trong logic hình thức, p⇒q chỉ sai khi p=True và q=False; khi p=False nó luôn True. Và chỉ **phản đảo** ¬q⇒¬p tương đương p⇒q — **đảo** q⇒p thì không (đây là ngụy biện \"khẳng định hệ quả\" (affirming the consequent))."
+    },
+    {
+      "type": "formula",
+      "title": "Lượng từ (quantifiers) và phủ định của chúng",
+      "latex": "\\lnot\\,\\forall x\\; P(x) \\equiv \\exists x\\; \\lnot P(x) \\qquad \\lnot\\,\\exists x\\; P(x) \\equiv \\forall x\\; \\lnot P(x)",
+      "reading": "đọc là: \"không phải mọi x đều thỏa P\" tương đương \"tồn tại x không thỏa P\"; \"không tồn tại x thỏa P\" tương đương \"mọi x đều không thỏa P\". Đây là De Morgan cho lượng từ.",
+      "symbols": [
+        {
+          "sym": "\\forall x",
+          "meaning": "với mọi x (for all) — giống `all()` / `every()`, một AND dài"
+        },
+        {
+          "sym": "\\exists x",
+          "meaning": "tồn tại x (there exists) — giống `any()` / `some()`, một OR dài"
+        },
+        {
+          "sym": "P(x)",
+          "meaning": "vị từ (predicate) — mệnh đề có tham số, ví dụ \"x > 0\""
+        }
+      ],
+      "caption": "Muốn bác bỏ một khẳng định \"mọi...\" chỉ cần MỘT phản ví dụ (counterexample)."
+    },
+    {
+      "type": "explanation",
+      "title": "Lượng từ trong code: all/any, every/some",
+      "content": "$\\forall$ là AND lặp trên cả tập, $\\exists$ là OR lặp trên cả tập. Trong Python: `all(ok(x) for x in xs)` và `any(ok(x) for x in xs)`; trong JS: `xs.every(ok)` và `xs.some(ok)`.\n\nPhủ định theo De Morgan: `not all(ok(x) for x in xs)` tương đương `any(not ok(x) for x in xs)`.\n\n**Chân lý rỗng trên tập rỗng:** `all([])` trả về `True` và `any([])` trả về `False` (JS: `[].every(f)` là true, `[].some(f)` là false). Lý do: \"mọi phần tử của tập rỗng đều thỏa P\" không có phản ví dụ nào. Đây là bug thật: kiểm tra \"mọi đơn hàng đã thanh toán\" sẽ pass khi danh sách đơn hàng rỗng.\n\n**Thứ tự lượng từ quan trọng:** $\\forall u\\, \\exists p$ (mỗi user có một password, có thể khác nhau) khác hẳn $\\exists p\\, \\forall u$ (có một password dùng chung cho mọi user)."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: phủ định một đặc tả có lượng từ",
+      "problem": "Đặc tả: \"Mọi request đều có token hợp lệ và chưa hết hạn\". Viết phủ định (điều kiện để alert bắn).",
+      "steps": [
+        {
+          "text": "Ký hiệu: $\\forall r\\; (V(r) \\land \\lnot E(r))$ với V = token hợp lệ, E = đã hết hạn.",
+          "rule": "Dịch tiếng Việt sang lượng từ"
+        },
+        {
+          "text": "Phủ định lượng từ: $\\exists r\\; \\lnot(V(r) \\land \\lnot E(r))$.",
+          "rule": "¬∀ = ∃¬"
+        },
+        {
+          "text": "De Morgan bên trong: $\\exists r\\; (\\lnot V(r) \\lor E(r))$.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: đổi ∀ thành ∃ nhưng quên phủ định thân, hoặc phủ định thân nhưng giữ nguyên ∀"
+        },
+        {
+          "text": "Dịch lại: \"Có ít nhất một request mà token không hợp lệ hoặc đã hết hạn\". Code: `any(not valid(r) or expired(r) for r in reqs)`."
+        }
+      ],
+      "result": "$\\exists r\\; (\\lnot V(r) \\lor E(r))$ — chỉ cần một request vi phạm."
     },
     {
       "type": "key_takeaways",
       "items": [
         "Mệnh đề (proposition) là phát biểu True/False — nền tảng của mọi điều kiện trong code.",
-        "Ba phép toán cơ bản: NOT (¬), AND (∧), OR (∨) — tương ứng !, &&, || trong code.",
+        "Ba phép toán cơ bản: NOT (¬), AND (∧), OR (∨) — tương ứng !, &&, || trong code; ưu tiên NOT > AND > OR.",
         "Bảng chân trị liệt kê mọi trường hợp: n biến → $2^n$ hàng.",
         "Luật De Morgan: ¬(p∧q) = ¬p∨¬q; ¬(p∨q) = ¬p∧¬q — dùng khi đảo điều kiện trong code.",
-        "Implication p⇒q chỉ False khi p=True và q=False — đừng nhầm với quan hệ nhân-quả."
+        "Kéo theo $p \\Rightarrow q \\equiv \\lnot p \\lor q$: chỉ False khi p=True, q=False. Phản đảo tương đương, đảo thì không.",
+        "¬∀ = ∃¬ và ¬∃ = ∀¬; `all([])` là True (chân lý rỗng).",
+        "`&&`/`||` short-circuit: logic giống toán, nhưng thứ tự vế ảnh hưởng crash và hiệu năng."
       ]
     }
   ],
@@ -122,13 +233,43 @@
       "id": "fc-pl-implication",
       "type": "concept",
       "front": "Khi nào $p \\Rightarrow q$ là False?",
-      "back": "Chỉ khi p=True và q=False. Khi p=False, kéo theo luôn True (\"vacuously true\")."
+      "back": "Chỉ khi p=True và q=False. Khi p=False, kéo theo luôn True (chân lý rỗng — vacuous truth). Tương đương $\\lnot p \\lor q$."
     },
     {
       "id": "fc-pl-tautology",
       "type": "definition",
       "front": "Tautology là gì? Cho ví dụ.",
-      "back": "Mệnh đề **luôn True** với mọi giá trị biến. Ví dụ: $p \\lor \\lnot p$ (luật loại trừ trung gian)."
+      "back": "Mệnh đề **luôn True** với mọi giá trị biến. Ví dụ: $p \\lor \\lnot p$ (luật bài trung — law of excluded middle)."
+    },
+    {
+      "id": "fc-pl-contrapositive",
+      "type": "concept",
+      "front": "Mệnh đề nào tương đương $p \\Rightarrow q$: đảo $q \\Rightarrow p$, phản $\\lnot p \\Rightarrow \\lnot q$, hay phản đảo $\\lnot q \\Rightarrow \\lnot p$?",
+      "back": "Chỉ **phản đảo** $\\lnot q \\Rightarrow \\lnot p$. Đảo và phản tương đương với nhau nhưng KHÔNG tương đương gốc. Ví dụ: \"4 chia hết n thì n chẵn\" đúng, nhưng \"n chẵn thì 4 chia hết n\" sai (n=6)."
+    },
+    {
+      "id": "fc-pl-implication-or",
+      "type": "formula",
+      "front": "Viết $p \\Rightarrow q$ chỉ bằng NOT và OR.",
+      "back": "$p \\Rightarrow q \\equiv \\lnot p \\lor q$. Phủ định: $\\lnot(p \\Rightarrow q) \\equiv p \\land \\lnot q$ — \"điều kiện xảy ra mà kết quả không đúng\"."
+    },
+    {
+      "id": "fc-pl-quantifier-negation",
+      "type": "formula",
+      "front": "Phủ định của $\\forall x\\, P(x)$ và $\\exists x\\, P(x)$?",
+      "back": "$\\lnot\\forall x\\, P(x) \\equiv \\exists x\\, \\lnot P(x)$; $\\lnot\\exists x\\, P(x) \\equiv \\forall x\\, \\lnot P(x)$. Code: `not all(...)` = `any(not ...)`."
+    },
+    {
+      "id": "fc-pl-vacuous-all",
+      "type": "concept",
+      "front": "Python `all([])` và `any([])` trả về gì? Vì sao?",
+      "back": "`all([])` = True, `any([])` = False. \"Mọi phần tử của tập rỗng thỏa P\" không có phản ví dụ → đúng (chân lý rỗng). ∃ trên tập rỗng không có nhân chứng → sai."
+    },
+    {
+      "id": "fc-pl-short-circuit",
+      "type": "concept",
+      "front": "Short-circuit evaluation của `a && b` và `a || b` là gì? Tại sao quan trọng?",
+      "back": "`a && b`: nếu a false thì không tính b. `a || b`: nếu a true thì không tính b. Dùng để guard null (`user != null && user.isAdmin`) và đặt kiểm tra rẻ trước kiểm tra đắt."
     }
   ],
   "exercises": [
@@ -141,14 +282,59 @@
         "Tính ¬p trước, rồi AND với q."
       ],
       "solutionSteps": [
-        { "text": "p=T, q=T: ¬p=F, F∧T = **F**.", "rule": "NOT trước, rồi AND" },
-        { "text": "p=T, q=F: ¬p=F, F∧F = **F**." },
-        { "text": "p=F, q=T: ¬p=T, T∧T = **T**." },
-        { "text": "p=F, q=F: ¬p=T, T∧F = **F**.", "isCommonMistake": true, "rule": "AND yêu cầu cả hai True — T∧F = F, không phải T" }
+        {
+          "text": "p=T, q=T: ¬p=F, F∧T = **F**.",
+          "rule": "NOT gắn vào p trước, rồi mới AND — đọc thành ¬(p∧q) là lỗi hay gặp",
+          "isCommonMistake": true
+        },
+        {
+          "text": "p=T, q=F: ¬p=F, F∧F = **F**.",
+          "rule": "NOT trước, rồi AND"
+        },
+        {
+          "text": "p=F, q=T: ¬p=T, T∧T = **T**.",
+          "rule": "NOT trước, rồi AND"
+        },
+        {
+          "text": "p=F, q=F: ¬p=T, T∧F = **F**.",
+          "rule": "AND yêu cầu cả hai vế True — T∧F = F"
+        }
       ],
       "answer": "Chỉ True khi p=False và q=True.",
-      "commonMistake": "Quên tính NOT trước AND — thứ tự ưu tiên: ¬ > ∧ > ∨.",
+      "commonMistake": "Đọc $\\lnot p \\land q$ thành $\\lnot(p \\land q)$ — NOT chỉ gắn vào biến ngay sau nó (ưu tiên ¬ > ∧ > ∨).",
       "relatedFlashcard": "fc-pl-and"
+    },
+    {
+      "id": "ex-pl-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Cho mệnh đề: \"Nếu cache hit thì latency dưới 10ms\". Viết mệnh đề đảo (converse), phản (inverse), phản đảo (contrapositive). Mệnh đề nào chắc chắn đúng nếu mệnh đề gốc đúng?",
+      "hints": [
+        "Đặt p = cache hit, q = latency dưới 10ms.",
+        "Đảo: đổi chỗ p và q. Phản: phủ định cả hai. Phản đảo: đổi chỗ VÀ phủ định.",
+        "Chỉ một trong ba tương đương với gốc."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Gốc: $p \\Rightarrow q$.",
+          "rule": "Đặt biến mệnh đề"
+        },
+        {
+          "text": "Đảo $q \\Rightarrow p$: \"Nếu latency dưới 10ms thì cache hit\" — có thể sai (request nhẹ vẫn nhanh dù cache miss).",
+          "isCommonMistake": true,
+          "rule": "Đảo KHÔNG tương đương gốc — lỗi suy luận phổ biến nhất khi đọc log/metrics"
+        },
+        {
+          "text": "Phản $\\lnot p \\Rightarrow \\lnot q$: \"Nếu cache miss thì latency từ 10ms trở lên\" — cũng có thể sai, vì phản tương đương đảo.",
+          "rule": "Phản ≡ đảo"
+        },
+        {
+          "text": "Phản đảo $\\lnot q \\Rightarrow \\lnot p$: \"Nếu latency từ 10ms trở lên thì cache miss\" — chắc chắn đúng khi gốc đúng.",
+          "rule": "Gốc ≡ phản đảo"
+        }
+      ],
+      "answer": "Chỉ phản đảo \"latency ≥ 10ms thì cache miss\" tương đương gốc. Đảo và phản không suy ra được.",
+      "commonMistake": "Thấy latency thấp rồi kết luận \"chắc là cache hit\" — đó là dùng mệnh đề đảo.",
+      "relatedFlashcard": "fc-pl-contrapositive"
     },
     {
       "id": "ex-pl-apply-1",
@@ -159,13 +345,55 @@
         "Áp dụng De Morgan: đảo phép toán OR thành AND, phủ định từng vế."
       ],
       "solutionSteps": [
-        { "text": "Đặt p = isExpired, q = isDeleted. Biểu thức là ¬(p ∨ q).", "rule": "Nhận dạng cấu trúc De Morgan" },
-        { "text": "De Morgan: ¬(p ∨ q) = ¬p ∧ ¬q.", "rule": "Luật De Morgan 2" },
-        { "text": "Dịch ngược: !isExpired && !isDeleted.", "isCommonMistake": true, "rule": "OR đảo thành AND — lỗi hay gặp là đổi OR thành OR, không đổi phép toán" }
+        {
+          "text": "Đặt p = isExpired, q = isDeleted. Biểu thức là ¬(p ∨ q).",
+          "rule": "Nhận dạng cấu trúc De Morgan"
+        },
+        {
+          "text": "De Morgan: ¬(p ∨ q) = ¬p ∧ ¬q.",
+          "rule": "Luật De Morgan 2"
+        },
+        {
+          "text": "Dịch ngược: !isExpired && !isDeleted.",
+          "isCommonMistake": true,
+          "rule": "OR đảo thành AND — lỗi hay gặp là phủ định từng vế nhưng giữ nguyên OR"
+        }
       ],
       "answer": "`!isExpired && !isDeleted`",
       "commonMistake": "Viết `!isExpired || !isDeleted` — quên đổi || thành &&.",
       "relatedFlashcard": "fc-pl-demorgan2"
+    },
+    {
+      "id": "ex-pl-apply-2",
+      "difficulty": "apply",
+      "prompt": "Hàm health-check trả về `all(any(in_sync(r, s) for r in replicas) for s in shards)` — \"mọi shard đều có ít nhất một replica đồng bộ\". Viết bằng lượng từ, rồi viết phủ định (điều kiện báo động) cả bằng ký hiệu lẫn bằng code.",
+      "hints": [
+        "Ngoài là ∀s, trong là ∃r.",
+        "Phủ định lật từng lượng từ từ ngoài vào trong: ∀ thành ∃, ∃ thành ∀.",
+        "Cuối cùng phủ định vị từ in_sync."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Gốc: $\\forall s\\; \\exists r\\; S(r,s)$.",
+          "rule": "all = ∀, any = ∃"
+        },
+        {
+          "text": "Phủ định: $\\lnot\\forall s\\; \\exists r\\; S(r,s) \\equiv \\exists s\\; \\lnot\\exists r\\; S(r,s)$.",
+          "rule": "¬∀ = ∃¬"
+        },
+        {
+          "text": "$\\equiv \\exists s\\; \\forall r\\; \\lnot S(r,s)$ — tồn tại một shard mà mọi replica đều không đồng bộ.",
+          "isCommonMistake": true,
+          "rule": "¬∃ = ∀¬ — lỗi hay gặp là chỉ lật lượng từ ngoài, ra ∃s∃r¬S (\"có replica nào đó lệch\") — sai nghĩa"
+        },
+        {
+          "text": "Code: `any(all(not in_sync(r, s) for r in replicas) for s in shards)`.",
+          "rule": "Dịch ngược ∃ = any, ∀ = all"
+        }
+      ],
+      "answer": "$\\exists s\\; \\forall r\\; \\lnot S(r,s)$ — `any(all(not in_sync(r, s) for r in replicas) for s in shards)`.",
+      "commonMistake": "Viết `any(any(not in_sync(r, s) ...))` — báo động ngay khi chỉ một replica lệch, dù shard vẫn còn replica tốt.",
+      "relatedFlashcard": "fc-pl-quantifier-negation"
     },
     {
       "id": "ex-pl-challenge-1",
@@ -177,15 +405,63 @@
         "Phủ định: ¬(A ∨ (E ∧ ¬L)) — áp dụng De Morgan."
       ],
       "solutionSteps": [
-        { "text": "Biểu thức cho phép: $A \\lor (E \\land \\lnot L)$.", "rule": "Dịch yêu cầu thành logic" },
-        { "text": "Phủ định (từ chối): $\\lnot(A \\lor (E \\land \\lnot L))$." },
-        { "text": "De Morgan ngoài: $\\lnot A \\land \\lnot(E \\land \\lnot L)$.", "rule": "¬(p∨q) = ¬p∧¬q" },
-        { "text": "De Morgan trong: $\\lnot(E \\land \\lnot L) = \\lnot E \\lor L$.", "rule": "¬(p∧q) = ¬p∨¬q" },
-        { "text": "Kết quả: $\\lnot A \\land (\\lnot E \\lor L)$ — bị từ chối khi không phải admin VÀ (email chưa xác minh HOẶC tài khoản bị khoá).", "isCommonMistake": true, "rule": "Phải áp dụng De Morgan ở cả hai cấp — lỗi hay gặp là chỉ áp dụng một lần" }
+        {
+          "text": "Biểu thức cho phép: $A \\lor (E \\land \\lnot L)$.",
+          "rule": "Dịch yêu cầu thành logic"
+        },
+        {
+          "text": "Phủ định (từ chối): $\\lnot(A \\lor (E \\land \\lnot L))$.",
+          "rule": "Phủ định toàn bộ biểu thức"
+        },
+        {
+          "text": "De Morgan ngoài: $\\lnot A \\land \\lnot(E \\land \\lnot L)$.",
+          "rule": "¬(p∨q) = ¬p∧¬q"
+        },
+        {
+          "text": "De Morgan trong: $\\lnot(E \\land \\lnot L) = \\lnot E \\lor L$.",
+          "rule": "¬(p∧q) = ¬p∨¬q"
+        },
+        {
+          "text": "Kết quả: $\\lnot A \\land (\\lnot E \\lor L)$ — bị từ chối khi không phải admin VÀ (email chưa xác minh HOẶC tài khoản bị khoá).",
+          "isCommonMistake": true,
+          "rule": "Phải áp dụng De Morgan ở cả hai cấp — lỗi hay gặp là chỉ áp dụng một lần"
+        }
       ],
       "answer": "Bị từ chối: $\\lnot A \\land (\\lnot E \\lor L)$, tức là `!isAdmin && (!emailVerified || isLocked)`.",
       "commonMistake": "Chỉ áp dụng De Morgan một lần, bỏ qua De Morgan cho vế trong.",
       "relatedFlashcard": "fc-pl-demorgan1"
+    },
+    {
+      "id": "ex-pl-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Rút gọn điều kiện `(a && b) || (a && !b) || (!a && b)` bằng luật logic, rồi kiểm tra bằng bảng chân trị.",
+      "hints": [
+        "Hai vế đầu có chung a — dùng luật phân phối.",
+        "$b \\lor \\lnot b$ = True.",
+        "Còn lại $a \\lor (\\lnot a \\land b)$ — phân phối OR qua AND."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$(a \\land b) \\lor (a \\land \\lnot b) = a \\land (b \\lor \\lnot b) = a \\land T = a$.",
+          "rule": "Luật phân phối + luật bài trung"
+        },
+        {
+          "text": "Biểu thức thành $a \\lor (\\lnot a \\land b)$.",
+          "rule": "Thay thế tương đương"
+        },
+        {
+          "text": "$a \\lor (\\lnot a \\land b) = (a \\lor \\lnot a) \\land (a \\lor b) = T \\land (a \\lor b) = a \\lor b$.",
+          "isCommonMistake": true,
+          "rule": "Phân phối OR qua AND — lỗi hay gặp là dừng ở đây và kết luận a XOR b"
+        },
+        {
+          "text": "Bảng chân trị: (a,b)=(T,T),(T,F),(F,T) đều True; (F,F) là False — đúng bằng $a \\lor b$. ✓",
+          "rule": "Kiểm tra cả 4 hàng"
+        }
+      ],
+      "answer": "`a || b`",
+      "commonMistake": "Kết luận `a XOR b` vì nhìn thấy hai vế \"lệch nhau\" — nhưng hàng a=T, b=T vẫn True nhờ vế `a && b`.",
+      "relatedFlashcard": "fc-pl-tautology"
     }
   ],
   "quiz": [
@@ -194,12 +470,12 @@
       "type": "mcq",
       "question": "Mệnh đề $p \\land q$ có giá trị True khi nào?",
       "options": [
-        "Khi ít nhất một trong p, q là True",
         "Chỉ khi cả p lẫn q đều True",
+        "Khi ít nhất một trong p, q là True",
         "Khi p là True, bất kể q",
         "Khi p là False và q là True"
       ],
-      "correct": 1,
+      "correct": 0,
       "explanation": "AND (∧) chỉ True khi **cả hai** vế True. Ngay khi một vế False, kết quả là False."
     },
     {
@@ -208,11 +484,11 @@
       "question": "Theo luật De Morgan, $\\lnot(p \\lor q)$ tương đương với?",
       "options": [
         "$\\lnot p \\lor \\lnot q$",
-        "$\\lnot p \\land \\lnot q$",
         "$p \\land q$",
-        "$\\lnot p \\lor q$"
+        "$\\lnot p \\lor q$",
+        "$\\lnot p \\land \\lnot q$"
       ],
-      "correct": 1,
+      "correct": 3,
       "explanation": "De Morgan: ¬(p∨q) = ¬p∧¬q. Phủ định OR → AND của các phủ định. Đây là lý do `!(a||b)` tương đương `!a && !b` trong code."
     },
     {
@@ -227,6 +503,45 @@
       ],
       "correct": 2,
       "explanation": "Implication p⇒q chỉ False khi p=True nhưng q=False — điều kiện xảy ra nhưng kết quả không như hứa. Khi p=False, kéo theo luôn True (không vi phạm lời hứa vì điều kiện không xảy ra)."
+    },
+    {
+      "id": "q-pl-4",
+      "type": "mcq",
+      "question": "Mệnh đề nào **tương đương** với \"Nếu deploy thành công thì health-check pass\"?",
+      "options": [
+        "Nếu health-check pass thì deploy thành công",
+        "Nếu health-check không pass thì deploy không thành công",
+        "Nếu deploy không thành công thì health-check không pass",
+        "Deploy thành công và health-check pass"
+      ],
+      "correct": 1,
+      "explanation": "Phản đảo $\\lnot q \\Rightarrow \\lnot p$ luôn tương đương $p \\Rightarrow q$. Phương án đầu là đảo, phương án ba là phản — cả hai đều không tương đương gốc. Phương án cuối là AND, mạnh hơn hẳn."
+    },
+    {
+      "id": "q-pl-5",
+      "type": "mcq",
+      "question": "Phủ định của \"$\\forall x \\in A:\\; x > 0$\" là gì?",
+      "options": [
+        "$\\exists x \\in A:\\; x \\le 0$",
+        "$\\forall x \\in A:\\; x \\le 0$",
+        "$\\exists x \\in A:\\; x > 0$",
+        "$\\forall x \\in A:\\; x < 0$"
+      ],
+      "correct": 0,
+      "explanation": "¬∀ = ∃¬: chỉ cần MỘT phần tử không dương. Phủ định của $x > 0$ là $x \\le 0$ (không phải $x < 0$ — đừng quên số 0)."
+    },
+    {
+      "id": "q-pl-6",
+      "type": "mcq",
+      "question": "Trong Python, `all([])` trả về gì?",
+      "options": [
+        "`False`",
+        "Ném `ValueError` vì danh sách rỗng",
+        "`None`",
+        "`True`"
+      ],
+      "correct": 3,
+      "explanation": "∀ trên tập rỗng là **chân lý rỗng (vacuous truth)**: không có phần tử nào làm sai điều kiện, nên kết quả True. Ngược lại `any([])` là False. Coi chừng bug: \"mọi đơn hàng đã thanh toán\" pass khi không có đơn nào."
     }
   ]
 }

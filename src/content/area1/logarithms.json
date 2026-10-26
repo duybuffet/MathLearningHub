@@ -7,16 +7,19 @@
   "icon": "function",
   "tagline": "Logarit trả lời câu hỏi \"mũ mấy?\" — nền tảng để hiểu độ phức tạp (Big-O) và vì sao tìm kiếm nhị phân nhanh.",
   "readTime": "~15 min",
-  "prerequisites": ["area1_powers-and-roots", "area1_reading-graphs"],
+  "prerequisites": [
+    "area1_powers-and-roots",
+    "area1_reading-graphs"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Logarit (logarithm) nghe \"toán học\" nhưng ý tưởng cực đơn giản: nó là **phép toán ngược của lũy thừa (exponentiation)**. Lũy thừa hỏi \"2 mũ 5 là bao nhiêu?\" (đáp: 32). Logarit hỏi ngược lại: \"2 mũ **mấy** thì ra 32?\" (đáp: 5).\n\nVì sao dân CS phải nắm chắc logarit? Vì nó xuất hiện khắp nơi: tìm kiếm nhị phân (binary search) chạy trong `O(log n)`, cây cân bằng (balanced tree) cao `log n`, chia để trị (divide & conquer) đệ quy `log n` lần. Hiểu logarit = hiểu vì sao các thuật toán này nhanh."
+      "content": "Logarit (logarithm) nghe \"toán học\" nhưng ý tưởng cực đơn giản: nó là **phép toán ngược của lũy thừa (exponentiation)**. Lũy thừa hỏi \"2 mũ 5 là bao nhiêu?\" (đáp: 32). Logarit hỏi ngược lại: \"2 mũ **mấy** thì ra 32?\" (đáp: 5).\n\nVì sao dân CS phải nắm chắc logarit? Vì nó xuất hiện khắp nơi: tìm kiếm nhị phân (binary search) chạy trong $O(\\log n)$, cây cân bằng (balanced tree) cao khoảng $\\log_2 n$, merge sort có $\\log_2 n$ tầng chia đôi, số bit để lưu số n là khoảng $\\log_2 n$. Hiểu logarit = hiểu vì sao các thuật toán này nhanh."
     },
     {
       "type": "analogy",
       "title": "Logarit là \"số lần chia đôi\"",
-      "content": "Hình dung bạn có 32 trang sách và chơi trò đoán số kiểu tìm kiếm nhị phân: mỗi lần loại bỏ nửa số trang. 32 → 16 → 8 → 4 → 2 → 1. Bạn chia đôi **5 lần** là còn 1 trang. Con số 5 đó chính là `log₂(32)`.\n\nĐó là trực giác cốt lõi: **`log₂(n)` = số lần chia đôi n để về 1**. Vì thế binary search trên n phần tử chỉ tốn khoảng `log₂(n)` bước — với 1 triệu phần tử, chỉ ~20 bước."
+      "content": "Hình dung bạn có 32 trang sách và chơi trò đoán số kiểu tìm kiếm nhị phân: mỗi lần loại bỏ một nửa số trang. 32 → 16 → 8 → 4 → 2 → 1. Bạn chia đôi **5 lần** là còn 1 trang. Con số 5 đó chính là $\\log_2 32$.\n\nĐó là trực giác cốt lõi: **$\\log_2 n$ = số lần chia đôi n để về 1**. Vì thế binary search trên n phần tử chỉ tốn khoảng $\\log_2 n$ bước — với 1 triệu phần tử, chỉ khoảng 20 bước (vì $2^{20} \\approx 10^6$)."
     },
     {
       "type": "formula",
@@ -24,33 +27,51 @@
       "latex": "\\log_b(x) = y \\iff b^y = x",
       "reading": "đọc là: \"log cơ số b của x bằng y khi và chỉ khi b mũ y bằng x\".",
       "symbols": [
-        { "sym": "b", "meaning": "cơ số (base), b > 0 và b ≠ 1. CS hay dùng b = 2." },
-        { "sym": "x", "meaning": "số cần lấy log, phải dương (x > 0)." },
-        { "sym": "y", "meaning": "kết quả — chính là số mũ cần tìm." }
+        {
+          "sym": "b",
+          "meaning": "cơ số (base), b > 0 và b ≠ 1. CS hay dùng b = 2."
+        },
+        {
+          "sym": "x",
+          "meaning": "số cần lấy log, phải dương ($x > 0$). Không có $\\log 0$ hay log của số âm (trong số thực)."
+        },
+        {
+          "sym": "y",
+          "meaning": "kết quả — chính là số mũ cần tìm."
+        }
       ],
       "caption": "Logarit và lũy thừa là hai chiều của cùng một quan hệ."
     },
     {
       "type": "formula",
-      "title": "Ba quy tắc phải thuộc",
-      "latex": "\\log_b(xy) = \\log_b x + \\log_b y \\quad\\;\\; \\log_b\\!\\frac{x}{y} = \\log_b x - \\log_b y \\quad\\;\\; \\log_b(x^k) = k\\log_b x",
-      "reading": "đọc là: log của tích = tổng log; log của thương = hiệu log; log của lũy thừa = số mũ nhân với log.",
-      "caption": "Logarit biến nhân→cộng, chia→trừ, lũy thừa→nhân. Đây là lý do nó nén được những con số khổng lồ."
+      "title": "Các quy tắc phải thuộc",
+      "latex": "\\begin{gathered} \\log_b(xy) = \\log_b x + \\log_b y \\qquad \\log_b \\frac{x}{y} = \\log_b x - \\log_b y \\\\ \\log_b(x^k) = k \\log_b x \\qquad \\log_b 1 = 0 \\qquad \\log_b b = 1 \\end{gathered}",
+      "reading": "đọc là: log của tích = tổng các log; log của thương = hiệu các log; log của lũy thừa = số mũ nhân với log; log của 1 luôn bằng 0; log của chính cơ số bằng 1.",
+      "caption": "Logarit biến nhân → cộng, chia → trừ, lũy thừa → nhân. Đây là lý do nó nén được những con số khổng lồ. Hệ quả: với $0 < x < 1$ thì $\\log_b x < 0$ (khi $b > 1$), VD $\\log_2 \\frac{1}{8} = -3$."
     },
     {
       "type": "graph",
-      "title": "Đồ thị hàm log₂(x) tăng rất chậm",
+      "title": "Đồ thị $\\log_2 x$ tăng rất chậm",
       "functions": [
-        { "fn": "log(x) / log(2)", "color": "#f5a623" }
+        {
+          "fn": "log(x) / log(2)",
+          "color": "#ffe08a"
+        }
       ],
-      "xDomain": [0, 32],
-      "yDomain": [-2, 6],
-      "caption": "log₂(x) tăng chậm dần: x tăng gấp đôi thì y chỉ +1. Đây là hình ảnh trực quan của độ phức tạp O(log n) — vì sao thuật toán log rất nhanh kể cả với n cực lớn."
+      "xDomain": [
+        0,
+        32
+      ],
+      "yDomain": [
+        -2,
+        6
+      ],
+      "caption": "$\\log_2 x$ tăng chậm dần: x tăng gấp đôi thì y chỉ +1. Đồ thị cắt trục x tại $x = 1$ (vì $\\log 1 = 0$), âm khi $0 < x < 1$ và lao xuống khi x tiến về 0. Đây là hình ảnh trực quan của $O(\\log n)$."
     },
     {
       "type": "explanation",
       "title": "Đổi cơ số (change of base) — mẹo dùng máy tính",
-      "content": "Máy tính thường chỉ có `ln` (log tự nhiên, cơ số e) và `log` (cơ số 10). Muốn tính `log₂(x)` ta dùng công thức đổi cơ số. Trong CS, hằng số khi đổi cơ số chỉ là hệ số nhân, nên trong Big-O ta viết gọn `O(log n)` mà **không cần ghi cơ số** — vì `log₂ n` và `log₁₀ n` chỉ khác nhau một hằng số."
+      "content": "Máy tính bỏ túi thường chỉ có `ln` (log tự nhiên, natural log, cơ số $e \\approx 2.718$) và `log` (cơ số 10). Muốn tính $\\log_2 x$ ta dùng công thức đổi cơ số (change of base) bên dưới.\n\nTrong Big-O, ta viết gọn $O(\\log n)$ mà **không cần ghi cơ số** — vì $\\log_2 n = \\frac{\\log_{10} n}{\\log_{10} 2} \\approx 3.32 \\log_{10} n$: hai cơ số chỉ khác nhau một **hằng số nhân**, mà Big-O bỏ hằng số."
     },
     {
       "type": "formula",
@@ -63,9 +84,17 @@
       "title": "Ví dụ: tính log₂(32)",
       "problem": "Tính $\\log_2(32)$.",
       "steps": [
-        { "text": "Đặt câu hỏi ngược: \"2 mũ mấy thì ra 32?\"", "rule": "Định nghĩa logarit" },
-        { "text": "Phân tích 32 thành lũy thừa của 2: $32 = 2^5$.", "rule": "Nhận dạng lũy thừa" },
-        { "text": "Vậy số mũ là 5 → $\\log_2(32) = 5$." }
+        {
+          "text": "Đặt câu hỏi ngược: \"2 mũ mấy thì ra 32?\"",
+          "rule": "Định nghĩa logarit"
+        },
+        {
+          "text": "Phân tích 32 thành lũy thừa của 2: $32 = 2^5$.",
+          "rule": "Nhận dạng lũy thừa"
+        },
+        {
+          "text": "Vậy số mũ là 5 → $\\log_2(32) = 5$."
+        }
       ],
       "result": "$\\log_2(32) = 5$"
     },
@@ -74,25 +103,67 @@
       "title": "Ví dụ: dùng quy tắc để rút gọn",
       "problem": "Tính $\\log_2(8 \\times 4)$ mà không nhân ra trước.",
       "steps": [
-        { "text": "Áp dụng quy tắc tích: $\\log_2(8\\times4) = \\log_2 8 + \\log_2 4$.", "rule": "log của tích = tổng log" },
-        { "text": "$\\log_2 8 = 3$ (vì $2^3=8$) và $\\log_2 4 = 2$ (vì $2^2=4$)." },
-        { "text": "Cộng lại: $3 + 2 = 5$.", "isCommonMistake": true, "rule": "Cộng, KHÔNG nhân — lỗi hay gặp là nhân 3×2=6" }
+        {
+          "text": "Áp dụng quy tắc tích: $\\log_2(8\\times4) = \\log_2 8 + \\log_2 4$.",
+          "rule": "log của tích = tổng log"
+        },
+        {
+          "text": "$\\log_2 8 = 3$ (vì $2^3=8$) và $\\log_2 4 = 2$ (vì $2^2=4$)."
+        },
+        {
+          "text": "Cộng lại: $3 + 2 = 5$.",
+          "isCommonMistake": true,
+          "rule": "CỘNG hai log, KHÔNG nhân — lỗi hay gặp là tính $3 \\times 2 = 6$"
+        }
       ],
       "result": "$\\log_2(32) = 5$ — khớp với ví dụ trên."
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Lỗi hay gặp:** `log(x + y)` KHÔNG bằng `log x + log y`. Quy tắc tổng chỉ áp dụng cho **tích** bên trong log: `log(x·y) = log x + log y`. Với phép cộng bên trong log thì không có công thức rút gọn."
+      "content": "**Lỗi hay gặp:** $\\log(x + y)$ KHÔNG bằng $\\log x + \\log y$. Quy tắc tổng chỉ áp dụng cho **tích** bên trong log: $\\log(xy) = \\log x + \\log y$. Với phép cộng bên trong log thì không có công thức rút gọn. Tương tự, $(\\log x)^2 \\ne \\log(x^2) = 2\\log x$ — nên $O(\\log n^2) = O(\\log n)$ nhưng $O(\\log^2 n)$ thì lớn hơn hẳn."
+    },
+    {
+      "type": "explanation",
+      "title": "Logarit trong CS: đếm bit, chữ số và chiều cao cây",
+      "content": "- **Số bit để biểu diễn n** (n ≥ 1): $\\lfloor \\log_2 n \\rfloor + 1$. VD $n = 1000$: $\\lfloor 9.97 \\rfloor + 1 = 10$ bit. Python có sẵn `n.bit_length()`.\n- **Số bit để gán ID khác nhau cho N đối tượng**: $\\lceil \\log_2 N \\rceil$. VD 1 triệu user → 20 bit.\n- **Số chữ số thập phân của n**: $\\lfloor \\log_{10} n \\rfloor + 1$. VD $2^{100}$ có $\\lfloor 100 \\times 0.301 \\rfloor + 1 = 31$ chữ số.\n- **Chiều cao cây**: cây nhị phân cân bằng (AVL, red-black) và binary heap có n nút cao khoảng $\\log_2 n$; B-tree nhánh 100 chỉ cao khoảng $\\log_{100} n$ — 1 tỷ bản ghi chỉ cần khoảng 5 tầng.\n- **Giới hạn sắp xếp**: mọi thuật toán sắp xếp bằng so sánh cần ít nhất $\\log_2(n!)$ phép so sánh, và $\\log_2(n!) \\approx n \\log_2 n$ — vì thế không thể sort bằng so sánh nhanh hơn $O(n \\log n)$."
+    },
+    {
+      "type": "callout",
+      "variant": "tip",
+      "content": "**Bẫy trong code:** `Math.log(x)` (JavaScript), `math.log(x)` (Python), `log(x)` (C) đều là **ln** — log cơ số e, KHÔNG phải cơ số 10. Muốn cơ số 2 hoặc 10, dùng `Math.log2` / `math.log2`, `Math.log10` / `math.log10`. Và đừng dùng `int(math.log2(n))` để đếm bit với số nguyên rất lớn — sai số dấu phẩy động có thể làm lệch 1; hãy dùng `n.bit_length()`."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: cần bao nhiêu bit cho ID?",
+      "problem": "Hệ thống có 1 triệu user. Cần tối thiểu bao nhiêu bit để mỗi user có một ID nhị phân khác nhau?",
+      "steps": [
+        {
+          "text": "k bit cho $2^k$ ID khác nhau → cần $2^k \\ge 10^6$, tức $k \\ge \\log_2 10^6$.",
+          "rule": "n bit biểu diễn $2^n$ giá trị"
+        },
+        {
+          "text": "$\\log_2 10^6 = 6 \\log_2 10 \\approx 6 \\times 3.32 = 19.93$.",
+          "rule": "$\\log_b(x^k) = k \\log_b x$"
+        },
+        {
+          "text": "k phải nguyên và đủ chứa → làm tròn LÊN: $k = 20$. Kiểm tra: $2^{19} = 524288 < 10^6 \\le 2^{20} = 1048576$. Lỗi hay gặp: làm tròn xuống thành 19 bit — chỉ đủ khoảng 524 nghìn user.",
+          "isCommonMistake": true,
+          "rule": "Số bit cần $= \\lceil \\log_2 N \\rceil$"
+        }
+      ],
+      "result": "**20 bit**."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Logarit là phép ngược của lũy thừa: $\\log_b x = y \\iff b^y = x$.",
-        "Trực giác CS: $\\log_2 n$ = số lần chia đôi n để về 1 → nền tảng của binary search & cây cân bằng.",
-        "Ba quy tắc: tích→tổng, thương→hiệu, lũy thừa→nhân hệ số.",
-        "Đồ thị log tăng rất chậm → O(log n) cực nhanh kể cả n lớn.",
-        "Trong Big-O không cần ghi cơ số vì đổi cơ số chỉ khác một hằng số."
+        "Logarit là phép ngược của lũy thừa: $\\log_b x = y \\iff b^y = x$ (với $x > 0$, $b > 0$, $b \\ne 1$).",
+        "Trực giác CS: $\\log_2 n$ = số lần chia đôi n để về 1 → nền tảng của binary search, cây cân bằng, merge sort.",
+        "Quy tắc: tích → tổng, thương → hiệu, lũy thừa → nhân hệ số; $\\log_b 1 = 0$, $\\log_b b = 1$. Không có quy tắc cho $\\log(x + y)$.",
+        "Đếm bit: cần $\\lceil \\log_2 N \\rceil$ bit cho N ID; số n có $\\lfloor \\log_2 n \\rfloor + 1$ bit.",
+        "Trong Big-O không ghi cơ số vì đổi cơ số chỉ khác một hằng số; $O(\\log n^2) = O(\\log n)$.",
+        "Trong code, `log(x)` thường là ln — dùng `log2`/`log10` khi cần cơ số khác.",
+        "Sort bằng so sánh cần ít nhất $\\log_2(n!) \\approx n \\log_2 n$ phép so sánh."
       ]
     }
   ],
@@ -120,6 +191,42 @@
       "type": "formula",
       "front": "Công thức đổi cơ số: $\\log_b x = ?$",
       "back": "$\\dfrac{\\ln x}{\\ln b}$ — chia hai log cùng cơ số bất kỳ."
+    },
+    {
+      "id": "fc-log-quotient-power",
+      "type": "formula",
+      "front": "$\\log_b \\frac{x}{y} = ?$ và $\\log_b(x^k) = ?$",
+      "back": "$\\log_b x - \\log_b y$ và $k \\log_b x$. VD: $\\log_2 48 - \\log_2 3 = \\log_2 16 = 4$; $\\log_2 8^{10} = 10 \\times 3 = 30$."
+    },
+    {
+      "id": "fc-log-special-values",
+      "type": "definition",
+      "front": "$\\log_b 1 = ?$, $\\log_b b = ?$, và dấu của $\\log_b x$ khi $0 < x < 1$ (với $b > 1$)?",
+      "back": "$\\log_b 1 = 0$, $\\log_b b = 1$; với $0 < x < 1$ thì $\\log_b x < 0$. VD $\\log_{10} 0.001 = -3$. $\\log 0$ không xác định."
+    },
+    {
+      "id": "fc-log-bits",
+      "type": "concept",
+      "front": "Cần bao nhiêu bit để gán ID khác nhau cho N đối tượng? Số n có bao nhiêu bit?",
+      "back": "$\\lceil \\log_2 N \\rceil$ bit cho N ID (1 triệu → 20). Số $n \\ge 1$ có $\\lfloor \\log_2 n \\rfloor + 1$ bit (Python: `n.bit_length()`)."
+    },
+    {
+      "id": "fc-log-bigo-base",
+      "type": "concept",
+      "front": "Vì sao viết $O(\\log n)$ mà không ghi cơ số?",
+      "back": "$\\log_a n = \\dfrac{\\log_b n}{\\log_b a}$ — đổi cơ số chỉ nhân một hằng số (VD $\\log_2 n \\approx 3.32 \\log_{10} n$), Big-O bỏ hằng số. Tương tự $\\log n^2 = 2 \\log n$ nên vẫn là $O(\\log n)$."
+    },
+    {
+      "id": "fc-log-code-ln",
+      "type": "concept",
+      "front": "Trong Python/JavaScript/C, `math.log(x)` / `Math.log(x)` / `log(x)` tính log cơ số mấy?",
+      "back": "Cơ số e (ln). Dùng `log2`, `log10` cho cơ số 2, 10. VD `math.log(8)` ≈ 2.079, còn `math.log2(8)` = 3."
+    },
+    {
+      "id": "fc-log-factorial",
+      "type": "concept",
+      "front": "Vì sao sort bằng so sánh không thể nhanh hơn $O(n \\log n)$?",
+      "back": "Có $n!$ thứ tự có thể; mỗi phép so sánh chỉ chia đôi khả năng → cần ít nhất $\\log_2(n!)$ phép so sánh, mà $\\log_2(n!) \\approx n \\log_2 n$."
     }
   ],
   "exercises": [
@@ -127,46 +234,162 @@
       "id": "ex-log-warmup-1",
       "difficulty": "warmup",
       "prompt": "Tính $\\log_2(16)$.",
-      "hints": ["Hỏi: 2 mũ mấy thì ra 16?", "$16 = 2^?$"],
+      "hints": [
+        "Hỏi: 2 mũ mấy thì ra 16?",
+        "$16 = 2^?$"
+      ],
       "solutionSteps": [
-        { "text": "2 mũ 4 = 16.", "rule": "Định nghĩa logarit" },
-        { "text": "Vậy $\\log_2(16) = 4$." }
+        {
+          "text": "$2^4 = 16$.",
+          "rule": "Định nghĩa logarit: tìm số mũ"
+        },
+        {
+          "text": "Vậy $\\log_2 16 = 4$. Lỗi hay gặp: trả lời 8 (lấy 16 chia 2).",
+          "isCommonMistake": true,
+          "rule": "log hỏi 'mũ mấy', không phải 'chia mấy'"
+        }
       ],
       "answer": "4",
-      "commonMistake": "Nhầm với $\\log_{10}$ (ra ~1.2) — đề hỏi cơ số 2.",
+      "commonMistake": "Trả lời 8 (16 / 2) hoặc nhầm sang $\\log_{10} 16 \\approx 1.2$.",
       "relatedFlashcard": "fc-log-def"
     },
     {
       "id": "ex-log-apply-1",
       "difficulty": "apply",
-      "prompt": "Dùng quy tắc log, tính $\\log_2(4 \\times 8)$ mà không nhân 4×8 trước.",
-      "hints": ["Quy tắc tích: log(xy) = log x + log y.", "$\\log_2 4 = 2$, $\\log_2 8 = 3$."],
-      "solutionSteps": [
-        { "text": "$\\log_2(4\\times8) = \\log_2 4 + \\log_2 8$.", "rule": "log của tích = tổng log" },
-        { "text": "= 2 + 3.", "isCommonMistake": true, "rule": "CỘNG hai log, không nhân" },
-        { "text": "= 5." }
+      "prompt": "Tính $\\log_2 48 - \\log_2 3$ mà không dùng máy tính.",
+      "hints": [
+        "Quy tắc thương: $\\log_b x - \\log_b y = \\log_b \\frac{x}{y}$.",
+        "$48 / 3 = 16 = 2^?$"
       ],
-      "answer": "5",
-      "commonMistake": "Nhân 2×3=6 thay vì cộng 2+3=5.",
-      "relatedFlashcard": "fc-log-product"
+      "solutionSteps": [
+        {
+          "text": "$\\log_2 48 - \\log_2 3 = \\log_2 \\dfrac{48}{3}$.",
+          "rule": "Hiệu các log = log của thương"
+        },
+        {
+          "text": "$= \\log_2 16 = 4$.",
+          "rule": "Định nghĩa logarit"
+        },
+        {
+          "text": "Lỗi hay gặp: viết thành $\\log_2(48 - 3) = \\log_2 45 \\approx 5.49$, hoặc $\\dfrac{\\log_2 48}{\\log_2 3}$.",
+          "isCommonMistake": true,
+          "rule": "$\\log x - \\log y = \\log \\frac{x}{y}$; còn $\\frac{\\log x}{\\log y}$ là công thức đổi cơ số, khác hẳn"
+        }
+      ],
+      "answer": "4",
+      "commonMistake": "Trừ bên trong log ($\\log_2 45$) hoặc chia hai log ($\\log_2 48 / \\log_2 3 = \\log_3 48$).",
+      "relatedFlashcard": "fc-log-quotient-power"
     },
     {
       "id": "ex-log-challenge-1",
       "difficulty": "challenge",
-      "prompt": "Một mảng có 1000 phần tử đã sắp xếp. Binary search cần tối đa khoảng bao nhiêu bước? Vì sao?",
+      "prompt": "Một mảng có 1000 phần tử đã sắp xếp. Binary search cần tối đa bao nhiêu lần so sánh (lần 'nhìn' vào phần tử giữa) trong trường hợp xấu nhất? Vì sao?",
       "hints": [
-        "Số bước ≈ số lần chia đôi 1000 để về 1.",
-        "Tức là $\\lceil \\log_2 1000 \\rceil$.",
-        "$2^{10} = 1024 > 1000$."
+        "Mỗi lần so sánh loại ít nhất một nửa vùng còn lại.",
+        "Tìm k nhỏ nhất sao cho $2^k > 1000$.",
+        "$2^9 = 512$, $2^{10} = 1024$."
       ],
       "solutionSteps": [
-        { "text": "Binary search mỗi bước loại nửa mảng → số bước ≈ $\\log_2 n$.", "rule": "Trực giác log = số lần chia đôi" },
-        { "text": "$\\log_2 1000 \\approx 9.97$ vì $2^{10} = 1024$." },
-        { "text": "Làm tròn lên: tối đa ~10 bước.", "isCommonMistake": true, "rule": "Làm tròn LÊN (ceil) vì cần đủ bước" }
+        {
+          "text": "Mỗi bước loại ít nhất một nửa vùng tìm kiếm → số bước ≈ số lần chia đôi n về 1.",
+          "rule": "Trực giác log = số lần chia đôi"
+        },
+        {
+          "text": "$\\log_2 1000 \\approx 9.97$ vì $2^{10} = 1024$.",
+          "rule": "$2^{10} \\approx 10^3$"
+        },
+        {
+          "text": "Số lần so sánh tối đa $= \\lfloor \\log_2 1000 \\rfloor + 1 = 10$. Lỗi hay gặp: làm tròn xuống thành 9 — 9 lần chỉ đủ phân biệt tối đa 511 phần tử.",
+          "isCommonMistake": true,
+          "rule": "Xấu nhất $= \\lfloor \\log_2 n \\rfloor + 1$, với n = 1000 trùng $\\lceil \\log_2 n \\rceil = 10$"
+        }
       ],
-      "answer": "~10 bước (vì $2^{10}=1024 \\ge 1000$).",
-      "commonMistake": "Trả lời 1000 (nghĩ phải duyệt hết) — bỏ qua sức mạnh chia đôi của log.",
+      "answer": "10 lần so sánh (vì $2^9 = 512 < 1000 < 1024 = 2^{10}$).",
+      "commonMistake": "Trả lời 1000 (nghĩ phải duyệt hết), hoặc 500 (nghĩ chia đôi một lần là xong).",
       "relatedFlashcard": "fc-log-intuition"
+    },
+    {
+      "id": "ex-log-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tính $\\log_{10} 0.001$.",
+      "hints": [
+        "Viết 0.001 dưới dạng lũy thừa của 10.",
+        "$0.001 = \\frac{1}{1000} = 10^{?}$"
+      ],
+      "solutionSteps": [
+        {
+          "text": "$0.001 = \\dfrac{1}{10^3} = 10^{-3}$.",
+          "rule": "$a^{-n} = 1/a^n$"
+        },
+        {
+          "text": "$\\log_{10} 10^{-3} = -3$. Lỗi hay gặp: trả lời 3, hoặc nghĩ log của số nhỏ hơn 1 'không xác định'.",
+          "isCommonMistake": true,
+          "rule": "Log của số trong (0, 1) là số âm — vẫn xác định"
+        }
+      ],
+      "answer": "$-3$",
+      "commonMistake": "Quên dấu âm (ra 3) hoặc nhầm với điều kiện $x > 0$ (0.001 vẫn dương nên log vẫn xác định).",
+      "relatedFlashcard": "fc-log-special-values"
+    },
+    {
+      "id": "ex-log-apply-2",
+      "difficulty": "apply",
+      "prompt": "Hệ thống có 5 triệu user. Cần tối thiểu bao nhiêu bit để mỗi user có một ID nhị phân khác nhau?",
+      "hints": [
+        "Cần $2^k \\ge 5\\,000\\,000$.",
+        "$2^{20} \\approx 10^6$, vậy $5 \\times 10^6$ nằm giữa $2^{22}$ và $2^{23}$?",
+        "$2^{22} = 4194304$, $2^{23} = 8388608$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Cần k nhỏ nhất sao cho $2^k \\ge 5 \\times 10^6$, tức $k = \\lceil \\log_2(5 \\times 10^6) \\rceil$.",
+          "rule": "Số bit cần $= \\lceil \\log_2 N \\rceil$"
+        },
+        {
+          "text": "$\\log_2(5 \\times 10^6) = \\log_2 5 + 6\\log_2 10 \\approx 2.32 + 19.93 = 22.25$.",
+          "rule": "log của tích = tổng log; $\\log_b x^k = k \\log_b x$"
+        },
+        {
+          "text": "Làm tròn lên: $k = 23$. Kiểm tra: $2^{22} = 4194304 < 5 \\times 10^6 \\le 8388608 = 2^{23}$. Lỗi hay gặp: làm tròn xuống thành 22 — thiếu chỗ cho khoảng 800 nghìn user.",
+          "isCommonMistake": true,
+          "rule": "Làm tròn LÊN khi cần 'đủ chứa'"
+        }
+      ],
+      "answer": "23 bit",
+      "commonMistake": "Làm tròn 22.25 xuống 22.",
+      "relatedFlashcard": "fc-log-bits"
+    },
+    {
+      "id": "ex-log-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "(Phỏng vấn) Chứng minh bằng trực giác rằng sắp xếp 10 phần tử bằng phép so sánh cần ít nhất 22 phép so sánh trong trường hợp xấu nhất. Cho biết $10! = 3628800$.",
+      "hints": [
+        "Có bao nhiêu thứ tự (hoán vị) có thể của 10 phần tử?",
+        "Mỗi phép so sánh trả lời có/không → chia tập khả năng thành 2 phần.",
+        "Sau k phép so sánh phân biệt được tối đa $2^k$ trường hợp. Cần $2^k \\ge 10!$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Có $10! = 3628800$ thứ tự ban đầu khác nhau; thuật toán phải phân biệt được tất cả.",
+          "rule": "Đếm hoán vị: n!"
+        },
+        {
+          "text": "k phép so sánh (mỗi phép 2 kết quả) phân biệt tối đa $2^k$ trường hợp → cần $2^k \\ge 3628800$, tức $k \\ge \\log_2 3628800 \\approx 21.79$.",
+          "rule": "Cây quyết định nhị phân có tối đa $2^k$ lá"
+        },
+        {
+          "text": "Làm tròn lên: $k \\ge 22$ (kiểm tra: $2^{21} = 2097152 < 3628800 \\le 4194304 = 2^{22}$). Lỗi hay gặp: tính $\\log_2 10 \\approx 3.3$ thay vì $\\log_2(10!)$.",
+          "isCommonMistake": true,
+          "rule": "Lấy log của SỐ HOÁN VỊ n!, không phải của n"
+        },
+        {
+          "text": "Tổng quát $\\log_2(n!) \\approx n \\log_2 n$ → giới hạn dưới $\\Omega(n \\log n)$ cho mọi sort bằng so sánh; merge sort và heap sort đạt được giới hạn này.",
+          "rule": "$\\log(n!) = \\log 1 + \\log 2 + \\cdots + \\log n$"
+        }
+      ],
+      "answer": "Ít nhất 22 phép so sánh, vì $\\lceil \\log_2(10!) \\rceil = 22$.",
+      "commonMistake": "Lấy log của n thay vì của n!, hoặc quên làm tròn lên.",
+      "relatedFlashcard": "fc-log-factorial"
     }
   ],
   "quiz": [
@@ -174,8 +397,13 @@
       "id": "q-log-1",
       "type": "mcq",
       "question": "$\\log_2(64)$ bằng bao nhiêu?",
-      "options": ["5", "6", "7", "8"],
-      "correct": 1,
+      "options": [
+        "5",
+        "7",
+        "6",
+        "8"
+      ],
+      "correct": 2,
       "explanation": "$2^6 = 64$, nên $\\log_2(64) = 6$."
     },
     {
@@ -183,12 +411,12 @@
       "type": "mcq",
       "question": "Quy tắc nào ĐÚNG?",
       "options": [
-        "$\\log(x+y) = \\log x + \\log y$",
         "$\\log(xy) = \\log x + \\log y$",
+        "$\\log(x+y) = \\log x + \\log y$",
         "$\\log(xy) = \\log x \\cdot \\log y$",
         "$\\log(x^k) = (\\log x)^k$"
       ],
-      "correct": 1,
+      "correct": 0,
       "explanation": "Chỉ log của TÍCH mới bằng tổng log. Log của tổng không rút gọn được."
     },
     {
@@ -197,12 +425,51 @@
       "question": "Vì sao binary search là $O(\\log n)$?",
       "options": [
         "Vì nó duyệt qua mọi phần tử",
-        "Vì mỗi bước loại bỏ một nửa số phần tử còn lại",
+        "Vì nó dùng đệ quy",
         "Vì mảng phải có kích thước là lũy thừa của 2",
-        "Vì nó dùng đệ quy"
+        "Vì mỗi bước loại bỏ một nửa số phần tử còn lại"
+      ],
+      "correct": 3,
+      "explanation": "Mỗi bước chia đôi không gian tìm kiếm → số bước ≈ số lần chia đôi n = $\\log_2 n$."
+    },
+    {
+      "id": "q-log-4",
+      "type": "mcq",
+      "question": "Trong Python, `math.log(8)` trả về giá trị nào?",
+      "options": [
+        "3",
+        "khoảng 2.079",
+        "khoảng 0.903",
+        "Lỗi vì thiếu cơ số"
       ],
       "correct": 1,
-      "explanation": "Mỗi bước chia đôi không gian tìm kiếm → số bước ≈ số lần chia đôi n = $\\log_2 n$."
+      "explanation": "`math.log(x)` mặc định là ln (cơ số e): $\\ln 8 \\approx 2.079$. Muốn ra 3 phải dùng `math.log2(8)` hoặc `math.log(8, 2)`. 0.903 là $\\log_{10} 8$."
+    },
+    {
+      "id": "q-log-5",
+      "type": "mcq",
+      "question": "Quan hệ giữa $O(\\log_2 n)$ và $O(\\log_{10} n)$ là gì?",
+      "options": [
+        "$O(\\log_2 n)$ lớn hơn hẳn",
+        "$O(\\log_{10} n)$ lớn hơn hẳn",
+        "Là cùng một lớp độ phức tạp",
+        "Không so sánh được"
+      ],
+      "correct": 2,
+      "explanation": "$\\log_2 n = \\log_{10} n / \\log_{10} 2 \\approx 3.32 \\log_{10} n$ — chỉ khác một hằng số nhân, nên cùng là $O(\\log n)$."
+    },
+    {
+      "id": "q-log-6",
+      "type": "mcq",
+      "question": "Số $2^{100}$ có bao nhiêu chữ số trong hệ thập phân? (Biết $\\log_{10} 2 \\approx 0.301$.)",
+      "options": [
+        "30",
+        "31",
+        "100",
+        "301"
+      ],
+      "correct": 1,
+      "explanation": "Số chữ số $= \\lfloor \\log_{10} 2^{100} \\rfloor + 1 = \\lfloor 30.1 \\rfloor + 1 = 31$."
     }
   ]
 }

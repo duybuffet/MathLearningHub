@@ -6,17 +6,19 @@
   "order": 3,
   "icon": "logic",
   "tagline": "Quy nạp là cách chứng minh điều gì đó đúng cho vô số trường hợp bằng đúng hai bước — giống như dãy domino đổ vô tận.",
-  "readTime": "~16 min",
-  "prerequisites": ["area4_propositional-logic"],
+  "readTime": "~24 min",
+  "prerequisites": [
+    "area4_propositional-logic"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Quy nạp toán học (mathematical induction) là kỹ thuật chứng minh mạnh mẽ nhất trong toán rời rạc. Ý tưởng: để chứng minh một mệnh đề P(n) đúng với **mọi số tự nhiên n**, bạn chỉ cần làm hai việc:\n1. Chứng minh P(1) đúng (base case)\n2. Chứng minh \"nếu P(k) đúng thì P(k+1) cũng đúng\" (inductive step)\n\nTại sao CS cần quy nạp?\n- **Chứng minh vòng lặp đúng** (loop invariant): tại mỗi bước lặp, biến duy trì tính chất nào đó.\n- **Chứng minh hàm đệ quy đúng**: base case + recursive step = đúng cấu trúc quy nạp.\n- **Phân tích độ phức tạp**: chứng minh T(n) = O(n log n) qua recurrence."
+      "content": "Quy nạp toán học (mathematical induction) là kỹ thuật chứng minh quan trọng bậc nhất của toán rời rạc. Ý tưởng: để chứng minh một mệnh đề P(n) đúng với **mọi số tự nhiên n**, bạn chỉ cần làm hai việc:\n1. Chứng minh P(1) đúng — bước cơ sở (base case). Điểm bắt đầu có thể là 0, 1 hay một $n_0$ bất kỳ.\n2. Chứng minh \"nếu P(k) đúng thì P(k+1) cũng đúng\" — bước quy nạp (inductive step).\n\nTại sao CS cần quy nạp?\n- **Chứng minh vòng lặp đúng** (loop invariant): tại mỗi bước lặp, các biến duy trì một tính chất nào đó.\n- **Chứng minh hàm đệ quy đúng**: base case + lời gọi đệ quy trên input nhỏ hơn = đúng cấu trúc quy nạp.\n- **Phân tích độ phức tạp**: kiểm chứng nghiệm đoán của recurrence, ví dụ $T(n) \\le c \\cdot n \\log n$."
     },
     {
       "type": "analogy",
       "title": "Dãy domino — hiểu quy nạp trong 30 giây",
-      "content": "Tưởng tượng một dãy domino xếp thẳng hàng:\n\n1. **Base case**: viên domino đầu tiên đổ (P(1) đúng).\n2. **Inductive step**: mỗi viên domino đổ sẽ kéo viên kế tiếp đổ (P(k) đúng → P(k+1) đúng).\n\nKết luận: **tất cả** domino sẽ đổ — dù có bao nhiêu viên đi nữa.\n\nĐây chính xác là quy nạp toán học. Base case = \"domino đầu tiên đổ\". Inductive step = \"cơ chế lan truyền\". Kết hợp lại → mệnh đề đúng với MỌI n.\n\nHàm đệ quy trong code cũng theo đúng cấu trúc này:\n```python\ndef factorial(n):\n    if n == 0: return 1      # base case\n    return n * factorial(n-1) # inductive step\n```"
+      "content": "Tưởng tượng một dãy domino xếp thẳng hàng:\n\n1. **Base case**: viên domino đầu tiên đổ (P(1) đúng).\n2. **Inductive step**: viên nào đổ cũng kéo viên kế tiếp đổ (P(k) đúng → P(k+1) đúng).\n\nKết luận: **tất cả** domino sẽ đổ — dù có bao nhiêu viên đi nữa. Thiếu base case thì không viên nào đổ; thiếu inductive step thì có thể chỉ viên đầu đổ.\n\nHàm đệ quy trong code có đúng cấu trúc này: `def factorial(n): return 1 if n == 0 else n * factorial(n - 1)`\n\nNhánh `n == 0` là base case; nhánh còn lại là inductive step — tin rằng `factorial(n - 1)` đúng, rồi dựng ra kết quả cho n."
     },
     {
       "type": "formula",
@@ -24,10 +26,22 @@
       "latex": "\\underbrace{P(1)}_\\text{base case} \\quad\\land\\quad \\underbrace{\\forall k \\ge 1:\\; P(k) \\Rightarrow P(k+1)}_\\text{inductive step} \\quad\\Longrightarrow\\quad \\underbrace{\\forall n \\ge 1:\\; P(n)}_\\text{conclusion}",
       "reading": "đọc là: nếu P(1) đúng VÀ (với mọi k, P(k) đúng kéo theo P(k+1) đúng), thì P(n) đúng với mọi n.",
       "symbols": [
-        { "sym": "P(n)", "meaning": "mệnh đề phụ thuộc n cần chứng minh" },
-        { "sym": "\\forall", "meaning": "với mọi — \"for all\"" },
-        { "sym": "P(k)", "meaning": "giả thiết quy nạp (induction hypothesis) — giả sử đúng với k" },
-        { "sym": "P(k+1)", "meaning": "điều cần chứng minh trong bước quy nạp" }
+        {
+          "sym": "P(n)",
+          "meaning": "mệnh đề phụ thuộc n cần chứng minh"
+        },
+        {
+          "sym": "\\forall",
+          "meaning": "với mọi — \"for all\""
+        },
+        {
+          "sym": "P(k)",
+          "meaning": "giả thiết quy nạp (induction hypothesis) — giả sử đúng với k"
+        },
+        {
+          "sym": "P(k+1)",
+          "meaning": "điều cần chứng minh trong bước quy nạp"
+        }
       ]
     },
     {
@@ -35,47 +49,108 @@
       "title": "Ví dụ: chứng minh tổng 1+2+...+n = n(n+1)/2",
       "problem": "Chứng minh $\\sum_{i=1}^{n} i = \\dfrac{n(n+1)}{2}$ bằng quy nạp.",
       "steps": [
-        { "text": "**Base case (n=1):** Vế trái = 1. Vế phải = 1×2/2 = 1. ✓", "rule": "Kiểm tra base case bằng cách thay n=1" },
-        { "text": "**Giả thiết quy nạp:** Giả sử đúng với n=k, tức là $\\sum_{i=1}^{k} i = \\frac{k(k+1)}{2}$.", "rule": "Induction hypothesis — giả sử P(k) đúng" },
-        { "text": "**Inductive step:** Cần chứng minh P(k+1), tức là $\\sum_{i=1}^{k+1} i = \\frac{(k+1)(k+2)}{2}$." },
-        { "text": "Vế trái = $\\sum_{i=1}^{k} i + (k+1) = \\frac{k(k+1)}{2} + (k+1)$ (dùng giả thiết quy nạp).", "isCommonMistake": true, "rule": "Phải dùng GIẢ THIẾT quy nạp để rút gọn — lỗi hay gặp là cố tính lại từ đầu" },
-        { "text": "$= (k+1)\\left(\\frac{k}{2} + 1\\right) = (k+1) \\cdot \\frac{k+2}{2} = \\frac{(k+1)(k+2)}{2}$. ✓ P(k+1) đúng." }
+        {
+          "text": "**Base case (n=1):** Vế trái = 1. Vế phải = 1×2/2 = 1. ✓",
+          "rule": "Kiểm tra base case bằng cách thay n=1"
+        },
+        {
+          "text": "**Giả thiết quy nạp:** Giả sử đúng với n=k, tức là $\\sum_{i=1}^{k} i = \\frac{k(k+1)}{2}$.",
+          "rule": "Induction hypothesis — giả sử P(k) đúng"
+        },
+        {
+          "text": "**Inductive step:** Cần chứng minh P(k+1), tức là $\\sum_{i=1}^{k+1} i = \\frac{(k+1)(k+2)}{2}$."
+        },
+        {
+          "text": "Vế trái = $\\sum_{i=1}^{k} i + (k+1) = \\frac{k(k+1)}{2} + (k+1)$ (dùng giả thiết quy nạp).",
+          "isCommonMistake": true,
+          "rule": "Phải dùng GIẢ THIẾT quy nạp để rút gọn — lỗi hay gặp là cố tính lại từ đầu"
+        },
+        {
+          "text": "$= (k+1)\\left(\\frac{k}{2} + 1\\right) = (k+1) \\cdot \\frac{k+2}{2} = \\frac{(k+1)(k+2)}{2}$. ✓ P(k+1) đúng."
+        }
       ],
       "result": "$\\displaystyle\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$ đúng với mọi $n \\ge 1$."
     },
     {
       "type": "explanation",
       "title": "Loop invariant — quy nạp ẩn trong vòng lặp",
-      "content": "Mỗi vòng lặp trong code có một **loop invariant** — tính chất đúng trước và sau mỗi lần lặp. Đây chính là quy nạp!\n\n```python\n# Tính tổng 1..n\ntotal = 0\nfor i in range(1, n+1):\n    total += i\n    # Invariant: total = 1 + 2 + ... + i = i*(i+1)/2\n```\n\nChứng minh loop invariant = chứng minh quy nạp:\n- **Base case**: trước vòng lặp đầu, total=0 (tổng rỗng = 0). ✓\n- **Inductive step**: nếu total = i*(i+1)/2 trước bước i+1, sau khi cộng thêm (i+1): total = i*(i+1)/2 + (i+1) = (i+1)(i+2)/2. ✓\n\nKhi interviewer hỏi \"chứng minh vòng lặp này đúng\" — đây là câu trả lời."
+      "content": "Mỗi vòng lặp có một **loop invariant** — tính chất đúng trước và sau mỗi lần lặp. Chứng minh invariant chính là quy nạp theo số lần lặp.\n\nVí dụ tính tổng: `total = 0; for i in range(1, n + 1): total += i`\n\nInvariant: sau khi xử lý xong giá trị i, $\\text{total} = 1 + 2 + \\cdots + i = \\frac{i(i+1)}{2}$.\n\n1. **Khởi tạo (initialization)** — base case: trước vòng lặp, coi như i = 0, total = 0 = $\\frac{0 \\times 1}{2}$. ✓\n2. **Duy trì (maintenance)** — inductive step: nếu total = $\\frac{i(i+1)}{2}$, sau khi cộng (i+1) thì total = $\\frac{i(i+1)}{2} + (i+1) = \\frac{(i+1)(i+2)}{2}$. ✓\n3. **Kết thúc (termination)**: vòng lặp dừng ở i = n, nên total = $\\frac{n(n+1)}{2}$ — đúng điều cần tính.\n\nBước 3 là phần quy nạp thuần túy không có: invariant + điều kiện dừng phải cho ra kết quả mong muốn. Với binary search, invariant thường là \"nếu target tồn tại thì nó nằm trong đoạn [lo, hi]\" — khi đoạn rỗng, kết luận target không tồn tại.\n\nKhi interviewer hỏi \"chứng minh vòng lặp này đúng\" — trả lời theo ba bước này."
     },
     {
       "type": "diagram",
       "title": "Cấu trúc đệ quy = cấu trúc quy nạp",
-      "mermaid": "graph TD\n    F5[\"factorial(5)\"] --> F4[\"factorial(4)\"]\n    F4 --> F3[\"factorial(3)\"]\n    F3 --> F2[\"factorial(2)\"]\n    F2 --> F1[\"factorial(1)\"]\n    F1 --> BC[\"base case: return 1\"]\n    BC --> R1[\"return 1×1 = 1\"]\n    R1 --> R2[\"return 2×1 = 2\"]\n    R2 --> R3[\"return 3×2 = 6\"]\n    R3 --> R4[\"return 4×6 = 24\"]\n    R4 --> R5[\"return 5×24 = 120\"]",
-      "caption": "Cây đệ quy của factorial(5). Đi xuống = bước quy nạp (chia nhỏ vấn đề). Chạm đáy = base case. Đi lên = tổng hợp kết quả. Chứng minh đệ quy đúng = chứng minh bằng quy nạp."
+      "mermaid": "graph TD\n    F5[\"factorial(5)\"] --> F4[\"factorial(4)\"]\n    F4 --> F3[\"factorial(3)\"]\n    F3 --> F2[\"factorial(2)\"]\n    F2 --> F1[\"factorial(1)\"]\n    F1 --> F0[\"factorial(0): base case, return 1\"]\n    F0 --> R1[\"factorial(1) = 1×1 = 1\"]\n    R1 --> R2[\"factorial(2) = 2×1 = 2\"]\n    R2 --> R3[\"factorial(3) = 3×2 = 6\"]\n    R3 --> R4[\"factorial(4) = 4×6 = 24\"]\n    R4 --> R5[\"factorial(5) = 5×24 = 120\"]",
+      "caption": "Chuỗi lời gọi của factorial(5). Đi xuống = gọi đệ quy trên input nhỏ hơn. Chạm đáy = base case n = 0. Đi lên = dựng kết quả từ kết quả nhỏ hơn — đúng như bước quy nạp."
     },
     {
       "type": "formula",
       "title": "Quy nạp mạnh (Strong Induction)",
-      "latex": "\\left[P(1) \\land \\forall k:\\; \\bigl(P(1) \\land P(2) \\land \\cdots \\land P(k)\\bigr) \\Rightarrow P(k+1)\\right] \\Rightarrow \\forall n:\\; P(n)",
+      "latex": "\\Bigl[P(1) \\land \\forall k \\ge 1:\\; \\bigl(P(1) \\land \\cdots \\land P(k)\\bigr) \\Rightarrow P(k+1)\\Bigr] \\Rightarrow \\forall n \\ge 1:\\; P(n)",
       "reading": "đọc là: giả sử P đúng với MỌI giá trị từ 1 đến k (không chỉ k), thì kết luận P(k+1) đúng. Mạnh hơn quy nạp thường vì dùng được toàn bộ lịch sử.",
       "symbols": [
-        { "sym": "P(1) \\land \\cdots \\land P(k)", "meaning": "giả thiết quy nạp mạnh: đúng với MỌI giá trị 1,2,...,k" }
+        {
+          "sym": "P(1) \\land \\cdots \\land P(k)",
+          "meaning": "giả thiết quy nạp mạnh: đúng với MỌI giá trị 1,2,...,k"
+        }
       ],
-      "caption": "Quy nạp mạnh dùng khi bước k+1 cần dùng nhiều kết quả trước đó, không chỉ k. Ví dụ: chứng minh mọi số > 1 đều có phân tích thừa số nguyên tố."
+      "caption": "Quy nạp mạnh dùng khi bước k+1 cần một (hoặc nhiều) kết quả nhỏ hơn bất kỳ, không chỉ k. Ví dụ: mọi số nguyên ≥ 2 đều phân tích được thành tích các số nguyên tố; mọi hàm đệ quy chia đôi (merge sort, binary search) — lời gọi trên n/2 chứ không phải n−1."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ quy nạp mạnh: trả tiền bằng tờ 4 và 5",
+      "problem": "Chứng minh mọi số tiền $n \\ge 12$ (nghìn đồng) đều trả đúng được chỉ bằng tờ 4 và tờ 5 nghìn.",
+      "steps": [
+        {
+          "text": "**Base cases:** 12 = 4+4+4, 13 = 4+4+5, 14 = 4+5+5, 15 = 5+5+5. ✓",
+          "rule": "Kiểm tra trực tiếp"
+        },
+        {
+          "text": "**Giả thiết quy nạp mạnh:** giả sử mọi số tiền m với $12 \\le m \\le k$ đều trả được, với $k \\ge 15$.",
+          "rule": "Strong induction hypothesis"
+        },
+        {
+          "text": "**Bước quy nạp:** xét $k + 1 \\ge 16$. Khi đó $k - 3 = (k+1) - 4 \\ge 12$, nên $k-3$ trả được theo giả thiết. Thêm một tờ 4 → trả được $k+1$. ✓",
+          "rule": "Dùng P(k−3), không phải P(k)"
+        },
+        {
+          "text": "Vì sao cần **4** base case? Bước quy nạp nhảy lùi 4 đơn vị, nên 12, 13, 14, 15 phải tự đứng vững — từ 16 trở đi mới dựa được vào số nhỏ hơn ≥ 12.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: chỉ kiểm tra base case n = 12 — khi đó 13 cần 9 (không trả được)"
+        }
+      ],
+      "result": "Mọi $n \\ge 12$ đều trả được (11 thì không: chỉ có 4, 5, 8, 9, 10 ở dưới 12). Quy nạp thường từ P(k) khó dùng ở đây vì k+1 không suy ra trực tiếp từ k."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: chứng minh số mũ 2^n > n",
       "problem": "Chứng minh $2^n > n$ với mọi $n \\ge 1$.",
       "steps": [
-        { "text": "**Base case (n=1):** $2^1 = 2 > 1$. ✓", "rule": "Base case" },
-        { "text": "**Giả thiết quy nạp:** Giả sử $2^k > k$ (đúng với n=k)." },
-        { "text": "**Inductive step:** Cần chứng minh $2^{k+1} > k+1$." },
-        { "text": "$2^{k+1} = 2 \\cdot 2^k > 2k$ (vì $2^k > k$ theo giả thiết).", "rule": "Nhân hai vế của giả thiết với 2" },
-        { "text": "$2k \\ge k+1$ khi $k \\ge 1$ (vì $k \\ge 1 \\Rightarrow k-1 \\ge 0$). Vậy $2^{k+1} > 2k \\ge k+1$. ✓", "isCommonMistake": true, "rule": "Phải chứng minh 2k ≥ k+1 — lỗi hay gặp là bỏ qua bước so sánh trung gian này" }
+        {
+          "text": "**Base case (n=1):** $2^1 = 2 > 1$. ✓",
+          "rule": "Base case"
+        },
+        {
+          "text": "**Giả thiết quy nạp:** Giả sử $2^k > k$ (đúng với n=k)."
+        },
+        {
+          "text": "**Inductive step:** Cần chứng minh $2^{k+1} > k+1$."
+        },
+        {
+          "text": "$2^{k+1} = 2 \\cdot 2^k > 2k$ (vì $2^k > k$ theo giả thiết).",
+          "rule": "Nhân hai vế của giả thiết với 2"
+        },
+        {
+          "text": "$2k \\ge k+1$ khi $k \\ge 1$ (vì $k \\ge 1 \\Rightarrow k-1 \\ge 0$). Vậy $2^{k+1} > 2k \\ge k+1$. ✓",
+          "isCommonMistake": true,
+          "rule": "Phải chứng minh 2k ≥ k+1 — lỗi hay gặp là bỏ qua bước so sánh trung gian này"
+        }
       ],
-      "result": "$2^n > n$ với mọi $n \\ge 1$. Đây cũng giải thích tại sao $O(n)$ luôn tốt hơn $O(2^n)$."
+      "result": "$2^n > n$ với mọi $n \\ge 1$. (Mạnh hơn nữa: $2^n / n \\to \\infty$ — đó là lý do $O(2^n)$ tệ hơn hẳn $O(n)$.)"
+    },
+    {
+      "type": "explanation",
+      "title": "Quy nạp trên cấu trúc: cây, danh sách, đệ quy chia đôi",
+      "content": "Quy nạp không chỉ chạy trên số tự nhiên. **Quy nạp cấu trúc (structural induction)** chạy trên dữ liệu đệ quy: chứng minh cho trường hợp cơ sở (cây rỗng, list rỗng), rồi chứng minh \"nếu đúng cho các cây con thì đúng cho cây ghép từ chúng\".\n\nVí dụ: **cây nhị phân có n nút thì có đúng n + 1 con trỏ null.**\n\n- Cây rỗng: 0 nút, 1 con trỏ null (chính gốc). ✓\n- Cây gồm gốc + cây con trái ($n_L$ nút) + cây con phải ($n_R$ nút): theo giả thiết có $(n_L + 1) + (n_R + 1)$ null $= (n_L + n_R + 1) + 1 = n + 1$. ✓\n\nĐây cũng là cách chứng minh hàm đệ quy trên cây đúng: tin lời gọi trên cây con là đúng (giả thiết quy nạp), chỉ cần kiểm tra bước ghép ở gốc. Với merge sort, lời gọi trên hai nửa nhỏ hơn n là đủ — đó là quy nạp mạnh theo kích thước input."
     },
     {
       "type": "callout",
@@ -83,13 +158,20 @@
       "content": "**Lỗi hay gặp — circular reasoning:** Trong bước quy nạp, bạn được phép DÙNG giả thiết P(k), không được GIẢ SỬ P(k+1) đúng rồi suy ngược. Cấu trúc đúng: \"Giả sử P(k). Suy ra P(k+1).\" Cấu trúc sai: \"Giả sử P(k+1)...\" — đó là logic vòng tròn."
     },
     {
+      "type": "callout",
+      "variant": "info",
+      "title": "Câu đố: \"mọi con ngựa cùng màu\" sai ở đâu?",
+      "content": "Chứng minh sai: base n = 1 hiển nhiên. Bước quy nạp: với k + 1 con, bỏ con cuối → k con cùng màu; bỏ con đầu → k con cùng màu; hai nhóm có phần chung nên cả k + 1 con cùng màu.\n\nLỗ hổng: khi k = 1 (đi từ 1 lên 2 con), hai nhóm là {ngựa 1} và {ngựa 2} — **không có phần chung**. Bước quy nạp phải đúng với **mọi** k ≥ base, kể cả k nhỏ nhất. Hãy luôn thử bước quy nạp với giá trị k nhỏ nhất."
+    },
+    {
       "type": "key_takeaways",
       "items": [
         "Quy nạp = domino: base case (viên đầu đổ) + inductive step (mỗi viên kéo viên sau) → mọi viên đổ.",
-        "Cấu trúc: (1) Chứng minh P(1). (2) Giả sử P(k), chứng minh P(k+1).",
-        "Loop invariant = quy nạp ẩn: tính chất đúng trước/sau mỗi bước lặp.",
-        "Hàm đệ quy = quy nạp: base case là điều kiện dừng, recursive step là inductive step.",
-        "Quy nạp mạnh: giả thiết đúng với mọi 1..k — dùng khi k+1 phụ thuộc nhiều giá trị trước."
+        "Cấu trúc: (1) Chứng minh P(n₀). (2) Giả sử P(k), chứng minh P(k+1) — phải DÙNG giả thiết P(k).",
+        "Loop invariant = quy nạp ẩn: khởi tạo, duy trì, và kết thúc (invariant + điều kiện dừng ⇒ kết quả đúng).",
+        "Hàm đệ quy = quy nạp: base case là điều kiện dừng, lời gọi trên input nhỏ hơn là giả thiết quy nạp.",
+        "Quy nạp mạnh: giả thiết đúng với mọi giá trị nhỏ hơn — dùng khi k+1 dựa vào k−3, n/2, cây con...; số base case phải đủ cho bước nhảy.",
+        "Bước quy nạp phải đúng với mọi k ≥ base — thử với k nhỏ nhất để tránh lỗi kiểu \"mọi con ngựa cùng màu\"."
       ]
     }
   ],
@@ -98,7 +180,7 @@
       "id": "fc-ind-structure",
       "type": "concept",
       "front": "Hai bước của quy nạp toán học là gì?",
-      "back": "1. **Base case**: chứng minh P(1) đúng.\n2. **Inductive step**: giả sử P(k) đúng, chứng minh P(k+1) đúng.\nKết luận: P(n) đúng với mọi n."
+      "back": "1. **Base case**: chứng minh P(n₀) đúng (thường n₀ = 0 hoặc 1).\n2. **Inductive step**: giả sử P(k) đúng, chứng minh P(k+1) đúng.\nKết luận: P(n) đúng với mọi n ≥ n₀."
     },
     {
       "id": "fc-ind-domino",
@@ -110,70 +192,238 @@
       "id": "fc-ind-invariant",
       "type": "concept",
       "front": "Loop invariant là gì và liên hệ với quy nạp?",
-      "back": "Tính chất đúng **trước và sau mỗi bước lặp**. Chứng minh invariant = chứng minh bằng quy nạp: base (trước vòng lặp) + step (bước lặp giữ invariant)."
+      "back": "Tính chất đúng **trước và sau mỗi bước lặp**. Chứng minh theo 3 bước: khởi tạo (trước vòng lặp), duy trì (mỗi bước lặp giữ invariant), kết thúc (invariant + điều kiện dừng ⇒ kết quả đúng)."
     },
     {
       "id": "fc-ind-strong",
       "type": "definition",
       "front": "Quy nạp mạnh (strong induction) khác quy nạp thường ở chỗ nào?",
       "back": "Giả thiết mạnh hơn: giả sử P đúng với **mọi** 1, 2, ..., k (không chỉ k). Dùng khi bước k+1 cần nhiều kết quả trước đó."
+    },
+    {
+      "id": "fc-ind-recursion",
+      "type": "concept",
+      "front": "Chứng minh một hàm đệ quy đúng bằng quy nạp như thế nào?",
+      "back": "Base case: kiểm tra nhánh dừng trả đúng kết quả. Bước quy nạp: **giả sử** lời gọi đệ quy trên input nhỏ hơn trả đúng, chứng minh bước ghép cho kết quả đúng. Gọi trên n/2 hay cây con → dùng quy nạp mạnh/cấu trúc."
+    },
+    {
+      "id": "fc-ind-sums",
+      "type": "formula",
+      "front": "Ba tổng kinh điển chứng minh bằng quy nạp: $1+2+\\cdots+n$, $1+3+\\cdots+(2n-1)$, $1+2+4+\\cdots+2^{n-1}$?",
+      "back": "$\\frac{n(n+1)}{2}$; $n^2$; $2^n - 1$. Tổng thứ ba giải thích vì sao số n-bit lớn nhất là $2^n - 1$ và cây nhị phân đầy đủ cao h có $2^{h+1} - 1$ nút."
+    },
+    {
+      "id": "fc-ind-base-count",
+      "type": "concept",
+      "front": "Quy nạp mạnh với bước \"dùng P(k+1−c)\" cần bao nhiêu base case?",
+      "back": "c base case liên tiếp. Ví dụ tờ 4 và 5 nghìn: bước dùng P(n−4) nên cần 12, 13, 14, 15. Thiếu base case là lỗi phổ biến nhất của quy nạp mạnh."
+    },
+    {
+      "id": "fc-ind-horses",
+      "type": "concept",
+      "front": "\"Mọi con ngựa cùng màu\" — chứng minh quy nạp sai ở bước nào?",
+      "back": "Bước từ k = 1 lên k = 2: hai nhóm k con {ngựa 1}, {ngựa 2} không giao nhau nên không \"nối\" được màu. Bài học: bước quy nạp phải đúng với mọi k ≥ base."
+    },
+    {
+      "id": "fc-ind-structural",
+      "type": "definition",
+      "front": "Quy nạp cấu trúc (structural induction) là gì?",
+      "back": "Quy nạp trên dữ liệu đệ quy (cây, list, biểu thức): chứng minh cho trường hợp cơ sở (cây rỗng), rồi chứng minh nếu đúng cho các phần con thì đúng cho cấu trúc ghép. Ví dụ: cây nhị phân n nút có n+1 con trỏ null."
     }
   ],
   "exercises": [
     {
       "id": "ex-ind-warmup-1",
       "difficulty": "warmup",
-      "prompt": "Kiểm tra base case và inductive step cho mệnh đề: $\\sum_{i=1}^{n} 2i = n(n+1)$. Chứng minh base case với n=1.",
+      "prompt": "Chứng minh bằng quy nạp: $\\sum_{i=1}^{n} 2i = n(n+1)$ với mọi $n \\ge 1$ (kiểm tra base case n = 1, rồi làm bước quy nạp).",
       "hints": [
-        "Vế trái khi n=1: chỉ có số hạng i=1, tức là 2×1=2.",
-        "Vế phải khi n=1: 1×(1+1)=2."
+        "Vế trái khi n=1: chỉ có số hạng i=1, tức là 2×1=2. Vế phải: 1×(1+1)=2.",
+        "Bước quy nạp: tổng đến k+1 = (tổng đến k) + 2(k+1).",
+        "Đặt (k+1) làm nhân tử chung."
       ],
       "solutionSteps": [
-        { "text": "n=1: Vế trái = 2×1 = 2.", "rule": "Thay n=1 vào tổng" },
-        { "text": "n=1: Vế phải = 1×(1+1) = 2.", "rule": "Thay n=1 vào công thức" },
-        { "text": "2 = 2 ✓ — base case thỏa mãn.", "isCommonMistake": true, "rule": "Phải kiểm tra CẢ HAI vế bằng nhau — không chỉ tính một vế" }
+        {
+          "text": "Base n=1: Vế trái = 2×1 = 2; vế phải = 1×(1+1) = 2. Bằng nhau ✓.",
+          "rule": "Thay n=1 vào CẢ HAI vế"
+        },
+        {
+          "text": "Giả thiết: $\\sum_{i=1}^{k} 2i = k(k+1)$.",
+          "rule": "Induction hypothesis"
+        },
+        {
+          "text": "$\\sum_{i=1}^{k+1} 2i = k(k+1) + 2(k+1)$.",
+          "isCommonMistake": true,
+          "rule": "Số hạng thêm vào là 2(k+1), không phải 2k hay k+1 — lỗi hay gặp khi tách số hạng cuối"
+        },
+        {
+          "text": "$= (k+1)(k+2)$ — đúng dạng $n(n+1)$ với $n = k+1$ ✓.",
+          "rule": "Đặt nhân tử chung"
+        }
       ],
-      "answer": "Base case n=1: VT=2, VP=2 ✓",
-      "commonMistake": "Chỉ tính vế phải mà không tính vế trái để so sánh.",
+      "answer": "Base: 2 = 2. Bước: $k(k+1) + 2(k+1) = (k+1)(k+2)$. Vậy đẳng thức đúng với mọi n ≥ 1.",
+      "commonMistake": "Chỉ tính một vế ở base case, hoặc cộng nhầm số hạng cuối là 2k thay vì 2(k+1).",
       "relatedFlashcard": "fc-ind-structure"
+    },
+    {
+      "id": "ex-ind-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Chứng minh: $1 + 3 + 5 + \\cdots + (2n-1) = n^2$ với mọi $n \\ge 1$.",
+      "hints": [
+        "Base n=1: chỉ có số hạng 1.",
+        "Số lẻ thứ k+1 là $2(k+1) - 1 = 2k + 1$.",
+        "$k^2 + 2k + 1 = ?$"
+      ],
+      "solutionSteps": [
+        {
+          "text": "Base n=1: vế trái 1, vế phải $1^2 = 1$ ✓.",
+          "rule": "Base case"
+        },
+        {
+          "text": "Giả thiết: $1 + 3 + \\cdots + (2k-1) = k^2$.",
+          "rule": "Induction hypothesis"
+        },
+        {
+          "text": "Thêm số lẻ thứ k+1 là $2(k+1) - 1 = 2k+1$: tổng $= k^2 + 2k + 1$.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: cộng thêm 2k−1 (số hạng thứ k, đã có rồi) thay vì 2k+1"
+        },
+        {
+          "text": "$k^2 + 2k + 1 = (k+1)^2$ ✓.",
+          "rule": "Hằng đẳng thức bình phương"
+        }
+      ],
+      "answer": "Tổng n số lẻ đầu tiên bằng $n^2$.",
+      "commonMistake": "Cộng nhầm số hạng thứ k thay vì số hạng thứ k+1.",
+      "relatedFlashcard": "fc-ind-sums"
     },
     {
       "id": "ex-ind-apply-1",
       "difficulty": "apply",
       "prompt": "Chứng minh bằng quy nạp: $2^n \\ge n+1$ với mọi $n \\ge 1$.",
       "hints": [
-        "Base case: n=1, kiểm tra 2^1 ≥ 1+1.",
-        "Inductive step: giả sử 2^k ≥ k+1. Nhân hai vế với 2.",
-        "Cần chứng minh 2^(k+1) ≥ (k+1)+1 = k+2."
+        "Base case: n=1, kiểm tra $2^1 \\ge 1+1$.",
+        "Inductive step: giả sử $2^k \\ge k+1$. Nhân hai vế với 2.",
+        "Cần chứng minh $2^{k+1} \\ge (k+1)+1 = k+2$."
       ],
       "solutionSteps": [
-        { "text": "Base case n=1: $2^1=2 \\ge 2 = 1+1$ ✓.", "rule": "Base case" },
-        { "text": "Giả thiết quy nạp: giả sử $2^k \\ge k+1$.", "rule": "Induction hypothesis" },
-        { "text": "$2^{k+1} = 2 \\cdot 2^k \\ge 2(k+1) = 2k+2$.", "rule": "Nhân hai vế giả thiết với 2" },
-        { "text": "$2k+2 \\ge k+2$ khi $k \\ge 0$ (vì $k \\ge 0$). Vậy $2^{k+1} \\ge k+2 = (k+1)+1$ ✓.", "isCommonMistake": true, "rule": "Phải so sánh 2k+2 với k+2 — bước hay bị bỏ qua" }
+        {
+          "text": "Base case n=1: $2^1=2 \\ge 2 = 1+1$ ✓.",
+          "rule": "Base case"
+        },
+        {
+          "text": "Giả thiết quy nạp: giả sử $2^k \\ge k+1$.",
+          "rule": "Induction hypothesis"
+        },
+        {
+          "text": "$2^{k+1} = 2 \\cdot 2^k \\ge 2(k+1) = 2k+2$.",
+          "rule": "Nhân hai vế giả thiết với 2"
+        },
+        {
+          "text": "$2k+2 \\ge k+2$ vì $k \\ge 0$. Vậy $2^{k+1} \\ge k+2 = (k+1)+1$ ✓.",
+          "isCommonMistake": true,
+          "rule": "Phải so sánh 2k+2 với k+2 — bước hay bị bỏ qua"
+        }
       ],
       "answer": "$2^n \\ge n+1$ với mọi $n \\ge 1$. Điều này xác nhận $2^n$ tăng nhanh hơn tuyến tính.",
       "commonMistake": "Bỏ qua bước so sánh 2k+2 ≥ k+2, kết luận vội.",
       "relatedFlashcard": "fc-ind-structure"
     },
     {
-      "id": "ex-ind-challenge-1",
-      "difficulty": "challenge",
-      "prompt": "Hàm đệ quy Python tính `power(base, n)` (base^n):\n```python\ndef power(b, n):\n    if n == 0: return 1\n    return b * power(b, n-1)\n```\nDùng quy nạp để chứng minh `power(b, n) = b^n` với mọi n ≥ 0.",
+      "id": "ex-ind-apply-2",
+      "difficulty": "apply",
+      "prompt": "Chứng minh $1 + 2 + 4 + \\cdots + 2^{n-1} = 2^n - 1$ với mọi $n \\ge 1$. Từ đó giải thích: số nguyên không dấu n-bit lớn nhất bằng bao nhiêu?",
       "hints": [
-        "Base case: n=0, power(b,0) = 1 = b^0. ✓",
-        "Inductive step: giả sử power(b,k) = b^k.",
-        "power(b, k+1) = b * power(b, k) = b * b^k = b^(k+1)."
+        "Base n=1: vế trái chỉ có $2^0 = 1$.",
+        "Bước: thêm số hạng $2^k$.",
+        "Số n-bit toàn bit 1 là $2^0 + 2^1 + \\cdots + 2^{n-1}$."
       ],
       "solutionSteps": [
-        { "text": "**Base case (n=0):** power(b,0) = 1 (từ code). Và $b^0 = 1$ theo định nghĩa. ✓", "rule": "Base case = điều kiện dừng đệ quy" },
-        { "text": "**Giả thiết quy nạp:** Giả sử power(b,k) = $b^k$ với một k ≥ 0.", "rule": "Induction hypothesis" },
-        { "text": "**Inductive step:** power(b, k+1) = b * power(b, k) (từ code).", "rule": "Mở rộng theo định nghĩa đệ quy" },
-        { "text": "= b * $b^k$ (dùng giả thiết quy nạp) = $b^{k+1}$ ✓.", "isCommonMistake": true, "rule": "Phải cite giả thiết quy nạp tường minh — lỗi hay gặp là dùng kết quả mà không justify" }
+        {
+          "text": "Base n=1: vế trái $2^0 = 1$; vế phải $2^1 - 1 = 1$ ✓.",
+          "rule": "Base case"
+        },
+        {
+          "text": "Giả thiết: $\\sum_{i=0}^{k-1} 2^i = 2^k - 1$.",
+          "rule": "Induction hypothesis"
+        },
+        {
+          "text": "Thêm số hạng $2^k$: $(2^k - 1) + 2^k = 2 \\times 2^k - 1 = 2^{k+1} - 1$ ✓.",
+          "isCommonMistake": true,
+          "rule": "Số hạng mới là $2^k$, không phải $2^{k+1}$ — chỉ số chạy từ 0 đến n−1"
+        },
+        {
+          "text": "Số n-bit lớn nhất có mọi bit bằng 1 = $\\sum_{i=0}^{n-1} 2^i = 2^n - 1$. Ví dụ 8 bit: 255; 32 bit: 4294967295.",
+          "rule": "Áp dụng vào biểu diễn nhị phân"
+        }
       ],
-      "answer": "power(b,n) = b^n với mọi n≥0. Cấu trúc hàm đệ quy = cấu trúc quy nạp.",
-      "commonMistake": "Bỏ qua base case n=0 (hay nhầm với n=1 vì 1^anything=1).",
-      "relatedFlashcard": "fc-ind-invariant"
+      "answer": "$\\sum_{i=0}^{n-1} 2^i = 2^n - 1$; số n-bit không dấu lớn nhất là $2^n - 1$.",
+      "commonMistake": "Lệch chỉ số: viết số hạng cuối là $2^n$ rồi ra $2^{n+1} - 1$.",
+      "relatedFlashcard": "fc-ind-sums"
+    },
+    {
+      "id": "ex-ind-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Hàm đệ quy Python tính $b^n$: `def power(b, n): return 1 if n == 0 else b * power(b, n - 1)`\n\nDùng quy nạp để chứng minh `power(b, n)` trả về $b^n$ với mọi n ≥ 0.",
+      "hints": [
+        "Base case: n=0, `power(b, 0)` trả về 1, và $b^0 = 1$.",
+        "Giả thiết quy nạp: `power(b, k)` trả về $b^k$.",
+        "Theo code, `power(b, k + 1)` = $b \\times$ `power(b, k)`."
+      ],
+      "solutionSteps": [
+        {
+          "text": "**Base case (n=0):** `power(b, 0)` trả về 1 (nhánh dừng). Và $b^0 = 1$ theo định nghĩa. ✓",
+          "rule": "Base case = điều kiện dừng đệ quy"
+        },
+        {
+          "text": "**Giả thiết quy nạp:** giả sử `power(b, k)` trả về $b^k$ với một k ≥ 0.",
+          "rule": "Induction hypothesis"
+        },
+        {
+          "text": "**Bước quy nạp:** với k+1 ≥ 1, code chạy nhánh else: `power(b, k + 1)` = $b \\times$ `power(b, k)`.",
+          "rule": "Mở rộng theo định nghĩa đệ quy"
+        },
+        {
+          "text": "$= b \\times b^k$ (dùng giả thiết quy nạp) $= b^{k+1}$ ✓.",
+          "isCommonMistake": true,
+          "rule": "Phải nêu rõ chỗ dùng giả thiết quy nạp — lỗi hay gặp là \"hiển nhiên\" mà không chỉ ra"
+        }
+      ],
+      "answer": "`power(b, n)` = $b^n$ với mọi n ≥ 0. Cấu trúc hàm đệ quy = cấu trúc quy nạp; ngoài ra mỗi lời gọi giảm n đi 1 nên hàm luôn dừng.",
+      "commonMistake": "Chọn base case n = 1 thay vì n = 0 — khi đó chưa chứng minh trường hợp `power(b, 0)` mà code vẫn xử lý; hoặc quên lập luận hàm luôn dừng.",
+      "relatedFlashcard": "fc-ind-recursion"
+    },
+    {
+      "id": "ex-ind-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Dùng quy nạp mạnh chứng minh: mọi số nguyên $n \\ge 1$ đều viết được thành tổng các lũy thừa **phân biệt** của 2 (tức là biểu diễn nhị phân luôn tồn tại).",
+      "hints": [
+        "Base n = 1 = $2^0$.",
+        "Chia hai trường hợp: n chẵn và n lẻ.",
+        "n chẵn: n = 2m với m < n — dùng giả thiết cho m rồi nhân đôi từng lũy thừa.",
+        "n lẻ (n ≥ 3): n − 1 chẵn, biểu diễn của nó không chứa $2^0$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Base: $1 = 2^0$ ✓.",
+          "rule": "Base case"
+        },
+        {
+          "text": "Giả thiết mạnh: mọi m với $1 \\le m < n$ đều có biểu diễn bằng lũy thừa phân biệt của 2.",
+          "rule": "Strong induction hypothesis"
+        },
+        {
+          "text": "n chẵn: $n = 2m$ với $1 \\le m < n$. Lấy biểu diễn của m, nhân đôi từng số hạng ($2^i \\to 2^{i+1}$) — vẫn phân biệt, và không có $2^0$. (Chính là phép dịch bit `m << 1`.)",
+          "rule": "Dùng P(n/2) — cần quy nạp mạnh"
+        },
+        {
+          "text": "n lẻ, $n \\ge 3$: $n - 1$ chẵn nên theo trường hợp trên biểu diễn của nó không chứa $2^0$. Thêm $2^0$ → vẫn phân biệt ✓.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: dùng quy nạp thường \"lấy biểu diễn của n−1 rồi cộng 1\" cho mọi n — nếu n−1 đã chứa $2^0$ thì bị trùng (phải nhớ/carry)"
+        }
+      ],
+      "answer": "Mọi n ≥ 1 có biểu diễn nhị phân. Trường hợp chẵn dùng P(n/2), trường hợp lẻ dùng P(n−1) với n−1 chẵn.",
+      "commonMistake": "Dùng quy nạp thường từ n−1: cộng $2^0$ vào biểu diễn của n−1 có thể tạo hai số hạng $2^0$ trùng nhau.",
+      "relatedFlashcard": "fc-ind-strong"
     }
   ],
   "quiz": [
@@ -183,11 +433,11 @@
       "question": "Trong chứng minh quy nạp, \"giả thiết quy nạp\" (induction hypothesis) là gì?",
       "options": [
         "Giả sử P(n) đúng với MỌI n",
-        "Giả sử P(k) đúng với một k cụ thể, để suy ra P(k+1)",
         "Chứng minh P(1) đúng",
+        "Giả sử P(k) đúng với một k bất kỳ (cố định), để suy ra P(k+1)",
         "Kết luận cuối cùng của chứng minh"
       ],
-      "correct": 1,
+      "correct": 2,
       "explanation": "Giả thiết quy nạp = giả sử P(k) đúng (cho một k cố định). Từ đó suy ra P(k+1) — đây là inductive step. Không được giả sử P(n) đúng với mọi n ngay từ đầu."
     },
     {
@@ -195,12 +445,12 @@
       "type": "mcq",
       "question": "Điều kiện dừng (base case) của hàm đệ quy tương ứng với bước nào trong quy nạp?",
       "options": [
+        "Base case của quy nạp",
         "Inductive step",
         "Induction hypothesis",
-        "Base case của quy nạp",
         "Kết luận"
       ],
-      "correct": 2,
+      "correct": 0,
       "explanation": "Điều kiện dừng đệ quy = base case của quy nạp (viên domino đầu tiên). Thân đệ quy (recursive call) = inductive step."
     },
     {
@@ -214,7 +464,46 @@
         "Khi mệnh đề liên quan đến bất đẳng thức"
       ],
       "correct": 1,
-      "explanation": "Quy nạp mạnh dùng khi bước k+1 phụ thuộc vào P(1), P(2), ..., P(k) — không chỉ P(k). Ví dụ: chứng minh tồn tại phân tích thừa số nguyên tố."
+      "explanation": "Quy nạp mạnh dùng khi bước k+1 phụ thuộc vào một hoặc nhiều giá trị nhỏ hơn bất kỳ — P(k−3), P(n/2)... — không chỉ P(k). Ví dụ: phân tích thừa số nguyên tố, chứng minh merge sort đúng."
+    },
+    {
+      "id": "q-ind-4",
+      "type": "mcq",
+      "question": "\"Chứng minh\" mọi con ngựa cùng màu bằng quy nạp hỏng ở đâu?",
+      "options": [
+        "Base case n = 1 sai",
+        "Giả thiết quy nạp bị dùng vòng tròn",
+        "Bước quy nạp sai với mọi k",
+        "Bước quy nạp sai khi k = 1: hai nhóm 1 con không có phần chung"
+      ],
+      "correct": 3,
+      "explanation": "Với k ≥ 2 lập luận \"hai nhóm chồng lên nhau\" là đúng, nhưng từ 1 lên 2 con thì hai nhóm {ngựa 1}, {ngựa 2} rời nhau. Chỉ cần một mắt xích gãy là chuỗi domino dừng."
+    },
+    {
+      "id": "q-ind-5",
+      "type": "mcq",
+      "question": "Chứng minh vòng lặp đúng bằng loop invariant gồm khởi tạo, duy trì, và bước nào nữa?",
+      "options": [
+        "Chứng minh vòng lặp chạy O(n)",
+        "Chứng minh invariant sai sau vòng lặp",
+        "Kết thúc: khi dừng, invariant + điều kiện dừng suy ra kết quả đúng",
+        "Không cần bước nào nữa"
+      ],
+      "correct": 2,
+      "explanation": "Khởi tạo ~ base case, duy trì ~ inductive step. Bước **kết thúc** nối invariant với mục tiêu: ví dụ dừng ở i = n nên total = n(n+1)/2. Thiếu bước này, invariant đúng nhưng có thể chẳng nói gì về kết quả."
+    },
+    {
+      "id": "q-ind-6",
+      "type": "mcq",
+      "question": "Chứng minh \"mọi n ≥ 12 trả được bằng tờ 4 và 5\" bằng quy nạp mạnh với bước \"lấy cách trả n − 4 rồi thêm một tờ 4\". Cần bao nhiêu base case?",
+      "options": [
+        "1 (n = 12)",
+        "4 (n = 12, 13, 14, 15)",
+        "2 (n = 12, 13)",
+        "5 (n = 12 đến 16)"
+      ],
+      "correct": 1,
+      "explanation": "Bước nhảy lùi 4, nên n = 16 dựa vào 12, 17 vào 13, 18 vào 14, 19 vào 15... Bốn giá trị 12–15 không có \"n − 4 ≥ 12\" để dựa vào, phải kiểm tra trực tiếp."
     }
   ]
 }

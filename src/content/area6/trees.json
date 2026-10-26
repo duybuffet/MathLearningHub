@@ -6,12 +6,14 @@
   "order": 3,
   "icon": "graph",
   "tagline": "Cây là đồ thị đặc biệt không có chu trình — từ file system đến DOM đến binary search tree, cây xuất hiện ở khắp mọi nơi trong lập trình.",
-  "readTime": "~20 min",
-  "prerequisites": ["area6_graph-basics"],
+  "readTime": "~28 min",
+  "prerequisites": [
+    "area6_graph-basics"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Cây (tree) là một loại đồ thị đặc biệt với một tính chất cực quan trọng: **không có chu trình (acyclic)** và **liên thông (connected)**. Định nghĩa chính xác: cây là đồ thị vô hướng liên thông không có chu trình.\n\nCây xuất hiện khắp nơi trong CS:\n- **File system**: thư mục chứa thư mục con và file — đó là cây.\n- **DOM (Document Object Model)**: cấu trúc HTML — mỗi thẻ là node, lồng nhau thành cây.\n- **Binary Search Tree (BST)**: cơ sở của nhiều cấu trúc dữ liệu như `std::set`, `TreeMap`.\n- **Heap**: cây nhị phân hoàn chỉnh, cơ sở của priority queue.\n- **Parse tree**: compiler phân tích cú pháp biểu thức toán học hay code.\n\nHiểu cây = hiểu nền tảng của hàng chục cấu trúc dữ liệu và thuật toán."
+      "content": "Cây (tree) là một loại đồ thị đặc biệt với hai tính chất: **liên thông (connected)** và **không có chu trình (acyclic)**. Định nghĩa chính xác: cây là đồ thị vô hướng liên thông không có chu trình.\n\nCây xuất hiện khắp nơi trong CS:\n- **File system**: thư mục chứa thư mục con và file.\n- **DOM (Document Object Model)**: mỗi thẻ HTML là một node, lồng nhau thành cây.\n- **Binary Search Tree (BST)**: nền tảng của `std::map`/`std::set` (C++), `TreeMap` (Java) — các bản cân bằng của BST.\n- **Heap**: cây nhị phân hoàn chỉnh (complete), nền tảng của priority queue.\n- **Parse tree / AST**: compiler phân tích cú pháp code thành cây.\n- **B-tree**: chỉ mục (index) của hầu hết database.\n\nHiểu cây = hiểu nền tảng của hàng chục cấu trúc dữ liệu và thuật toán."
     },
     {
       "type": "analogy",
@@ -21,94 +23,205 @@
     {
       "type": "explanation",
       "title": "Thuật ngữ cây cần biết",
-      "content": "- **Root (gốc)**: đỉnh không có parent — điểm xuất phát.\n- **Leaf (lá)**: đỉnh không có con (degree 1 trừ root).\n- **Internal node**: node có ít nhất một con.\n- **Height (chiều cao)**: số cạnh trên đường dài nhất từ root đến leaf. Cây 1 node: height=0.\n- **Depth (độ sâu) của node**: số cạnh từ root đến node đó.\n- **Subtree**: cây con — một node bất kỳ cùng toàn bộ con cháu của nó.\n- **Binary tree (cây nhị phân)**: mỗi node có tối đa 2 con (trái và phải).\n- **Complete binary tree**: mọi tầng đều đầy, ngoại trừ tầng cuối có thể thiếu bên phải."
+      "content": "- **Root (gốc)**: node không có cha — điểm xuất phát của cây có gốc.\n- **Parent / child (cha / con)**: node ngay trên / ngay dưới trên đường đi từ root.\n- **Leaf (lá)**: node không có con. (Trong cây không chọn gốc: đỉnh bậc 1.)\n- **Internal node (node trong)**: node có ít nhất một con.\n- **Depth (độ sâu) của node**: số cạnh từ root tới node đó. Root có depth 0; các node cùng depth k tạo thành **tầng (level) k**.\n- **Height (chiều cao) của cây**: số cạnh trên đường dài nhất từ root tới một lá. Cây 1 node có height 0 (cây rỗng thường quy ước −1).\n- **Subtree (cây con)**: một node cùng toàn bộ con cháu của nó.\n- **Binary tree (cây nhị phân)**: mỗi node có tối đa 2 con, phân biệt con **trái** và con **phải**.\n\nLưu ý: có tài liệu đếm height theo số node thay vì số cạnh (lệch nhau 1). Bài này luôn đếm theo **số cạnh**."
     },
     {
       "type": "diagram",
       "title": "Cây nhị phân ví dụ",
       "mermaid": "graph TD\n  A((1)) --> B((2))\n  A --> C((3))\n  B --> D((4))\n  B --> E((5))\n  C --> F((6))\n  C --> G((7))\n  D --> H((8))\n  D --> I((9))",
-      "caption": "Cây nhị phân 9 node. Root=1, height=3. Node 4,5,6,7 ở depth=2. Leaf nodes: {5,6,7,8,9}. Subtree gốc tại 2: {2,4,5,8,9}."
-    },
-    {
-      "type": "formula",
-      "title": "Tính chất cơ bản của cây",
-      "latex": "\\text{Tree } n \\text{ vertices has exactly } (n-1) \\text{ edges} \\qquad \\text{Complete binary tree: } h = \\lfloor \\log_2 n \\rfloor",
-      "reading": "đọc là: cây n đỉnh luôn có n-1 cạnh. Cây nhị phân hoàn chỉnh n node có chiều cao bằng floor(log₂ n).",
-      "symbols": [
-        { "sym": "n", "meaning": "số node (đỉnh) trong cây" },
-        { "sym": "n-1", "meaning": "số cạnh — thêm một node luôn cần đúng một cạnh kết nối vào cây" },
-        { "sym": "h = \\lfloor \\log_2 n \\rfloor", "meaning": "chiều cao cây nhị phân hoàn chỉnh — nền tảng của O(log n) cho BST và heap" }
-      ],
-      "caption": "Tính n-1 cạnh cực quan trọng: giúp phân biệt cây với đồ thị có chu trình (E ≥ n sẽ có cycle). Chiều cao log n giải thích vì sao BST và heap có O(log n) operations."
-    },
-    {
-      "type": "diagram",
-      "title": "Binary Search Tree (BST)",
-      "mermaid": "graph TD\n  N8((8)) --> N4((4))\n  N8 --> N12((12))\n  N4 --> N2((2))\n  N4 --> N6((6))\n  N12 --> N10((10))\n  N12 --> N14((14))",
-      "caption": "BST tính chất: node bên trái < node cha < node bên phải. Tìm kiếm: so sánh với root, đi trái nếu nhỏ hơn, đi phải nếu lớn hơn — O(log n) cho cây cân bằng."
+      "caption": "Cây nhị phân 9 node. Root = 1, height = 3. Tầng 2 (depth 2): 4, 5, 6, 7. Lá: 5, 6, 7, 8, 9. Cây con gốc 2: {2, 4, 5, 8, 9}. Mỗi node có 0 hoặc 2 con và tầng cuối (8, 9) dồn trái → cây vừa full vừa complete, nhưng chưa perfect."
     },
     {
       "type": "explanation",
-      "title": "Duyệt cây (Tree Traversal): In-order, Pre-order, Post-order",
-      "content": "Ba cách duyệt cây nhị phân — mỗi cách cho thứ tự node khác nhau:\n\n**Pre-order (NLR — Node → Left → Right):**\n```\npreorder(node):\n  visit(node)         # node trước\n  preorder(node.left)\n  preorder(node.right)\n```\nDùng cho: copy tree, serialization, parse expression (prefix notation).\n\n**In-order (LNR — Left → Node → Right):**\n```\ninorder(node):\n  inorder(node.left)\n  visit(node)         # node giữa\n  inorder(node.right)\n```\nDùng cho: **BST in-order = thứ tự tăng dần**. Đây là ứng dụng cực quan trọng.\n\n**Post-order (LRN — Left → Right → Node):**\n```\npostorder(node):\n  postorder(node.left)\n  postorder(node.right)\n  visit(node)         # node sau\n```\nDùng cho: xóa cây (con trước, cha sau), tính giá trị expression tree (lá trước, operator sau)."
+      "title": "Các định nghĩa tương đương của cây",
+      "content": "Với đồ thị vô hướng T có n đỉnh, các mệnh đề sau **tương đương** — biết một cái là suy ra tất cả:\n1. T liên thông và không có chu trình (định nghĩa).\n2. T liên thông và có đúng $n - 1$ cạnh.\n3. T không có chu trình và có đúng $n - 1$ cạnh.\n4. Giữa hai đỉnh bất kỳ có **đúng một** đường đi.\n\nHệ quả: bỏ một cạnh bất kỳ của cây là mất liên thông (tách thành 2 cây); thêm một cạnh bất kỳ là tạo đúng một chu trình. Nhiều cây rời nhau gọi là **rừng (forest)**: rừng n đỉnh gồm k cây có $n - k$ cạnh.\n\n**Cây có gốc (rooted tree)**: chọn một đỉnh làm root. Vì đường đi từ root tới mỗi node là duy nhất, mỗi node (trừ root) có đúng một cha — đó là lý do file system và DOM là cây. Trong phỏng vấn, \"cho n node và n − 1 cạnh, kiểm tra có phải cây không\" = kiểm tra liên thông bằng BFS/DFS (hoặc Union-Find)."
     },
     {
-      "type": "worked_example",
-      "title": "Trace 3 kiểu duyệt trên BST",
-      "problem": "Cho BST ở trên (root=8, các node: 2,4,6,8,10,12,14). Trace in-order, pre-order, post-order.",
-      "steps": [
-        { "text": "**In-order (Left→Node→Right):**\nBắt đầu từ 8. Đi trái đến 4. Đi trái đến 2. Không còn trái → visit 2. Quay về 4: visit 4. Phải của 4: visit 6. Quay về 8: visit 8. Đi phải đến 12. Trái của 12: visit 10. Visit 12. Phải: visit 14.\nKết quả: 2→4→6→8→10→12→14.", "rule": "In-order của BST = thứ tự TĂNG DẦN — không phải ngẫu nhiên mà là tính chất thiết kế của BST" },
-        { "text": "**Pre-order (Node→Left→Right):**\nVisit 8 trước. Đi trái: visit 4. Trái 4: visit 2. Phải 4: visit 6. Quay về 8 đi phải: visit 12. Trái 12: visit 10. Phải 12: visit 14.\nKết quả: 8→4→2→6→12→10→14.", "rule": "Pre-order: cha trước con — dùng để serialize/copy tree" },
-        { "text": "**Post-order (Left→Right→Node):**\nĐi hết trái-phải trước, cha sau. Leaf đầu tiên: 2. Sau đó 6. Sau đó 4 (cha của 2 và 6). Tiếp: 10, 14, rồi 12, rồi 8.\nKết quả: 2→6→4→10→14→12→8.", "rule": "Post-order: con trước cha — dùng để xóa tree hoặc tính expression tree" },
-        { "text": "Kiểm tra: tất cả 7 node đều xuất hiện đúng một lần trong mỗi traversal. Thứ tự khác nhau, nhưng cùng tập node.", "isCommonMistake": true, "rule": "Lỗi phổ biến: nhầm in-order với pre-order. In-order (Left→Node→Right) của BST = sorted order — đây là ứng dụng số 1" }
+      "type": "formula",
+      "title": "Cây n đỉnh có đúng n − 1 cạnh",
+      "latex": "|E| = n - 1 \\quad \\text{for every tree with } n \\text{ vertices}",
+      "reading": "đọc là: số cạnh của cây luôn bằng số đỉnh trừ 1, bất kể hình dạng cây.",
+      "symbols": [
+        {
+          "sym": "n",
+          "meaning": "số node (đỉnh) trong cây"
+        },
+        {
+          "sym": "n-1",
+          "meaning": "số cạnh — mỗi node trừ root có đúng một cạnh nối lên cha"
+        }
       ],
-      "result": "In-order: 2,4,6,8,10,12,14 (tăng dần). Pre-order: 8,4,2,6,12,10,14. Post-order: 2,6,4,10,14,12,8."
+      "caption": "Lý do trực quan: chọn một root; mỗi node khác root có đúng một cạnh đi lên cha, và mỗi cạnh là cạnh-lên-cha của đúng một node. Hệ quả: đồ thị n đỉnh có từ n cạnh trở lên chắc chắn có chu trình; đồ thị liên thông có đúng n − 1 cạnh chắc chắn là cây."
+    },
+    {
+      "type": "explanation",
+      "title": "Full, complete, perfect — ba khái niệm hay bị nhầm",
+      "content": "- **Cây đầy đủ (full binary tree)**: mọi node có **0 hoặc 2** con — không node nào chỉ có 1 con.\n- **Cây hoàn chỉnh (complete binary tree)**: mọi tầng đều đầy, trừ có thể tầng cuối; các node ở tầng cuối **dồn hết sang trái** (không có lỗ hổng). Đây là hình dạng của binary heap.\n- **Cây hoàn hảo (perfect binary tree)**: mọi node trong có đúng 2 con và **mọi lá cùng một tầng**. Cao h thì có đúng $2^{h+1} - 1$ node, trong đó $2^h$ lá.\n\nQuan hệ: perfect ⇒ vừa full vừa complete. Nhưng full và complete độc lập nhau: cây ở hình dưới là complete mà không full; cây \"root có 2 con, chỉ con PHẢI có 2 con\" là full mà không complete.\n\nCảnh báo thuật ngữ: một số giáo trình cũ (và nhiều tài liệu tiếng Việt) dùng \"complete\" hay \"đầy đủ\" để chỉ cây perfect. Khi phỏng vấn, hãy nói rõ định nghĩa bạn dùng.\n\nTính chất hay hỏi: cây full có I node trong thì có đúng $L = I + 1$ lá, nên tổng $n = 2I + 1$ (luôn lẻ)."
+    },
+    {
+      "type": "diagram",
+      "title": "Complete nhưng không full",
+      "mermaid": "graph TD\n  N1((1)) --> N2((2))\n  N1 --> N3((3))\n  N2 --> N4((4))",
+      "caption": "4 là con TRÁI của 2 (mermaid không vẽ được trái/phải). Tầng cuối chỉ có 4, dồn trái → complete. Node 2 có đúng 1 con → không full. Nếu 4 là con PHẢI thì cũng không còn complete."
     },
     {
       "type": "formula",
       "title": "Số node tối đa của cây nhị phân theo chiều cao",
       "latex": "\\text{Level } k \\text{ has at most } 2^k \\text{ nodes} \\qquad \\text{Tree of height } h: \\text{ at most } 2^{h+1} - 1 \\text{ nodes}",
-      "reading": "đọc là: tầng k (root là tầng 0) chứa tối đa 2 mũ k node. Cây nhị phân đầy đủ cao h có tổng tối đa 2^(h+1) - 1 node.",
+      "reading": "đọc là: tầng k (root ở tầng 0) có tối đa 2^k node. Cây nhị phân cao h có tối đa 2^(h+1) − 1 node — đạt đúng con số này khi và chỉ khi cây hoàn hảo (perfect).",
       "symbols": [
-        { "sym": "k", "meaning": "số thứ tự tầng, tính từ 0 (root)" },
-        { "sym": "2^k", "meaning": "số node tối đa tầng k — mỗi node nhị phân có tối đa 2 con" },
-        { "sym": "2^{h+1} - 1", "meaning": "tổng node tất cả tầng 0..h = 1+2+4+...+2^h (chuỗi hình học)" }
+        {
+          "sym": "k",
+          "meaning": "số thứ tự tầng, tính từ 0 (root)"
+        },
+        {
+          "sym": "2^k",
+          "meaning": "số node tối đa tầng k — mỗi node nhị phân có tối đa 2 con"
+        },
+        {
+          "sym": "2^{h+1} - 1",
+          "meaning": "tổng node tất cả tầng 0..h = 1+2+4+...+2^h (chuỗi hình học)"
+        }
       ],
-      "caption": "Ngược lại: n node → chiều cao tối thiểu = floor(log₂ n). Cây cân bằng (AVL, Red-Black) duy trì chiều cao O(log n) để đảm bảo O(log n) search/insert/delete."
+      "caption": "Đảo ngược công thức: n node thì chiều cao ít nhất ⌊log₂ n⌋. Cây tự cân bằng (AVL, Red-Black) giữ chiều cao O(log n) để search/insert/delete đều O(log n)."
+    },
+    {
+      "type": "formula",
+      "title": "Giới hạn chiều cao cây nhị phân n node",
+      "latex": "\\lfloor \\log_2 n \\rfloor \\;\\le\\; h \\;\\le\\; n - 1",
+      "reading": "đọc là: cây nhị phân n node có chiều cao ít nhất là phần nguyên của log cơ số 2 của n (khi cây gọn nhất — complete) và nhiều nhất là n − 1 (khi cây suy biến thành một chuỗi).",
+      "symbols": [
+        {
+          "sym": "n",
+          "meaning": "số node"
+        },
+        {
+          "sym": "h",
+          "meaning": "chiều cao (số cạnh từ root tới lá sâu nhất)"
+        },
+        {
+          "sym": "\\lfloor \\log_2 n \\rfloor",
+          "meaning": "chiều cao nhỏ nhất — đạt được bởi cây complete"
+        },
+        {
+          "sym": "n-1",
+          "meaning": "chiều cao lớn nhất — mỗi node chỉ có 1 con (cây suy biến)"
+        }
+      ],
+      "caption": "Ví dụ n = 15: h nằm trong khoảng 3 … 14; n = 1000: từ 9 tới 999. Mọi thao tác BST tốn O(h) — chính khoảng cách giữa hai đầu này là khác biệt giữa O(log n) và O(n)."
+    },
+    {
+      "type": "explanation",
+      "title": "Cây hoàn chỉnh lưu trong mảng (binary heap)",
+      "content": "Cây complete không có lỗ hổng nên lưu gọn trong **mảng**, không cần con trỏ: đánh số các node theo level-order bắt đầu từ 0. Node ở chỉ số $i$ có:\n- con trái ở $2i + 1$, con phải ở $2i + 2$;\n- cha ở $\\lfloor (i - 1) / 2 \\rfloor$.\n\nĐây chính là cách cài đặt binary heap — priority queue trong Dijkstra, `heapq` của Python, `PriorityQueue` của Java. Vì chiều cao là $\\lfloor \\log_2 n \\rfloor$, push/pop heap là $O(\\log n)$; còn đọc phần tử nhỏ nhất là $O(1)$ (ở chỉ số 0)."
+    },
+    {
+      "type": "diagram",
+      "title": "Binary Search Tree (BST)",
+      "mermaid": "graph TD\n  N8((8)) --> N4((4))\n  N8 --> N12((12))\n  N4 --> N2((2))\n  N4 --> N6((6))\n  N12 --> N10((10))\n  N12 --> N14((14))",
+      "caption": "BST: với MỌI node, mọi khóa trong cây con trái nhỏ hơn node, mọi khóa trong cây con phải lớn hơn node. Tìm kiếm: nhỏ hơn đi trái, lớn hơn đi phải — O(h), tức O(log n) nếu cây cân bằng."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Tính chất BST áp dụng cho cả cây con, không chỉ cặp cha–con.** Cây 10 → con trái 5 → con phải 12 thỏa mọi cặp cha–con (5 < 10, 12 > 5) nhưng KHÔNG phải BST: 12 nằm trong cây con trái của 10 mà lại lớn hơn 10. Đây là bẫy kinh điển của bài phỏng vấn \"Validate BST\": phải truyền khoảng (min, max) hợp lệ xuống từng node, hoặc kiểm tra dãy in-order có tăng ngặt hay không."
+    },
+    {
+      "type": "explanation",
+      "title": "Duyệt cây: pre-order, in-order, post-order, level-order",
+      "content": "Bốn cách duyệt cây nhị phân — ba cách đầu là DFS, cách cuối là BFS:\n\n- **Pre-order (NLR — Node → Left → Right)**: thăm node, rồi duyệt cây con trái, rồi cây con phải. Dùng cho: sao chép cây, serialize, biểu thức dạng tiền tố (prefix).\n- **In-order (LNR — Left → Node → Right)**: trái, node, phải. Với BST cho **thứ tự tăng dần** — ứng dụng quan trọng nhất.\n- **Post-order (LRN — Left → Right → Node)**: hai cây con trước, node sau. Dùng cho: xóa/giải phóng cây (con trước cha), tính giá trị cây biểu thức, tính chiều cao hay kích thước cây con.\n- **Level-order (theo tầng)**: BFS từ root bằng queue — tầng 0, tầng 1, … Dùng cho: in cây theo tầng, tìm node nông nhất, serialize kiểu LeetCode.\n\nMẹo nhớ: tên gọi chỉ **vị trí của Node** so với hai cây con — pre = trước, in = giữa, post = sau.\n\nCả bốn đều $O(n)$ thời gian. Ba cách DFS (đệ quy) tốn bộ nhớ $O(h)$ cho call stack — $O(\\log n)$ nếu cây cân bằng nhưng $O(n)$ nếu cây suy biến."
+    },
+    {
+      "type": "worked_example",
+      "title": "Trace 4 kiểu duyệt trên BST",
+      "problem": "Cho BST ở trên (root 8; 8 có con 4 và 12; 4 có con 2 và 6; 12 có con 10 và 14). Trace in-order, pre-order, post-order và level-order.",
+      "steps": [
+        {
+          "text": "**In-order (L→N→R):** từ 8 đi trái tới 4, trái tới 2; 2 không có con trái → thăm 2. Về 4: thăm 4, rồi con phải 6. Về 8: thăm 8. Sang cây con phải: 10, 12, 14. Kết quả: 2, 4, 6, 8, 10, 12, 14.",
+          "rule": "In-order của BST = thứ tự TĂNG DẦN — hệ quả trực tiếp của tính chất BST"
+        },
+        {
+          "text": "**Pre-order (N→L→R):** thăm 8 trước, rồi cả cây con trái (4, 2, 6), rồi cây con phải (12, 10, 14). Kết quả: 8, 4, 2, 6, 12, 10, 14.",
+          "rule": "Pre-order: cha trước con — root luôn đứng ĐẦU"
+        },
+        {
+          "text": "**Post-order (L→R→N):** cây con trái cho 2, 6, 4; cây con phải cho 10, 14, 12; cuối cùng 8. Kết quả: 2, 6, 4, 10, 14, 12, 8.",
+          "rule": "Post-order: con trước cha — root luôn đứng CUỐI"
+        },
+        {
+          "text": "**Level-order (BFS):** tầng 0: 8; tầng 1: 4, 12; tầng 2: 2, 6, 10, 14. Kết quả: 8, 4, 12, 2, 6, 10, 14.",
+          "rule": "Level-order dùng queue, không phải đệ quy"
+        },
+        {
+          "text": "Hay nhầm pre-order (8, 4, 2, 6, …) với level-order (8, 4, 12, …): cả hai đều bắt đầu từ root, nhưng pre-order đi hết cây con trái trước khi sang phải.",
+          "isCommonMistake": true,
+          "rule": "Pre-order là DFS (đi sâu), level-order là BFS (đi ngang)"
+        }
+      ],
+      "result": "In-order: 2, 4, 6, 8, 10, 12, 14 (tăng dần). Pre-order: 8, 4, 2, 6, 12, 10, 14. Post-order: 2, 6, 4, 10, 14, 12, 8. Level-order: 8, 4, 12, 2, 6, 10, 14."
     },
     {
       "type": "worked_example",
       "title": "Trace tìm kiếm trong BST",
       "problem": "Tìm giá trị 10 trong BST (root=8). Trace từng bước so sánh. BST: root=8, trái=4(2,6), phải=12(10,14).",
       "steps": [
-        { "text": "Bắt đầu tại root=8. So sánh: 10 > 8 → đi sang phải.", "rule": "BST: giá trị lớn hơn node hiện tại → nửa phải" },
-        { "text": "Tại node 12. So sánh: 10 < 12 → đi sang trái.", "rule": "BST: giá trị nhỏ hơn node hiện tại → nửa trái" },
-        { "text": "Tại node 10. So sánh: 10 == 10 → TÌM THẤY. Tổng: 3 bước.", "isCommonMistake": false },
-        { "text": "Nếu cây cân bằng với n node, số bước tối đa = height ≈ log₂(n). Ví dụ 7 node: height=2, tối đa 3 bước (= floor(log₂ 7) + 1 = 3).", "rule": "BST cân bằng: O(log n) search. BST không cân bằng (suy biến thành list): O(n) — tệ như linear search" },
-        { "text": "Cây không cân bằng: nếu insert theo thứ tự 1,2,3,4,5,6,7 → cây suy biến thành danh sách liên kết, height=6, search O(n).", "isCommonMistake": true, "rule": "BST không tự cân bằng. Phải dùng AVL hoặc Red-Black Tree để đảm bảo O(log n)" }
+        {
+          "text": "Bắt đầu tại root=8. So sánh: 10 > 8 → đi sang phải.",
+          "rule": "BST: giá trị lớn hơn node hiện tại → nửa phải"
+        },
+        {
+          "text": "Tại node 12. So sánh: 10 < 12 → đi sang trái.",
+          "rule": "BST: giá trị nhỏ hơn node hiện tại → nửa trái"
+        },
+        {
+          "text": "Tại node 10. So sánh: 10 == 10 → TÌM THẤY sau 3 lần so sánh.",
+          "rule": "Số lần so sánh = depth của node + 1"
+        },
+        {
+          "text": "Với cây cân bằng n node, số lần so sánh tối đa = h + 1 = ⌊log₂ n⌋ + 1. Ví dụ 7 node: h = 2, tối đa 3 lần so sánh.",
+          "rule": "BST cân bằng: O(log n) search. BST không cân bằng (suy biến thành list): O(n) — tệ như linear search"
+        },
+        {
+          "text": "Cây không cân bằng: insert theo thứ tự 1, 2, 3, 4, 5, 6, 7 → mỗi node chỉ có con phải, cây suy biến thành danh sách liên kết, h = 6, tìm 7 mất 7 lần so sánh — O(n).",
+          "isCommonMistake": true,
+          "rule": "BST không tự cân bằng. Phải dùng AVL hoặc Red-Black Tree để đảm bảo O(log n)"
+        }
       ],
       "result": "Tìm thấy 10 sau 3 bước: 8→12→10. O(log n) cho BST cân bằng."
     },
     {
-      "type": "diagram",
-      "title": "File system như cây",
-      "mermaid": "graph TD\n  Root((/)) --> Home(/home)\n  Root --> Etc(/etc)\n  Root --> Usr(/usr)\n  Home --> Alice(/home/alice)\n  Home --> Bob(/home/bob)\n  Alice --> Docs(/home/alice/docs)\n  Alice --> Code(/home/alice/code)\n  Docs --> Resume(resume.pdf)\n  Code --> App(app.py)",
-      "caption": "File system là cây: root=/. Mỗi thư mục có đúng một thư mục cha. Lá là file. Không có chu trình (không thể symlink vòng trong cây thực sự)."
-    },
-    {
       "type": "callout",
       "variant": "warning",
-      "content": "**BST không tự cân bằng:** Nếu bạn insert dữ liệu đã được sắp xếp (1, 2, 3, 4, 5...) vào BST thông thường, cây sẽ suy biến thành danh sách liên kết — chiều cao O(n) thay vì O(log n). Search, insert, delete đều trở thành O(n). Trong thực tế, dùng **AVL tree** hoặc **Red-Black tree** (như `std::map` trong C++, `TreeMap` trong Java) để tự động cân bằng và đảm bảo O(log n)."
+      "content": "**BST không tự cân bằng:** nếu insert dữ liệu đã sắp xếp (1, 2, 3, 4, 5, …) vào BST thông thường, cây suy biến thành danh sách liên kết — chiều cao $n - 1$ thay vì $\\lfloor \\log_2 n \\rfloor$. Search, insert, delete đều thành $O(n)$. Trong thực tế dùng cây tự cân bằng như **AVL** hoặc **Red-Black** (`std::map` trong C++, `TreeMap` trong Java đều là Red-Black tree) để bảo đảm $O(\\log n)$."
+    },
+    {
+      "type": "diagram",
+      "title": "File system như cây",
+      "mermaid": "graph TD\n  Root((\"/\")) --> Home(\"/home\")\n  Root --> Etc(\"/etc\")\n  Home --> Alice(\"alice\")\n  Alice --> Docs(\"docs\")\n  Alice --> Code(\"code\")\n  Docs --> Resume(\"resume.pdf\")\n  Code --> App(\"app.py\")\n  Etc --> Hosts(\"hosts\")",
+      "caption": "File system là cây: root là /, mỗi thư mục có đúng một thư mục cha, lá là file (hoặc thư mục rỗng). Đường dẫn /home/alice/docs/resume.pdf chính là đường đi duy nhất từ root tới lá đó. Symlink và hard link có thể phá vỡ cấu trúc cây — vì thế `find -L` phải tự phát hiện vòng lặp."
+    },
+    {
+      "type": "explanation",
+      "title": "Cây khung và cây khung nhỏ nhất (Spanning tree, MST)",
+      "content": "**Cây khung (spanning tree)** của một đồ thị liên thông V đỉnh là một cây con chứa **mọi** đỉnh — luôn có đúng $V - 1$ cạnh. Cây BFS hay cây DFS (tập cạnh dùng để phát hiện đỉnh mới) chính là các cây khung.\n\n**Cây khung nhỏ nhất (MST — Minimum Spanning Tree)** là cây khung có tổng trọng số nhỏ nhất: nối mọi thành phố bằng ít cáp quang nhất, thiết kế mạng điện, phân cụm dữ liệu.\n- **Kruskal**: sắp xếp cạnh tăng dần, lần lượt lấy cạnh nếu nó không tạo chu trình (kiểm tra bằng Union-Find). $O(E \\log E)$.\n- **Prim**: mọc cây từ một đỉnh, mỗi bước thêm cạnh rẻ nhất nối cây với một đỉnh ngoài cây (min-heap, rất giống Dijkstra). $O((V+E)\\log V)$.\n\nVới đồ thị bên dưới, Kruskal lấy A–B (1), B–C (2), bỏ A–C (3) vì tạo chu trình A–B–C, lấy C–D (4) → đủ 3 = V − 1 cạnh, tổng trọng số 7. Lưu ý: MST tối ưu **tổng** trọng số, không bảo đảm đường ngắn nhất giữa hai đỉnh (đó là việc của Dijkstra)."
+    },
+    {
+      "type": "diagram",
+      "title": "Đồ thị có trọng số và MST",
+      "mermaid": "graph LR\n  A((A)) ---|1| B((B))\n  B ---|2| C((C))\n  A ---|3| C\n  C ---|4| D((D))\n  B ---|5| D",
+      "caption": "MST = {A–B, B–C, C–D}, tổng 7. Đường ngắn nhất A → D trong đồ thị gốc là A–B–D = 6, còn đi theo MST là A–B–C–D = 7 — MST không phải cây đường đi ngắn nhất."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Cây = đồ thị liên thông không có chu trình. n node luôn có đúng n-1 cạnh.",
-        "Mỗi node (trừ root) có đúng một parent. Leaf = node không có con.",
-        "Chiều cao cây nhị phân hoàn chỉnh n node: h = floor(log₂ n) → BST và heap đều O(log n).",
-        "In-order traversal của BST = thứ tự tăng dần. Pre-order = serialize. Post-order = delete/evaluate.",
-        "File system, DOM, BST, heap, parse tree — đều là ứng dụng của cây trong lập trình.",
-        "BST không tự cân bằng: insert dữ liệu đã sắp → suy biến thành O(n). Dùng AVL/Red-Black để đảm bảo O(log n)."
+        "Cây = đồ thị liên thông không có chu trình ⇔ giữa hai đỉnh bất kỳ có đúng một đường đi ⇔ liên thông với đúng n − 1 cạnh.",
+        "Mỗi node (trừ root) có đúng một cha. Rừng k cây trên n đỉnh có n − k cạnh.",
+        "Full: mọi node có 0 hoặc 2 con. Complete: các tầng đầy, tầng cuối dồn trái (heap). Perfect: mọi lá cùng tầng, đúng 2^(h+1) − 1 node.",
+        "Chiều cao cây nhị phân n node: ⌊log₂ n⌋ ≤ h ≤ n − 1. Thao tác BST là O(h): O(log n) chỉ khi cây cân bằng.",
+        "Tính chất BST áp dụng cho cả cây con: trái < node < phải với MỌI node trong cây con, không chỉ con trực tiếp.",
+        "In-order của BST = tăng dần. Pre-order = serialize/copy. Post-order = xóa/tính toán từ dưới lên. Level-order = BFS theo tầng.",
+        "Cây complete lưu trong mảng: con 2i + 1, 2i + 2, cha ⌊(i − 1)/2⌋ — cách cài binary heap.",
+        "Cây khung có V − 1 cạnh; MST (Kruskal, Prim) tối thiểu tổng trọng số — khác với cây đường đi ngắn nhất."
       ]
     }
   ],
@@ -117,19 +230,19 @@
       "id": "fc-tree-def",
       "type": "definition",
       "front": "Cây (tree) là gì? Tính chất cơ bản?",
-      "back": "Đồ thị vô hướng liên thông không có chu trình. n node có đúng n-1 cạnh. Mỗi node (trừ root) có đúng 1 parent."
+      "back": "Đồ thị vô hướng liên thông không có chu trình. Tương đương: giữa hai đỉnh bất kỳ có đúng một đường đi. n node có đúng n − 1 cạnh; mỗi node (trừ root) có đúng 1 cha."
     },
     {
       "id": "fc-tree-height-log",
       "type": "formula",
       "front": "Chiều cao cây nhị phân hoàn chỉnh n node là bao nhiêu? Ý nghĩa CS?",
-      "back": "$h = \\lfloor \\log_2 n \\rfloor$. Ý nghĩa: BST cân bằng và heap có O(log n) operations — vì chiều cao = số bước tối đa."
+      "back": "$h = \\lfloor \\log_2 n \\rfloor$ — chiều cao nhỏ nhất có thể của cây nhị phân n node. Ý nghĩa: heap và BST cân bằng có thao tác $O(\\log n)$ vì số bước tối đa = h + 1."
     },
     {
       "id": "fc-tree-inorder",
       "type": "concept",
       "front": "In-order traversal của BST cho kết quả gì?",
-      "back": "Danh sách các node theo thứ tự TĂNG DẦN. In-order = Left → Node → Right. Đây là tính chất thiết kế cốt lõi của BST."
+      "back": "Dãy khóa theo thứ tự TĂNG DẦN. In-order = Left → Node → Right. Ngược lại: dãy in-order không tăng ngặt ⇒ cây không phải BST."
     },
     {
       "id": "fc-tree-bst-search",
@@ -141,26 +254,115 @@
       "id": "fc-tree-n-minus-1",
       "type": "formula",
       "front": "Cây n đỉnh có bao nhiêu cạnh? Tại sao?",
-      "back": "Đúng n-1 cạnh. Vì: thêm node đầu tiên (root) = 0 cạnh. Mỗi node thêm sau cần đúng 1 cạnh kết nối vào cây. n node → n-1 cạnh."
+      "back": "Đúng n − 1 cạnh. Chọn root: mỗi node khác root có đúng một cạnh nối lên cha, và mỗi cạnh ứng với đúng một node như vậy → n − 1 cạnh."
+    },
+    {
+      "id": "fc-tree-full-complete-perfect",
+      "type": "definition",
+      "front": "Phân biệt cây nhị phân full, complete, perfect?",
+      "back": "Full: mọi node có 0 hoặc 2 con. Complete: mọi tầng đầy trừ tầng cuối, tầng cuối dồn trái (hình dạng heap). Perfect: mọi node trong có 2 con và mọi lá cùng tầng. Perfect ⇒ full và complete; full và complete độc lập nhau."
+    },
+    {
+      "id": "fc-tree-perfect-count",
+      "type": "formula",
+      "front": "Cây nhị phân hoàn hảo (perfect) cao h có bao nhiêu node? Bao nhiêu lá?",
+      "back": "$2^{h+1} - 1$ node (= 1 + 2 + 4 + … + $2^h$), trong đó $2^h$ lá. Đây cũng là số node TỐI ĐA của mọi cây nhị phân cao h."
+    },
+    {
+      "id": "fc-tree-height-bounds",
+      "type": "formula",
+      "front": "Chiều cao nhỏ nhất và lớn nhất của cây nhị phân n node?",
+      "back": "$\\lfloor \\log_2 n \\rfloor \\le h \\le n - 1$. Nhỏ nhất khi cây complete, lớn nhất khi cây suy biến thành chuỗi (ví dụ BST insert dữ liệu đã sắp)."
+    },
+    {
+      "id": "fc-tree-traversal-orders",
+      "type": "concept",
+      "front": "Pre-order, in-order, post-order, level-order — mỗi cách dùng để làm gì?",
+      "back": "Pre-order (N-L-R): copy/serialize cây. In-order (L-N-R): BST ra thứ tự tăng dần. Post-order (L-R-N): xóa/giải phóng cây, tính từ dưới lên (chiều cao, cây biểu thức). Level-order: BFS bằng queue, duyệt theo tầng."
+    },
+    {
+      "id": "fc-tree-bst-property",
+      "type": "definition",
+      "front": "Tính chất BST chính xác là gì? Bẫy hay gặp?",
+      "back": "Với MỌI node x: mọi khóa trong cây con trái < x < mọi khóa trong cây con phải. Bẫy: chỉ so sánh với con trực tiếp. Validate BST đúng cách: truyền khoảng (min, max) xuống, hoặc kiểm tra in-order tăng ngặt — $O(n)$."
+    },
+    {
+      "id": "fc-tree-heap-array",
+      "type": "formula",
+      "front": "Cây complete lưu trong mảng (chỉ số từ 0): con và cha của node i ở đâu?",
+      "back": "Con trái $2i + 1$, con phải $2i + 2$, cha $\\lfloor (i-1)/2 \\rfloor$. Đây là cách cài đặt binary heap / priority queue."
+    },
+    {
+      "id": "fc-tree-mst",
+      "type": "concept",
+      "front": "Cây khung nhỏ nhất (MST) là gì? Hai thuật toán chính?",
+      "back": "Cây khung (chứa mọi đỉnh, V − 1 cạnh) có tổng trọng số nhỏ nhất. Kruskal: sort cạnh + Union-Find, $O(E \\log E)$. Prim: mọc cây bằng min-heap, $O((V+E)\\log V)$. MST không phải cây đường đi ngắn nhất."
     }
   ],
   "exercises": [
     {
       "id": "ex-trees-warmup-1",
       "difficulty": "warmup",
-      "prompt": "Cây nhị phân hoàn chỉnh có chiều cao h=4. Tính: (a) số node tối đa, (b) số node tầng 4 (tầng cuối).",
+      "prompt": "Cây nhị phân hoàn chỉnh (complete) có chiều cao h = 4. Tính: (a) số node tối đa, (b) số node tối đa ở tầng 4 (tầng cuối), (c) số node tối thiểu.",
       "hints": [
-        "Số node tối đa cây nhị phân h: 2^(h+1) - 1.",
-        "Tầng k có tối đa 2^k node (root là tầng 0)."
+        "Số node tối đa của cây nhị phân cao h: $2^{h+1} - 1$, đạt khi cây perfect.",
+        "Tầng k có tối đa $2^k$ node (root là tầng 0).",
+        "Complete cao 4 nghĩa là tầng 0..3 phải đầy, tầng 4 có ít nhất 1 node."
       ],
       "solutionSteps": [
-        { "text": "Số node tối đa = 2^(h+1) - 1 = 2^5 - 1 = 32 - 1 = 31.", "rule": "Tổng chuỗi hình học: 1+2+4+8+16 = 31" },
-        { "text": "Tầng 4 (h=4): tối đa 2^4 = 16 node.", "rule": "Tầng k có tối đa 2^k node" },
-        { "text": "Kiểm tra: tầng 0..3 có 1+2+4+8=15 node. Thêm tầng 4 tối đa 16 node → tổng = 31. Khớp.", "isCommonMistake": true, "rule": "Lỗi hay gặp: tính 2^h thay vì 2^(h+1)-1. Ví dụ h=4: 2^4=16≠31" }
+        {
+          "text": "(a) Tối đa = $2^{5} - 1 = 31$ node (khi cây perfect).",
+          "rule": "Tổng chuỗi hình học: 1 + 2 + 4 + 8 + 16 = 31"
+        },
+        {
+          "text": "(b) Tầng 4: tối đa $2^4 = 16$ node.",
+          "rule": "Tầng k có tối đa 2^k node"
+        },
+        {
+          "text": "Không nhầm $2^h = 16$ là tổng số node: 16 chỉ là số node của RIÊNG tầng cuối. Tầng 0..3 còn 1 + 2 + 4 + 8 = 15 node nữa.",
+          "isCommonMistake": true,
+          "rule": "Tổng các tầng 0..h, không phải chỉ tầng h"
+        },
+        {
+          "text": "(c) Tối thiểu: tầng 0..3 đầy (15 node) + 1 node ở tầng 4 (dồn trái) = 16 node. Kiểm tra: $\\lfloor \\log_2 16 \\rfloor = 4$ và $\\lfloor \\log_2 31 \\rfloor = 4$.",
+          "rule": "Complete cao h có từ 2^h tới 2^(h+1) − 1 node"
+        }
       ],
-      "answer": "(a) 31 node tối đa. (b) Tầng 4 tối đa 16 node.",
-      "commonMistake": "Nhầm công thức: 2^h thay vì 2^(h+1)-1. Phải cộng tất cả tầng từ 0 đến h.",
-      "relatedFlashcard": "fc-tree-height-log"
+      "answer": "(a) 31 node. (b) 16 node ở tầng 4. (c) Tối thiểu 16 node.",
+      "commonMistake": "Dùng $2^h$ thay vì $2^{h+1} - 1$ cho tổng số node — quên cộng các tầng phía trên.",
+      "relatedFlashcard": "fc-tree-perfect-count"
+    },
+    {
+      "id": "ex-trees-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "(a) Cây có 50 node có bao nhiêu cạnh? (b) Rừng (forest) gồm 3 cây, tổng cộng 20 đỉnh, có bao nhiêu cạnh? (c) Một đồ thị vô hướng 10 đỉnh có đúng 9 cạnh. Có chắc nó là cây không?",
+      "hints": [
+        "Mỗi cây n đỉnh có n − 1 cạnh.",
+        "Rừng: cộng n − 1 của từng cây.",
+        "(c) Thử ghép một tam giác với một đường thẳng."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) 50 − 1 = 49 cạnh.",
+          "rule": "Cây n đỉnh có n − 1 cạnh"
+        },
+        {
+          "text": "(b) Gọi số đỉnh 3 cây là a, b, c với a + b + c = 20. Số cạnh = (a − 1) + (b − 1) + (c − 1) = 20 − 3 = 17.",
+          "rule": "Rừng k cây trên n đỉnh có n − k cạnh"
+        },
+        {
+          "text": "(c) Không chắc. Phản ví dụ: tam giác trên đỉnh 1, 2, 3 (3 cạnh) cộng đường 4–5–6–7–8–9–10 (6 cạnh) → 10 đỉnh, 9 cạnh, nhưng có chu trình và không liên thông.",
+          "isCommonMistake": true,
+          "rule": "n − 1 cạnh là cần nhưng chưa đủ — phải thêm điều kiện liên thông HOẶC không chu trình"
+        },
+        {
+          "text": "Muốn kết luận là cây: kiểm tra thêm liên thông (một lần BFS/DFS thăm đủ 10 đỉnh).",
+          "rule": "Liên thông + n − 1 cạnh ⇔ cây"
+        }
+      ],
+      "answer": "(a) 49. (b) 17. (c) Không chắc — cần thêm điều kiện liên thông (hoặc không có chu trình).",
+      "commonMistake": "Coi \"n − 1 cạnh\" là đủ để kết luận là cây.",
+      "relatedFlashcard": "fc-tree-n-minus-1"
     },
     {
       "id": "ex-trees-apply-1",
@@ -169,34 +371,126 @@
       "hints": [
         "Insert 5: root. Insert 3: 3 < 5 → trái. Insert 7: 7 > 5 → phải.",
         "Insert 1: 1 < 5, 1 < 3 → trái-trái. Insert 4: 4 < 5, 4 > 3 → trái-phải.",
-        "In-order (Left→Node→Right) của BST = thứ tự tăng dần."
+        "In-order (Left → Node → Right) của BST cho thứ tự tăng dần — dùng để tự kiểm tra cây vừa vẽ."
       ],
       "solutionSteps": [
-        { "text": "Cây sau khi insert:\n- Root: 5\n- Trái 5: 3 (con trái: 1, con phải: 4)\n- Phải 5: 7 (con trái: 6, con phải: 8)", "rule": "BST insert: so sánh với node hiện tại, đi trái nếu nhỏ hơn, đi phải nếu lớn hơn" },
-        { "text": "In-order (L→N→R):\nĐi trái hết: 1. Lên: 3. Phải 3: 4. Lên: 5. Phải 5, trái: 6. Lên: 7. Phải: 8.\nKết quả: 1,3,4,5,6,7,8.", "rule": "In-order của BST LUÔN cho thứ tự tăng dần" },
-        { "text": "Chiều cao cây = 2 (root tầng 0, node 1/4/6/8 tầng 2). n=7 node: floor(log₂ 7) = 2. Cây hoàn chỉnh và cân bằng.", "isCommonMistake": true, "rule": "Nếu insert theo thứ tự 1,2,3,4,5,6,7 thay vì trên, cây sẽ suy biến và height=6" }
+        {
+          "text": "Insert 5 (root), 3 (< 5, sang trái), 7 (> 5, sang phải), 1 (< 5, < 3: trái của 3), 4 (< 5, > 3: phải của 3), 6 (> 5, < 7: trái của 7), 8 (> 5, > 7: phải của 7).",
+          "rule": "BST insert: nhỏ hơn đi trái, lớn hơn đi phải, tới chỗ trống thì gắn vào"
+        },
+        {
+          "text": "Cây: 5 có con 3 và 7; 3 có con 1 và 4; 7 có con 6 và 8.",
+          "rule": "Mỗi giá trị đi đúng một đường từ root"
+        },
+        {
+          "text": "In-order (L→N→R): 1, 3, 4, 5, 6, 7, 8 — tăng dần, khớp với tính chất BST.",
+          "rule": "In-order của BST luôn tăng dần"
+        },
+        {
+          "text": "Chiều cao = 2 = $\\lfloor \\log_2 7 \\rfloor$ — nhỏ nhất có thể; cây là perfect. Nhưng đó là nhờ THỨ TỰ insert (giá trị giữa vào trước). Insert cùng 7 giá trị theo thứ tự 1, 3, 4, 5, 6, 7, 8 thì cây suy biến, height = 6.",
+          "isCommonMistake": true,
+          "rule": "Hình dạng BST phụ thuộc thứ tự insert, không chỉ tập giá trị"
+        }
       ],
-      "answer": "Cây cân bằng height=2. In-order: 1,3,4,5,6,7,8 (tăng dần).",
-      "commonMistake": "Nhầm in-order với pre-order. In-order (L→N→R) của BST mới cho thứ tự tăng dần.",
+      "answer": "Cây: 5 → (3 → 1, 4), (7 → 6, 8); perfect, height = 2. In-order: 1, 3, 4, 5, 6, 7, 8.",
+      "commonMistake": "Nghĩ rằng cùng một tập giá trị luôn cho cùng một BST — thực ra hình dạng phụ thuộc thứ tự insert.",
       "relatedFlashcard": "fc-tree-inorder"
+    },
+    {
+      "id": "ex-trees-apply-2",
+      "difficulty": "apply",
+      "prompt": "Mỗi cây nhị phân cho bằng mảng level-order (null = không có node): T1 = [1, 2, 3, 4, 5, 6, 7]; T2 = [1, 2, 3, 4, 5, null, null]; T3 = [1, 2, 3, 4, null, null, null]; T4 = [1, 2, 3, null, null, 6, 7]. Với mỗi cây, nó có là full? complete? perfect?",
+      "hints": [
+        "Vị trí 3, 4 là con của node 2; vị trí 5, 6 là con của node 3 (đánh chỉ số từ 0: con của i là 2i + 1, 2i + 2).",
+        "Full: không node nào có đúng 1 con. Complete: đọc level-order, sau null đầu tiên không còn node thật nào.",
+        "Perfect: mọi lá cùng tầng."
+      ],
+      "solutionSteps": [
+        {
+          "text": "T1: mọi node trong có 2 con, 4 lá 4, 5, 6, 7 cùng tầng 2 → perfect, nên cũng full và complete.",
+          "rule": "Perfect ⇒ full và complete"
+        },
+        {
+          "text": "T2: 2 có con 4, 5; 3 là lá. Không node nào có 1 con → full. Level-order không có lỗ hổng trước node cuối → complete. Lá 3 ở tầng 1, lá 4 ở tầng 2 → không perfect.",
+          "rule": "Full + complete chưa chắc perfect"
+        },
+        {
+          "text": "T3: 2 chỉ có con trái 4 → không full. Tầng cuối chỉ có 4, nằm sát trái → complete. Không perfect.",
+          "isCommonMistake": true,
+          "rule": "Có node 1 con vẫn có thể complete (đúng 1 node như vậy, và con đó là con trái)"
+        },
+        {
+          "text": "T4: 2 là lá, 3 có 2 con → full. Nhưng tầng 2 có lỗ hổng bên trái (null ở vị trí 3, 4) trước 6, 7 → không complete, không perfect.",
+          "rule": "Complete yêu cầu tầng cuối dồn trái"
+        }
+      ],
+      "answer": "T1: full, complete, perfect. T2: full, complete, không perfect. T3: complete, không full, không perfect. T4: full, không complete, không perfect.",
+      "commonMistake": "Cho rằng complete thì phải full (T3 là phản ví dụ) hoặc full thì phải complete (T4 là phản ví dụ).",
+      "relatedFlashcard": "fc-tree-full-complete-perfect"
     },
     {
       "id": "ex-trees-challenge-1",
       "difficulty": "challenge",
-      "prompt": "Bạn implement một hệ thống file đơn giản dùng cây. (a) Mô tả cấu trúc node (dữ liệu cần lưu). (b) Để liệt kê tất cả file (không phải thư mục) theo thứ tự alphabetical trong một subtree, bạn dùng traversal nào? Viết pseudocode. (c) Để xóa toàn bộ thư mục (kể cả nội dung), bạn dùng traversal nào và tại sao?",
+      "prompt": "Bạn cài đặt một hệ thống file đơn giản bằng cây. (a) Mô tả dữ liệu cần lưu ở mỗi node. (b) Cần liệt kê đường dẫn của mọi file trong một thư mục, sắp theo thứ tự từ điển của đường dẫn (so từng thành phần). Dùng cách duyệt nào? (c) Để xóa toàn bộ một thư mục (kể cả nội dung), dùng cách duyệt nào và tại sao?",
       "hints": [
-        "(a) Node cần biết: tên, loại (file/folder), danh sách con.",
-        "(b) Cần duyệt tất cả leaf node. Traversal nào duyệt hết cây? Alphabet order cần sort con trước khi duyệt.",
-        "(c) Khi xóa thư mục, bạn phải xóa con trước cha. Traversal nào xử lý con trước cha?"
+        "(a) Node cần biết: tên, là file hay thư mục, danh sách con.",
+        "(b) File là lá. Cần duyệt hết cây con; thứ tự giữa các anh em quyết định thứ tự kết quả.",
+        "(c) Hệ điều hành chỉ cho xóa thư mục khi nó đã rỗng. Cách duyệt nào xử lý con trước cha?"
       ],
       "solutionSteps": [
-        { "text": "(a) Cấu trúc node:\n```\nNode:\n  name: string\n  isDirectory: bool\n  children: List[Node]  # rỗng nếu là file\n  size: int            # 0 nếu là folder\n```", "rule": "File system tree: folder có children, file là leaf node" },
-        { "text": "(b) Liệt kê file alphabetical: DFS pre-order với children đã sort, chỉ in khi là file:\n```\nlistFiles(node):\n  if not node.isDirectory:\n    print(node.name)  # in file\n    return\n  for child in sorted(node.children, key=name):\n    listFiles(child)  # duyệt thư mục con\n```\nSort children trước khi duyệt → alphabetical order tự nhiên.", "rule": "DFS (pre-order hoặc in-order đều được) với children đã sort cho alphabetical listing" },
-        { "text": "(c) Xóa thư mục: dùng **post-order** (con trước cha):\n```\ndeleteDir(node):\n  for child in node.children:\n    deleteDir(child)  # xóa con trước\n  delete(node)       # rồi mới xóa cha\n```\nNếu xóa cha trước con (pre-order): con sẽ orphan — memory leak hoặc reference invalid.", "rule": "Post-order đảm bảo con được giải phóng trước cha — giống `rm -rf`", "isCommonMistake": true }
+        {
+          "text": "(a) Node gồm: `name`, `isDirectory`, `children` (danh sách con, rỗng nếu là file), `parent` (để đi lên khi cần dựng đường dẫn), `size`.",
+          "rule": "Folder là node trong (hoặc lá nếu rỗng), file luôn là lá"
+        },
+        {
+          "text": "(b) DFS từ thư mục đó, mang theo đường dẫn hiện tại; tại mỗi thư mục duyệt con theo tên đã sắp xếp; gặp file thì in đường dẫn. Kết quả tự động theo thứ tự từ điển của đường dẫn.",
+          "rule": "Vì chỉ in ở lá, pre-order hay post-order cho cùng kết quả — thứ tự do việc sort anh em quyết định"
+        },
+        {
+          "text": "Nếu đề yêu cầu sắp theo TÊN file bất kể thư mục (a/z.txt sau b/a.txt), DFS có sort anh em là chưa đủ: phải gom mọi file rồi sort toàn cục, $O(k \\log k)$ với k file.",
+          "rule": "Đọc kỹ tiêu chí sắp xếp"
+        },
+        {
+          "text": "(c) Post-order: gọi xóa đệ quy cho mọi con trước, rồi mới xóa chính node đó — giống `rm -rf`. Pre-order (xóa cha trước) sẽ thất bại vì thư mục chưa rỗng, hoặc trong bộ nhớ làm mất tham chiếu tới con (rò rỉ bộ nhớ).",
+          "isCommonMistake": true,
+          "rule": "Post-order: con trước cha"
+        }
       ],
-      "answer": "(a) Node có name, isDirectory, children[]. (b) DFS với sorted children, chỉ in leaf. (c) Post-order: con trước cha, tránh orphan nodes/memory leak.",
-      "commonMistake": "Xóa theo pre-order (cha trước con): cha bị xóa nhưng con vẫn còn reference → memory leak hoặc dangling pointer.",
-      "relatedFlashcard": "fc-tree-inorder"
+      "answer": "(a) name, isDirectory, children, parent, size. (b) DFS với các con được sort theo tên, in đường dẫn khi gặp file. (c) Post-order — con bị xóa trước cha.",
+      "commonMistake": "Xóa theo pre-order (cha trước con): thư mục chưa rỗng nên không xóa được, hoặc mất tham chiếu tới các node con.",
+      "relatedFlashcard": "fc-tree-traversal-orders"
+    },
+    {
+      "id": "ex-trees-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Cây nhị phân: root 10; con trái 5, con phải 15; 5 có con trái 2 và con phải 12. (a) Hàm `isBST` chỉ kiểm tra `left.val < node.val < right.val` tại mỗi node trả về gì? (b) Cây có thực sự là BST không? (c) Viết ý tưởng thuật toán đúng và độ phức tạp.",
+      "hints": [
+        "(a) Kiểm tra từng cặp cha–con: 5 < 10 < 15? 2 < 5 < 12?",
+        "(b) 12 nằm trong cây con nào của 10? So sánh 12 với 10.",
+        "(c) Mỗi node có một khoảng hợp lệ (low, high) kế thừa từ tổ tiên. Hoặc: in-order của BST phải thế nào?"
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) Tại 10: 5 < 10 < 15 đúng. Tại 5: 2 < 5 < 12 đúng. Hàm trả về TRUE.",
+          "rule": "Chỉ kiểm tra cục bộ cha–con"
+        },
+        {
+          "text": "(b) 12 nằm trong cây con TRÁI của 10 nhưng 12 > 10 → vi phạm tính chất BST. Tìm 12 bằng thuật toán BST: 12 > 10 → sang phải → 15 → trái rỗng → không tìm thấy, dù 12 có trong cây. Vậy cây KHÔNG phải BST và hàm ở (a) sai.",
+          "isCommonMistake": true,
+          "rule": "Tính chất BST áp dụng cho toàn bộ cây con"
+        },
+        {
+          "text": "(c) Cách 1: `valid(node, low, high)`: node.val phải nằm trong (low, high); gọi `valid(left, low, node.val)` và `valid(right, node.val, high)`, bắt đầu với $(-\\infty, +\\infty)$. Tại 12: khoảng là (5, 10) → 12 vi phạm.",
+          "rule": "Truyền ràng buộc của tổ tiên xuống"
+        },
+        {
+          "text": "Cách 2: duyệt in-order và kiểm tra dãy tăng ngặt: 2, 5, 12, 10, 15 — 12 > 10 nên không tăng → không phải BST. Cả hai cách $O(n)$ thời gian, $O(h)$ bộ nhớ.",
+          "rule": "BST ⇔ in-order tăng ngặt"
+        }
+      ],
+      "answer": "(a) TRUE (sai). (b) Không phải BST: 12 ở cây con trái của 10. (c) Truyền khoảng (low, high) hoặc kiểm tra in-order tăng ngặt — O(n).",
+      "commonMistake": "Chỉ so sánh node với con trực tiếp, bỏ qua ràng buộc từ tổ tiên.",
+      "relatedFlashcard": "fc-tree-bst-property"
     }
   ],
   "quiz": [
@@ -204,30 +498,105 @@
       "id": "q-trees-1",
       "type": "mcq",
       "question": "Cây có 10 đỉnh có bao nhiêu cạnh?",
-      "options": ["8", "9", "10", "Phụ thuộc vào cấu trúc cây"],
+      "options": [
+        "8",
+        "9",
+        "10",
+        "Phụ thuộc vào cấu trúc cây"
+      ],
       "correct": 1,
-      "explanation": "Cây n đỉnh luôn có đúng n-1 cạnh, bất kể hình dạng. 10 đỉnh → 9 cạnh. Nếu E ≠ n-1 thì không phải cây (hoặc có cycle, hoặc không liên thông)."
+      "explanation": "Cây n đỉnh luôn có đúng n − 1 cạnh, bất kể hình dạng: 10 đỉnh → 9 cạnh. Nếu số cạnh khác n − 1 thì chắc chắn không phải cây."
     },
     {
       "id": "q-trees-2",
       "type": "mcq",
-      "question": "In-order traversal của BST với các node {3, 1, 4, 1, 5, 9, 2, 6} (đã insert vào BST) cho kết quả gì?",
+      "question": "Insert lần lượt 3, 1, 4, 8, 5, 9, 2, 6 vào một BST rỗng. Duyệt in-order cho kết quả gì?",
       "options": [
-        "3, 1, 4, 1, 5, 9, 2, 6 (thứ tự insert)",
-        "1, 1, 2, 3, 4, 5, 6, 9 (thứ tự tăng dần)",
-        "9, 6, 5, 4, 3, 2, 1, 1 (thứ tự giảm dần)",
-        "Phụ thuộc vào cấu trúc cây cụ thể"
+        "1, 2, 3, 4, 5, 6, 8, 9",
+        "3, 1, 4, 8, 5, 9, 2, 6 (đúng thứ tự insert)",
+        "9, 8, 6, 5, 4, 3, 2, 1",
+        "Phụ thuộc hình dạng cây, phải vẽ ra mới biết"
       ],
-      "correct": 1,
-      "explanation": "In-order traversal của BST LUÔN cho kết quả thứ tự tăng dần (sorted order) — đây là tính chất thiết kế cốt lõi của BST: Left < Node < Right."
+      "correct": 0,
+      "explanation": "In-order của BST luôn cho thứ tự tăng dần, bất kể thứ tự insert hay hình dạng cây (hình dạng chỉ ảnh hưởng chiều cao — ở đây là 4). Đây là tính chất cốt lõi: trái < node < phải."
     },
     {
       "id": "q-trees-3",
       "type": "mcq",
       "question": "BST có 1000 node và cân bằng hoàn hảo. Tìm kiếm một giá trị tốn tối đa bao nhiêu bước?",
-      "options": ["1000 bước", "500 bước", "Khoảng 10 bước", "Khoảng 30 bước"],
+      "options": [
+        "1000 bước",
+        "500 bước",
+        "Khoảng 10 bước",
+        "Khoảng 30 bước"
+      ],
       "correct": 2,
-      "explanation": "BST cân bằng: tối đa h+1 = floor(log₂ 1000)+1 ≈ 9+1 = 10 bước. log₂(1000) ≈ 9.97. Đây là lý do BST cân bằng có O(log n) search."
+      "explanation": "Cây cân bằng hoàn hảo 1000 node có chiều cao ⌊log₂ 1000⌋ = 9 (vì 2^9 = 512 ≤ 1000 < 1024), nên tối đa h + 1 = 10 lần so sánh. Đây là lý do BST cân bằng có search O(log n)."
+    },
+    {
+      "id": "q-trees-4",
+      "type": "mcq",
+      "question": "Loại cây nhị phân nào cao h thì CHẮC CHẮN có đúng $2^{h+1} - 1$ node?",
+      "options": [
+        "Cây đầy đủ (full) — mọi node có 0 hoặc 2 con",
+        "Cây hoàn chỉnh (complete)",
+        "Mọi cây nhị phân cao h",
+        "Cây hoàn hảo (perfect) — mọi lá cùng tầng"
+      ],
+      "correct": 3,
+      "explanation": "Chỉ cây perfect đầy mọi tầng 0..h: 1 + 2 + … + 2^h = 2^(h+1) − 1. Cây complete cao h có từ 2^h tới 2^(h+1) − 1 node; cây full cao h có thể chỉ có 2h + 1 node."
+    },
+    {
+      "id": "q-trees-5",
+      "type": "mcq",
+      "question": "Cây nhị phân có 15 node. Chiều cao nhỏ nhất và lớn nhất có thể là bao nhiêu?",
+      "options": [
+        "3 và 14",
+        "4 và 15",
+        "3 và 7",
+        "4 và 14"
+      ],
+      "correct": 0,
+      "explanation": "Nhỏ nhất: ⌊log₂ 15⌋ = 3 (cây perfect 15 node). Lớn nhất: n − 1 = 14 (cây suy biến thành chuỗi). Chiều cao đếm theo số cạnh."
+    },
+    {
+      "id": "q-trees-6",
+      "type": "mcq",
+      "question": "Binary heap lưu trong mảng, chỉ số bắt đầu từ 0. Node ở chỉ số 5 có con và cha ở đâu?",
+      "options": [
+        "Con 10 và 11, cha 2",
+        "Con 11 và 12, cha 2",
+        "Con 11 và 12, cha 3",
+        "Con 10 và 11, cha 3"
+      ],
+      "correct": 1,
+      "explanation": "Con: 2i + 1 = 11 và 2i + 2 = 12. Cha: ⌊(5 − 1)/2⌋ = 2. Công thức 2i, 2i + 1, ⌊i/2⌋ là của mảng đánh số từ 1."
+    },
+    {
+      "id": "q-trees-7",
+      "type": "mcq",
+      "question": "Đồ thị vô hướng có cạnh: A–B 1, B–C 2, A–C 3, C–D 4, B–D 5. Tổng trọng số cây khung nhỏ nhất (MST)?",
+      "options": [
+        "6",
+        "15",
+        "7",
+        "10"
+      ],
+      "correct": 2,
+      "explanation": "Kruskal: lấy A–B (1), B–C (2), bỏ A–C (3) vì tạo chu trình, lấy C–D (4) → 3 cạnh = V − 1, tổng 7. Tổng 6 = 1 + 2 + 3 là một chu trình và không chạm tới D."
+    },
+    {
+      "id": "q-trees-8",
+      "type": "mcq",
+      "question": "Cần giải phóng bộ nhớ của toàn bộ cây (mỗi node chỉ được free sau khi các con của nó đã được free). Dùng cách duyệt nào?",
+      "options": [
+        "Pre-order",
+        "In-order",
+        "Level-order",
+        "Post-order"
+      ],
+      "correct": 3,
+      "explanation": "Post-order (Left → Right → Node) xử lý hai cây con trước rồi mới tới node — con luôn được free trước cha. Pre-order và level-order free cha trước, làm mất con trỏ tới các con."
     }
   ]
 }

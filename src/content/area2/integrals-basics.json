@@ -5,13 +5,15 @@
   "unit": "a2u2",
   "order": 4,
   "icon": "curve",
-  "tagline": "Tích phân đo diện tích dưới đồ thị — ý tưởng tích lũy từng phần nhỏ, xuất hiện trong xác suất, kỳ vọng và phân tích chi phí thuật toán.",
-  "readTime": "~16 min",
-  "prerequisites": ["area2_derivatives"],
+  "tagline": "Tích phân đo diện tích dưới đồ thị — ý tưởng cộng dồn từng phần nhỏ, xuất hiện trong xác suất, kỳ vọng và chặn tổng khi phân tích thuật toán (Σ1/k ≈ ln n).",
+  "readTime": "~25 min",
+  "prerequisites": [
+    "area2_derivatives"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Nếu đạo hàm hỏi \"hàm số thay đổi nhanh đến đâu?\", thì tích phân (integral) hỏi ngược lại: **\"Tổng tích lũy của tất cả những thay đổi nhỏ đó là bao nhiêu?\"**\n\nHình ảnh trực quan nhất: **tích phân = diện tích dưới đồ thị** giữa hai điểm a và b.\n\nTrong CS, tích phân xuất hiện ở nhiều nơi:\n- **Xác suất**: diện tích dưới đường phân phối xác suất (PDF) = xác suất trong khoảng đó\n- **Kỳ vọng (expected value)**: $E[X] = \\int x \\cdot p(x) dx$ — tích phân nhân trọng số\n- **Tổng chi phí**: đếm tổng số thao tác trong thuật toán phức tạp có thể cần tích phân\n- **Amortized analysis**: tích phân là phiên bản liên tục của tổng rời rạc $\\sum$"
+      "content": "Nếu đạo hàm hỏi \"hàm số thay đổi nhanh đến đâu?\", thì tích phân (integral) hỏi ngược lại: **\"Cộng dồn tất cả những phần nhỏ lại thì được bao nhiêu?\"**\n\nHình ảnh trực quan nhất: **tích phân = diện tích (có dấu) dưới đồ thị** giữa hai điểm a và b.\n\nTrong CS, tích phân xuất hiện ở nhiều nơi:\n\n- **Xác suất**: diện tích dưới hàm mật độ xác suất (PDF) trên một khoảng = xác suất rơi vào khoảng đó\n- **Kỳ vọng (expected value)**: $E[X] = \\int x \\, p(x)\\, dx$ — trung bình có trọng số của biến liên tục\n- **Ước lượng tổng**: tích phân là phiên bản liên tục của $\\sum$, nên dùng để chặn các tổng trong phân tích thuật toán, ví dụ $\\sum_{k=1}^{n} \\frac{1}{k} \\approx \\ln n$ (quicksort, coupon collector, hashing)"
     },
     {
       "type": "analogy",
@@ -24,19 +26,45 @@
       "latex": "\\int_a^b f(x)\\, dx = \\lim_{n\\to\\infty} \\sum_{i=1}^{n} f(x_i) \\cdot \\Delta x",
       "reading": "đọc là: tích phân từ a đến b của f(x) dx bằng giới hạn khi n tiến đến vô cực của tổng các hình chữ nhật mỏng.",
       "symbols": [
-        { "sym": "\\int_a^b", "meaning": "tích phân từ a (cận dưới) đến b (cận trên)" },
-        { "sym": "f(x)\\,dx", "meaning": "f(x): chiều cao; dx: chiều rộng vô cùng nhỏ của mỗi dải" },
-        { "sym": "\\sum f(x_i)\\Delta x", "meaning": "tổng Riemann — xấp xỉ diện tích bằng hình chữ nhật" }
+        {
+          "sym": "\\int_a^b",
+          "meaning": "tích phân từ a (cận dưới) đến b (cận trên)"
+        },
+        {
+          "sym": "f(x)\\,dx",
+          "meaning": "f(x): chiều cao; dx: chiều rộng vô cùng nhỏ của mỗi dải"
+        },
+        {
+          "sym": "\\Delta x = \\frac{b-a}{n}",
+          "meaning": "chiều rộng mỗi hình chữ nhật khi chia [a, b] thành n phần đều nhau"
+        },
+        {
+          "sym": "x_i",
+          "meaning": "điểm lấy chiều cao trong dải thứ i (mép trái, mép phải hoặc trung điểm)"
+        },
+        {
+          "sym": "\\sum f(x_i)\\Delta x",
+          "meaning": "tổng Riemann (Riemann sum) — xấp xỉ diện tích bằng hình chữ nhật"
+        }
       ]
     },
     {
       "type": "graph",
       "title": "Diện tích dưới đồ thị f(x) = x² từ 0 đến 2",
       "functions": [
-        { "fn": "x^2", "color": "#ffe08a" }
+        {
+          "fn": "x^2",
+          "color": "#ffe08a"
+        }
       ],
-      "xDomain": [-0.5, 3],
-      "yDomain": [-0.5, 5],
+      "xDomain": [
+        -0.5,
+        3
+      ],
+      "yDomain": [
+        -0.5,
+        5
+      ],
       "caption": "Vàng: f(x) = x². Tích phân từ 0 đến 2 = diện tích phần dưới đường cong này = 8/3 ≈ 2.67. Để 'cảm nhận' tích phân, tưởng tượng bạn lấp đầy vùng đó bằng hàng nghìn hình chữ nhật mỏng."
     },
     {
@@ -50,52 +78,179 @@
       "latex": "\\int_a^b f(x)\\,dx = F(b) - F(a) \\quad \\text{where } F'(x) = f(x)",
       "reading": "đọc là: tích phân từ a đến b của f(x) bằng F(b) trừ F(a), với F là nguyên hàm của f (hàm mà đạo hàm của nó là f).",
       "symbols": [
-        { "sym": "F(x)", "meaning": "nguyên hàm (antiderivative) của f: hàm mà F'(x) = f(x)" },
-        { "sym": "F(b) - F(a)", "meaning": "tính tại hai cận rồi trừ — cách tính nhanh không cần tổng Riemann" },
-        { "sym": "F'(x) = f(x)", "meaning": "điều kiện: F phải có đạo hàm bằng f" }
+        {
+          "sym": "F(x)",
+          "meaning": "nguyên hàm (antiderivative) của f: hàm mà F'(x) = f(x)"
+        },
+        {
+          "sym": "F(b) - F(a)",
+          "meaning": "tính tại hai cận rồi trừ — cách tính nhanh không cần tổng Riemann"
+        },
+        {
+          "sym": "F'(x) = f(x)",
+          "meaning": "điều kiện: F phải có đạo hàm bằng f"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Quy tắc nguyên hàm cơ bản",
-      "content": "Nguyên hàm là phép tính ngược của đạo hàm. Quy tắc cơ bản:\n\n- **Lũy thừa:** $\\int x^n\\,dx = \\frac{x^{n+1}}{n+1} + C$ (với n ≠ −1)\n- **Hằng số:** $\\int c\\,dx = cx + C$\n- **Tổng:** $\\int [f(x) + g(x)]\\,dx = \\int f\\,dx + \\int g\\,dx$\n\nLưu ý quan trọng: **+ C** (hằng số tích phân) — vì đạo hàm của hằng số = 0, nguyên hàm không xác định duy nhất. Nhưng với tích phân xác định (có cận a, b), C biến mất vì F(b)−F(a) loại C ra.\n\nVí dụ: $\\int 3x^2\\,dx = 3 \\cdot \\frac{x^3}{3} + C = x^3 + C$"
+      "content": "Nguyên hàm là phép tính ngược của đạo hàm. Bảng cơ bản:\n\n| f(x) | nguyên hàm |\n|---|---|\n| $x^n$ (n ≠ −1) | $\\frac{x^{n+1}}{n+1} + C$ |\n| $\\frac{1}{x}$ (x > 0) | $\\ln x + C$ |\n| $e^x$ | $e^x + C$ |\n| $e^{kx}$ | $\\frac{1}{k}e^{kx} + C$ |\n| hằng số c | $cx + C$ |\n\nTích phân cũng tách được qua tổng và hằng số nhân: $\\int [af + bg]\\,dx = a\\int f\\,dx + b\\int g\\,dx$.\n\nLưu ý quan trọng: **+ C** (hằng số tích phân) — vì đạo hàm của hằng số = 0, nguyên hàm chỉ xác định sai khác một hằng số. Với tích phân xác định (có cận a, b), C tự triệt tiêu trong F(b) − F(a).\n\nVí dụ: $\\int 3x^2\\,dx = 3 \\cdot \\frac{x^3}{3} + C = x^3 + C$. Trường hợp n = −1 là ngoại lệ: $\\int \\frac{1}{x}dx = \\ln|x| + C$ — chính là lý do $\\ln n$ xuất hiện khi cộng $\\frac{1}{k}$."
     },
     {
       "type": "graph",
       "title": "Tích phân = tổng tích lũy — diện tích tăng dần",
       "functions": [
-        { "fn": "x^2", "color": "#ffe08a" },
-        { "fn": "x^3 / 3", "color": "#7fded1" }
+        {
+          "fn": "x^2",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "x^3 / 3",
+          "color": "#7fded1"
+        }
       ],
-      "xDomain": [-1, 3],
-      "yDomain": [-1, 6],
-      "caption": "Vàng: f(x) = x² (hàm gốc). Xanh: F(x) = x³/3 (nguyên hàm). F là 'diện tích tích lũy' dưới f từ 0 đến x. Khi f tăng (f > 0), F dốc lên — khi nào f = 0, F đạt cực trị."
+      "xDomain": [
+        -1,
+        3
+      ],
+      "yDomain": [
+        -1,
+        6
+      ],
+      "caption": "Vàng: f(x) = x². Mint: F(x) = x³/3 = diện tích tích lũy dưới f từ 0 đến x (âm khi x < 0 vì tích phân đi ngược chiều). Độ dốc của F tại mỗi điểm bằng chiều cao của f: f càng cao, F càng dốc. Tại x = 0, f = 0 nên F nằm ngang trong chốc lát — nhưng f không đổi dấu nên F không có cực trị ở đó (chỉ là điểm uốn)."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: tính tích phân xác định",
       "problem": "Tính $\\int_1^3 (2x + 1)\\,dx$.",
       "steps": [
-        { "text": "Tìm nguyên hàm: $\\int(2x+1)\\,dx = x^2 + x + C$.", "rule": "Quy tắc lũy thừa ngược: $\\int x^n dx = x^{n+1}/(n+1)$" },
-        { "text": "Áp dụng định lý cơ bản: $[x^2+x]_1^3 = F(3) - F(1)$.", "rule": "Định lý cơ bản của giải tích" },
-        { "text": "$F(3) = 9 + 3 = 12$. $F(1) = 1 + 1 = 2$.", "isCommonMistake": false },
-        { "text": "$\\int_1^3(2x+1)\\,dx = 12 - 2 = 10$.", "isCommonMistake": false },
-        { "text": "Lỗi hay gặp: quên trừ F(1) — chỉ tính F(3)=12 rồi báo kết quả là 12.", "isCommonMistake": true, "rule": "Tích phân xác định = F(cận trên) − F(cận dưới). PHẢI trừ cả hai cận" }
+        {
+          "text": "Tìm nguyên hàm: $\\int(2x+1)\\,dx = x^2 + x + C$.",
+          "rule": "Quy tắc lũy thừa ngược: $\\int x^n dx = x^{n+1}/(n+1)$"
+        },
+        {
+          "text": "Áp dụng định lý cơ bản: $[x^2+x]_1^3 = F(3) - F(1)$.",
+          "rule": "Định lý cơ bản của giải tích"
+        },
+        {
+          "text": "$F(3) = 9 + 3 = 12$. $F(1) = 1 + 1 = 2$.",
+          "isCommonMistake": false
+        },
+        {
+          "text": "$\\int_1^3(2x+1)\\,dx = 12 - 2 = 10$.",
+          "isCommonMistake": false
+        },
+        {
+          "text": "Lỗi hay gặp: quên trừ F(1) — chỉ tính F(3)=12 rồi báo kết quả là 12.",
+          "isCommonMistake": true,
+          "rule": "Tích phân xác định = F(cận trên) − F(cận dưới). PHẢI trừ cả hai cận"
+        }
       ],
       "result": "$\\int_1^3 (2x+1)\\,dx = 10$ (diện tích hình thang dưới đường 2x+1 từ x=1 đến x=3)"
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 2: kỳ vọng và diện tích dưới PDF",
-      "problem": "Xác suất thời gian phản hồi server (tính bằng giây) theo phân phối đều: $p(x) = 0.5$ trên $[0, 2]$ (0 ngoài khoảng đó). Tính xác suất phản hồi trong vòng 1 giây: $P(0 \\le X \\le 1)$.",
+      "problem": "Thời gian phản hồi server X (giây) có phân phối đều: $p(x) = 0.5$ trên $[0, 2]$ (0 ngoài khoảng đó). Tính (a) xác suất phản hồi trong vòng 1 giây $P(0 \\le X \\le 1)$, và (b) thời gian phản hồi kỳ vọng $E[X]$.",
       "steps": [
-        { "text": "$P(0 \\le X \\le 1) = \\int_0^1 p(x)\\,dx = \\int_0^1 0.5\\,dx$.", "rule": "Xác suất = diện tích dưới PDF" },
-        { "text": "$\\int_0^1 0.5\\,dx = 0.5x \\Big|_0^1 = 0.5(1) - 0.5(0) = 0.5$.", "rule": "Nguyên hàm của hằng số c là cx" },
-        { "text": "Xác suất = 0.5 = 50%.", "isCommonMistake": false },
-        { "text": "Kiểm tra sanity: $\\int_0^2 0.5\\,dx = 0.5 \\times 2 = 1$ ✓ (tổng xác suất = 100%).", "isCommonMistake": false },
-        { "text": "Lỗi hay gặp: nhân 0.5 × 1 = 0.5 mà không dùng tích phân, được đúng nhưng vô tình chỉ đúng vì phân phối đều. Với PDF phức tạp hơn (Gaussian, Poisson), PHẢI dùng tích phân.", "isCommonMistake": true, "rule": "Chỉ phân phối đều mới có P = chiều cao × chiều rộng. PDF tổng quát cần tích phân." }
+        {
+          "text": "Kiểm tra PDF hợp lệ: $\\int_0^2 0.5\\,dx = 0.5 \\times 2 = 1$ (tổng xác suất = 100%).",
+          "rule": "Tổng diện tích dưới PDF = 1"
+        },
+        {
+          "text": "(a) $P(0 \\le X \\le 1) = \\int_0^1 0.5\\,dx = 0.5x \\Big|_0^1 = 0.5$.",
+          "rule": "Xác suất = diện tích dưới PDF"
+        },
+        {
+          "text": "(b) $E[X] = \\int_0^2 x \\cdot 0.5\\,dx = 0.5 \\cdot \\frac{x^2}{2} \\Big|_0^2 = 0.5 \\cdot 2 = 1$ giây — đúng trung điểm của [0, 2], hợp trực giác.",
+          "rule": "Kỳ vọng $E[X] = \\int x\\,p(x)\\,dx$"
+        },
+        {
+          "text": "Sai lầm hay gặp: tính $E[X] = \\int_0^2 p(x)\\,dx$ (quên nhân x) — ra 1, trùng đáp số chỉ do tình cờ ở bài này; với $p(x)$ trên [0, 4] thì sai ngay. Và \"chiều cao × chiều rộng\" chỉ dùng được cho phân phối đều; PDF tổng quát (Gaussian, phân phối mũ…) phải tích phân.",
+          "rule": "Kỳ vọng phải có trọng số x",
+          "isCommonMistake": true
+        }
       ],
-      "result": "$P(0 \\le X \\le 1) = 0.5$ — 50% khả năng server phản hồi trong 1 giây."
+      "result": "(a) $P(0 \\le X \\le 1) = 0.5$; (b) $E[X] = 1$ giây."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 3: tổng Riemann bằng tay",
+      "problem": "Xấp xỉ $\\int_0^2 x^2\\,dx$ bằng 4 hình chữ nhật (Δx = 0.5), lấy chiều cao ở mép trái, mép phải và trung điểm. So với giá trị đúng 8/3 ≈ 2.667.",
+      "steps": [
+        {
+          "text": "Mép trái: x = 0, 0.5, 1, 1.5 → $(0 + 0.25 + 1 + 2.25) \\times 0.5 = 1.75$ (thiếu, vì f tăng).",
+          "rule": "Tổng Riemann trái"
+        },
+        {
+          "text": "Mép phải: x = 0.5, 1, 1.5, 2 → $(0.25 + 1 + 2.25 + 4) \\times 0.5 = 3.75$ (thừa).",
+          "rule": "Tổng Riemann phải"
+        },
+        {
+          "text": "Trung điểm: x = 0.25, 0.75, 1.25, 1.75 → $(0.0625 + 0.5625 + 1.5625 + 3.0625) \\times 0.5 = 2.625$ — gần đúng nhất.",
+          "rule": "Quy tắc trung điểm"
+        },
+        {
+          "text": "Sai lầm hay gặp: quên nhân Δx, cộng chiều cao ra 3.5 (trái) rồi báo kết quả 3.5. Diện tích = Σ chiều cao × chiều rộng.",
+          "rule": "Mỗi hình chữ nhật = f(x_i) × Δx",
+          "isCommonMistake": true
+        }
+      ],
+      "result": "Trái 1.75 < đúng 2.667 < phải 3.75; trung điểm 2.625 sai số chỉ ≈ 0.04. Tăng n thì cả ba hội tụ về 8/3."
+    },
+    {
+      "type": "explanation",
+      "title": "Tổng ↔ tích phân: chặn tổng trong phân tích thuật toán",
+      "content": "Nhiều tổng trong phân tích độ phức tạp không có công thức đóng gọn, nhưng tích phân cho ta ước lượng chặt. Với f **giảm** trên $[1, \\infty)$, mỗi số hạng f(k) là một hình chữ nhật rộng 1 nằm giữa hai đường cong, nên:\n\n$$\\int_1^{n+1} f(x)\\,dx \\le \\sum_{k=1}^{n} f(k) \\le f(1) + \\int_1^{n} f(x)\\,dx$$\n\nÁp dụng cho $f(x) = 1/x$ ra số điều hòa (harmonic number) $H_n = \\sum_{k=1}^n \\frac{1}{k}$ — xem công thức bên dưới. Vài ví dụ khác:\n\n- $\\sum_{k=1}^n k^2 \\approx \\int_0^n x^2\\,dx = \\frac{n^3}{3}$ (n = 100: tổng đúng 338350, ước lượng 333333)\n- $\\sum_{k=1}^n \\ln k = \\ln n! \\approx n \\ln n - n$ → $\\log_2 n! = \\Theta(n \\log n)$: cận dưới của sắp xếp bằng so sánh\n- Quicksort ngẫu nhiên dùng trung bình khoảng $2n \\ln n$ phép so sánh; coupon collector cần trung bình $n H_n \\approx n \\ln n$ lần rút"
+    },
+    {
+      "type": "formula",
+      "title": "Số điều hòa ≈ ln n",
+      "latex": "\\ln(n+1) \\le H_n = \\sum_{k=1}^{n} \\frac{1}{k} \\le 1 + \\ln n",
+      "reading": "đọc là: tổng 1 + 1/2 + … + 1/n bị kẹp giữa ln(n+1) và 1 + ln n, nên $H_n = \\Theta(\\log n)$. Chính xác hơn, $H_n \\approx \\ln n + 0.577$ (hằng số Euler–Mascheroni).",
+      "symbols": [
+        {
+          "sym": "H_n",
+          "meaning": "số điều hòa thứ n, ví dụ $H_{1000} \\approx 7.485$"
+        },
+        {
+          "sym": "\\ln(n+1)",
+          "meaning": "cận dưới: diện tích dưới 1/x từ 1 đến n + 1"
+        },
+        {
+          "sym": "1 + \\ln n",
+          "meaning": "cận trên: số hạng đầu (= 1) cộng diện tích dưới 1/x từ 1 đến n"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Bậc thang 1/⌊x⌋ nằm trên đường 1/x",
+      "functions": [
+        {
+          "fn": "1/x",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "1/floor(x)",
+          "color": "#ffe08a"
+        }
+      ],
+      "xDomain": [
+        1,
+        10
+      ],
+      "yDomain": [
+        0,
+        1.1
+      ],
+      "caption": "Mint: 1/x. Vàng: bậc thang có chiều cao 1/k trên đoạn [k, k + 1). Diện tích dưới bậc thang từ 1 đến n + 1 đúng bằng $H_n$, và luôn lớn hơn diện tích dưới 1/x — đó là cận dưới $H_n \\ge \\ln(n+1)$."
+    },
+    {
+      "type": "explanation",
+      "title": "Tích phân suy rộng — khi cận là vô cực",
+      "content": "Tích phân với cận ∞ được định nghĩa bằng giới hạn: $\\int_1^{\\infty} f(x)\\,dx = \\lim_{b \\to \\infty} \\int_1^{b} f(x)\\,dx$. Hai ví dụ quyết định:\n\n- $\\int_1^{\\infty} \\frac{1}{x^2}dx = \\lim_{b\\to\\infty}\\left(1 - \\frac{1}{b}\\right) = 1$ → **hội tụ**; tương ứng $\\sum \\frac{1}{k^2}$ hữu hạn (= $\\pi^2/6$).\n- $\\int_1^{\\infty} \\frac{1}{x}dx = \\lim_{b\\to\\infty} \\ln b = \\infty$ → **phân kỳ**; tương ứng $H_n$ tăng mãi (dù rất chậm).\n\nPDF trên miền vô hạn (phân phối mũ, Gaussian) cũng dựa vào điều này: $\\int_0^{\\infty} \\lambda e^{-\\lambda x}dx = 1$, và kỳ vọng của phân phối mũ là $E[X] = 1/\\lambda$ — ví dụ trung bình 2 request/giây thì thời gian chờ trung bình 0.5 giây."
     },
     {
       "type": "callout",
@@ -105,11 +260,11 @@
     {
       "type": "key_takeaways",
       "items": [
-        "Tích phân = diện tích dưới đồ thị = tổng tích lũy các thay đổi nhỏ.",
-        "Định lý cơ bản: $\\int_a^b f(x)dx = F(b) - F(a)$, trong đó F' = f.",
-        "Quy tắc nguyên hàm: $\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$ (n ≠ −1).",
-        "Trong xác suất: diện tích dưới PDF = xác suất; tổng toàn bộ = 1.",
-        "Tích phân là phiên bản liên tục của tổng $\\sum$ — kết nối với expected value, amortized cost."
+        "Tích phân = diện tích có dấu dưới đồ thị = giới hạn của tổng Riemann $\\sum f(x_i)\\Delta x$.",
+        "Định lý cơ bản: $\\int_a^b f(x)dx = F(b) - F(a)$, trong đó F' = f — đạo hàm và tích phân là hai phép ngược nhau.",
+        "Quy tắc nguyên hàm: $\\int x^n dx = \\frac{x^{n+1}}{n+1} + C$ (n ≠ −1); $\\int \\frac{1}{x}dx = \\ln|x| + C$.",
+        "Xác suất: diện tích dưới PDF = xác suất, tổng = 1; kỳ vọng $E[X] = \\int x\\,p(x)\\,dx$.",
+        "Tổng ↔ tích phân: $H_n = \\sum 1/k \\approx \\ln n$, $\\sum k^2 \\approx n^3/3$, $\\log n! = \\Theta(n \\log n)$ — công cụ chặn tổng trong Big-O."
       ]
     }
   ],
@@ -118,7 +273,7 @@
       "id": "fc-int-def",
       "type": "definition",
       "front": "Ý nghĩa hình học của tích phân $\\int_a^b f(x)dx$ là gì?",
-      "back": "Diện tích dưới đồ thị f(x) từ x=a đến x=b (phần trên trục x dương, phần dưới âm)."
+      "back": "Diện tích *có dấu* giữa đồ thị f(x) và trục x, từ x = a đến x = b: phần nằm trên trục x tính dương, phần nằm dưới tính âm."
     },
     {
       "id": "fc-int-ftc",
@@ -137,6 +292,42 @@
       "type": "concept",
       "front": "Tích phân liên quan đến xác suất như thế nào?",
       "back": "Nếu p(x) là hàm mật độ xác suất (PDF), thì $P(a \\le X \\le b) = \\int_a^b p(x)dx$. Tổng toàn bộ = $\\int_{-\\infty}^{+\\infty} p(x)dx = 1$."
+    },
+    {
+      "id": "fc-int-riemann",
+      "type": "definition",
+      "front": "Tổng Riemann (Riemann sum) là gì?",
+      "back": "Chia [a, b] thành n dải rộng $\\Delta x = \\frac{b-a}{n}$, cộng $\\sum f(x_i)\\Delta x$ (chiều cao × chiều rộng). Khi n → ∞, tổng tiến về $\\int_a^b f(x)dx$."
+    },
+    {
+      "id": "fc-int-harmonic",
+      "type": "formula",
+      "front": "$H_n = \\sum_{k=1}^n \\frac{1}{k} \\approx ?$",
+      "back": "$H_n \\approx \\ln n + 0.577$; chính xác: $\\ln(n+1) \\le H_n \\le 1 + \\ln n$. Vậy $H_n = \\Theta(\\log n)$ — xuất hiện trong quicksort, coupon collector, phân tích hashing."
+    },
+    {
+      "id": "fc-int-sum-bound",
+      "type": "concept",
+      "front": "Chặn tổng $\\sum_{k=1}^n f(k)$ bằng tích phân khi f giảm thế nào?",
+      "back": "$\\int_1^{n+1} f(x)dx \\le \\sum_{k=1}^n f(k) \\le f(1) + \\int_1^n f(x)dx$. Mỗi số hạng là hình chữ nhật rộng 1 kẹp giữa hai vùng diện tích."
+    },
+    {
+      "id": "fc-int-expectation",
+      "type": "formula",
+      "front": "Kỳ vọng của biến ngẫu nhiên liên tục với PDF p(x)?",
+      "back": "$E[X] = \\int_{-\\infty}^{\\infty} x \\, p(x)\\, dx$ — trung bình các giá trị x, có trọng số là mật độ. Ví dụ đều trên [0, 2]: E[X] = 1."
+    },
+    {
+      "id": "fc-int-improper",
+      "type": "concept",
+      "front": "$\\int_1^\\infty \\frac{1}{x^2}dx$ và $\\int_1^\\infty \\frac{1}{x}dx$: cái nào hội tụ?",
+      "back": "$\\int_1^\\infty \\frac{1}{x^2}dx = 1$ (hội tụ); $\\int_1^\\infty \\frac{1}{x}dx = \\infty$ (phân kỳ). Tương ứng: $\\sum 1/k^2$ hữu hạn, còn $\\sum 1/k$ tăng mãi như ln n."
+    },
+    {
+      "id": "fc-int-indefinite",
+      "type": "concept",
+      "front": "Tích phân bất định và tích phân xác định khác nhau thế nào?",
+      "back": "Bất định $\\int f(x)dx = F(x) + C$ là một **họ hàm** (cần +C). Xác định $\\int_a^b f(x)dx = F(b) - F(a)$ là một **con số** (C triệt tiêu)."
     }
   ],
   "exercises": [
@@ -150,10 +341,23 @@
         "Sau đó áp dụng định lý cơ bản: F(2) − F(0)."
       ],
       "solutionSteps": [
-        { "text": "Nguyên hàm: $\\int x^3 dx = \\frac{x^4}{4} + C$.", "rule": "Quy tắc nguyên hàm lũy thừa" },
-        { "text": "$F(x) = x^4/4$. Tính tại cận: $F(2) = 16/4 = 4$. $F(0) = 0$.", "rule": "Định lý cơ bản" },
-        { "text": "$\\int_0^2 x^3 dx = F(2) - F(0) = 4 - 0 = 4$.", "isCommonMistake": false },
-        { "text": "Lỗi hay gặp: tính nguyên hàm là $x^4$ (quên chia 4), rồi ra F(2)=16.", "isCommonMistake": true, "rule": "Nguyên hàm x^n = x^(n+1) CHIA (n+1), không chỉ tăng số mũ" }
+        {
+          "text": "Nguyên hàm: $\\int x^3 dx = \\frac{x^4}{4} + C$.",
+          "rule": "Quy tắc nguyên hàm lũy thừa"
+        },
+        {
+          "text": "$F(x) = x^4/4$. Tính tại cận: $F(2) = 16/4 = 4$. $F(0) = 0$.",
+          "rule": "Định lý cơ bản"
+        },
+        {
+          "text": "$\\int_0^2 x^3 dx = F(2) - F(0) = 4 - 0 = 4$.",
+          "rule": "F(cận trên) − F(cận dưới)"
+        },
+        {
+          "text": "Lỗi hay gặp: tính nguyên hàm là $x^4$ (quên chia 4), rồi ra F(2)=16.",
+          "isCommonMistake": true,
+          "rule": "Nguyên hàm x^n = x^(n+1) CHIA (n+1), không chỉ tăng số mũ"
+        }
       ],
       "answer": "4",
       "commonMistake": "Quên chia cho (n+1) trong công thức nguyên hàm — viết x⁴ thay vì x⁴/4.",
@@ -169,10 +373,23 @@
         "Áp dụng F(3) − F(1)."
       ],
       "solutionSteps": [
-        { "text": "Nguyên hàm: $\\int(3x^2 + 2x)dx = x^3 + x^2 + C$.", "rule": "Quy tắc nguyên hàm: $\\int 3x^2 dx = x^3$, $\\int 2x dx = x^2$" },
-        { "text": "$F(3) = 27 + 9 = 36$. $F(1) = 1 + 1 = 2$.", "isCommonMistake": false },
-        { "text": "$\\int_1^3 (3x^2+2x)\\,dx = 36 - 2 = 34$.", "isCommonMistake": false },
-        { "text": "Lỗi hay gặp: tính F(3) = 36 và quên trừ F(1). Kết quả sai = 36.", "isCommonMistake": true, "rule": "Tích phân xác định = F(cận TRÊN) − F(cận DƯỚI). Không quên cận dưới!" }
+        {
+          "text": "Nguyên hàm: $\\int(3x^2 + 2x)dx = x^3 + x^2 + C$.",
+          "rule": "Quy tắc nguyên hàm: $\\int 3x^2 dx = x^3$, $\\int 2x dx = x^2$"
+        },
+        {
+          "text": "$F(3) = 27 + 9 = 36$. $F(1) = 1 + 1 = 2$.",
+          "rule": "Tính F tại hai cận"
+        },
+        {
+          "text": "$\\int_1^3 (3x^2+2x)\\,dx = 36 - 2 = 34$. (f ≥ 0 trên [1, 3] nên tích phân đúng bằng diện tích.)",
+          "rule": "Định lý cơ bản của giải tích"
+        },
+        {
+          "text": "Lỗi hay gặp: tính F(3) = 36 và quên trừ F(1). Kết quả sai = 36.",
+          "isCommonMistake": true,
+          "rule": "Tích phân xác định = F(cận TRÊN) − F(cận DƯỚI). Không quên cận dưới!"
+        }
       ],
       "answer": "34",
       "commonMistake": "Quên trừ giá trị nguyên hàm tại cận dưới — chỉ tính F(3) mà không trừ F(1).",
@@ -188,15 +405,127 @@
         "$e^{-2} \\approx 0.135$."
       ],
       "solutionSteps": [
-        { "text": "Nguyên hàm: $\\int 2e^{-2x}dx = -e^{-2x} + C$.", "rule": "Nguyên hàm của $ce^{kx}$ là $\\frac{c}{k}e^{kx}$" },
-        { "text": "$F(x) = -e^{-2x}$. $F(1) = -e^{-2} \\approx -0.135$. $F(0) = -e^0 = -1$.", "isCommonMistake": false },
-        { "text": "$P(0\\le X\\le 1) = F(1) - F(0) = (-0.135) - (-1) = 0.865$.", "rule": "Định lý cơ bản" },
-        { "text": "Kết quả: ~86.5% xác suất server phản hồi trong 1 giây.", "isCommonMistake": false },
-        { "text": "Lỗi hay gặp: tính $F(1) - F(0) = -0.135 - 1 = -1.135$ (quên dấu của F(0)=-1 → $-(-1)=+1$).", "isCommonMistake": true, "rule": "Trừ một số âm = cộng: $(-0.135) - (-1) = -0.135 + 1 = 0.865$. Cẩn thận dấu!" }
+        {
+          "text": "Nguyên hàm: $\\int 2e^{-2x}dx = -e^{-2x} + C$.",
+          "rule": "Nguyên hàm của $ce^{kx}$ là $\\frac{c}{k}e^{kx}$"
+        },
+        {
+          "text": "$F(x) = -e^{-2x}$. $F(1) = -e^{-2} \\approx -0.135$. $F(0) = -e^0 = -1$.",
+          "rule": "Tính F tại hai cận"
+        },
+        {
+          "text": "$P(0\\le X\\le 1) = F(1) - F(0) = (-0.135) - (-1) = 0.865$.",
+          "rule": "Định lý cơ bản"
+        },
+        {
+          "text": "Kết quả: ≈ 86.5% request được phản hồi trong 1 giây. Tổng quát, $P(X \\le t) = 1 - e^{-2t}$ — đây là hàm phân phối tích lũy (CDF).",
+          "rule": "CDF = tích phân của PDF"
+        },
+        {
+          "text": "Lỗi hay gặp: tính $F(1) - F(0) = -0.135 - 1 = -1.135$ (quên dấu của F(0)=-1 → $-(-1)=+1$).",
+          "isCommonMistake": true,
+          "rule": "Trừ một số âm = cộng: $(-0.135) - (-1) = -0.135 + 1 = 0.865$. Cẩn thận dấu!"
+        }
       ],
       "answer": "$P(0 \\le X \\le 1) = 1 - e^{-2} \\approx 0.865$ — 86.5% xác suất. Đây là cách tính CDF của phân phối mũ.",
       "commonMistake": "Sai dấu khi tính F(0) = −e⁰ = −1, sau đó nhầm F(1)−F(0) = −0.135 − 1 thay vì −0.135 − (−1).",
       "relatedFlashcard": "fc-int-prob"
+    },
+    {
+      "id": "ex-int-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Xấp xỉ $\\int_0^1 x^2\\,dx$ bằng tổng Riemann phải với n = 4, rồi so với giá trị đúng.",
+      "hints": [
+        "Δx = (1 − 0)/4 = 0.25.",
+        "Mép phải các dải: x = 0.25, 0.5, 0.75, 1.",
+        "Giá trị đúng: $\\left[\\frac{x^3}{3}\\right]_0^1$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Δx = 0.25; chiều cao: $0.25^2 = 0.0625$, $0.5^2 = 0.25$, $0.75^2 = 0.5625$, $1^2 = 1$.",
+          "rule": "Tổng Riemann phải"
+        },
+        {
+          "text": "Tổng chiều cao = 1.875 → diện tích ≈ $1.875 \\times 0.25 = 0.46875$.",
+          "rule": "Nhân với Δx"
+        },
+        {
+          "text": "Sai lầm hay gặp: dùng mép trái (bắt đầu từ x = 0) trong khi đề hỏi mép phải, hoặc quên nhân Δx và báo 1.875.",
+          "rule": "Diện tích = Σ chiều cao × Δx",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Giá trị đúng $\\frac{1}{3} \\approx 0.333$. Tổng phải lớn hơn vì $x^2$ tăng trên [0, 1] (chiều cao mép phải là lớn nhất trong mỗi dải).",
+          "rule": "Hàm tăng ⇒ tổng phải là cận trên"
+        }
+      ],
+      "answer": "≈ 0.46875 (giá trị đúng 1/3 ≈ 0.333; tổng phải là cận trên vì hàm tăng)",
+      "commonMistake": "Quên nhân Δx, hoặc lấy nhầm mép trái/phải.",
+      "relatedFlashcard": "fc-int-riemann"
+    },
+    {
+      "id": "ex-int-apply-2",
+      "difficulty": "apply",
+      "prompt": "Biến ngẫu nhiên X có PDF $p(x) = 2x$ trên [0, 1] (0 ngoài khoảng). (a) Kiểm tra p là PDF hợp lệ. (b) Tính $P(X \\le 0.5)$. (c) Tính $E[X]$.",
+      "hints": [
+        "PDF hợp lệ: p ≥ 0 và tổng diện tích = 1.",
+        "$P(X \\le 0.5) = \\int_0^{0.5} 2x\\,dx$.",
+        "$E[X] = \\int_0^1 x \\cdot 2x\\,dx$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) p(x) = 2x ≥ 0 trên [0, 1], và $\\int_0^1 2x\\,dx = x^2 \\Big|_0^1 = 1$ → hợp lệ.",
+          "rule": "Tổng xác suất = 1"
+        },
+        {
+          "text": "(b) $\\int_0^{0.5} 2x\\,dx = 0.5^2 = 0.25$. Dù 0.5 là \"nửa đường\", chỉ 25% xác suất nằm bên trái vì mật độ dồn về phía x lớn.",
+          "rule": "Xác suất = diện tích dưới PDF"
+        },
+        {
+          "text": "(c) $E[X] = \\int_0^1 2x^2\\,dx = \\frac{2x^3}{3}\\Big|_0^1 = \\frac{2}{3}$.",
+          "rule": "Kỳ vọng = $\\int x\\,p(x)dx$"
+        },
+        {
+          "text": "Sai lầm hay gặp: tưởng $P(X \\le 0.5) = p(0.5) = 1$. Giá trị PDF tại một điểm **không phải** xác suất (nó có thể lớn hơn 1); xác suất luôn là diện tích.",
+          "rule": "PDF là mật độ, không phải xác suất",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "(a) hợp lệ; (b) 0.25; (c) $E[X] = 2/3$.",
+      "commonMistake": "Đọc thẳng p(0.5) làm xác suất, hoặc quên nhân x khi tính kỳ vọng.",
+      "relatedFlashcard": "fc-int-expectation"
+    },
+    {
+      "id": "ex-int-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Bài toán coupon collector: có n loại thẻ, mỗi lần rút được một loại ngẫu nhiên đều. Số lần rút kỳ vọng để thu đủ n loại là $n H_n$. Với n = 100, dùng cận tích phân của $H_n$ để chặn kết quả, và cho biết bậc tăng trưởng theo n.",
+      "hints": [
+        "$\\ln(n+1) \\le H_n \\le 1 + \\ln n$.",
+        "$\\ln 101 \\approx 4.615$, $\\ln 100 \\approx 4.605$.",
+        "Nhân cả ba vế với n = 100."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Cận: $\\ln 101 \\le H_{100} \\le 1 + \\ln 100$, tức $4.615 \\le H_{100} \\le 5.605$.",
+          "rule": "Chặn tổng bằng tích phân của 1/x"
+        },
+        {
+          "text": "Nhân với 100: $461.5 \\le 100 H_{100} \\le 560.5$. (Giá trị đúng: $100 H_{100} \\approx 518.7$.)",
+          "rule": "Nhân bất đẳng thức với số dương"
+        },
+        {
+          "text": "Sai lầm hay gặp: dùng $\\log_2$ thay vì $\\ln$ (cho ra 100 × 6.64 ≈ 664 — ngoài cận). Tích phân của 1/x là log **tự nhiên**.",
+          "rule": "$\\int \\frac{1}{x}dx = \\ln x$",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Bậc tăng: $n H_n = \\Theta(n \\log n)$ — muốn thấy đủ 100 loại cần trung bình ~519 lần rút, gấp ~5 lần n.",
+          "rule": "Cận trên và dưới cùng bậc ⇒ Θ"
+        }
+      ],
+      "answer": "$461.5 \\le 100 H_{100} \\le 560.5$ (đúng ≈ 518.7); tổng quát $n H_n = \\Theta(n \\log n)$.",
+      "commonMistake": "Dùng log cơ số 2 hoặc nghĩ cần khoảng n lần rút. Thu thập lần lượt các loại cuối cùng rất tốn kém, nên có thêm thừa số ln n.",
+      "relatedFlashcard": "fc-int-harmonic"
     }
   ],
   "quiz": [
@@ -204,7 +533,12 @@
       "id": "q-int-1",
       "type": "mcq",
       "question": "$\\int_0^3 2x\\,dx$ bằng bao nhiêu?",
-      "options": ["3", "6", "9", "18"],
+      "options": [
+        "3",
+        "6",
+        "9",
+        "18"
+      ],
       "correct": 2,
       "explanation": "Nguyên hàm của 2x là $x^2$. $F(3) - F(0) = 9 - 0 = 9$. Hình học: tam giác có đáy 3, chiều cao 6, diện tích = 3×6/2 = 9. ✓"
     },
@@ -212,8 +546,13 @@
       "id": "q-int-2",
       "type": "mcq",
       "question": "Nếu p(x) là PDF của biến ngẫu nhiên X, thì $\\int_{-\\infty}^{+\\infty} p(x)\\,dx$ bằng bao nhiêu?",
-      "options": ["0", "1", "Phụ thuộc vào X", "Vô cực"],
-      "correct": 1,
+      "options": [
+        "0",
+        "Phụ thuộc vào X",
+        "Vô cực",
+        "1"
+      ],
+      "correct": 3,
       "explanation": "Tổng tất cả xác suất luôn bằng 1 (100%). Đây là tính chất định nghĩa của PDF — diện tích toàn bộ dưới đường cong = 1."
     },
     {
@@ -221,13 +560,52 @@
       "type": "mcq",
       "question": "Định lý cơ bản của giải tích nói gì về đạo hàm và tích phân?",
       "options": [
-        "Tích phân là bình phương của đạo hàm",
         "Đạo hàm và tích phân là hai phép toán ngược nhau",
+        "Tích phân là bình phương của đạo hàm",
         "Tích phân xác định luôn bằng diện tích dương",
         "Đạo hàm của một hằng số là tích phân đó"
       ],
-      "correct": 1,
+      "correct": 0,
       "explanation": "Nếu F'(x) = f(x) (F là nguyên hàm của f), thì $\\int_a^b f(x)dx = F(b) - F(a)$. Lấy tích phân của f rồi lấy đạo hàm lại là ra f — hai phép toán triệt tiêu nhau."
+    },
+    {
+      "id": "q-int-4",
+      "type": "mcq",
+      "question": "Tổng $\\sum_{k=1}^{n} \\frac{1}{k}$ tăng theo bậc nào?",
+      "options": [
+        "$\\Theta(1)$ — hội tụ về một hằng số",
+        "$\\Theta(\\log n)$",
+        "$\\Theta(\\sqrt{n})$",
+        "$\\Theta(n)$"
+      ],
+      "correct": 1,
+      "explanation": "So với tích phân: $\\ln(n+1) \\le H_n \\le 1 + \\ln n$, nên $H_n = \\Theta(\\log n)$. Nó không hội tụ (vì $\\int_1^\\infty \\frac{1}{x}dx$ phân kỳ) nhưng tăng rất chậm: $H_{10^6} \\approx 14.4$."
+    },
+    {
+      "id": "q-int-5",
+      "type": "mcq",
+      "question": "$\\int \\frac{1}{x}\\,dx$ (x > 0) bằng bao nhiêu?",
+      "options": [
+        "$\\frac{x^0}{0} + C$",
+        "$-\\frac{1}{x^2} + C$",
+        "$\\frac{1}{x^2} + C$",
+        "$\\ln x + C$"
+      ],
+      "correct": 3,
+      "explanation": "Công thức $\\frac{x^{n+1}}{n+1}$ không dùng được khi n = −1 (chia cho 0). Vì $(\\ln x)' = \\frac{1}{x}$ nên nguyên hàm là $\\ln x + C$. $-\\frac{1}{x^2}$ là *đạo hàm* của $\\frac{1}{x}$, không phải nguyên hàm."
+    },
+    {
+      "id": "q-int-6",
+      "type": "mcq",
+      "question": "$\\int_{-1}^{1} x^3\\,dx$ bằng bao nhiêu?",
+      "options": [
+        "0",
+        "$\\frac{1}{2}$",
+        "$\\frac{1}{4}$",
+        "2"
+      ],
+      "correct": 0,
+      "explanation": "$\\left[\\frac{x^4}{4}\\right]_{-1}^{1} = \\frac{1}{4} - \\frac{1}{4} = 0$. Tích phân là diện tích **có dấu**: phần dưới trục (x < 0) triệt tiêu phần trên trục (x > 0). Diện tích hình học thực sự là $\\frac{1}{2}$."
     }
   ]
 }

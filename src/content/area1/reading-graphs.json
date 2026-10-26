@@ -7,21 +7,23 @@
   "icon": "curve",
   "tagline": "Đọc đồ thị là kỹ năng sinh tồn của lập trình viên: từ biểu đồ benchmark đến đường cong loss của AI — mọi insight đều ẩn trong hình.",
   "readTime": "~15 min",
-  "prerequisites": ["area1_linear-quadratic-functions"],
+  "prerequisites": [
+    "area1_linear-quadratic-functions"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Đọc đồ thị (graph reading) là kỹ năng bị xem thường nhưng cực kỳ quan trọng. Một lập trình viên đọc được đồ thị sẽ:\n\n- Nhìn biểu đồ benchmark (benchmark chart) và biết ngay thuật toán nào scale tốt\n- Đọc training loss curve trong ML và biết model đang overfit hay underfit\n- Phân tích profiler flamegraph để tìm bottleneck\n- Đánh giá tốc độ tăng trưởng của hệ thống từ dashboard\n\nBài này dạy bạn đọc đồ thị một cách có hệ thống — từ trục, giao điểm, đến so sánh các đường cong."
+      "content": "Đọc đồ thị (graph reading) là kỹ năng bị xem thường nhưng cực kỳ quan trọng. Một lập trình viên đọc được đồ thị sẽ:\n\n- Nhìn biểu đồ benchmark (benchmark chart) và biết ngay thuật toán nào scale tốt\n- Đọc đường cong loss khi huấn luyện (training loss curve) trong ML và biết model đang overfit hay underfit\n- Đọc dashboard latency/throughput và nhận ra điểm hệ thống bắt đầu \"gãy\"\n- Biết vì sao thêm CPU không làm chương trình nhanh mãi (giới hạn tiệm cận)\n\nBài này dạy bạn đọc đồ thị một cách có hệ thống — từ trục, giao điểm, xu hướng, độ cong, đến các phép biến đổi đồ thị và tiệm cận."
     },
     {
       "type": "analogy",
-      "title": "Đồ thị là ngôn ngữ — biết đọc là biết nói chuyện với dữ liệu",
-      "content": "Hình dung đồ thị như bản đồ địa hình: trục x (hoành độ) là hướng Đông-Tây, trục y (tung độ) là độ cao. Đường cong là con đường trên địa hình đó.\n\n- **Đường dốc đứng** (slope lớn): tăng nhanh, dữ liệu thay đổi mạnh.\n- **Đường phẳng**: ổn định, hầu như không thay đổi.\n- **Đường xuống**: giảm — có thể là tốt (loss giảm) hoặc xấu (hiệu năng giảm).\n\nKhi đọc đồ thị benchmark thuật toán, câu hỏi luôn là: **khi n tăng, đường nào \"leo dốc\" nhanh nhất?**"
+      "title": "Đồ thị là bản đồ địa hình của dữ liệu",
+      "content": "Hình dung đồ thị như bản đồ địa hình: trục x (trục hoành) là quãng đường bạn đi, trục y (trục tung) là độ cao. Đường cong là con đường trên địa hình đó.\n\n- **Đường dốc đứng** (slope lớn): tăng nhanh, dữ liệu thay đổi mạnh.\n- **Đường phẳng**: ổn định, hầu như không thay đổi.\n- **Đường đi xuống**: giảm — có thể là tốt (loss giảm) hoặc xấu (throughput giảm).\n\nKhi đọc đồ thị benchmark thuật toán, câu hỏi luôn là: **khi n tăng, đường nào \"leo dốc\" nhanh nhất?**"
     },
     {
       "type": "explanation",
       "title": "Bộ công cụ đọc đồ thị: 5 điều cần kiểm tra",
-      "content": "Khi nhìn vào bất kỳ đồ thị nào, hãy kiểm tra theo thứ tự:\n\n1. **Trục (axes)**: Nhãn và đơn vị là gì? Trục x/y đại diện cho gì? Có thang logarit (log scale) không?\n2. **Giao điểm (intercepts)**: Hàm cắt trục x ở đâu? Cắt trục y ở đâu? (Điểm khởi đầu)\n3. **Xu hướng (trend)**: Tăng hay giảm? Nhanh hay chậm? Tuyến tính, logarit, hay mũ?\n4. **Cực trị (extrema)**: Có đỉnh (maximum) hay đáy (minimum) không? Ở đâu?\n5. **So sánh (comparison)**: Nếu nhiều đường: chúng giao nhau ở đâu? Đường nào tăng nhanh hơn khi x lớn?"
+      "content": "Khi nhìn vào bất kỳ đồ thị nào, hãy kiểm tra theo thứ tự:\n\n1. **Trục (axes)**: Nhãn và đơn vị là gì? Có dùng thang logarit (log scale) không? Trục có bắt đầu từ 0 không?\n2. **Giao điểm (intercepts)**: Đường cắt trục y ở đâu (giá trị khởi đầu, chi phí cố định)? Cắt trục x ở đâu?\n3. **Xu hướng (trend)**: Tăng hay giảm? Nhanh hay chậm? Tuyến tính, logarit, hay mũ?\n4. **Cực trị (extrema)**: Có đỉnh (maximum) hay đáy (minimum) không? Ở đâu?\n5. **So sánh (comparison)**: Nếu nhiều đường: chúng giao nhau ở đâu? Đường nào ở trên khi x lớn?\n\n**Bẫy trục không bắt đầu từ 0:** một biểu đồ cột có trục y từ 95 đến 100 sẽ làm chênh lệch 1% trông như gấp đôi. Luôn đọc con số trên trục, đừng chỉ nhìn hình."
     },
     {
       "type": "formula",
@@ -29,44 +31,87 @@
       "latex": "\\text{slope} = \\frac{\\Delta y}{\\Delta x} = \\frac{y_2 - y_1}{x_2 - x_1}",
       "reading": "đọc là: slope bằng delta y chia delta x — lượng thay đổi của y khi x thay đổi một đơn vị.",
       "symbols": [
-        { "sym": "\\Delta y", "meaning": "lượng thay đổi y (rise — chiều dọc)." },
-        { "sym": "\\Delta x", "meaning": "lượng thay đổi x (run — chiều ngang)." },
-        { "sym": "\\text{slope} > 0", "meaning": "hàm tăng (đường đi lên từ trái sang phải)." },
-        { "sym": "\\text{slope} < 0", "meaning": "hàm giảm (đường đi xuống từ trái sang phải)." },
-        { "sym": "\\text{slope} = 0", "meaning": "hàm không đổi (đường nằm ngang — cực trị)." }
+        {
+          "sym": "\\Delta y",
+          "meaning": "lượng thay đổi y (rise — chiều dọc)."
+        },
+        {
+          "sym": "\\Delta x",
+          "meaning": "lượng thay đổi x (run — chiều ngang)."
+        },
+        {
+          "sym": "\\text{slope} > 0",
+          "meaning": "hàm tăng (đường đi lên từ trái sang phải)."
+        },
+        {
+          "sym": "\\text{slope} < 0",
+          "meaning": "hàm giảm (đường đi xuống từ trái sang phải)."
+        },
+        {
+          "sym": "\\text{slope} = 0",
+          "meaning": "đường nằm ngang — y không đổi. Tại đỉnh hoặc đáy của một đường cong trơn, tiếp tuyến nằm ngang (slope 0); nhưng slope 0 chưa chắc là cực trị (VD $x^3$ tại $x = 0$)."
+        }
       ]
     },
     {
       "type": "graph",
       "title": "So sánh các đường cong độ phức tạp Big-O",
       "functions": [
-        { "fn": "1", "color": "#60a5fa" },
-        { "fn": "log(x) / log(2)", "color": "#4ade80" },
-        { "fn": "x", "color": "#f5a623" },
-        { "fn": "x^2 / 10", "color": "#a78bfa" }
+        {
+          "fn": "1",
+          "color": "#8ac6ff"
+        },
+        {
+          "fn": "log(x) / log(2)",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "x",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "x^2 / 10",
+          "color": "#ff9ecb"
+        }
       ],
-      "xDomain": [0, 10],
-      "yDomain": [0, 12],
-      "caption": "Bốn đường cong Big-O: O(1)=xanh dương (hằng), O(log n)=xanh lá (chậm), O(n)=cam (tuyến tính), O(n²/10)=tím (bậc hai). Với n lớn, O(n²) bùng nổ vượt xa mọi thứ. Đây là biểu đồ mọi lập trình viên cần thuộc."
+      "xDomain": [
+        0,
+        10
+      ],
+      "yDomain": [
+        0,
+        12
+      ],
+      "caption": "Bốn đường: hằng số $1$ (xanh dương) ~ $O(1)$; $\\log_2 x$ (xanh bạc hà) ~ $O(\\log n)$; $x$ (vàng) ~ $O(n)$; $x^2/10$ (hồng) ~ $O(n^2)$. Dù có hằng số $1/10$ nhỏ, đường bậc hai vượt đường tuyến tính từ $x = 10$ và sau đó bỏ xa mãi mãi."
     },
     {
       "type": "explanation",
       "title": "Đọc đồ thị tốc độ tăng trưởng: O(1) → O(n²) → O(2^n)",
-      "content": "Từ đồ thị trên, ta rút ra thứ tự tăng trưởng (từ chậm đến nhanh):\n\n$$O(1) < O(\\log n) < O(n) < O(n \\log n) < O(n^2) < O(2^n)$$\n\n**Cách nhận dạng bằng mắt trên đồ thị benchmark:**\n- **O(1)**: đường nằm ngang hoàn toàn — thời gian không phụ thuộc n.\n- **O(log n)**: đường tăng nhưng ngày càng phẳng dần (concave down).\n- **O(n)**: đường thẳng chéo đều đặn.\n- **O(n²)**: đường parabol — càng ngày càng dốc hơn (concave up).\n- **O(2^n)**: đường gần như thẳng đứng — không thể vẽ được nếu n lớn."
+      "content": "Từ đồ thị trên, ta rút ra thứ tự tăng trưởng (từ chậm đến nhanh):\n\n$$O(1) < O(\\log n) < O(n) < O(n \\log n) < O(n^2) < O(2^n)$$\n\n**Cách nhận dạng bằng mắt trên đồ thị benchmark (trục thường, không log):**\n\n- **O(1)**: đường nằm ngang — thời gian không phụ thuộc n.\n- **O(log n)**: đường tăng nhưng ngày càng phẳng dần (cong xuống, concave down).\n- **O(n)**: đường thẳng chéo đều đặn.\n- **O(n log n)**: gần như thẳng nhưng hơi cong lên — rất khó phân biệt với O(n) bằng mắt; hãy dùng phép thử gấp đôi bên dưới.\n- **O(n²)**: parabol — càng ngày càng dốc (cong lên, concave up).\n- **O(2^n)**: gần như dựng đứng — chỉ vẽ được với n rất nhỏ.\n\n**Phép thử gấp đôi (doubling test):** đo thời gian ở n và 2n rồi xem tỉ số. ×1 → O(1); +một lượng cố định → O(log n); ×2 → O(n); hơi hơn ×2 → O(n log n); ×4 → O(n²); ×8 → O(n³). Đây là cách nhanh nhất đoán Big-O từ số liệu thực đo."
     },
     {
       "type": "explanation",
-      "title": "Đọc đường cong lồi/lõm (concavity) — dấu hiệu tăng tốc",
-      "content": "**Lõm xuống (concave down)** — như vòm cầu: tốc độ tăng ngày càng chậm lại. Điển hình: O(log n), hàm căn sqrt(n). Tốt cho hiệu năng.\n\n**Lồi lên (concave up)** — như bát úp ngược: tốc độ tăng ngày càng nhanh hơn. Điển hình: O(n²), O(2^n). Nguy hiểm cho hiệu năng.\n\n**Quy tắc nhớ nhanh**: Lõm xuống → tốc độ tăng chậm dần → **tốt**. Lồi lên → tốc độ tăng nhanh dần → **cần cẩn thận**."
+      "title": "Độ cong (concavity) — dấu hiệu tăng tốc hay chậm lại",
+      "content": "**Cong xuống (concave down), hình ∩** — như mái vòm: đường vẫn có thể tăng, nhưng mức tăng ngày càng nhỏ. Điển hình: $\\log n$, $\\sqrt{n}$. Với đường chi phí, đây là tin tốt.\n\n**Cong lên (concave up), hình ∪** — như cái bát ngửa: mức tăng ngày càng lớn. Điển hình: $n^2$, $2^n$. Với đường chi phí, cần cẩn thận. Trong tối ưu hóa và ML, hàm cong lên ở mọi nơi được gọi là **hàm lồi (convex function)** — loại hàm \"dễ\" tối ưu vì mọi cực tiểu địa phương (local minimum) đều là cực tiểu toàn cục (global minimum).\n\n**Quy tắc nhớ nhanh**: nhìn độ dốc thay đổi thế nào khi đi từ trái sang phải. Độ dốc giảm dần → cong xuống. Độ dốc tăng dần → cong lên."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: Đọc đồ thị benchmark",
       "problem": "Một benchmark đo thời gian chạy (ms) của hai thuật toán A và B với n = 10, 100, 1000, 10000. Đường A: gần như nằm ngang, chỉ tăng nhẹ. Đường B: tăng chậm đến n=100, rồi dốc rất nhanh. Thuật toán nào nên dùng khi n = 1.000.000?",
       "steps": [
-        { "text": "Đường A 'gần như nằm ngang' → tốc độ tăng rất chậm → có thể O(1) hoặc O(log n).", "rule": "Đường phẳng = tăng chậm = Big-O nhỏ" },
-        { "text": "Đường B tăng chậm rồi dốc đột ngột → 'cong lên' (concave up) → có thể O(n²) hoặc O(2^n).", "rule": "Concave up = tăng tốc dần = Big-O lớn" },
-        { "text": "Với n = 1.000.000, đường B sẽ bùng nổ hoàn toàn — dùng thuật toán A.", "isCommonMistake": true, "rule": "Đừng kết luận từ n nhỏ: B có thể nhanh hơn A ở n=10 nhưng thảm hại ở n=1M — luôn xem xu hướng khi n lớn" }
+        {
+          "text": "Đường A 'gần như nằm ngang' → tốc độ tăng rất chậm → có thể O(1) hoặc O(log n).",
+          "rule": "Đường phẳng = tăng chậm = Big-O nhỏ"
+        },
+        {
+          "text": "Đường B tăng chậm rồi dốc đột ngột → 'cong lên' (concave up) → có thể O(n²) hoặc O(2^n).",
+          "rule": "Concave up = tăng tốc dần = Big-O lớn"
+        },
+        {
+          "text": "Với n = 1.000.000, đường B sẽ bùng nổ hoàn toàn — dùng thuật toán A.",
+          "isCommonMistake": true,
+          "rule": "Đừng kết luận từ n nhỏ: B có thể nhanh hơn A ở n=10 nhưng thảm hại ở n=1M — luôn xem xu hướng khi n lớn"
+        }
       ],
       "result": "Chọn **thuật toán A** — đường phẳng cho thấy hiệu năng scale tốt hơn nhiều với n lớn."
     },
@@ -75,25 +120,80 @@
       "title": "Ví dụ 2: Đọc training loss curve trong ML",
       "problem": "Đồ thị training loss (trục y) theo epoch (trục x): training loss giảm đều và tiệm cận 0. Validation loss giảm đến epoch 50 rồi bắt đầu tăng trở lại. Chẩn đoán và giải pháp?",
       "steps": [
-        { "text": "Training loss tiệm cận 0: mô hình đang học tốt trên tập train.", "rule": "Giảm đều → đang hội tụ" },
-        { "text": "Validation loss tăng sau epoch 50: mô hình bắt đầu 'nhớ' dữ liệu train thay vì 'học' pattern chung.", "rule": "Val loss tăng trong khi train loss giảm = overfitting (quá khớp)" },
-        { "text": "Điểm tối ưu là epoch 50 — nơi validation loss thấp nhất. Dừng training tại đây (early stopping).", "isCommonMistake": true, "rule": "Đừng nhìn chỉ training loss — validation loss mới nói lên hiệu năng thực tế trên dữ liệu mới" }
+        {
+          "text": "Training loss tiệm cận 0: mô hình đang học tốt trên tập train.",
+          "rule": "Giảm đều → đang hội tụ"
+        },
+        {
+          "text": "Validation loss tăng sau epoch 50: mô hình bắt đầu 'nhớ' dữ liệu train thay vì 'học' pattern chung.",
+          "rule": "Val loss tăng trong khi train loss giảm = overfitting (quá khớp)"
+        },
+        {
+          "text": "Điểm tối ưu là quanh epoch 50 — nơi validation loss thấp nhất. Lưu lại model tại đó và dừng training (early stopping).",
+          "isCommonMistake": true,
+          "rule": "Đừng nhìn chỉ training loss — validation loss mới nói lên hiệu năng thực tế trên dữ liệu mới"
+        }
       ],
       "result": "Chẩn đoán: **Overfitting**. Giải pháp: early stopping tại epoch 50, hoặc thêm regularization (dropout, L2)."
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Bẫy trục logarit (log scale):** Nhiều benchmark dùng trục y theo thang log (log scale). Trên thang log, đường thẳng thực ra là tăng trưởng mũ! Luôn kiểm tra nhãn trục — nếu thấy '10, 100, 1000' thay vì '10, 20, 30' thì đó là log scale. Đừng so sánh đường cong từ hai biểu đồ có thang khác nhau."
+      "content": "**Bẫy trục logarit (log scale):** Nhiều benchmark dùng trục y theo thang log. Nếu **chỉ trục y** là log (semi-log), một đường thẳng nghĩa là tăng trưởng **mũ** $y = c \\cdot a^x$. Nếu **cả hai trục** đều log (log-log), đường thẳng nghĩa là **đa thức / luật lũy thừa (power law)** $y = c \\cdot x^k$ với k là slope. Luôn kiểm tra nhãn trục — nếu thấy 10, 100, 1000 cách đều nhau thay vì 10, 20, 30 thì đó là log scale. Đừng so sánh hình dạng đường cong giữa hai biểu đồ dùng thang khác nhau."
+    },
+    {
+      "type": "formula",
+      "title": "Biến đổi đồ thị (graph transformations)",
+      "latex": "g(x) = a \\cdot f(x - h) + k",
+      "reading": "đọc là: g của x bằng a nhân f của (x trừ h), cộng k. Đồ thị g là đồ thị f dịch phải h đơn vị, kéo giãn theo chiều dọc a lần, rồi dịch lên k đơn vị.",
+      "symbols": [
+        {
+          "sym": "h",
+          "meaning": "dịch ngang: $f(x - 3)$ dịch sang **phải** 3 (ngược trực giác!), $f(x + 3)$ dịch sang trái 3."
+        },
+        {
+          "sym": "k",
+          "meaning": "dịch dọc: $+k$ dịch lên, $-k$ dịch xuống. Trong benchmark: chi phí khởi động cố định đẩy cả đường lên."
+        },
+        {
+          "sym": "a",
+          "meaning": "kéo giãn dọc: $|a| > 1$ giãn ra, $0 < |a| < 1$ nén lại, $a < 0$ lật qua trục x. Hằng số trong $5n$ vs $n$ chỉ là kéo giãn — không đổi hình dạng, nên Big-O bỏ qua."
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Tiệm cận (asymptote): định luật Amdahl",
+      "functions": [
+        {
+          "fn": "1/(0.1 + 0.9/x)",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "10",
+          "color": "#ff9ecb"
+        }
+      ],
+      "xDomain": [
+        1,
+        64
+      ],
+      "yDomain": [
+        0,
+        12
+      ],
+      "caption": "Speedup khi chạy trên x lõi CPU, nếu 90% chương trình song song hóa được: $S(x) = \\frac{1}{0.1 + 0.9/x}$ (vàng). Đường cong tiến sát nhưng không bao giờ vượt đường $y = 10$ (hồng) — đó là **tiệm cận ngang (horizontal asymptote)**. 10% phần tuần tự giới hạn speedup tối đa ở $1/0.1 = 10$ lần, dù có bao nhiêu lõi."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "5 bước đọc đồ thị: kiểm tra trục → giao điểm → xu hướng → cực trị → so sánh đường.",
-        "Slope = Δy/Δx — dương: tăng; âm: giảm; bằng 0: cực trị.",
-        "Concave down (lõm): tốc độ tăng chậm dần → tốt (O(log n)). Concave up (lồi): tốc độ tăng nhanh dần → cần cẩn thận (O(n²)).",
-        "Thứ tự Big-O: O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2^n) — nhận ra ngay từ hình dạng đường.",
-        "Bẫy log scale: luôn kiểm tra nhãn trục trước khi đọc và so sánh biểu đồ."
+        "5 bước đọc đồ thị: kiểm tra trục (đơn vị, log scale, có bắt đầu từ 0?) → giao điểm → xu hướng → cực trị → so sánh đường.",
+        "Slope = Δy/Δx — dương: tăng; âm: giảm; bằng 0: nằm ngang (tại đỉnh/đáy của đường cong trơn, tiếp tuyến có slope 0).",
+        "Cong xuống (∩): mức tăng chậm dần, như $\\log n$. Cong lên (∪, hàm lồi — convex): mức tăng nhanh dần, như $n^2$.",
+        "Thứ tự: $O(1) < O(\\log n) < O(n) < O(n \\log n) < O(n^2) < O(2^n)$. Phép thử gấp đôi: n gấp đôi mà thời gian ×4 → $O(n^2)$.",
+        "Biến đổi $a \\cdot f(x - h) + k$: h dịch phải, k dịch lên, a kéo giãn — hằng số không đổi hình dạng đường.",
+        "Log scale: chỉ trục y log → đường thẳng là hàm mũ; cả hai trục log → đường thẳng là $x^k$ với k = slope.",
+        "Tiệm cận: định luật Amdahl — phần tuần tự $s$ giới hạn speedup tối đa ở $1/s$."
       ]
     }
   ],
@@ -107,8 +207,8 @@
     {
       "id": "fc-rg-concavity",
       "type": "concept",
-      "front": "Concave down (lõm) vs concave up (lồi) cho biết gì về thuật toán?",
-      "back": "Concave down: tốc độ tăng chậm dần → O(log n), tốt. Concave up: tốc độ tăng nhanh dần → O(n²), O(2^n), cần cẩn thận."
+      "front": "Cong xuống (concave down, ∩) và cong lên (concave up, ∪) cho biết gì về một đường chi phí?",
+      "back": "Cong xuống: mức tăng chậm dần → như $\\log n$, $\\sqrt{n}$, tốt. Cong lên: mức tăng nhanh dần → như $n^2$, $2^n$, cần cẩn thận. Hàm cong lên khắp nơi gọi là hàm lồi (convex)."
     },
     {
       "id": "fc-rg-bigo-order",
@@ -119,8 +219,32 @@
     {
       "id": "fc-rg-logscale",
       "type": "concept",
-      "front": "Log scale (thang logarit) trên trục đồ thị là gì? Nguy hiểm nào cần tránh?",
-      "back": "Trục chia theo lũy thừa (10, 100, 1000...). Nguy hiểm: đường thẳng trên log scale = hàm mũ thực tế. Luôn kiểm tra nhãn trục trước khi kết luận."
+      "front": "Trên biểu đồ log scale, một đường THẲNG có nghĩa là gì?",
+      "back": "Chỉ trục y log (semi-log): đường thẳng = hàm mũ $c \\cdot a^x$. Cả hai trục log (log-log): đường thẳng = $c \\cdot x^k$, slope k chính là số mũ. Luôn đọc nhãn trục trước khi kết luận."
+    },
+    {
+      "id": "fc-rg-doubling-test",
+      "type": "concept",
+      "front": "Phép thử gấp đôi (doubling test): đo thời gian ở n và 2n — tỉ số cho biết gì?",
+      "back": "×1 → $O(1)$; ×2 → $O(n)$; hơi hơn ×2 → $O(n \\log n)$; ×4 → $O(n^2)$; ×8 → $O(n^3)$. Tổng quát: tỉ số $2^k$ → $O(n^k)$, và k = slope trên đồ thị log-log."
+    },
+    {
+      "id": "fc-rg-transform",
+      "type": "formula",
+      "front": "Đồ thị $g(x) = a \\cdot f(x - h) + k$ khác đồ thị $f$ thế nào?",
+      "back": "Dịch phải h (dịch TRÁI nếu là $x + h$), dịch lên k, kéo giãn dọc a lần ($a < 0$ thì lật qua trục x)."
+    },
+    {
+      "id": "fc-rg-asymptote",
+      "type": "concept",
+      "front": "Định luật Amdahl: nếu phần tuần tự chiếm tỉ lệ s của chương trình, speedup tối đa là bao nhiêu?",
+      "back": "$S(N) = \\dfrac{1}{s + (1 - s)/N}$ tiến tới tiệm cận $\\dfrac{1}{s}$ khi số lõi $N \\to \\infty$. VD: s = 10% → tối đa 10 lần."
+    },
+    {
+      "id": "fc-rg-overfit",
+      "type": "concept",
+      "front": "Đồ thị loss: training loss tiếp tục giảm nhưng validation loss bắt đầu tăng. Chẩn đoán?",
+      "back": "Overfitting (quá khớp): model học thuộc dữ liệu train. Giải pháp: early stopping tại điểm validation loss thấp nhất, regularization (L2, dropout), thêm dữ liệu."
     }
   ],
   "exercises": [
@@ -129,15 +253,26 @@
       "difficulty": "warmup",
       "prompt": "Trên đồ thị, đường cong đi qua hai điểm $(2, 5)$ và $(6, 13)$. Tính slope của đoạn thẳng nối hai điểm đó. Hàm tăng hay giảm?",
       "hints": [
-        "slope = (y₂ - y₁) / (x₂ - x₁).",
-        "Thay $(x_1, y_1) = (2,5)$ và $(x_2, y_2) = (6,13)$."
+        "slope $= \\dfrac{y_2 - y_1}{x_2 - x_1}$.",
+        "Thay $(x_1, y_1) = (2, 5)$ và $(x_2, y_2) = (6, 13)$."
       ],
       "solutionSteps": [
-        { "text": "slope $= \\dfrac{13 - 5}{6 - 2} = \\dfrac{8}{4} = 2$.", "rule": "Công thức slope" },
-        { "text": "slope = 2 > 0 → hàm tăng (đường đi lên từ trái sang phải)." }
+        {
+          "text": "slope $= \\dfrac{13 - 5}{6 - 2} = \\dfrac{8}{4} = 2$.",
+          "rule": "Công thức slope"
+        },
+        {
+          "text": "Lỗi hay gặp: trừ ngược thứ tự chỉ ở tử, $\\frac{5 - 13}{6 - 2} = -2$ → sai dấu; hoặc lấy $\\frac{\\Delta x}{\\Delta y} = \\frac{1}{2}$.",
+          "isCommonMistake": true,
+          "rule": "Tử và mẫu phải trừ cùng thứ tự điểm"
+        },
+        {
+          "text": "slope = 2 > 0 → đường đi lên từ trái sang phải (tăng).",
+          "rule": "Dấu của slope cho chiều biến thiên"
+        }
       ],
       "answer": "Slope = $2$; hàm tăng.",
-      "commonMistake": "Nhầm thứ tự trừ: $(y_1 - y_2)/(x_1 - x_2)$ cũng ra 2 (vì hai dấu trừ triệt tiêu) — nhưng nếu chỉ đảo một cái thì sai dấu.",
+      "commonMistake": "Đảo thứ tự trừ ở tử nhưng không đảo ở mẫu (ra −2), hoặc đảo tử/mẫu thành Δx/Δy. (Đảo CẢ HAI thì vẫn đúng.)",
       "relatedFlashcard": "fc-rg-slope"
     },
     {
@@ -149,47 +284,156 @@
         "So sánh hình dạng với bảng Big-O."
       ],
       "solutionSteps": [
-        { "text": "A: đường nằm ngang → O(1) — thời gian không phụ thuộc n.", "rule": "Đường phẳng = O(1)" },
-        { "text": "B: tăng nhẹ và chậm dần (concave down) → O(log n).", "rule": "Concave down = tốc độ giảm dần = O(log n)" },
-        { "text": "C: tăng ngày càng nhanh (concave up) → O(n²) hoặc O(2^n).", "rule": "Concave up = tốc độ tăng dần = Big-O lớn" },
-        { "text": "Với n=10⁶: chọn A (O(1)) hoặc B (O(log n)). C sẽ không thể chạy trong thời gian hợp lý.", "isCommonMistake": true, "rule": "Đừng chọn thuật toán dựa trên tốc độ ở n nhỏ — luôn nhìn xu hướng n lớn" }
+        {
+          "text": "A: đường nằm ngang → O(1) — thời gian không phụ thuộc n.",
+          "rule": "Đường phẳng = O(1)"
+        },
+        {
+          "text": "B: tăng nhẹ và chậm dần (concave down) → O(log n).",
+          "rule": "Concave down = tốc độ giảm dần = O(log n)"
+        },
+        {
+          "text": "C: tăng ngày càng nhanh (concave up) → O(n²) hoặc O(2^n).",
+          "rule": "Concave up = tốc độ tăng dần = Big-O lớn"
+        },
+        {
+          "text": "Với n=10⁶: chọn A (O(1)) hoặc B (O(log n)). C sẽ không thể chạy trong thời gian hợp lý.",
+          "isCommonMistake": true,
+          "rule": "Đừng chọn thuật toán dựa trên tốc độ ở n nhỏ — luôn nhìn xu hướng n lớn"
+        }
       ],
       "answer": "A=O(1), B=O(log n), C=O(n²) hoặc O(2^n). Dùng A hoặc B với n=10⁶.",
-      "commonMistake": "Chọn C vì 'nhanh nhất ở n nhỏ' — không nhìn thấy xu hướng nguy hiểm khi n lớn.",
+      "commonMistake": "Chọn C vì nó có thể nhanh nhất ở n nhỏ — không nhìn xu hướng khi n lớn.",
       "relatedFlashcard": "fc-rg-concavity"
     },
     {
       "id": "ex-rg-challenge-1",
       "difficulty": "challenge",
-      "prompt": "Một benchmark so sánh hai database query: Query X và Query Y trên log-scale cả hai trục. Trên đồ thị, cả hai đường đều trông 'thẳng' và có slope gần giống nhau. Query X có slope ≈ 1 và Query Y có slope ≈ 2 (trên log-log scale). Xác định Big-O thực sự của mỗi query. Query nào scale tốt hơn?",
+      "prompt": "Một benchmark so sánh hai câu truy vấn database, Query X và Query Y, vẽ trên biểu đồ log-log (cả hai trục đều thang log). Cả hai đường đều trông thẳng, nên thoạt nhìn tưởng 'cùng kiểu'. Đo slope: Query X có slope khoảng 1, Query Y có slope khoảng 2. Xác định Big-O của mỗi query. Query nào scale tốt hơn?",
       "hints": [
-        "Trên log-log scale, đường thẳng với slope k nghĩa là $y = c \\cdot x^k$ — tức là Big-O polynomial.",
-        "slope = 1 trên log-log → $y \\propto x^1$ → O(n).",
-        "slope = 2 trên log-log → $y \\propto x^2$ → O(n²)."
+        "Trên log-log, đường thẳng slope k nghĩa là $y = c \\cdot x^k$.",
+        "slope = 1 → $y \\propto n$.",
+        "slope = 2 → $y \\propto n^2$."
       ],
       "solutionSteps": [
-        { "text": "Trên log-log scale: $\\log y = k \\cdot \\log x + c$ tức là $y = 10^c \\cdot x^k$. Slope k = số mũ của hàm.", "rule": "Đọc log-log scale: slope = exponent của hàm power-law" },
-        { "text": "Query X: slope = 1 → $y \\propto n^1$ → **O(n)**.", "rule": "Slope 1 trên log-log = tuyến tính" },
-        { "text": "Query Y: slope = 2 → $y \\propto n^2$ → **O(n²)**.", "rule": "Slope 2 trên log-log = bậc hai" },
-        { "text": "Dù trông 'giống nhau' trên đồ thị log-log, thực tế X tốt hơn Y rất nhiều khi n lớn.", "isCommonMistake": true, "rule": "Log-log scale làm 'phẳng' mọi thứ — đừng kết luận hiệu năng giống nhau chỉ vì đường trông tương tự" }
+        {
+          "text": "Trên log-log: $\\log y = k \\log x + C$, lấy mũ hai vế: $y = 10^C \\cdot x^k$. Slope k chính là số mũ.",
+          "rule": "Đọc log-log: slope = số mũ của luật lũy thừa (power law)"
+        },
+        {
+          "text": "Query X: slope = 1 → $y \\propto n^1$ → **O(n)**.",
+          "rule": "Slope 1 trên log-log = tuyến tính"
+        },
+        {
+          "text": "Query Y: slope = 2 → $y \\propto n^2$ → **O(n²)**.",
+          "rule": "Slope 2 trên log-log = bậc hai"
+        },
+        {
+          "text": "Cả hai đường đều thẳng trên log-log nhưng KHÔNG cùng kiểu: chênh slope 1 đơn vị nghĩa là tỉ số thời gian Y/X tăng tỉ lệ với n.",
+          "isCommonMistake": true,
+          "rule": "Thang log nén mọi thứ — đường thẳng trên log-log không có nghĩa là tuyến tính; phải đọc slope"
+        }
       ],
-      "answer": "X=O(n), Y=O(n²). X scale tốt hơn nhiều. Bẫy: log-log scale che giấu sự khác biệt — slope 1 vs 2 là O(n) vs O(n²), chênh nhau n lần khi n lớn.",
-      "commonMistake": "Nhìn log-log scale và nghĩ cả hai 'tuyến tính' vì đường trông thẳng — quên rằng đường thẳng trên log-log là hàm mũ/power-law.",
+      "answer": "X là $O(n)$, Y là $O(n^2)$. X scale tốt hơn nhiều: khi n tăng 10 lần, X chậm đi 10 lần còn Y chậm đi 100 lần.",
+      "commonMistake": "Thấy hai đường đều thẳng nên kết luận cả hai 'tuyến tính' — trên log-log, đường thẳng là luật lũy thừa $x^k$ (còn đường thẳng trên semi-log mới là hàm mũ).",
       "relatedFlashcard": "fc-rg-logscale"
+    },
+    {
+      "id": "ex-rg-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Đồ thị $y = x^2$ có đỉnh tại $(0, 0)$. Đồ thị $y = (x - 3)^2 + 2$ có đỉnh tại đâu? Nó được tạo từ $y = x^2$ bằng cách nào?",
+      "hints": [
+        "So với dạng $f(x - h) + k$: h = ?, k = ?",
+        "Trừ bên trong ngoặc là dịch sang phải."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$(x - 3)^2 + 2 = f(x - 3) + 2$ với $f(x) = x^2$, nên $h = 3$, $k = 2$.",
+          "rule": "Nhận dạng $f(x - h) + k$"
+        },
+        {
+          "text": "Đỉnh dịch từ $(0, 0)$ sang $(3, 2)$: phải 3, lên 2. Lỗi hay gặp: thấy dấu trừ nên dịch sang TRÁI, ra $(-3, 2)$.",
+          "isCommonMistake": true,
+          "rule": "$f(x - h)$ dịch phải h: đỉnh mới ở nơi $x - 3 = 0$, tức $x = 3$"
+        }
+      ],
+      "answer": "Đỉnh $(3, 2)$: dịch $y = x^2$ sang phải 3 và lên 2.",
+      "commonMistake": "Dịch sang trái vì thấy dấu trừ, ra $(-3, 2)$.",
+      "relatedFlashcard": "fc-rg-transform"
+    },
+    {
+      "id": "ex-rg-apply-2",
+      "difficulty": "apply",
+      "prompt": "Đo thời gian chạy một hàm: n = 1000 → 2 ms; n = 2000 → 8 ms; n = 4000 → 32 ms. (a) Đoán Big-O. (b) Dự đoán thời gian với n = 16000.",
+      "hints": [
+        "Tính tỉ số thời gian mỗi khi n gấp đôi.",
+        "Tỉ số $2^k$ → $O(n^k)$.",
+        "Từ 4000 lên 16000 là gấp đôi hai lần."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Mỗi lần n gấp đôi, thời gian tăng 8/2 = 4 và 32/8 = 4 lần.",
+          "rule": "Phép thử gấp đôi"
+        },
+        {
+          "text": "$4 = 2^2$ → $O(n^2)$. (Trên log-log, slope = $\\log_2 4 = 2$.)",
+          "rule": "Tỉ số $2^k$ khi n gấp đôi → $O(n^k)$"
+        },
+        {
+          "text": "n từ 4000 lên 16000 là ×4, nên thời gian ×$4^2 = 16$: $32 \\times 16 = 512$ ms. Lỗi hay gặp: nhân 4 (tư duy tuyến tính) ra 128 ms.",
+          "isCommonMistake": true,
+          "rule": "n ×c thì $O(n^2)$ tăng $c^2$ lần"
+        }
+      ],
+      "answer": "(a) $O(n^2)$; (b) khoảng 512 ms.",
+      "commonMistake": "Ngoại suy tuyến tính: n ×4 thì thời gian ×4 (ra 128 ms).",
+      "relatedFlashcard": "fc-rg-doubling-test"
+    },
+    {
+      "id": "ex-rg-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Một job xử lý dữ liệu có 90% công việc song song hóa được, 10% phải chạy tuần tự. Theo định luật Amdahl $S(N) = \\dfrac{1}{0.1 + 0.9/N}$. (a) Speedup với 8 lõi? (b) Speedup tối đa nếu có vô hạn lõi? (c) Sếp đề xuất mua máy 64 lõi để 'nhanh gấp 64'. Bạn phản hồi thế nào?",
+      "hints": [
+        "Thay N = 8: $0.9/8 = 0.1125$.",
+        "Khi $N \\to \\infty$, $0.9/N \\to 0$.",
+        "Tính S(64) và so với tiệm cận."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) $S(8) = \\dfrac{1}{0.1 + 0.1125} = \\dfrac{1}{0.2125} \\approx 4.7$ lần.",
+          "rule": "Thay số vào công thức"
+        },
+        {
+          "text": "(b) $N \\to \\infty$: $S \\to \\dfrac{1}{0.1} = 10$ — tiệm cận ngang $y = 10$.",
+          "rule": "Tìm tiệm cận: số hạng $0.9/N \to 0$"
+        },
+        {
+          "text": "(c) $S(64) = \\dfrac{1}{0.1 + 0.0140625} \\approx 8.8$ lần, không phải 64. Lỗi hay gặp: nghĩ speedup tỉ lệ thuận số lõi.",
+          "isCommonMistake": true,
+          "rule": "Đường cong tiến sát tiệm cận — thêm lõi chỉ được lợi rất ít"
+        },
+        {
+          "text": "Muốn nhanh hơn nữa phải giảm phần tuần tự 10%, không phải mua thêm lõi.",
+          "rule": "Tối ưu nút cổ chai (bottleneck)"
+        }
+      ],
+      "answer": "(a) khoảng 4.7 lần; (b) tối đa 10 lần; (c) 64 lõi chỉ cho khoảng 8.8 lần — hãy tối ưu phần tuần tự.",
+      "commonMistake": "Cho rằng N lõi thì nhanh N lần (speedup tuyến tính).",
+      "relatedFlashcard": "fc-rg-asymptote"
     }
   ],
   "quiz": [
     {
       "id": "q-rg-1",
       "type": "mcq",
-      "question": "Đồ thị hàm số có đường 'concave up' (lồi lên, cong như bát ngửa). Điều này cho biết gì về tốc độ thay đổi?",
+      "question": "Một đường cong có dạng cong lên (concave up, hình ∪ như cái bát ngửa). Điều này cho biết gì về tốc độ thay đổi?",
       "options": [
         "Tốc độ thay đổi không đổi",
-        "Tốc độ thay đổi giảm dần",
         "Tốc độ thay đổi tăng dần",
+        "Tốc độ thay đổi giảm dần",
         "Hàm đang giảm"
       ],
-      "correct": 2,
+      "correct": 1,
       "explanation": "Concave up = parabol mở lên = tốc độ tăng ngày càng nhanh hơn. Điển hình của O(n²) hay O(2^n)."
     },
     {
@@ -199,19 +443,63 @@
       "options": [
         "Đường nằm ngang",
         "Đường tăng đều và thẳng",
-        "Đường tăng nhưng ngày càng phẳng dần",
-        "Đường tăng ngày càng dốc hơn"
+        "Đường tăng ngày càng dốc hơn",
+        "Đường tăng nhưng ngày càng phẳng dần"
       ],
-      "correct": 2,
+      "correct": 3,
       "explanation": "O(log n): đường tăng nhưng chậm dần (concave down). Đường nằm ngang = O(1), thẳng = O(n), ngày càng dốc = O(n²) hoặc O(2^n)."
     },
     {
       "id": "q-rg-3",
       "type": "mcq",
       "question": "Một biểu đồ dùng log scale trên cả hai trục (log-log). Nếu một đường thẳng trên biểu đồ này có slope = 3, Big-O thực sự của hàm là gì?",
-      "options": ["O(3n)", "O(n³)", "O(3^n)", "O(log n)"],
-      "correct": 1,
+      "options": [
+        "O(n³)",
+        "O(3n)",
+        "O(3^n)",
+        "O(log n)"
+      ],
+      "correct": 0,
       "explanation": "Trên log-log scale, đường thẳng với slope $k$ nghĩa là hàm $y \\propto x^k$. Slope 3 → $y \\propto n^3$ → O(n³)."
+    },
+    {
+      "id": "q-rg-4",
+      "type": "mcq",
+      "question": "Biểu đồ có trục x thường, trục y thang log. Một đường THẲNG đi lên trên biểu đồ này biểu diễn hàm loại gì?",
+      "options": [
+        "Hàm tuyến tính",
+        "Hàm logarit",
+        "Hàm bậc hai",
+        "Hàm mũ"
+      ],
+      "correct": 3,
+      "explanation": "Semi-log: $\\log y = mx + c$ ⇒ $y = 10^c \\cdot (10^m)^x$ — hàm mũ. (Đường thẳng trên log-log mới là $x^k$.)"
+    },
+    {
+      "id": "q-rg-5",
+      "type": "mcq",
+      "question": "Benchmark: khi n gấp đôi, thời gian chạy tăng khoảng 8 lần. Big-O có khả năng nhất là?",
+      "options": [
+        "$O(n)$",
+        "$O(n^2)$",
+        "$O(n^3)$",
+        "$O(2^n)$"
+      ],
+      "correct": 2,
+      "explanation": "$8 = 2^3$ → $O(n^3)$. Với $O(2^n)$, tăng n từ 1000 lên 2000 sẽ nhân thời gian với $2^{1000}$, không phải 8."
+    },
+    {
+      "id": "q-rg-6",
+      "type": "mcq",
+      "question": "Một chương trình có 95% phần song song hóa được. Theo định luật Amdahl, speedup tối đa (vô hạn lõi) là bao nhiêu?",
+      "options": [
+        "20 lần",
+        "95 lần",
+        "19 lần",
+        "Vô hạn"
+      ],
+      "correct": 0,
+      "explanation": "Phần tuần tự $s = 0.05$ → speedup tối đa $1/s = 20$ lần. Đường speedup có tiệm cận ngang $y = 20$."
     }
   ]
 }

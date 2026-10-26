@@ -6,12 +6,12 @@
   "order": 1,
   "icon": "dice",
   "tagline": "Xác suất đo lường \"khả năng xảy ra\" — nền tảng để hiểu hashing collisions, load balancing và các thuật toán ngẫu nhiên.",
-  "readTime": "~15 min",
+  "readTime": "~20 min",
   "prerequisites": [],
   "sections": [
     {
       "type": "intro",
-      "content": "Xác suất (probability) trả lời câu hỏi: **\"Sự kiện này xảy ra với khả năng bao nhiêu?\"** Thay vì nói \"có thể\" hay \"khó xảy ra\", xác suất cho ta một con số cụ thể từ 0 đến 1.\n\nTrong CS, xác suất xuất hiện ở khắp nơi: khi bạn hỏi \"hai key khác nhau có bị hash vào cùng bucket không?\" (hashing collision), hay \"request có bị dồn vào cùng server không?\" (load balancing). Hiểu xác suất cơ bản giúp bạn phân tích độ tin cậy và hiệu năng của hệ thống."
+      "content": "Xác suất (probability) trả lời câu hỏi: **\"Sự kiện này xảy ra với khả năng bao nhiêu?\"** Thay vì nói \"có thể\" hay \"khó xảy ra\", xác suất cho ta một con số cụ thể từ 0 đến 1.\n\nTrong CS, xác suất xuất hiện ở khắp nơi: \"hai key khác nhau có bị hash vào cùng bucket không?\" (hash collision), \"request có bị dồn vào cùng server không?\" (load balancing), \"cả 3 replica cùng sập thì sao?\" (độ tin cậy hệ thống). Bài này trang bị bộ công cụ cốt lõi: quy tắc bù, xác suất có điều kiện, độc lập vs xung khắc, lấy mẫu có/không hoàn lại và birthday paradox."
     },
     {
       "type": "analogy",
@@ -24,16 +24,25 @@
       "latex": "P(A) = \\frac{|A|}{|\\Omega|}",
       "reading": "đọc là: \"xác suất của sự kiện A bằng số kết quả thuận lợi chia tổng số kết quả có thể\".",
       "symbols": [
-        { "sym": "P(A)", "meaning": "xác suất của sự kiện A, giá trị trong [0, 1]" },
-        { "sym": "|A|", "meaning": "số kết quả thuận lợi cho A" },
-        { "sym": "|\\Omega|", "meaning": "tổng số kết quả có thể trong không gian mẫu Ω" }
+        {
+          "sym": "P(A)",
+          "meaning": "xác suất của sự kiện A, giá trị trong [0, 1]"
+        },
+        {
+          "sym": "|A|",
+          "meaning": "số kết quả thuận lợi cho A"
+        },
+        {
+          "sym": "|\\Omega|",
+          "meaning": "tổng số kết quả có thể trong không gian mẫu Ω"
+        }
       ],
       "caption": "Áp dụng được khi tất cả kết quả có khả năng xảy ra như nhau (equally likely outcomes)."
     },
     {
       "type": "explanation",
       "title": "Không gian mẫu và sự kiện",
-      "content": "**Không gian mẫu (sample space) Ω** là tập hợp tất cả kết quả có thể. Ví dụ tung 1 xúc xắc: Ω = {1, 2, 3, 4, 5, 6}.\n\n**Sự kiện (event) A** là một tập con của Ω. Ví dụ A = \"ra số lẻ\" = {1, 3, 5}.\n\nMỗi phần tử của Ω gọi là **kết quả (outcome)**. Trong hashing, Ω = tập tất cả bucket, sự kiện A = \"key rơi vào bucket 7\".\n\nBa trường hợp đặc biệt:\n- P(Ω) = 1: điều gì đó luôn xảy ra\n- P(∅) = 0: sự kiện không thể xảy ra\n- 0 ≤ P(A) ≤ 1 luôn đúng"
+      "content": "**Không gian mẫu (sample space)** $\\Omega$ là tập hợp tất cả kết quả có thể. Ví dụ tung 1 xúc xắc: $\\Omega = \\{1, 2, 3, 4, 5, 6\\}$.\n\n**Sự kiện (event)** A là một tập con của $\\Omega$. Ví dụ A = \"ra số lẻ\" = $\\{1, 3, 5\\}$.\n\nMỗi phần tử của $\\Omega$ gọi là một **kết quả (outcome)**. Trong hashing, $\\Omega$ = tập tất cả bucket, sự kiện A = \"key rơi vào bucket 7\".\n\nBa tính chất cơ bản:\n\n- $P(\\Omega) = 1$: chắc chắn có một kết quả nào đó xảy ra\n- $P(\\varnothing) = 0$: sự kiện rỗng không thể xảy ra\n- $0 \\le P(A) \\le 1$ với mọi sự kiện A"
     },
     {
       "type": "formula",
@@ -41,63 +50,174 @@
       "latex": "P(A^c) = 1 - P(A)",
       "reading": "đọc là: \"xác suất sự kiện KHÔNG xảy ra bằng 1 trừ xác suất nó xảy ra\".",
       "symbols": [
-        { "sym": "A^c", "meaning": "phần bù của A — tập tất cả kết quả không thuộc A" },
-        { "sym": "1 - P(A)", "meaning": "vì A và Aᶜ cùng nhau phủ hết Ω" }
+        {
+          "sym": "A^c",
+          "meaning": "phần bù của A — tập tất cả kết quả không thuộc A"
+        },
+        {
+          "sym": "1 - P(A)",
+          "meaning": "vì A và Aᶜ cùng nhau phủ hết Ω"
+        }
       ],
-      "caption": "Rất hữu dụng khi tính xác suất 'ít nhất một' hay 'không có lỗi nào'."
+      "caption": "Rất hữu dụng khi tính xác suất \"ít nhất một\" hay \"không có lỗi nào\": tính phần bù thường dễ hơn nhiều."
+    },
+    {
+      "type": "formula",
+      "title": "Xác suất có điều kiện & quy tắc nhân (Conditional Probability)",
+      "latex": "\\begin{aligned} P(A \\mid B) &= \\frac{P(A \\cap B)}{P(B)} \\\\ P(A \\cap B) &= P(B) \\cdot P(A \\mid B) \\end{aligned}",
+      "reading": "đọc là: \"xác suất A khi đã biết B xảy ra\" — thu hẹp không gian mẫu về B rồi đo phần của A trong đó. Đảo lại thành **quy tắc nhân (multiplication rule)**: muốn A và B cùng xảy ra thì B xảy ra, rồi A xảy ra *trong điều kiện* B.",
+      "symbols": [
+        {
+          "sym": "P(A \\mid B)",
+          "meaning": "xác suất có điều kiện, đọc là \"P của A biết B\" (cần $P(B) > 0$)"
+        },
+        {
+          "sym": "P(A \\cap B)",
+          "meaning": "xác suất A và B cùng xảy ra (giao)"
+        }
+      ],
+      "caption": "Ví dụ: tung 1 xúc xắc, biết kết quả là số chẵn thì P(ra 6 | chẵn) = 1/3, không còn là 1/6. Bài Định lý Bayes sẽ khai thác công thức này sâu hơn."
+    },
+    {
+      "type": "explanation",
+      "title": "Độc lập vs Xung khắc — cặp khái niệm hay bị nhầm nhất",
+      "content": "Hai sự kiện **độc lập (independent)** nếu biết A xảy ra *không làm thay đổi* xác suất của B:\n\n$$P(A \\cap B) = P(A) \\cdot P(B)$$\n\nTương đương (khi $P(A) > 0$): $P(B \\mid A) = P(B)$.\n\nHai sự kiện **xung khắc (mutually exclusive / disjoint)** nếu chúng *không thể cùng xảy ra*: $P(A \\cap B) = 0$.\n\n| Tiêu chí | Độc lập | Xung khắc |\n|---|---|---|\n| Định nghĩa | $P(A \\cap B) = P(A)P(B)$ | $P(A \\cap B) = 0$ |\n| Quy tắc dùng | Nhân xác suất | Cộng xác suất |\n| Ví dụ | Hai lần tung xu | Một lần tung: H và T |\n\n**Điểm mấu chốt:** nếu $P(A) > 0$ và $P(B) > 0$ thì hai sự kiện xung khắc **không bao giờ** độc lập — biết A xảy ra cho ta biết chắc chắn B *không* xảy ra, đó là thông tin rất mạnh! Ví dụ: \"request trả về 200\" và \"request trả về 500\" là xung khắc, nên phụ thuộc nhau hoàn toàn.\n\nTrong CS, giả định độc lập phải được kiểm chứng: hai server cùng rack, cùng nguồn điện thì sự cố của chúng **tương quan (correlated)** — nếu cứ nhân xác suất, bạn sẽ đánh giá quá thấp rủi ro cả hai cùng sập."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: lấy mẫu có hoàn lại vs không hoàn lại",
+      "problem": "Cluster có 10 server, trong đó 3 server bị lỗi cấu hình. Health-checker chọn ngẫu nhiên 2 lần. Tính P(cả 2 lần đều trúng server lỗi) nếu (a) chọn **có hoàn lại (with replacement)** — một server có thể bị chọn 2 lần; (b) chọn **không hoàn lại (without replacement)** — 2 server khác nhau.",
+      "steps": [
+        {
+          "text": "(a) Có hoàn lại: hai lần chọn độc lập, mỗi lần trúng server lỗi với xác suất $3/10$. Vậy $P = \\frac{3}{10} \\times \\frac{3}{10} = 0.09$.",
+          "rule": "Sự kiện độc lập → nhân xác suất"
+        },
+        {
+          "text": "(b) Không hoàn lại: lần 1 trúng server lỗi với xác suất $3/10$. **Biết** lần 1 đã lấy đi 1 server lỗi, chỉ còn 2 server lỗi trong 9 server: xác suất lần 2 trúng là $2/9$.",
+          "rule": "Xác suất có điều kiện — không gian mẫu đã thay đổi",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$P = \\frac{3}{10} \\times \\frac{2}{9} = \\frac{1}{15} \\approx 0.067$. Kiểm tra bằng tổ hợp: $\\binom{3}{2} / \\binom{10}{2} = 3/45 = 1/15$.",
+          "rule": "Quy tắc nhân $P(A \\cap B) = P(A) \\cdot P(B \\mid A)$"
+        }
+      ],
+      "result": "(a) 0.09; (b) 1/15 ≈ 0.067. Lỗi hay gặp ở (b) là vẫn dùng 3/10 cho lần 2. Khi tập lớn và mẫu nhỏ, hai cách cho kết quả gần nhau; khi tập nhỏ phải phân biệt rõ. Trong Python: `random.choices` lấy có hoàn lại, `random.sample` lấy không hoàn lại."
     },
     {
       "type": "graph",
-      "title": "Xác suất tích lũy: P(≥1 collision) với n keys và m buckets",
+      "title": "P(ít nhất 1 collision) theo số key n, với m = 100 bucket",
       "functions": [
-        { "fn": "1 - exp(-x^2 / 200)", "color": "#ffe08a" }
+        {
+          "fn": "1 - exp(-x^2 / 200)",
+          "color": "#ffe08a"
+        }
       ],
-      "xDomain": [0, 30],
-      "yDomain": [0, 1],
-      "caption": "Xác suất có ít nhất 1 collision khi n keys hash vào m=100 bucket (birthday paradox approximation). Với chỉ ~12 keys, xác suất đã vượt 50%! Đây là lý do hash table cần resize sớm."
+      "xDomain": [
+        0,
+        30
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "caption": "Đường cong $1 - e^{-n^2/(2m)}$ với m = 100 (xấp xỉ birthday). Xác suất chạm 50% chỉ ở khoảng 12–13 key (tính chính xác: 12 key → 49.7%, 13 key → 55.7%), trong khi bảng còn gần 90% bucket trống! Vì vậy hash table **luôn** phải có cơ chế xử lý collision (chaining, open addressing) — không thể hy vọng tránh được collision."
+    },
+    {
+      "type": "formula",
+      "title": "Bài toán ngày sinh (Birthday Problem)",
+      "latex": "P(\\text{no collision}) = \\prod_{i=0}^{n-1}\\left(1 - \\frac{i}{m}\\right) \\approx e^{-n(n-1)/(2m)}",
+      "reading": "đọc là: \"key thứ i+1 phải tránh i bucket đã bị chiếm\"; nhân các xác suất lại, rồi xấp xỉ bằng $1 - x \\approx e^{-x}$ khi x nhỏ.",
+      "symbols": [
+        {
+          "sym": "n",
+          "meaning": "số key (hoặc số người, số ID ngẫu nhiên)"
+        },
+        {
+          "sym": "m",
+          "meaning": "số giá trị có thể (số bucket, 365 ngày, $2^{b}$ giá trị hash b-bit)"
+        },
+        {
+          "sym": "\\frac{n(n-1)}{2}",
+          "meaning": "số **cặp** key — mỗi cặp va chạm với xác suất 1/m, vì vậy collision đến sớm hơn trực giác"
+        }
+      ],
+      "caption": "P(collision) đạt 50% khi $n \\approx \\sqrt{2m \\ln 2} \\approx 1.18\\sqrt{m}$. Ví dụ m = 365 → n ≈ 23. Với hash 128-bit chỉ cần khoảng $2^{64}$ giá trị là đã có ~50% đụng độ — đây là **birthday attack** trong mật mã học."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: xác suất không có hash collision",
       "problem": "Hash table có m=10 bucket. Chèn 3 key ngẫu nhiên. Xác suất không có collision nào là bao nhiêu?",
       "steps": [
-        { "text": "Key 1 vào bucket bất kỳ: 10/10 = 1 (luôn thành công, bucket trống).", "rule": "Kết quả đầu tiên không thể collision" },
-        { "text": "Key 2 phải vào bucket khác key 1: 9 bucket còn trống / 10 bucket = 9/10.", "rule": "Xác suất điều kiện — bucket đã bị chiếm bởi key 1" },
-        { "text": "Key 3 phải vào bucket khác cả hai: 8/10.", "isCommonMistake": true, "rule": "Mỗi key mới giảm đi 1 bucket trống — lỗi hay gặp là dùng 9/10 lần nữa" },
-        { "text": "P(không collision) = 1 × 9/10 × 8/10 = 72/100 = 0.72.", "rule": "Nhân xác suất các sự kiện độc lập liên tiếp" }
+        {
+          "text": "Key 1 vào bucket bất kỳ: 10/10 = 1 (luôn thành công, bucket trống).",
+          "rule": "Key đầu tiên không thể collision"
+        },
+        {
+          "text": "Key 2 phải vào bucket khác key 1: 9 bucket còn trống / 10 bucket = 9/10.",
+          "rule": "Xác suất có điều kiện — 1 bucket đã bị key 1 chiếm"
+        },
+        {
+          "text": "Key 3 phải vào bucket khác cả hai: 8/10.",
+          "isCommonMistake": true,
+          "rule": "Mỗi key mới bớt đi 1 bucket trống — lỗi hay gặp là vẫn dùng 9/10"
+        },
+        {
+          "text": "P(không collision) = 1 × 9/10 × 8/10 = 72/100 = 0.72.",
+          "rule": "Quy tắc nhân (chain rule): mỗi thừa số là xác suất có điều kiện trên các key trước — các sự kiện KHÔNG độc lập"
+        }
       ],
       "result": "P(không collision) = 0.72 → P(có ít nhất 1 collision) = 1 − 0.72 = **0.28**"
     },
     {
       "type": "explanation",
       "title": "Liên hệ CS: Load Balancing và Random Algorithms",
-      "content": "**Load balancing:** Nếu mỗi request được gửi ngẫu nhiên đến 1 trong n server, P(request đến server cụ thể) = 1/n. Với n=10 server và 1000 request, mỗi server kỳ vọng nhận ~100 request — phân phối đều.\n\n**Randomized algorithms:** Randomized quicksort chọn pivot ngẫu nhiên. P(chọn đúng pivot median) trong nửa giữa = 1/2 → mỗi lần chọn có 50% cơ hội là pivot \"tốt\". Phân tích xác suất giúp chứng minh thuật toán chạy O(n log n) trung bình.\n\n**Hashing and birthday paradox:** Với m bucket và n keys, xác suất có collision ≈ n²/(2m). Với n=√(2m), xác suất collision ~ 63%! Đây là lý do cryptographic hash cần m phải **rất lớn**."
+      "content": "**Load balancing:** Nếu mỗi request được gửi ngẫu nhiên đến 1 trong n server, P(request đến một server cụ thể) = 1/n. Với n = 10 server và 1000 request, mỗi server kỳ vọng nhận khoảng 100 request.\n\n**Randomized algorithms:** Randomized quicksort chọn pivot ngẫu nhiên. Xác suất pivot rơi vào \"nửa giữa\" (giữa phân vị 25% và 75% của mảng đã sắp xếp) là 1/2, nên trung bình cứ 2 lần chọn là có 1 pivot \"tốt\" chia mảng khá cân. Lập luận xác suất kiểu này dẫn đến thời gian chạy kỳ vọng $O(n \\log n)$.\n\n**Hashing và birthday paradox:** Với m bucket và n key có $n(n-1)/2$ cặp, mỗi cặp va chạm với xác suất 1/m, nên khi n nhỏ so với $\\sqrt{m}$ thì $P(\\text{collision}) \\approx n^2/(2m)$. Khi n vượt vài lần $\\sqrt{m}$, collision gần như chắc chắn. Vì vậy hash mật mã (cryptographic hash) dùng không gian rất lớn (SHA-256: $2^{256}$ giá trị) để chống birthday attack, và UUID v4 dùng 122 bit ngẫu nhiên."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: xác suất sự kiện hợp (Union)",
       "problem": "Server A có P(down) = 0.1, Server B có P(down) = 0.05. Giả sử độc lập, P(ít nhất một server down) = bao nhiêu?",
       "steps": [
-        { "text": "Dùng quy tắc bù: P(ít nhất 1 down) = 1 − P(cả hai đều up).", "rule": "Complement rule — dễ hơn tính trực tiếp" },
-        { "text": "P(A up) = 1 − 0.1 = 0.9. P(B up) = 1 − 0.05 = 0.95.", "rule": "Complement rule cho từng server" },
-        { "text": "P(cả hai up) = 0.9 × 0.95 = 0.855.", "rule": "Nhân xác suất — vì A và B độc lập" },
-        { "text": "P(ít nhất 1 down) = 1 − 0.855 = 0.145.", "isCommonMistake": true, "rule": "Lỗi hay gặp: cộng 0.1+0.05=0.15 (sai vì double-count trường hợp cả hai down)" }
+        {
+          "text": "Dùng quy tắc bù: P(ít nhất 1 down) = 1 − P(cả hai đều up).",
+          "rule": "Complement rule — dễ hơn tính trực tiếp"
+        },
+        {
+          "text": "P(A up) = 1 − 0.1 = 0.9. P(B up) = 1 − 0.05 = 0.95.",
+          "rule": "Complement rule cho từng server"
+        },
+        {
+          "text": "P(cả hai up) = 0.9 × 0.95 = 0.855.",
+          "rule": "Nhân xác suất — vì A và B độc lập"
+        },
+        {
+          "text": "P(ít nhất 1 down) = 1 − 0.855 = 0.145.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: cộng 0.1+0.05=0.15 (sai vì double-count trường hợp cả hai down)"
+        }
       ],
       "result": "P(ít nhất 1 server down) = **14.5%**"
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Bẫy hay gặp — Addition Rule:** P(A hoặc B) ≠ P(A) + P(B) trừ khi A và B **xung khắc** (mutually exclusive, không thể cùng xảy ra). Công thức đúng: P(A ∪ B) = P(A) + P(B) − P(A ∩ B). Nếu bỏ số hạng giao, bạn đang đếm trùng!"
+      "content": "**Bẫy hay gặp — quy tắc cộng (Addition Rule):** $P(A \\cup B) \\ne P(A) + P(B)$ trừ khi A và B **xung khắc** (không thể cùng xảy ra). Công thức đúng: $P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$. Nếu bỏ số hạng giao, bạn đang đếm trùng phần \"cả hai cùng xảy ra\"!"
+    },
+    {
+      "type": "callout",
+      "variant": "tip",
+      "content": "**Union bound (bất đẳng thức Boole):** luôn có $P(A_1 \\cup \\dots \\cup A_k) \\le P(A_1) + \\dots + P(A_k)$, kể cả khi các sự kiện **không** độc lập. Đây là chặn trên nhanh và an toàn cho \"có ít nhất một lỗi\": 3 component, mỗi cái hỏng 2% → P(có hỏng) ≤ 6% (chính xác là 5.88%). Rất hay dùng trong phân tích randomized algorithm."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Xác suất P(A) ∈ [0,1]: đo \"khả năng\" sự kiện A xảy ra.",
-        "Công thức cổ điển: P(A) = (số kết quả thuận lợi) / (tổng số kết quả), khi mọi kết quả như nhau.",
-        "Quy tắc bù: P(Aᶜ) = 1 − P(A) — rất mạnh khi hỏi 'ít nhất một'.",
-        "P(A ∪ B) = P(A) + P(B) − P(A ∩ B): phải trừ phần giao để tránh đếm trùng.",
-        "CS ứng dụng: hashing collision, load balancing, randomized algorithm analysis đều cần xác suất cơ bản."
+        "Xác suất $P(A) \\in [0, 1]$ đo khả năng sự kiện A xảy ra; công thức cổ điển $|A|/|\\Omega|$ chỉ dùng khi mọi kết quả đồng khả năng.",
+        "Quy tắc bù $P(A^c) = 1 - P(A)$ — vũ khí số 1 cho câu hỏi \"ít nhất một\".",
+        "$P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$; union bound cho chặn trên nhanh.",
+        "Xác suất có điều kiện $P(A \\mid B) = P(A \\cap B)/P(B)$; quy tắc nhân dùng cho chuỗi sự kiện phụ thuộc (lấy mẫu không hoàn lại, chèn key lần lượt).",
+        "Độc lập → nhân; xung khắc → cộng. Hai sự kiện xung khắc (xác suất dương) không bao giờ độc lập.",
+        "Birthday paradox: collision đạt 50% khi n ≈ 1.18√m — cỡ căn bậc hai, không phải cỡ m. Đây là nền tảng của birthday attack và thiết kế độ dài hash/ID."
       ]
     }
   ],
@@ -118,19 +238,49 @@
       "id": "fc-prob-union",
       "type": "formula",
       "front": "P(A ∪ B) = ? (công thức đúng)",
-      "back": "P(A) + P(B) − P(A ∩ B). Phải trừ giao để tránh đếm trùng. Bằng P(A)+P(B) chỉ khi A và B xung khắc."
+      "back": "$P(A) + P(B) - P(A \\cap B)$. Phải trừ phần giao để tránh đếm trùng. Chỉ bằng $P(A) + P(B)$ khi A và B xung khắc."
     },
     {
       "id": "fc-prob-birthday",
       "type": "concept",
       "front": "Birthday paradox trong hashing là gì?",
-      "back": "Với m bucket, chỉ cần ~√(2m) keys là xác suất collision ≥ 50%. Ví dụ m=365 → ~23 keys là đủ."
+      "back": "Với m giá trị có thể, chỉ cần khoảng $1.18\\sqrt{m}$ (chính xác hơn: $\\sqrt{2m \\ln 2}$) key là P(collision) ≥ 50%. Ví dụ m = 365 → 23 người. Collision xuất hiện khi n cỡ √m, không phải cỡ m."
     },
     {
       "id": "fc-prob-range",
       "type": "concept",
       "front": "Xác suất có thể nhận giá trị nào?",
       "back": "Luôn nằm trong [0, 1]. P=0: không thể xảy ra. P=1: chắc chắn xảy ra. P=0.5: 50/50."
+    },
+    {
+      "id": "fc-prob-conditional",
+      "type": "formula",
+      "front": "Xác suất có điều kiện $P(A \\mid B)$ = ? Quy tắc nhân?",
+      "back": "$P(A \\mid B) = P(A \\cap B)/P(B)$ — thu hẹp không gian mẫu về B. Quy tắc nhân: $P(A \\cap B) = P(B) \\cdot P(A \\mid B)$, dùng cho chuỗi sự kiện phụ thuộc (VD chèn key lần lượt: 1 × 9/10 × 8/10)."
+    },
+    {
+      "id": "fc-prob-independent",
+      "type": "definition",
+      "front": "Khi nào hai sự kiện A và B độc lập (independent)?",
+      "back": "Khi $P(A \\cap B) = P(A) \\cdot P(B)$, tương đương $P(B \\mid A) = P(B)$: biết A xảy ra không làm thay đổi xác suất của B."
+    },
+    {
+      "id": "fc-prob-indep-vs-exclusive",
+      "type": "concept",
+      "front": "Hai sự kiện xung khắc (mỗi cái có xác suất > 0) có độc lập không?",
+      "back": "Không bao giờ. Xung khắc nghĩa là $P(A \\cap B) = 0$, nhưng $P(A)P(B) > 0$. Biết A xảy ra → chắc chắn B không xảy ra, tức A mang thông tin về B. Ghi nhớ: xung khắc → cộng; độc lập → nhân."
+    },
+    {
+      "id": "fc-prob-replacement",
+      "type": "concept",
+      "front": "Lấy mẫu có hoàn lại vs không hoàn lại khác nhau thế nào?",
+      "back": "Có hoàn lại (with replacement): các lần lấy độc lập, xác suất giữ nguyên mỗi lần. Không hoàn lại (without replacement): các lần lấy phụ thuộc — lần sau dùng xác suất có điều kiện (VD 3/10 rồi 2/9)."
+    },
+    {
+      "id": "fc-prob-union-bound",
+      "type": "formula",
+      "front": "Union bound (bất đẳng thức Boole) phát biểu gì?",
+      "back": "$P(A_1 \\cup \\dots \\cup A_k) \\le \\sum_i P(A_i)$, đúng cả khi các sự kiện phụ thuộc. Dùng để chặn trên nhanh xác suất \"có ít nhất một lỗi/collision\"."
     }
   ],
   "exercises": [
@@ -143,13 +293,54 @@
         "|Ω| = 6. Đếm kết quả thuận lợi."
       ],
       "solutionSteps": [
-        { "text": "Ω = {1,2,3,4,5,6}, |Ω| = 6.", "rule": "Xác định không gian mẫu" },
-        { "text": "Kết quả thuận lợi: {5, 6} → |A| = 2.", "rule": "Xác định sự kiện" },
-        { "text": "P(A) = 2/6 = 1/3 ≈ 0.333.", "rule": "Công thức xác suất cổ điển" }
+        {
+          "text": "Ω = {1,2,3,4,5,6}, |Ω| = 6.",
+          "rule": "Xác định không gian mẫu"
+        },
+        {
+          "text": "Kết quả thuận lợi: {5, 6} → |A| = 2.",
+          "rule": "Xác định sự kiện"
+        },
+        {
+          "text": "P(A) = 2/6 = 1/3 ≈ 0.333.",
+          "rule": "Công thức xác suất cổ điển"
+        }
       ],
       "answer": "1/3 ≈ 0.333",
       "commonMistake": "Đếm nhầm {4, 5, 6} = 3 (bao gồm cả 4, nhưng đề hỏi lớn HƠN 4, không phải lớn hơn hoặc bằng).",
       "relatedFlashcard": "fc-prob-def"
+    },
+    {
+      "id": "ex-prob-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Một batch có 8 request, trong đó 2 request bị timeout. Bạn lấy ngẫu nhiên 2 request **khác nhau** (không hoàn lại) để đọc log. Xác suất không lấy trúng request timeout nào?",
+      "hints": [
+        "Lần 1: có bao nhiêu request không timeout trong 8?",
+        "Lần 2: đã lấy đi 1 request tốt, còn lại bao nhiêu request tốt trong bao nhiêu request?",
+        "Nhân hai xác suất (quy tắc nhân)."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Lần 1 lấy request tốt: $6/8$.",
+          "rule": "Xác suất cổ điển"
+        },
+        {
+          "text": "Biết lần 1 đã lấy 1 request tốt: còn 5 request tốt trong 7 → $5/7$.",
+          "rule": "Xác suất có điều kiện (không hoàn lại)",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$P = \\frac{6}{8} \\times \\frac{5}{7} = \\frac{30}{56} = \\frac{15}{28} \\approx 0.536$.",
+          "rule": "Quy tắc nhân"
+        },
+        {
+          "text": "Kiểm tra bằng tổ hợp: $\\binom{6}{2}/\\binom{8}{2} = 15/28$.",
+          "rule": "Đếm tổ hợp"
+        }
+      ],
+      "answer": "15/28 ≈ 0.536",
+      "commonMistake": "Tính như có hoàn lại: $(6/8)^2 = 0.5625$ — quên rằng request đã lấy ra không được lấy lại.",
+      "relatedFlashcard": "fc-prob-replacement"
     },
     {
       "id": "ex-prob-apply-1",
@@ -160,32 +351,123 @@
         "Ba component độc lập → nhân xác suất."
       ],
       "solutionSteps": [
-        { "text": "P(component i hoạt động) = 1 − 0.02 = 0.98.", "rule": "Complement rule" },
-        { "text": "P(cả 3 hoạt động) = 0.98 × 0.98 × 0.98 = 0.98³.", "rule": "Nhân xác suất sự kiện độc lập" },
-        { "text": "0.98³ = 0.941192 ≈ 0.941.", "isCommonMistake": true, "rule": "Lỗi hay gặp: cộng 1-3×0.02=0.94 thay vì nhân lũy thừa" }
+        {
+          "text": "P(component i hoạt động) = 1 − 0.02 = 0.98.",
+          "rule": "Complement rule"
+        },
+        {
+          "text": "P(cả 3 hoạt động) = 0.98 × 0.98 × 0.98 = 0.98³.",
+          "rule": "Nhân xác suất sự kiện độc lập"
+        },
+        {
+          "text": "0.98³ = 0.941192 ≈ 0.941.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: tính 1 − 3×0.02 = 0.94 thay vì nhân lũy thừa"
+        }
       ],
       "answer": "≈ 0.941 (94.1%)",
-      "commonMistake": "Dùng 1 − 3×0.02 = 0.94 (xấp xỉ đúng với p nhỏ, nhưng không chính xác).",
+      "commonMistake": "Dùng 1 − 3×0.02 = 0.94. Đó chỉ là chặn dưới từ union bound (gần đúng khi p nhỏ), không phải kết quả chính xác — vì nó trừ trùng các trường hợp nhiều component cùng hỏng.",
       "relatedFlashcard": "fc-prob-complement"
+    },
+    {
+      "id": "ex-prob-apply-2",
+      "difficulty": "apply",
+      "prompt": "Tung 2 xúc xắc. A = \"xúc xắc thứ nhất ra số chẵn\", B = \"tổng hai xúc xắc bằng 7\". (a) A và B có xung khắc không? (b) A và B có độc lập không?",
+      "hints": [
+        "|Ω| = 36 cặp (x₁, x₂). Đếm số cặp có tổng 7.",
+        "Liệt kê các cặp vừa có x₁ chẵn vừa có tổng 7.",
+        "So sánh $P(A \\cap B)$ với 0 (xung khắc?) và với $P(A) \\cdot P(B)$ (độc lập?)."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$P(A) = 18/36 = 1/2$. B gồm (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) → $P(B) = 6/36 = 1/6$.",
+          "rule": "Xác suất cổ điển"
+        },
+        {
+          "text": "$A \\cap B$ = {(2,5), (4,3), (6,1)} → $P(A \\cap B) = 3/36 = 1/12$.",
+          "rule": "Đếm giao"
+        },
+        {
+          "text": "(a) $P(A \\cap B) = 1/12 > 0$ → hai sự kiện có thể cùng xảy ra, nên **không** xung khắc.",
+          "rule": "Định nghĩa xung khắc"
+        },
+        {
+          "text": "(b) $P(A) \\cdot P(B) = \\frac{1}{2} \\cdot \\frac{1}{6} = \\frac{1}{12} = P(A \\cap B)$ → A và B **độc lập**, dù tổng \"có vẻ\" phụ thuộc vào xúc xắc 1.",
+          "rule": "Định nghĩa độc lập: kiểm tra bằng số, không bằng cảm giác",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "(a) Không xung khắc; (b) Có độc lập ($P(A \\cap B) = 1/12 = P(A)P(B)$). Lưu ý: nếu đổi B thành \"tổng bằng 8\" thì $P(A \\cap B) = 3/36 \\ne \\frac{1}{2} \\cdot \\frac{5}{36}$ → không còn độc lập.",
+      "commonMistake": "Kết luận \"tổng phụ thuộc vào xúc xắc 1 nên không độc lập\" mà không kiểm tra công thức. Độc lập là tính chất số học $P(A \\cap B) = P(A)P(B)$, không phải \"không liên quan về mặt vật lý\".",
+      "relatedFlashcard": "fc-prob-independent"
     },
     {
       "id": "ex-prob-challenge-1",
       "difficulty": "challenge",
-      "prompt": "[CS Challenge] Bạn thiết kế hash table với m=1000 bucket và dùng uniform random hash. Sau khi chèn n=40 keys, xác suất có ÍT NHẤT MỘT collision xấp xỉ bao nhiêu? (Dùng công thức xấp xỉ birthday: P(collision) ≈ 1 − e^(−n(n−1)/(2m)))",
+      "prompt": "[CS Challenge] Bạn thiết kế hash table với m = 1000 bucket và hàm hash phân phối đều (uniform). Sau khi chèn n = 40 key, xác suất có ÍT NHẤT MỘT collision xấp xỉ bao nhiêu? Dùng công thức xấp xỉ birthday: $P(\\text{collision}) \\approx 1 - e^{-n(n-1)/(2m)}$.",
       "hints": [
-        "n=40, m=1000. Tính n(n-1)/(2m) trước.",
-        "n(n-1) = 40×39 = 1560. Chia 2×1000 = 2000.",
-        "e^(−0.78) ≈ ?"
+        "n = 40, m = 1000. Tính số mũ n(n−1)/(2m) trước.",
+        "n(n−1) = 40 × 39 = 1560, chia cho 2 × 1000 = 2000.",
+        "$e^{-0.78} \\approx$ ?"
       ],
       "solutionSteps": [
-        { "text": "Tính exponent: n(n−1)/(2m) = 40×39/(2×1000) = 1560/2000 = 0.78.", "rule": "Birthday paradox approximation formula" },
-        { "text": "P(không collision) ≈ e^(−0.78) ≈ 0.458.", "rule": "Taylor approximation — chính xác khi n << m" },
-        { "text": "P(ít nhất 1 collision) = 1 − 0.458 ≈ 0.542.", "rule": "Complement rule" },
-        { "text": "Kết quả: với chỉ 40 keys / 1000 bucket, đã có >50% khả năng collision!", "isCommonMistake": true, "rule": "Lỗi trực giác: nghĩ cần đến 500 keys mới collision (nhầm với 50% bucket filled)" }
+        {
+          "text": "Tính exponent: n(n−1)/(2m) = 40×39/(2×1000) = 1560/2000 = 0.78.",
+          "rule": "Birthday paradox approximation formula"
+        },
+        {
+          "text": "P(không collision) ≈ e^(−0.78) ≈ 0.458.",
+          "rule": "Xấp xỉ $1 - x \\approx e^{-x}$ — chính xác khi n ≪ m"
+        },
+        {
+          "text": "P(ít nhất 1 collision) = 1 − 0.458 ≈ 0.542.",
+          "rule": "Complement rule"
+        },
+        {
+          "text": "Kết quả: chỉ 40 key trong 1000 bucket (load factor 4%) mà đã có hơn 50% khả năng collision! (Tính chính xác bằng tích $\\prod (1 - i/m)$ cho 54.6% — xấp xỉ rất sát.)",
+          "isCommonMistake": true,
+          "rule": "Lỗi trực giác: nghĩ phải gần đầy bảng (hàng trăm key) mới có collision"
+        }
       ],
-      "answer": "≈ 54.2% — birthday paradox làm collision xảy ra sớm hơn trực giác",
-      "commonMistake": "Nghĩ 40/1000 = 4% bucket dùng nên collision ít. Thực ra mỗi key mới có 39 key cũ để đụng.",
+      "answer": "≈ 54% (xấp xỉ cho 54.2%, chính xác là 54.6%) — birthday paradox làm collision xảy ra sớm hơn trực giác rất nhiều",
+      "commonMistake": "Nghĩ 40/1000 = 4% bucket được dùng nên collision hiếm. Thực ra có 40×39/2 = 780 cặp key, mỗi cặp đều có thể đụng nhau.",
       "relatedFlashcard": "fc-prob-birthday"
+    },
+    {
+      "id": "ex-prob-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "[CS Challenge] Load balancer gửi 10 request, mỗi request đến 1 trong 10 server một cách ngẫu nhiên đều và độc lập. (a) Xác suất server #1 không nhận request nào? (b) Tổng quát với n request và n server, xác suất này tiến về đâu khi n lớn? (c) Kết luận gì về phân tải ngẫu nhiên?",
+      "hints": [
+        "Xét một request: xác suất nó KHÔNG đến server #1 là bao nhiêu?",
+        "Các request độc lập → nhân lại.",
+        "Nhớ giới hạn $(1 - 1/n)^n \\to e^{-1}$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Mỗi request không đến server #1 với xác suất $1 - 1/10 = 9/10$.",
+          "rule": "Quy tắc bù"
+        },
+        {
+          "text": "10 request độc lập: $P(\\text{idle}) = (9/10)^{10} \\approx 0.349$.",
+          "rule": "Sự kiện độc lập → nhân"
+        },
+        {
+          "text": "Tổng quát: $(1 - 1/n)^n \\to e^{-1} \\approx 0.368$ khi $n \\to \\infty$ (n = 100 cho 0.366).",
+          "rule": "Giới hạn $(1 - 1/n)^n \\to 1/e$"
+        },
+        {
+          "text": "Không thể làm \"10 request × 1/10 = 1 nên chắc chắn mỗi server có request\" — trung bình 1 request/server không có nghĩa là server nào cũng có việc.",
+          "rule": "Kỳ vọng ≠ chắc chắn",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Kết luận: với phân tải ngẫu nhiên thuần túy, khoảng 37% server ngồi không trong khi vài server khác bị dồn nhiều request. Đây là động lực cho kỹ thuật \"power of two choices\" (chọn 2 server ngẫu nhiên, gửi vào server ít tải hơn).",
+          "rule": "Diễn giải CS"
+        }
+      ],
+      "answer": "(a) $(0.9)^{10} \\approx 0.349$; (b) tiến về $1/e \\approx 0.368$; (c) khoảng 37% server không nhận request nào — phân tải ngẫu nhiên khá lệch.",
+      "commonMistake": "Lấy 1 − 10 × (1/10) = 0 (cộng xác suất các sự kiện không xung khắc), hoặc nghĩ mỗi server chắc chắn nhận đúng 1 request.",
+      "relatedFlashcard": "fc-prob-complement"
     }
   ],
   "quiz": [
@@ -193,7 +475,12 @@
       "id": "q-prob-1",
       "type": "mcq",
       "question": "Tung đồng xu 2 lần. P(ra Heads cả 2 lần) = ?",
-      "options": ["1/2", "1/3", "1/4", "3/4"],
+      "options": [
+        "1/2",
+        "1/3",
+        "1/4",
+        "3/4"
+      ],
       "correct": 2,
       "explanation": "Ω = {HH, HT, TH, TT}, |Ω|=4. Kết quả thuận lợi: {HH} → P = 1/4. Hoặc: 1/2 × 1/2 = 1/4 (độc lập)."
     },
@@ -201,17 +488,66 @@
       "id": "q-prob-2",
       "type": "mcq",
       "question": "P(A) = 0.3, P(B) = 0.4, A và B xung khắc. P(A ∪ B) = ?",
-      "options": ["0.12", "0.58", "0.70", "0.12"],
-      "correct": 2,
-      "explanation": "A và B xung khắc → P(A ∩ B) = 0. Vậy P(A ∪ B) = 0.3 + 0.4 = 0.7."
+      "options": [
+        "0.70",
+        "0.12",
+        "0.58",
+        "Không đủ dữ kiện để tính"
+      ],
+      "correct": 0,
+      "explanation": "A và B xung khắc → $P(A \\cap B) = 0$, nên $P(A \\cup B) = 0.3 + 0.4 = 0.7$. Đáp án 0.58 chỉ đúng nếu A, B độc lập ($0.3 + 0.4 - 0.12$); 0.12 là $P(A)P(B)$ — nhầm sang giao của hai sự kiện độc lập."
     },
     {
       "id": "q-prob-3",
       "type": "mcq",
-      "question": "Hash table có 50 bucket. Sau bao nhiêu key thì xác suất collision vượt 50% (dùng √(2m) ≈ √100)?",
-      "options": ["Khoảng 5 keys", "Khoảng 10 keys", "Khoảng 25 keys", "Khoảng 50 keys"],
+      "question": "Hash table có 50 bucket, hàm hash phân phối đều. Cần chèn khoảng bao nhiêu key thì xác suất có ít nhất 1 collision vượt 50%?",
+      "options": [
+        "Khoảng 50 key",
+        "Khoảng 25 key",
+        "Khoảng 3 key",
+        "Khoảng 9 key"
+      ],
+      "correct": 3,
+      "explanation": "Ngưỡng 50%: $n \\approx \\sqrt{2m \\ln 2} \\approx 1.18\\sqrt{50} \\approx 8.3$. Tính chính xác: 8 key → 44.6%, 9 key → 53.5%. Không cần lấp đầy nửa bảng (25 key) — đó là trực giác sai mà birthday paradox phá vỡ."
+    },
+    {
+      "id": "q-prob-4",
+      "type": "mcq",
+      "question": "P(A) = 0.3, P(B) = 0.4 và A, B xung khắc. A và B có độc lập không?",
+      "options": [
+        "Có, vì $P(A \\cap B) = 0$",
+        "Không, vì $P(A \\cap B) = 0 \\ne P(A)P(B) = 0.12$",
+        "Có, vì $P(A) + P(B) < 1$",
+        "Không đủ dữ kiện để kết luận"
+      ],
       "correct": 1,
-      "explanation": "Birthday paradox: ~√(2×50) = √100 = 10 keys. Chỉ cần 10 keys trong 50 bucket là collision hơn 50%."
+      "explanation": "Độc lập đòi hỏi $P(A \\cap B) = P(A)P(B) = 0.12$, nhưng xung khắc cho $P(A \\cap B) = 0$. Vậy hai sự kiện xung khắc có xác suất dương luôn phụ thuộc: biết A xảy ra thì chắc chắn B không xảy ra."
+    },
+    {
+      "id": "q-prob-5",
+      "type": "mcq",
+      "question": "Tung 2 đồng xu công bằng. Biết có ít nhất 1 mặt Heads, xác suất cả hai đều là Heads là bao nhiêu?",
+      "options": [
+        "1/2",
+        "1/4",
+        "3/4",
+        "1/3"
+      ],
+      "correct": 3,
+      "explanation": "Điều kiện \"ít nhất 1 Heads\" thu hẹp không gian mẫu còn {HH, HT, TH} — 3 kết quả đồng khả năng. Chỉ HH thỏa → 1/3. Đáp án 1/2 là bẫy: chỉ đúng nếu biết \"đồng xu thứ nhất là Heads\" (một điều kiện khác)."
+    },
+    {
+      "id": "q-prob-6",
+      "type": "mcq",
+      "question": "Hệ thống sinh ID ngẫu nhiên 32-bit ($m = 2^{32} \\approx 4.3$ tỷ giá trị). Sinh khoảng bao nhiêu ID thì xác suất trùng ID đạt ~50%?",
+      "options": [
+        "Khoảng 2 tỷ ($2^{31}$)",
+        "Khoảng 77 nghìn (cỡ $2^{16}$)",
+        "Khoảng 4 triệu",
+        "Khoảng 1 nghìn"
+      ],
+      "correct": 1,
+      "explanation": "Birthday bound: $n \\approx 1.18\\sqrt{2^{32}} = 1.18 \\times 65536 \\approx 77{,}000$. Chỉ cần cỡ căn bậc hai của không gian! Vì vậy ID 32-bit ngẫu nhiên không an toàn cho hệ thống lớn — UUID v4 dùng 122 bit ngẫu nhiên."
     }
   ]
 }

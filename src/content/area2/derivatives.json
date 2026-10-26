@@ -5,18 +5,20 @@
   "unit": "a2u2",
   "order": 3,
   "icon": "curve",
-  "tagline": "Đạo hàm đo tốc độ thay đổi — slope của tiếp tuyến. Trong ML, đây chính là gradient dẫn đường cho gradient descent.",
-  "readTime": "~18 min",
-  "prerequisites": ["area2_limits"],
+  "tagline": "Đạo hàm đo tốc độ thay đổi tức thời — slope của tiếp tuyến. Chain rule là backpropagation, gradient dẫn đường cho gradient descent.",
+  "readTime": "~28 min",
+  "prerequisites": [
+    "area2_limits"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Đạo hàm (derivative) trả lời câu hỏi: **\"Hàm số thay đổi nhanh như thế nào tại một điểm?\"** — hay nói cách khác, đây là **độ dốc (slope) của tiếp tuyến** tại điểm đó.\n\nTrực giác đơn giản: nếu bạn đang leo núi và muốn biết dốc hiện tại đứng hay thoải, đạo hàm cho bạn biết điều đó tại từng bước.\n\nVì sao dân CS/ML cần đạo hàm? Vì **gradient descent** — thuật toán huấn luyện mạng neural — hoàn toàn dựa vào đạo hàm. Mỗi lần cập nhật trọng số, model đi theo hướng *ngược dốc* (negative gradient) để giảm loss. Không có đạo hàm, không có deep learning."
+      "content": "Đạo hàm (derivative) trả lời câu hỏi: **\"Tại một điểm, hàm số thay đổi nhanh đến đâu?\"** — tức là **tốc độ thay đổi tức thời (local rate of change)**, về mặt hình học là **độ dốc (slope) của tiếp tuyến** tại điểm đó.\n\nTrực giác: nếu bạn đang leo núi và muốn biết con dốc ngay dưới chân đứng hay thoải, đạo hàm cho bạn biết điều đó tại từng bước.\n\nVì sao dân CS/ML cần đạo hàm? Vì **gradient descent** — thuật toán huấn luyện mạng neural — dựa hoàn toàn vào đạo hàm, và **backpropagation** chỉ là quy tắc dây chuyền (chain rule) áp dụng có hệ thống. Mỗi lần cập nhật trọng số, model đi theo hướng *ngược dốc* (negative gradient) để giảm loss."
     },
     {
       "type": "analogy",
       "title": "Đạo hàm = độ dốc tức thời",
-      "content": "Hình dung bạn lái xe và nhìn đồng hồ tốc độ. Tại một thời điểm nhất định, đồng hồ hiển thị 60 km/h — đó là **vận tốc tức thời (instantaneous speed)**, chính là đạo hàm của quãng đường theo thời gian.\n\nVề mặt đồ thị: đạo hàm của f tại x=a là **slope của đường thẳng tiếp xúc đồ thị tại điểm (a, f(a))**.\n\n- Đạo hàm > 0: hàm đang tăng (dốc lên)\n- Đạo hàm < 0: hàm đang giảm (dốc xuống)\n- Đạo hàm = 0: hàm đang ở cực trị — đỉnh hoặc đáy\n\nTrong gradient descent: chúng ta tìm điểm có đạo hàm = 0 (minimum của loss)."
+      "content": "Hình dung bạn lái xe và nhìn đồng hồ tốc độ. Tại một thời điểm, đồng hồ hiển thị 60 km/h — đó là **vận tốc tức thời (instantaneous speed)**, chính là đạo hàm của quãng đường theo thời gian. Còn \"đi 120 km mất 2 giờ\" chỉ là tốc độ *trung bình*.\n\nVề mặt đồ thị: đạo hàm của f tại x = a là **slope của tiếp tuyến tại điểm (a, f(a))**. Phóng to đồ thị đủ gần quanh điểm đó, đường cong trông gần như thẳng — và slope của \"đoạn thẳng\" ấy chính là $f'(a)$.\n\n- Đạo hàm > 0: hàm đang tăng (dốc lên)\n- Đạo hàm < 0: hàm đang giảm (dốc xuống)\n- Đạo hàm = 0: **điểm dừng (stationary point)** — có thể là đỉnh, đáy, hoặc chỉ là chỗ \"nghỉ\" như $x^3$ tại x = 0\n\nGradient descent đi tìm điểm có đạo hàm = 0, hy vọng đó là minimum của loss."
     },
     {
       "type": "formula",
@@ -24,16 +26,28 @@
       "latex": "f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}",
       "reading": "đọc là: f phẩy của x bằng giới hạn khi h tiến về 0 của (f(x+h) trừ f(x)) chia h. Đây là slope của dây cung khi dây cung co lại thành tiếp tuyến.",
       "symbols": [
-        { "sym": "f'(x)", "meaning": "đạo hàm của f tại x (đọc: f phẩy x). Ký hiệu khác: df/dx, Df." },
-        { "sym": "h", "meaning": "bước nhảy nhỏ trên trục x, tiến về 0" },
-        { "sym": "f(x+h) - f(x)", "meaning": "thay đổi của f (Δy)" },
-        { "sym": "\\frac{\\Delta y}{h}", "meaning": "tỷ lệ thay đổi trung bình → tốc độ tức thời khi h→0" }
+        {
+          "sym": "f'(x)",
+          "meaning": "đạo hàm của f tại x (đọc: f phẩy x). Ký hiệu khác: df/dx, Df."
+        },
+        {
+          "sym": "h",
+          "meaning": "bước nhảy nhỏ trên trục x, tiến về 0"
+        },
+        {
+          "sym": "f(x+h) - f(x)",
+          "meaning": "thay đổi của f (Δy)"
+        },
+        {
+          "sym": "\\frac{\\Delta y}{h}",
+          "meaning": "tỷ lệ thay đổi trung bình → tốc độ tức thời khi h→0"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Các quy tắc đạo hàm thường dùng",
-      "content": "Thay vì tính giới hạn mỗi lần, ta dùng các quy tắc:\n\n- **Hằng số:** $\\frac{d}{dx}[c] = 0$ — hằng số không đổi, slope = 0\n- **Lũy thừa:** $\\frac{d}{dx}[x^n] = n \\cdot x^{n-1}$ — quy tắc mũ (power rule)\n- **Tổng:** $\\frac{d}{dx}[f+g] = f' + g'$ — đạo hàm phân phối qua phép cộng\n- **Nhân hằng:** $\\frac{d}{dx}[cf] = c \\cdot f'$ — hằng số nhân ra ngoài\n\nVí dụ nhanh: $\\frac{d}{dx}[3x^2 + 5x + 2] = 6x + 5 + 0 = 6x + 5$"
+      "content": "Thay vì tính giới hạn mỗi lần, ta dùng các quy tắc:\n\n- **Hằng số:** $\\frac{d}{dx}[c] = 0$ — hằng số không đổi, slope = 0\n- **Lũy thừa:** $\\frac{d}{dx}[x^n] = n x^{n-1}$ — quy tắc mũ (power rule)\n- **Tổng:** $(f+g)' = f' + g'$ — đạo hàm tách được qua phép cộng\n- **Nhân hằng:** $(cf)' = c f'$ — hằng số đưa ra ngoài\n\nBảng đạo hàm cần thuộc:\n\n| f(x) | f'(x) |\n|---|---|\n| $x^n$ | $n x^{n-1}$ |\n| $e^x$ | $e^x$ |\n| $a^x$ | $a^x \\ln a$ |\n| $\\ln x$ | $\\frac{1}{x}$ |\n| $\\sigma(x) = \\frac{1}{1+e^{-x}}$ | $\\sigma(x)(1 - \\sigma(x))$ |\n\nVí dụ nhanh: $\\frac{d}{dx}[3x^2 + 5x + 2] = 6x + 5 + 0 = 6x + 5$"
     },
     {
       "type": "formula",
@@ -41,26 +55,112 @@
       "latex": "\\frac{d}{dx}\\left[x^n\\right] = n \\cdot x^{n-1}",
       "reading": "đọc là: đạo hàm của x mũ n bằng n nhân x mũ (n trừ 1). Kéo số mũ xuống, giảm số mũ đi 1.",
       "symbols": [
-        { "sym": "n", "meaning": "số mũ (có thể là số thực bất kỳ, không chỉ số nguyên)" },
-        { "sym": "n \\cdot x^{n-1}", "meaning": "số mũ kéo xuống thành hệ số, số mũ giảm 1" },
-        { "sym": "\\frac{d}{dx}", "meaning": "ký hiệu 'lấy đạo hàm theo x' (của Leibniz)" }
+        {
+          "sym": "n",
+          "meaning": "số mũ — có thể là số thực bất kỳ (khi đó xét x > 0), ví dụ $\\sqrt{x} = x^{1/2}$ có đạo hàm $\\frac{1}{2}x^{-1/2}$"
+        },
+        {
+          "sym": "n \\cdot x^{n-1}",
+          "meaning": "số mũ kéo xuống thành hệ số, số mũ giảm 1"
+        },
+        {
+          "sym": "\\frac{d}{dx}",
+          "meaning": "ký hiệu 'lấy đạo hàm theo x' (của Leibniz)"
+        }
       ]
     },
     {
       "type": "graph",
       "title": "f(x) = x² và tiếp tuyến tại x = 1",
       "functions": [
-        { "fn": "x^2", "color": "#ffe08a" },
-        { "fn": "2*x - 1", "color": "#7fded1" }
+        {
+          "fn": "x^2",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "2*x - 1",
+          "color": "#7fded1"
+        }
       ],
-      "xDomain": [-2, 3],
-      "yDomain": [-1, 6],
-      "caption": "Vàng: f(x) = x². Xanh: tiếp tuyến tại x=1, phương trình y = 2x−1 (slope = f'(1) = 2). Đạo hàm tại x=1 chính là slope của đường thẳng tiếp xúc đồ thị — đây là ý nghĩa hình học cốt lõi."
+      "xDomain": [
+        -2,
+        3
+      ],
+      "yDomain": [
+        -1,
+        6
+      ],
+      "caption": "Vàng: f(x) = x². Mint: tiếp tuyến tại x = 1, phương trình y = 2x − 1 (slope = f'(1) = 2). Gần x = 1, đường cong và tiếp tuyến gần như trùng nhau — đạo hàm là phép xấp xỉ tuyến tính tốt nhất tại điểm đó."
+    },
+    {
+      "type": "formula",
+      "title": "Quy tắc tích (Product Rule)",
+      "latex": "(f \\cdot g)' = f' \\cdot g + f \\cdot g'",
+      "reading": "đọc là: đạo hàm của tích bằng (đạo hàm cái thứ nhất nhân cái thứ hai) cộng (cái thứ nhất nhân đạo hàm cái thứ hai). Lần lượt \"đạo hàm một cái, giữ nguyên cái kia\".",
+      "symbols": [
+        {
+          "sym": "f' g",
+          "meaning": "chỉ f thay đổi, g giữ nguyên"
+        },
+        {
+          "sym": "f g'",
+          "meaning": "chỉ g thay đổi, f giữ nguyên"
+        },
+        {
+          "sym": "(fg)' \\ne f'g'",
+          "meaning": "lỗi kinh điển: đạo hàm của tích KHÔNG phải tích các đạo hàm"
+        }
+      ]
+    },
+    {
+      "type": "formula",
+      "title": "Quy tắc dây chuyền (Chain Rule)",
+      "latex": "\\begin{gathered} \\frac{d}{dx} f(g(x)) = f'(g(x)) \\cdot g'(x) \\\\ \\frac{dy}{dx} = \\frac{dy}{du} \\cdot \\frac{du}{dx} \\end{gathered}",
+      "reading": "đọc là: đạo hàm của hàm hợp bằng đạo hàm lớp ngoài (tính tại lớp trong) nhân đạo hàm lớp trong. Tốc độ thay đổi nhân dồn qua từng tầng: nếu u đổi nhanh gấp 3 lần x, và y đổi nhanh gấp 2 lần u, thì y đổi nhanh gấp 6 lần x.",
+      "symbols": [
+        {
+          "sym": "g(x)",
+          "meaning": "lớp trong (inner) — ví dụ $u = 3x^2 + 1$"
+        },
+        {
+          "sym": "f'(g(x))",
+          "meaning": "đạo hàm lớp ngoài, tính TẠI giá trị lớp trong"
+        },
+        {
+          "sym": "\\frac{dy}{du} \\cdot \\frac{du}{dx}",
+          "meaning": "dạng Leibniz — nhân các tỉ lệ thay đổi qua từng tầng; đây chính là backpropagation"
+        }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 3: chain rule và product rule",
+      "problem": "Tính đạo hàm của (a) $y = (3x^2 + 1)^5$ và (b) $y = x^2 e^x$.",
+      "steps": [
+        {
+          "text": "(a) Đặt lớp trong $u = 3x^2 + 1$, lớp ngoài $y = u^5$. Khi đó $\\frac{dy}{du} = 5u^4$ và $\\frac{du}{dx} = 6x$.",
+          "rule": "Tách lớp trong / lớp ngoài"
+        },
+        {
+          "text": "$\\frac{dy}{dx} = 5(3x^2+1)^4 \\cdot 6x = 30x(3x^2+1)^4$.",
+          "rule": "Chain rule"
+        },
+        {
+          "text": "Sai lầm hay gặp: viết $5(3x^2+1)^4$ rồi dừng — quên nhân đạo hàm lớp trong 6x.",
+          "rule": "Chain rule: luôn nhân thêm đạo hàm lớp trong",
+          "isCommonMistake": true
+        },
+        {
+          "text": "(b) $f = x^2$, $g = e^x$: $y' = 2x \\cdot e^x + x^2 \\cdot e^x = e^x(x^2 + 2x)$.",
+          "rule": "Product rule"
+        }
+      ],
+      "result": "(a) $30x(3x^2+1)^4$; (b) $e^x(x^2 + 2x)$"
     },
     {
       "type": "explanation",
       "title": "Gradient Descent — ứng dụng đạo hàm trong ML",
-      "content": "Trong huấn luyện mạng neural, ta có một **hàm loss** L(w) đo độ sai lệch của model theo trọng số w. Mục tiêu: tìm w làm L nhỏ nhất.\n\n**Gradient descent** thực hiện điều này bằng cách lặp:\n$$w_{\\text{new}} \\leftarrow w_{\\text{old}} - \\alpha \\cdot L'(w_{\\text{old}})$$\n\n- $L'(w)$ là đạo hàm (gradient) của loss — cho biết dốc theo hướng nào\n- $\\alpha$ (learning rate) là bước đi nhỏ\n- Dấu trừ: đi *ngược chiều* dốc để tìm cực tiểu\n\nĐây chính là ý nghĩa của \"đi ngược dốc để giảm loss\": đạo hàm dương → giảm w; đạo hàm âm → tăng w; đạo hàm ≈ 0 → đã đến minimum."
+      "content": "Trong huấn luyện model, ta có một **hàm loss** L(w) đo độ sai lệch của model theo trọng số w. Mục tiêu: tìm w làm L nhỏ nhất.\n\n**Gradient descent** làm điều này bằng cách lặp:\n\n$$w_{\\text{new}} = w_{\\text{old}} - \\alpha \\cdot L'(w_{\\text{old}})$$\n\n- $L'(w)$ là đạo hàm (gradient) của loss — cho biết dốc lên theo hướng nào\n- $\\alpha$ (learning rate) là độ dài bước\n- Dấu trừ: đi *ngược chiều* dốc để xuống thấp\n\nĐạo hàm dương → giảm w; đạo hàm âm → tăng w; đạo hàm ≈ 0 → đã gần một điểm dừng (với loss lồi như parabola thì đó là minimum; với mạng neural có thể chỉ là minimum cục bộ hoặc điểm yên ngựa)."
     },
     {
       "type": "formula",
@@ -68,21 +168,107 @@
       "latex": "w \\leftarrow w - \\alpha \\cdot \\frac{dL}{dw}",
       "reading": "đọc là: trọng số mới bằng trọng số cũ trừ learning rate nhân với đạo hàm của loss theo w. Đi ngược dốc một bước nhỏ.",
       "symbols": [
-        { "sym": "w", "meaning": "trọng số (weight) của model cần tối ưu" },
-        { "sym": "\\alpha", "meaning": "learning rate — bước đi nhỏ (thường 0.001 đến 0.1)" },
-        { "sym": "dL/dw", "meaning": "gradient — đạo hàm của hàm loss theo w" },
-        { "sym": "-\\alpha \\cdot dL/dw", "meaning": "di chuyển ngược chiều dốc (negative gradient)" }
+        {
+          "sym": "w",
+          "meaning": "trọng số (weight) của model cần tối ưu"
+        },
+        {
+          "sym": "\\alpha",
+          "meaning": "learning rate — độ dài bước (giá trị hay gặp: 0.001 đến 0.1). Quá lớn → nhảy qua minimum và có thể phân kỳ; quá nhỏ → hội tụ chậm"
+        },
+        {
+          "sym": "dL/dw",
+          "meaning": "gradient — đạo hàm của hàm loss theo w"
+        },
+        {
+          "sym": "-\\alpha \\cdot dL/dw",
+          "meaning": "di chuyển ngược chiều dốc (negative gradient)"
+        }
       ]
+    },
+    {
+      "type": "explanation",
+      "title": "Đạo hàm riêng & gradient — khi có nhiều biến",
+      "content": "Model thật có hàng triệu trọng số, nên loss là hàm nhiều biến $L(w_1, w_2, \\ldots)$. **Đạo hàm riêng (partial derivative)** $\\frac{\\partial f}{\\partial x}$ là đạo hàm theo x khi **giữ cố định mọi biến khác** như hằng số.\n\nVí dụ $f(x, y) = x^2 + 3xy$: coi y là hằng → $\\frac{\\partial f}{\\partial x} = 2x + 3y$; coi x là hằng → $\\frac{\\partial f}{\\partial y} = 3x$.\n\nGom tất cả đạo hàm riêng lại thành vector ta được **gradient** $\\nabla f$. Tại (1, 2): $\\nabla f = (2 \\cdot 1 + 3 \\cdot 2,\\ 3 \\cdot 1) = (8, 3)$.\n\nÝ nghĩa hình học: **gradient chỉ hướng tăng nhanh nhất** của f, độ dài của nó là độ dốc theo hướng đó. Vì vậy gradient descent đi theo $-\\nabla L$ — hướng giảm nhanh nhất."
+    },
+    {
+      "type": "formula",
+      "title": "Gradient và bước cập nhật nhiều chiều",
+      "latex": "\\begin{gathered} \\nabla f = \\left( \\frac{\\partial f}{\\partial x_1}, \\ldots, \\frac{\\partial f}{\\partial x_n} \\right) \\\\ \\mathbf{w} \\leftarrow \\mathbf{w} - \\alpha \\nabla L(\\mathbf{w}) \\end{gathered}",
+      "reading": "đọc là: gradient (nabla f) là vector các đạo hàm riêng; mỗi bước, toàn bộ vector trọng số đi một bước ngược hướng gradient.",
+      "symbols": [
+        {
+          "sym": "\\partial",
+          "meaning": "ký hiệu đạo hàm riêng (đọc: \"del\" hoặc \"partial\")"
+        },
+        {
+          "sym": "\\nabla f",
+          "meaning": "gradient — vector chỉ hướng f tăng nhanh nhất"
+        },
+        {
+          "sym": "\\mathbf{w}",
+          "meaning": "vector tất cả trọng số của model"
+        }
+      ]
+    },
+    {
+      "type": "diagram",
+      "title": "Backpropagation = chain rule qua đồ thị tính toán",
+      "mermaid": "graph LR\n  W[\"w\"] --> Z[\"z = w*x + b\"]\n  Z --> Y[\"y = sigmoid(z)\"]\n  Y --> L[\"L = (y - t)^2\"]\n  L -.->|\"dL/dy\"| Y\n  Y -.->|\"dy/dz\"| Z\n  Z -.->|\"dz/dw = x\"| W",
+      "caption": "Chiều đi (nét liền): tính z, y, L. Chiều về (nét đứt): nhân các đạo hàm cục bộ từ L ngược về w — ∂L/∂w = (∂L/∂y)·(∂y/∂z)·(∂z/∂w). Đó chính là backpropagation."
+    },
+    {
+      "type": "explanation",
+      "title": "Đạo hàm = xấp xỉ tuyến tính & kiểm tra gradient bằng số",
+      "content": "Định nghĩa đạo hàm cho ta công thức xấp xỉ rất hay dùng: với h nhỏ,\n\n$$f(x + h) \\approx f(x) + f'(x) \\cdot h$$\n\nVí dụ: $\\sqrt{4.1} \\approx 2 + \\frac{1}{2\\sqrt{4}} \\cdot 0.1 = 2.025$ (giá trị thật ≈ 2.02485).\n\nTrong thực tế, ta kiểm tra code backprop bằng **gradient checking**: so sánh gradient tính tay với đạo hàm số theo công thức sai phân trung tâm (central difference)\n\n$$f'(x) \\approx \\frac{f(x+h) - f(x-h)}{2h}, \\quad h \\approx 10^{-5}$$\n\nNếu hai số lệch nhau đáng kể, code đạo hàm của bạn có bug. Đừng chọn h quá nhỏ (như $10^{-12}$) vì sai số làm tròn của số thực dấu phẩy động sẽ lấn át."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 4: backprop qua một neuron",
+      "problem": "Neuron $z = wx + b$, $y = \\sigma(z)$, loss $L = (y - t)^2$. Với $x = 2$, $w = 0.5$, $b = -1$, $t = 1$, tính $\\frac{\\partial L}{\\partial w}$.",
+      "steps": [
+        {
+          "text": "Chiều đi: $z = 0.5 \\cdot 2 - 1 = 0$, $y = \\sigma(0) = 0.5$, $L = (0.5 - 1)^2 = 0.25$.",
+          "rule": "Forward pass"
+        },
+        {
+          "text": "Đạo hàm cục bộ: $\\frac{\\partial L}{\\partial y} = 2(y - t) = -1$; $\\frac{\\partial y}{\\partial z} = \\sigma(z)(1 - \\sigma(z)) = 0.25$; $\\frac{\\partial z}{\\partial w} = x = 2$.",
+          "rule": "Đạo hàm từng tầng"
+        },
+        {
+          "text": "Nhân dồn: $\\frac{\\partial L}{\\partial w} = (-1)(0.25)(2) = -0.5$.",
+          "rule": "Chain rule"
+        },
+        {
+          "text": "Sai lầm hay gặp: quên tầng sigmoid (bỏ thừa số 0.25) hoặc lấy $\\frac{\\partial z}{\\partial w} = w$ thay vì x. Đạo hàm của $wx$ theo w là x.",
+          "rule": "Đạo hàm theo biến nào thì biến đó là biến, còn lại là hằng",
+          "isCommonMistake": true
+        }
+      ],
+      "result": "$\\frac{\\partial L}{\\partial w} = -0.5$ (âm → tăng w sẽ giảm loss). Kiểm tra bằng sai phân trung tâm cho cùng kết quả −0.5."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: tính đạo hàm bằng quy tắc mũ",
       "problem": "Tính $f'(x)$ và $f'(3)$ với $f(x) = 4x^3 - 2x^2 + x - 7$.",
       "steps": [
-        { "text": "Áp dụng quy tắc mũ từng số hạng: $\\frac{d}{dx}[4x^3] = 4 \\cdot 3x^2 = 12x^2$.", "rule": "Power rule: nx^(n-1)" },
-        { "text": "$\\frac{d}{dx}[-2x^2] = -2 \\cdot 2x = -4x$. $\\frac{d}{dx}[x] = 1$. $\\frac{d}{dx}[-7] = 0$.", "rule": "Power rule + hằng số có đạo hàm = 0" },
-        { "text": "Cộng lại: $f'(x) = 12x^2 - 4x + 1$.", "isCommonMistake": false },
-        { "text": "Tại x=3: $f'(3) = 12(9) - 4(3) + 1 = 108 - 12 + 1 = 97$. Slope của đồ thị tại x=3 là 97 (rất dốc).", "isCommonMistake": true, "rule": "Đừng nhầm f'(3) với f(3) — đạo hàm tại 3 là slope, không phải giá trị hàm!" }
+        {
+          "text": "Áp dụng quy tắc mũ từng số hạng: $\\frac{d}{dx}[4x^3] = 4 \\cdot 3x^2 = 12x^2$.",
+          "rule": "Power rule: nx^(n-1)"
+        },
+        {
+          "text": "$\\frac{d}{dx}[-2x^2] = -2 \\cdot 2x = -4x$. $\\frac{d}{dx}[x] = 1$. $\\frac{d}{dx}[-7] = 0$.",
+          "rule": "Power rule + hằng số có đạo hàm = 0"
+        },
+        {
+          "text": "Cộng lại: $f'(x) = 12x^2 - 4x + 1$.",
+          "isCommonMistake": false
+        },
+        {
+          "text": "Tại x = 3: $f'(3) = 12 \\cdot 9 - 4 \\cdot 3 + 1 = 108 - 12 + 1 = 97$. Sai lầm hay gặp: thay x = 3 vào f thay vì f' — f(3) = 86 là *giá trị* hàm, còn f'(3) = 97 là *slope* tại đó.",
+          "rule": "Đạo hàm tại một điểm: tính f'(x) trước rồi mới thay số",
+          "isCommonMistake": true
+        }
       ],
       "result": "$f'(x) = 12x^2 - 4x + 1$; $f'(3) = 97$"
     },
@@ -91,11 +277,26 @@
       "title": "Ví dụ 2: gradient descent thủ công một bước",
       "problem": "Hàm loss $L(w) = w^2 - 4w + 5$. Xuất phát từ $w_0 = 0$, learning rate $\\alpha = 0.1$. Tính $w$ sau một bước gradient descent.",
       "steps": [
-        { "text": "Tính đạo hàm: $L'(w) = 2w - 4$.", "rule": "Power rule + quy tắc tổng" },
-        { "text": "Tại $w_0 = 0$: $L'(0) = 2(0) - 4 = -4$. Gradient âm → loss đang dốc xuống khi w tăng → cần tăng w.", "rule": "Gradient âm → đi theo chiều tăng w để giảm loss" },
-        { "text": "$w_1 = w_0 - \\alpha \\cdot L'(w_0) = 0 - 0.1 \\cdot (-4) = 0 + 0.4 = 0.4$.", "rule": "Bước cập nhật gradient descent" },
-        { "text": "Sai lầm hay gặp: cộng gradient thay vì trừ. Phải TRỪ gradient (đi ngược dốc). $w_1 = w_0 - \\alpha \\cdot L'$ chứ không phải $+$.", "isCommonMistake": true, "rule": "Gradient descent = đi NGƯỢC dốc = TRỪ gradient" },
-        { "text": "Kiểm tra: minimum của L là tại $L'(w^*)=0$ → $2w^*-4=0$ → $w^*=2$. Ta đang tiến đúng hướng từ 0 lên 0.4 (về phía 2)." }
+        {
+          "text": "Tính đạo hàm: $L'(w) = 2w - 4$.",
+          "rule": "Power rule + quy tắc tổng"
+        },
+        {
+          "text": "Tại $w_0 = 0$: $L'(0) = 2(0) - 4 = -4$. Gradient âm → loss đang dốc xuống khi w tăng → cần tăng w.",
+          "rule": "Gradient âm → đi theo chiều tăng w để giảm loss"
+        },
+        {
+          "text": "$w_1 = w_0 - \\alpha \\cdot L'(w_0) = 0 - 0.1 \\cdot (-4) = 0 + 0.4 = 0.4$.",
+          "rule": "Bước cập nhật gradient descent"
+        },
+        {
+          "text": "Sai lầm hay gặp: cộng gradient thay vì trừ. Phải TRỪ gradient (đi ngược dốc). $w_1 = w_0 - \\alpha \\cdot L'$ chứ không phải $+$.",
+          "isCommonMistake": true,
+          "rule": "Gradient descent = đi NGƯỢC dốc = TRỪ gradient"
+        },
+        {
+          "text": "Kiểm tra: minimum của L là tại $L'(w^*)=0$ → $2w^*-4=0$ → $w^*=2$. Ta đang tiến đúng hướng từ 0 lên 0.4 (về phía 2)."
+        }
       ],
       "result": "$w_1 = 0.4$. Sau một bước, trọng số dịch chuyển từ 0 về phía minimum (w=2)."
     },
@@ -107,11 +308,12 @@
     {
       "type": "key_takeaways",
       "items": [
-        "Đạo hàm f'(x) = slope của tiếp tuyến tại x = tốc độ thay đổi tức thời.",
-        "Power rule: $\\frac{d}{dx}[x^n] = nx^{n-1}$ — quy tắc mũ đơn giản nhất.",
-        "f'(x) > 0: hàm tăng; f'(x) < 0: hàm giảm; f'(x) = 0: cực trị.",
-        "Gradient descent: $w \\leftarrow w - \\alpha \\cdot f'(w)$ — đi ngược dốc để giảm loss.",
-        "Dấu MINUS trong gradient descent quan trọng — đi NGƯỢC chiều gradient."
+        "Đạo hàm f'(x) = tốc độ thay đổi tức thời = slope của tiếp tuyến tại x.",
+        "Power rule $\\frac{d}{dx}[x^n] = nx^{n-1}$; product rule $(fg)' = f'g + fg'$; chain rule $\\frac{dy}{dx} = \\frac{dy}{du}\\cdot\\frac{du}{dx}$.",
+        "f'(x) > 0: hàm tăng; f'(x) < 0: hàm giảm; f'(x) = 0: điểm dừng (đỉnh, đáy hoặc không phải cực trị).",
+        "Đạo hàm riêng: đạo hàm theo một biến, giữ các biến khác cố định. Gradient $\\nabla f$ chỉ hướng tăng nhanh nhất.",
+        "Gradient descent: $\\mathbf{w} \\leftarrow \\mathbf{w} - \\alpha \\nabla L$ — dấu TRỪ để đi xuống; backprop = chain rule.",
+        "$f(x+h) \\approx f(x) + f'(x)h$ — nền tảng của xấp xỉ tuyến tính và gradient checking."
       ]
     }
   ],
@@ -120,7 +322,7 @@
       "id": "fc-deriv-def",
       "type": "definition",
       "front": "Đạo hàm $f'(x)$ có ý nghĩa hình học là gì?",
-      "back": "Slope của đường thẳng tiếp xúc đồ thị f tại điểm x — tức là tốc độ thay đổi tức thời của f tại x."
+      "back": "Slope của tiếp tuyến với đồ thị f tại điểm x — tức tốc độ thay đổi tức thời của f tại x. Gần x, $f(x+h) \\approx f(x) + f'(x)h$."
     },
     {
       "id": "fc-deriv-power",
@@ -132,7 +334,7 @@
       "id": "fc-deriv-sign",
       "type": "concept",
       "front": "f'(x) > 0, f'(x) < 0, f'(x) = 0 có nghĩa gì?",
-      "back": "> 0: hàm đang tăng (dốc lên). < 0: hàm đang giảm (dốc xuống). = 0: điểm cực trị (đỉnh hoặc đáy) — gradient descent tìm điểm này."
+      "back": "> 0: hàm đang tăng. < 0: hàm đang giảm. = 0: điểm dừng (stationary) — có thể là cực đại, cực tiểu, hoặc không phải cực trị (như $x^3$ tại 0). Gradient descent tìm điểm dừng, hy vọng là minimum."
     },
     {
       "id": "fc-deriv-gd",
@@ -145,6 +347,48 @@
       "type": "formula",
       "front": "Định nghĩa đạo hàm qua giới hạn?",
       "back": "$f'(x) = \\lim_{h\\to 0}\\frac{f(x+h)-f(x)}{h}$ — slope của dây cung khi khoảng cách h co về 0."
+    },
+    {
+      "id": "fc-deriv-chain",
+      "type": "formula",
+      "front": "Quy tắc dây chuyền (chain rule): $\\frac{d}{dx} f(g(x)) = ?$",
+      "back": "$f'(g(x)) \\cdot g'(x)$ — đạo hàm lớp ngoài (tính tại lớp trong) nhân đạo hàm lớp trong. Dạng Leibniz: $\\frac{dy}{dx} = \\frac{dy}{du}\\cdot\\frac{du}{dx}$. Backpropagation chính là chain rule."
+    },
+    {
+      "id": "fc-deriv-product",
+      "type": "formula",
+      "front": "Quy tắc tích: $(f \\cdot g)' = ?$",
+      "back": "$f'g + fg'$. KHÔNG phải $f'g'$. Ví dụ $(x^2 e^x)' = 2x e^x + x^2 e^x$."
+    },
+    {
+      "id": "fc-deriv-partial",
+      "type": "definition",
+      "front": "Đạo hàm riêng $\\frac{\\partial f}{\\partial x}$ của $f(x, y)$ là gì?",
+      "back": "Đạo hàm theo x khi coi y là hằng số. Ví dụ $f = x^2 + 3xy$: $\\frac{\\partial f}{\\partial x} = 2x + 3y$, $\\frac{\\partial f}{\\partial y} = 3x$."
+    },
+    {
+      "id": "fc-deriv-gradient",
+      "type": "concept",
+      "front": "Gradient $\\nabla f$ là gì và chỉ hướng nào?",
+      "back": "Vector các đạo hàm riêng $(\\partial f/\\partial x_1, \\ldots, \\partial f/\\partial x_n)$. Chỉ hướng f **tăng nhanh nhất**; $-\\nabla f$ là hướng giảm nhanh nhất — hướng gradient descent đi."
+    },
+    {
+      "id": "fc-deriv-common",
+      "type": "formula",
+      "front": "Đạo hàm của $e^x$, $\\ln x$, $a^x$, sigmoid $\\sigma(x)$?",
+      "back": "$(e^x)' = e^x$; $(\\ln x)' = 1/x$; $(a^x)' = a^x \\ln a$; $\\sigma'(x) = \\sigma(x)(1 - \\sigma(x))$, lớn nhất bằng 0.25 tại x = 0."
+    },
+    {
+      "id": "fc-deriv-linear",
+      "type": "concept",
+      "front": "Xấp xỉ tuyến tính và gradient checking dùng công thức nào?",
+      "back": "$f(x+h) \\approx f(x) + f'(x)h$. Gradient checking: $f'(x) \\approx \\frac{f(x+h) - f(x-h)}{2h}$ với h cỡ $10^{-5}$, so với gradient tính bằng backprop."
+    },
+    {
+      "id": "fc-deriv-lr",
+      "type": "concept",
+      "front": "Learning rate quá lớn hoặc quá nhỏ gây ra gì?",
+      "back": "Quá lớn: nhảy qua minimum, dao động và có thể phân kỳ (với $L = (w-3)^2$, mọi $\\alpha > 1$ đều phân kỳ). Quá nhỏ: hội tụ rất chậm."
     }
   ],
   "exercises": [
@@ -157,10 +401,23 @@
         "Đạo hàm của hằng số = 0."
       ],
       "solutionSteps": [
-        { "text": "$\\frac{d}{dx}[5x^4] = 5 \\cdot 4x^3 = 20x^3$.", "rule": "Power rule" },
-        { "text": "$\\frac{d}{dx}[-3x^2] = -3 \\cdot 2x = -6x$. $\\frac{d}{dx}[2x] = 2$. $\\frac{d}{dx}[-1] = 0$.", "rule": "Power rule + hằng số" },
-        { "text": "$f'(x) = 20x^3 - 6x + 2$.", "isCommonMistake": false },
-        { "text": "Sai lầm hay gặp: $\\frac{d}{dx}[5x^4] = 5x^3$ (quên nhân số mũ 4 xuống).", "isCommonMistake": true, "rule": "Power rule: NHÂN số mũ vào trước, rồi giảm số mũ" }
+        {
+          "text": "$\\frac{d}{dx}[5x^4] = 5 \\cdot 4x^3 = 20x^3$.",
+          "rule": "Power rule"
+        },
+        {
+          "text": "$\\frac{d}{dx}[-3x^2] = -3 \\cdot 2x = -6x$. $\\frac{d}{dx}[2x] = 2$. $\\frac{d}{dx}[-1] = 0$.",
+          "rule": "Power rule + hằng số"
+        },
+        {
+          "text": "$f'(x) = 20x^3 - 6x + 2$.",
+          "rule": "Quy tắc tổng: cộng đạo hàm từng số hạng"
+        },
+        {
+          "text": "Sai lầm hay gặp: $\\frac{d}{dx}[5x^4] = 5x^3$ (quên nhân số mũ 4 xuống).",
+          "isCommonMistake": true,
+          "rule": "Power rule: NHÂN số mũ vào trước, rồi giảm số mũ"
+        }
       ],
       "answer": "$f'(x) = 20x^3 - 6x + 2$",
       "commonMistake": "Quên nhân hệ số số mũ: viết 5x³ thay vì 20x³.",
@@ -176,11 +433,27 @@
         "Kiểm tra: f'' (đạo hàm cấp 2) > 0 → cực tiểu."
       ],
       "solutionSteps": [
-        { "text": "$f'(x) = 2x - 6$.", "rule": "Power rule" },
-        { "text": "Đặt $f'(x) = 0$: $2x - 6 = 0 \\Rightarrow x = 3$.", "rule": "Cực trị tại điểm f'=0" },
-        { "text": "f''(x) = 2 > 0 → đây là cực tiểu (parabola hướng lên).", "isCommonMistake": false },
-        { "text": "Giá trị cực tiểu: f(3) = 9 − 18 + 9 = 0. Điểm cực tiểu: (3, 0).", "isCommonMistake": false },
-        { "text": "Sai lầm hay gặp: sau khi tìm x=3, không kiểm tra xem đó là cực tiểu hay cực đại.", "isCommonMistake": true, "rule": "Luôn kiểm tra f'' hoặc bảng dấu để xác định loại cực trị" }
+        {
+          "text": "$f'(x) = 2x - 6$.",
+          "rule": "Power rule"
+        },
+        {
+          "text": "Đặt $f'(x) = 0$: $2x - 6 = 0 \\Rightarrow x = 3$.",
+          "rule": "Cực trị tại điểm f'=0"
+        },
+        {
+          "text": "$f''(x) = 2 > 0$ → đồ thị lõm lên (parabola mở lên) → x = 3 là cực tiểu.",
+          "rule": "Kiểm tra đạo hàm cấp 2"
+        },
+        {
+          "text": "Giá trị cực tiểu: f(3) = 9 − 18 + 9 = 0. Điểm cực tiểu: (3, 0). (Thực ra $f(x) = (x-3)^2$.)",
+          "rule": "Thay x vào f để có giá trị cực trị"
+        },
+        {
+          "text": "Sai lầm hay gặp: sau khi tìm x=3, không kiểm tra xem đó là cực tiểu hay cực đại.",
+          "isCommonMistake": true,
+          "rule": "Luôn kiểm tra f'' hoặc bảng dấu để xác định loại cực trị"
+        }
       ],
       "answer": "Cực tiểu tại x=3, f(3)=0.",
       "commonMistake": "Không kiểm tra đó là cực tiểu hay cực đại — f'(x)=0 chỉ là điều kiện cần.",
@@ -192,19 +465,135 @@
       "prompt": "Hàm loss $L(w) = (w - 3)^2 + 2$. Thực hiện 3 bước gradient descent từ $w_0 = 0$, learning rate $\\alpha = 0.5$. Tính $w_1, w_2, w_3$ và cho biết model đang hội tụ về đâu?",
       "hints": [
         "Khai triển rồi tính L'(w), hoặc nhận ra $L(w) = (w-3)^2 + 2$ là parabola.",
-        "Công thức chain rule đơn giản: nếu $L = (u)^2$ và $u = w-3$ thì $L' = 2(w-3) \\cdot 1 = 2w-6$.",
+        "Chain rule: với $u = w - 3$, $L = u^2 + 2$ nên $L' = 2u \\cdot u' = 2(w-3) \\cdot 1$.",
         "Áp dụng $w_{n+1} = w_n - 0.5 \\cdot L'(w_n)$ lặp 3 lần."
       ],
       "solutionSteps": [
-        { "text": "$L'(w) = 2(w-3)$.", "rule": "Chain rule cơ bản: đạo hàm (w-3)² = 2(w-3)·1" },
-        { "text": "Bước 1: $L'(0) = 2(0-3) = -6$. $w_1 = 0 - 0.5(-6) = 0 + 3 = 3$.", "rule": "Gradient descent update" },
-        { "text": "Bước 2: $L'(3) = 2(3-3) = 0$. $w_2 = 3 - 0.5(0) = 3$.", "isCommonMistake": false },
-        { "text": "Bước 3: tương tự, $w_3 = 3$. Model đã hội tụ sau đúng 1 bước!", "isCommonMistake": false },
-        { "text": "Sai lầm hay gặp với learning rate: nếu $\\alpha = 1.5$ (quá lớn), $w_1 = 0 - 1.5(-6) = 9$ (vượt qua minimum). Model không hội tụ mà dao động.", "isCommonMistake": true, "rule": "Learning rate quá lớn → không hội tụ. Quá nhỏ → hội tụ chậm. Cần cân bằng." }
+        {
+          "text": "$L'(w) = 2(w-3)$.",
+          "rule": "Chain rule: đạo hàm $(w-3)^2$ là $2(w-3) \\cdot 1$"
+        },
+        {
+          "text": "Bước 1: $L'(0) = 2(0-3) = -6$. $w_1 = 0 - 0.5 \\cdot (-6) = 3$.",
+          "rule": "Gradient descent update"
+        },
+        {
+          "text": "Bước 2: $L'(3) = 0$ → $w_2 = 3 - 0.5 \\cdot 0 = 3$. Bước 3: tương tự $w_3 = 3$. Hội tụ ngay sau 1 bước.",
+          "rule": "Gradient = 0 → đứng yên"
+        },
+        {
+          "text": "Vì sao? Viết lại: $w_{n+1} - 3 = (w_n - 3) - 2\\alpha(w_n - 3) = (1 - 2\\alpha)(w_n - 3)$. Với $\\alpha = 0.5$, hệ số $1 - 2\\alpha = 0$ nên sai số biến mất trong 1 bước.",
+          "rule": "Phân tích sai số qua từng bước"
+        },
+        {
+          "text": "Sai lầm hay gặp: nghĩ learning rate càng lớn càng nhanh. Với $\\alpha = 1.5$, hệ số = −2: $w$ đi 0 → 9 → −9 → 27, khoảng cách tới 3 gấp đôi mỗi bước → **phân kỳ**. Hội tụ chỉ khi $|1 - 2\\alpha| < 1$, tức $0 < \\alpha < 1$.",
+          "rule": "Learning rate quá lớn → phân kỳ",
+          "isCommonMistake": true
+        }
       ],
-      "answer": "$w_1 = 3, w_2 = 3, w_3 = 3$. Model hội tụ về $w^* = 3$ (minimum của L). Với learning rate vừa phải, hội tụ nhanh.",
-      "commonMistake": "Chọn learning rate quá lớn hoặc nhầm dấu (dùng + thay vì −) dẫn đến phân kỳ.",
-      "relatedFlashcard": "fc-deriv-gd"
+      "answer": "$w_1 = w_2 = w_3 = 3$. Model hội tụ về $w^* = 3$ (minimum của L, với L(3) = 2). Riêng bài này, mọi $0 < \\alpha < 1$ đều hội tụ; $\\alpha = 0.5$ là tối ưu.",
+      "commonMistake": "Chọn learning rate quá lớn (ở đây α ≥ 1) hoặc nhầm dấu (dùng + thay vì −) dẫn đến dao động hoặc phân kỳ.",
+      "relatedFlashcard": "fc-deriv-lr"
+    },
+    {
+      "id": "ex-deriv-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tính đạo hàm của $f(x) = x^3 \\ln x$ (x > 0).",
+      "hints": [
+        "Đây là tích của hai hàm: $x^3$ và $\\ln x$.",
+        "$(x^3)' = 3x^2$, $(\\ln x)' = 1/x$.",
+        "Product rule: $f'g + fg'$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Đặt $u = x^3$, $v = \\ln x$: $u' = 3x^2$, $v' = \\frac{1}{x}$.",
+          "rule": "Đạo hàm từng thừa số"
+        },
+        {
+          "text": "Sai lầm hay gặp: lấy $u' \\cdot v' = 3x^2 \\cdot \\frac{1}{x} = 3x$. Đạo hàm của tích KHÔNG phải tích các đạo hàm.",
+          "rule": "$(uv)' \\ne u'v'$",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$f'(x) = 3x^2 \\ln x + x^3 \\cdot \\frac{1}{x} = 3x^2 \\ln x + x^2 = x^2(3 \\ln x + 1)$.",
+          "rule": "Product rule"
+        }
+      ],
+      "answer": "$f'(x) = x^2(3\\ln x + 1)$",
+      "commonMistake": "Nhân hai đạo hàm với nhau ($3x^2 \\cdot 1/x$) thay vì dùng product rule.",
+      "relatedFlashcard": "fc-deriv-product"
+    },
+    {
+      "id": "ex-deriv-apply-2",
+      "difficulty": "apply",
+      "prompt": "Cho $f(x, y) = x^2 + 4y^2$. Tính gradient $\\nabla f$ tại (1, 1), rồi thực hiện một bước gradient descent với $\\alpha = 0.1$. Giá trị f giảm từ bao nhiêu xuống bao nhiêu?",
+      "hints": [
+        "$\\frac{\\partial f}{\\partial x}$: coi y là hằng. $\\frac{\\partial f}{\\partial y}$: coi x là hằng.",
+        "$(x, y) \\leftarrow (x, y) - 0.1 \\cdot \\nabla f$.",
+        "f(1, 1) = 5."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\frac{\\partial f}{\\partial x} = 2x$, $\\frac{\\partial f}{\\partial y} = 8y$. Tại (1, 1): $\\nabla f = (2, 8)$.",
+          "rule": "Đạo hàm riêng"
+        },
+        {
+          "text": "Bước cập nhật: $(1, 1) - 0.1 \\cdot (2, 8) = (0.8, 0.2)$.",
+          "rule": "Gradient descent nhiều chiều"
+        },
+        {
+          "text": "f(1, 1) = 1 + 4 = 5; f(0.8, 0.2) = 0.64 + 0.16 = 0.8. Loss giảm từ 5 xuống 0.8.",
+          "rule": "Kiểm tra loss giảm"
+        },
+        {
+          "text": "Sai lầm hay gặp: khi tính $\\frac{\\partial f}{\\partial y}$ lại đạo hàm luôn cả $x^2$ thành 2x. Với đạo hàm riêng theo y, $x^2$ là hằng số nên đạo hàm = 0.",
+          "rule": "Biến còn lại = hằng số",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Nhận xét: tọa độ y dốc hơn (8 so với 2) nên bị kéo mạnh hơn — đó là lý do gradient descent hay \"đi zig-zag\" khi loss dốc không đều theo các hướng.",
+          "rule": "Trực giác về gradient"
+        }
+      ],
+      "answer": "$\\nabla f(1,1) = (2, 8)$; điểm mới (0.8, 0.2); f giảm từ 5 xuống 0.8.",
+      "commonMistake": "Đạo hàm cả các số hạng không chứa biến đang xét; hoặc cộng gradient thay vì trừ.",
+      "relatedFlashcard": "fc-deriv-partial"
+    },
+    {
+      "id": "ex-deriv-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Chứng minh $\\sigma'(x) = \\sigma(x)(1 - \\sigma(x))$ với $\\sigma(x) = \\frac{1}{1 + e^{-x}}$, rồi giải thích vì sao mạng sâu dùng toàn sigmoid dễ bị **vanishing gradient**.",
+      "hints": [
+        "Viết $\\sigma = (1 + e^{-x})^{-1}$ và dùng chain rule với lớp trong $u = 1 + e^{-x}$.",
+        "$(e^{-x})' = -e^{-x}$ (chain rule lần nữa).",
+        "Để ý $\\frac{e^{-x}}{1+e^{-x}} = 1 - \\sigma(x)$. Giá trị lớn nhất của $\\sigma(1-\\sigma)$ là bao nhiêu?"
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\sigma = u^{-1}$ với $u = 1 + e^{-x}$; $u' = -e^{-x}$.",
+          "rule": "Tách lớp"
+        },
+        {
+          "text": "$\\sigma' = -u^{-2} \\cdot u' = \\frac{e^{-x}}{(1 + e^{-x})^2}$.",
+          "rule": "Chain rule"
+        },
+        {
+          "text": "Sai lầm hay gặp: quên đạo hàm lớp trong của $e^{-x}$ (thừa số −1), dẫn đến sai dấu: $\\sigma' < 0$ — vô lý vì sigmoid là hàm tăng.",
+          "rule": "Chain rule cho $e^{-x}$",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Tách: $\\frac{1}{1+e^{-x}} \\cdot \\frac{e^{-x}}{1+e^{-x}} = \\sigma(x)(1 - \\sigma(x))$.",
+          "rule": "Biến đổi đại số"
+        },
+        {
+          "text": "Vì $\\sigma \\in (0, 1)$, tích $\\sigma(1-\\sigma) \\le 0.25$ (đạt tại x = 0). Qua 10 tầng sigmoid, chain rule nhân ít nhất 10 thừa số ≤ 0.25: $0.25^{10} \\approx 10^{-6}$ → gradient ở tầng đầu gần như bằng 0.",
+          "rule": "Chain rule nhân dồn qua nhiều tầng"
+        }
+      ],
+      "answer": "$\\sigma'(x) = \\sigma(x)(1 - \\sigma(x)) \\le 0.25$. Backprop nhân các thừa số ≤ 0.25 qua từng tầng nên gradient co lại theo cấp số nhân (vanishing gradient) — một lý do ReLU (đạo hàm = 1 khi x > 0) được ưa chuộng.",
+      "commonMistake": "Sai dấu vì quên thừa số −1 từ $(e^{-x})'$; hoặc nghĩ vanishing gradient do sigmoid \"không liên tục\" — sigmoid trơn hoàn toàn, vấn đề là đạo hàm nhỏ.",
+      "relatedFlashcard": "fc-deriv-chain"
     }
   ],
   "quiz": [
@@ -213,12 +602,12 @@
       "type": "mcq",
       "question": "$\\frac{d}{dx}[3x^4 - 2x + 5]$ bằng bao nhiêu?",
       "options": [
-        "$12x^3 - 2$",
         "$12x^3 - 2x$",
         "$3x^3 - 2$",
-        "$12x^4 - 2$"
+        "$12x^4 - 2$",
+        "$12x^3 - 2$"
       ],
-      "correct": 0,
+      "correct": 3,
       "explanation": "$\\frac{d}{dx}[3x^4] = 12x^3$; $\\frac{d}{dx}[-2x] = -2$; $\\frac{d}{dx}[5] = 0$. Cộng lại: $12x^3 - 2$."
     },
     {
@@ -226,12 +615,12 @@
       "type": "mcq",
       "question": "Trong gradient descent, tại sao ta TRỪ gradient thay vì cộng?",
       "options": [
-        "Vì gradient luôn âm",
         "Vì ta muốn đi về phía minimum — ngược chiều dốc lên",
+        "Vì gradient luôn âm",
         "Vì learning rate đã âm sẵn",
         "Để đảm bảo trọng số không vượt quá 1"
       ],
-      "correct": 1,
+      "correct": 0,
       "explanation": "Gradient chỉ hướng tăng nhanh nhất của hàm. Để giảm loss, ta đi NGƯỢC hướng đó (negative gradient). Nên cập nhật: $w \\leftarrow w - \\alpha \\cdot \\nabla L$."
     },
     {
@@ -240,12 +629,51 @@
       "question": "Nếu $f'(a) = 0$ và $f''(a) > 0$, điểm $x = a$ là gì?",
       "options": [
         "Cực đại (local maximum)",
-        "Điểm uốn (inflection point)",
         "Cực tiểu (local minimum)",
+        "Điểm uốn (inflection point)",
         "Điểm gián đoạn"
       ],
-      "correct": 2,
+      "correct": 1,
       "explanation": "$f'(a)=0$ là điều kiện cần của cực trị. $f''(a) > 0$ → hàm lõm lên → cực tiểu. Đây là điểm gradient descent đang cố tìm."
+    },
+    {
+      "id": "q-deriv-4",
+      "type": "mcq",
+      "question": "$\\frac{d}{dx}\\left[e^{3x}\\right]$ bằng bao nhiêu?",
+      "options": [
+        "$e^{3x}$",
+        "$3x e^{3x - 1}$",
+        "$3e^{3x}$",
+        "$\\frac{1}{3}e^{3x}$"
+      ],
+      "correct": 2,
+      "explanation": "Chain rule với lớp trong u = 3x: $(e^u)' \\cdot u' = e^{3x} \\cdot 3$. Không áp dụng power rule cho hàm mũ — số mũ chứa biến. $\\frac{1}{3}e^{3x}$ là *nguyên hàm*, không phải đạo hàm."
+    },
+    {
+      "id": "q-deriv-5",
+      "type": "mcq",
+      "question": "Gradient của $f(x, y) = x^2 y$ tại điểm (1, 2) là gì?",
+      "options": [
+        "(4, 1)",
+        "(2, 1)",
+        "(4, 2)",
+        "(2, 2)"
+      ],
+      "correct": 0,
+      "explanation": "$\\frac{\\partial f}{\\partial x} = 2xy = 2 \\cdot 1 \\cdot 2 = 4$; $\\frac{\\partial f}{\\partial y} = x^2 = 1$. Vậy $\\nabla f(1, 2) = (4, 1)$."
+    },
+    {
+      "id": "q-deriv-6",
+      "type": "mcq",
+      "question": "Gradient descent trên $L(w) = (w - 3)^2$ với learning rate nào sẽ **phân kỳ**?",
+      "options": [
+        "α = 0.1",
+        "α = 0.5",
+        "α = 0.9",
+        "α = 1.5"
+      ],
+      "correct": 3,
+      "explanation": "Mỗi bước: $w_{n+1} - 3 = (1 - 2\\alpha)(w_n - 3)$. Hội tụ khi $|1 - 2\\alpha| < 1$, tức $0 < \\alpha < 1$. Với α = 1.5 hệ số là −2: sai số gấp đôi và đổi dấu mỗi bước → phân kỳ. (α = 0.9 hội tụ nhưng dao động quanh 3.)"
     }
   ]
 }

@@ -11,61 +11,123 @@
   "sections": [
     {
       "type": "intro",
-      "content": "Lũy thừa (exponentiation) là phép nhân lặp lại: $2^5$ nghĩa là nhân 2 với chính nó 5 lần: $2 \\times 2 \\times 2 \\times 2 \\times 2 = 32$. Căn số học (root) là phép toán ngược: căn bậc hai của 32 hỏi \"số nào mũ 2 ra 32?\"\n\nVì sao dân lập trình phải nắm? Vì **mọi thứ trong máy tính đều là lũy thừa của 2**: 1 byte = $2^8 = 256$ giá trị, 1 KB ≈ $2^{10} = 1024$ byte, 1 MB ≈ $2^{20}$. Thuật toán chia để trị (divide & conquer) tạo ra $2^n$ nhánh đệ quy — hiểu lũy thừa giúp bạn nhận ra độ phức tạp ngay lập tức."
+      "content": "Lũy thừa (exponentiation) là phép nhân lặp lại: $2^5$ nghĩa là nhân 2 với chính nó 5 lần: $2 \\times 2 \\times 2 \\times 2 \\times 2 = 32$. Căn (root) là phép toán ngược: căn bậc hai (square root) của 25 hỏi \"số không âm nào bình phương lên ra 25?\" (đáp: 5).\n\nVì sao dân lập trình phải nắm? Vì **máy tính sống bằng lũy thừa của 2**: 1 byte = 8 bit biểu diễn $2^8 = 256$ giá trị; 1 KiB = $2^{10} = 1024$ byte, 1 MiB = $2^{20}$ byte. Thuật toán đệ quy rẽ 2 nhánh mỗi tầng tạo ra tới $2^n$ lời gọi; ngược lại, căn bậc hai xuất hiện trong mẹo kiểm tra số nguyên tố chỉ cần thử ước đến $\\sqrt{n}$. Hiểu lũy thừa giúp bạn nhận ra độ phức tạp ngay lập tức."
     },
     {
       "type": "analogy",
       "title": "Gấp đôi tờ giấy — sức mạnh của 2^n",
-      "content": "Thử tưởng tượng bạn gấp đôi một tờ giấy mỏng 0.1 mm liên tục 42 lần. Sau 10 lần: $2^{10} \\approx 1000$ lớp → dày ~10 cm. Sau 20 lần: ~100 m. Sau 42 lần: **khoảng cách từ Trái Đất đến Mặt Trăng**!\n\nĐây chính là sức mạnh (và nguy hiểm) của tăng trưởng mũ. Trong CS, một thuật toán $O(2^n)$ — ví dụ thử tất cả tập con (subset enumeration) — với n = 50 đã cần hơn 1 triệu tỷ bước. Không máy tính nào chạy nổi."
+      "content": "Thử tưởng tượng bạn gấp đôi một tờ giấy dày 0.1 mm liên tục 42 lần. Sau 10 lần: $2^{10} = 1024$ lớp → dày khoảng 10 cm. Sau 20 lần: khoảng 100 m. Sau 42 lần: khoảng 440 000 km — **xa hơn khoảng cách từ Trái Đất đến Mặt Trăng** (khoảng 384 000 km)!\n\nĐây là sức mạnh (và nguy hiểm) của tăng trưởng mũ. Trong CS, thuật toán $O(2^n)$ — ví dụ thử tất cả tập con (subset enumeration) — với n = 50 cần khoảng $2^{50} \\approx 1.1 \\times 10^{15}$ bước (hơn 1 triệu tỷ): chạy 1 tỷ bước/giây vẫn mất gần 2 tuần. Tăng lên n = 60 thì mất khoảng 36 năm — mỗi +10 vào n nhân thời gian lên khoảng 1000 lần."
     },
     {
       "type": "formula",
       "title": "Định nghĩa lũy thừa và các quy tắc cơ bản",
-      "latex": "a^n = \\underbrace{a \\times a \\times \\cdots \\times a}_{n \\text{ times}} \\qquad a^0 = 1 \\qquad a^{-n} = \\frac{1}{a^n}",
-      "reading": "đọc là: a mũ n = a nhân với nhau n lần; a mũ 0 = 1 (với a ≠ 0); a mũ âm n = 1 chia a mũ n.",
+      "latex": "\\begin{gathered} a^n = \\underbrace{a \\times a \\times \\cdots \\times a}_{n \\text{ times}} \\\\ a^0 = 1 \\qquad a^{-n} = \\frac{1}{a^n} \\end{gathered}",
+      "reading": "đọc là: a mũ n = a nhân với nhau n lần (n nguyên dương); a mũ 0 = 1 (với a ≠ 0); a mũ âm n = 1 chia a mũ n (với a ≠ 0).",
       "symbols": [
-        { "sym": "a", "meaning": "cơ số (base) — số được nhân lặp." },
-        { "sym": "n", "meaning": "số mũ (exponent) — số lần nhân." },
-        { "sym": "a^0 = 1", "meaning": "mọi số khác 0 mũ 0 đều bằng 1 — quy ước quan trọng." },
-        { "sym": "a^{-n}", "meaning": "lũy thừa âm = nghịch đảo — ví dụ $2^{-3} = 1/8$." }
+        {
+          "sym": "a",
+          "meaning": "cơ số (base) — số được nhân lặp."
+        },
+        {
+          "sym": "n",
+          "meaning": "số mũ (exponent) — số lần nhân."
+        },
+        {
+          "sym": "a^0 = 1",
+          "meaning": "mọi số khác 0 mũ 0 đều bằng 1 — quy ước quan trọng."
+        },
+        {
+          "sym": "a^{-n}",
+          "meaning": "lũy thừa âm = nghịch đảo (reciprocal), KHÔNG phải số âm — ví dụ $2^{-3} = 1/8$."
+        }
       ]
     },
     {
       "type": "formula",
-      "title": "5 quy tắc lũy thừa phải thuộc",
-      "latex": "a^m \\cdot a^n = a^{m+n} \\qquad \\frac{a^m}{a^n} = a^{m-n} \\qquad (a^m)^n = a^{mn} \\qquad (ab)^n = a^n b^n \\qquad a^{1/n} = \\sqrt[n]{a}",
-      "reading": "đọc là: nhân cùng cơ số → cộng số mũ; chia cùng cơ số → trừ số mũ; lũy thừa của lũy thừa → nhân số mũ; lũy thừa của tích = tích lũy thừa; số mũ phân số 1/n = căn bậc n.",
+      "title": "Các quy tắc lũy thừa phải thuộc",
+      "latex": "\\begin{gathered} a^m \\cdot a^n = a^{m+n} \\qquad \\frac{a^m}{a^n} = a^{m-n} \\\\ (a^m)^n = a^{mn} \\qquad (ab)^n = a^n b^n \\\\ a^{1/n} = \\sqrt[n]{a} \\qquad a^{m/n} = \\left(\\sqrt[n]{a}\\right)^m \\end{gathered}",
+      "reading": "đọc là: nhân cùng cơ số → cộng số mũ; chia cùng cơ số → trừ số mũ; lũy thừa của lũy thừa → nhân số mũ; lũy thừa của tích = tích các lũy thừa; số mũ phân số 1/n = căn bậc n, số mũ m/n = căn bậc n rồi mũ m (với a > 0 cho chắc ăn).",
       "symbols": [
-        { "sym": "a^m \\cdot a^n = a^{m+n}", "meaning": "VD: $2^3 \\cdot 2^4 = 2^7 = 128$." },
-        { "sym": "(a^m)^n = a^{mn}", "meaning": "VD: $(2^3)^2 = 2^6 = 64$." },
-        { "sym": "a^{1/n} = \\sqrt[n]{a}", "meaning": "Số mũ phân số = căn. $4^{1/2} = \\sqrt{4} = 2$." }
+        {
+          "sym": "a^m \\cdot a^n = a^{m+n}",
+          "meaning": "VD: $2^3 \\cdot 2^4 = 2^7 = 128$."
+        },
+        {
+          "sym": "\\frac{a^m}{a^n} = a^{m-n}",
+          "meaning": "VD: $3^6 / 3^4 = 3^2 = 9$ — TRỪ số mũ, không chia."
+        },
+        {
+          "sym": "(a^m)^n = a^{mn}",
+          "meaning": "VD: $(2^3)^2 = 2^6 = 64$."
+        },
+        {
+          "sym": "a^{1/n} = \\sqrt[n]{a}",
+          "meaning": "Số mũ phân số = căn. $4^{1/2} = \\sqrt{4} = 2$."
+        },
+        {
+          "sym": "a^{m/n}",
+          "meaning": "VD: $8^{2/3} = (\\sqrt[3]{8})^2 = 2^2 = 4$."
+        },
+        {
+          "sym": "(a+b)^n \\ne a^n + b^n",
+          "meaning": "Không có quy tắc cho TỔNG: $(1+1)^2 = 4$ nhưng $1^2 + 1^2 = 2$."
+        }
       ]
     },
     {
       "type": "graph",
-      "title": "So sánh $x^2$ và $\\sqrt{x}$ — gương phản chiếu nhau",
+      "title": "So sánh $x^2$ và $\\sqrt{x}$ — hai hàm ngược nhau",
       "functions": [
-        { "fn": "x^2", "color": "#f5a623" },
-        { "fn": "sqrt(x)", "color": "#4ade80" }
+        {
+          "fn": "x^2",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "sqrt(x)",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "x",
+          "color": "#8ac6ff"
+        }
       ],
-      "xDomain": [0, 5],
-      "yDomain": [0, 10],
-      "caption": "x² (cam) tăng nhanh — parabol đi lên. sqrt(x) (xanh) tăng chậm dần — chúng là gương phản chiếu nhau qua đường y = x. Nhân và căn là hai chiều ngược nhau của cùng một phép toán."
+      "xDomain": [
+        0,
+        5
+      ],
+      "yDomain": [
+        0,
+        10
+      ],
+      "caption": "$x^2$ (vàng) tăng ngày càng nhanh; $\\sqrt{x}$ (xanh bạc hà) tăng chậm dần. Với $x \\ge 0$ chúng là hàm ngược (inverse) của nhau nên đối xứng qua đường $y = x$ (xanh dương). Bình phương và khai căn là hai chiều ngược nhau của cùng một quan hệ."
     },
     {
       "type": "explanation",
       "title": "Ứng dụng trong CS: hệ nhị phân và bộ nhớ",
-      "content": "Máy tính dùng hệ nhị phân (binary) — chỉ có 0 và 1. Với n bit (bit), bạn biểu diễn được $2^n$ giá trị khác nhau:\n\n- **1 bit**: $2^1 = 2$ giá trị (0 hoặc 1)\n- **8 bit (1 byte)**: $2^8 = 256$ giá trị (0–255)\n- **32 bit**: $2^{32} \\approx 4.3$ tỷ — số nguyên int thông thường\n- **64 bit**: $2^{64} \\approx 1.8 \\times 10^{19}$ — đủ dùng cho hầu hết mọi thứ\n\nKhi nhìn thấy 256, 1024, 65536 trong lập trình — đó luôn là lũy thừa của 2."
+      "content": "Máy tính dùng hệ nhị phân (binary) — chỉ có 0 và 1. Với n bit, bạn biểu diễn được $2^n$ giá trị khác nhau:\n\n- **1 bit**: $2^1 = 2$ giá trị (0 hoặc 1)\n- **8 bit (1 byte)**: $2^8 = 256$ giá trị (0 đến 255)\n- **32 bit**: $2^{32} \\approx 4.3$ tỷ giá trị — kiểu `int` có dấu (signed) chia đôi thành $-2^{31}$ đến $2^{31} - 1 = 2147483647$\n- **64 bit**: $2^{64} \\approx 1.8 \\times 10^{19}$ giá trị\n\nVì sao max của int32 là $2^{31} - 1$ chứ không phải $2^{31}$? Một bit dành cho dấu, còn lại 31 bit; và số 0 chiếm một chỗ ở nửa không âm. Vượt quá giới hạn này là **tràn số (integer overflow)** — lỗi kinh điển khi tính `mid = (lo + hi) / 2` trong binary search (nên viết `lo + (hi - lo) / 2`).\n\nKhi nhìn thấy 256, 1024, 65536 trong lập trình — đó gần như luôn là lũy thừa của 2."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: Áp dụng quy tắc lũy thừa",
       "problem": "Rút gọn: $\\dfrac{2^8 \\times 2^{-3}}{(2^2)^2}$",
       "steps": [
-        { "text": "Tử số: $2^8 \\times 2^{-3} = 2^{8+(-3)} = 2^5$.", "rule": "Nhân cùng cơ số → cộng số mũ" },
-        { "text": "Mẫu số: $(2^2)^2 = 2^{2 \\times 2} = 2^4$.", "rule": "Lũy thừa của lũy thừa → nhân số mũ" },
-        { "text": "Chia: $\\dfrac{2^5}{2^4} = 2^{5-4} = 2^1 = 2$.", "rule": "Chia cùng cơ số → trừ số mũ" },
-        { "text": "Lỗi hay gặp: $2^{8-3} / 2^{2+2}$ đúng, nhưng nhiều người tính $(2^2)^2 = 2^{2^2} = 2^4$ SAI thành $4^2 = 16$.", "isCommonMistake": true, "rule": "$(a^m)^n = a^{mn}$, KHÔNG phải $a^{m^n}$" }
+        {
+          "text": "Tử số: $2^8 \\times 2^{-3} = 2^{8+(-3)} = 2^5$.",
+          "rule": "Nhân cùng cơ số → cộng số mũ"
+        },
+        {
+          "text": "Mẫu số: $(2^2)^2 = 2^{2 \\times 2} = 2^4$.",
+          "rule": "Lũy thừa của lũy thừa → nhân số mũ"
+        },
+        {
+          "text": "Chia: $\\dfrac{2^5}{2^4} = 2^{5-4} = 2^1 = 2$.",
+          "rule": "Chia cùng cơ số → trừ số mũ"
+        },
+        {
+          "text": "Lỗi hay gặp ở bước 1: bỏ quên dấu âm, viết $2^8 \\times 2^{-3} = 2^{8+3} = 2^{11}$ → kết quả cuối thành $2^7 = 128$ thay vì 2.",
+          "isCommonMistake": true,
+          "rule": "$a^{-n}$ mang dấu trừ vào phép cộng số mũ: $8 + (-3) = 5$"
+        }
       ],
       "result": "$2^1 = 2$"
     },
@@ -74,25 +136,62 @@
       "title": "Ví dụ 2: Lũy thừa phân số = căn",
       "problem": "Tính $27^{2/3}$ không dùng máy tính.",
       "steps": [
-        { "text": "Viết lại số mũ phân số: $27^{2/3} = (27^{1/3})^2$.", "rule": "$(a^m)^n = a^{mn}$, đảo chiều" },
-        { "text": "$27^{1/3} = \\sqrt[3]{27}$ — căn bậc ba của 27. Vì $3^3 = 27$, nên $\\sqrt[3]{27} = 3$.", "rule": "$a^{1/n} = \\sqrt[n]{a}$" },
-        { "text": "$3^2 = 9$.", "isCommonMistake": true, "rule": "Căn trước, mũ sau — đừng tính $27^2 = 729$ rồi mới căn bậc ba (số lớn, khó tính)." }
+        {
+          "text": "Viết lại số mũ phân số: $27^{2/3} = (27^{1/3})^2$.",
+          "rule": "$(a^m)^n = a^{mn}$, đảo chiều"
+        },
+        {
+          "text": "$27^{1/3} = \\sqrt[3]{27}$ — căn bậc ba của 27. Vì $3^3 = 27$, nên $\\sqrt[3]{27} = 3$.",
+          "rule": "$a^{1/n} = \\sqrt[n]{a}$"
+        },
+        {
+          "text": "$3^2 = 9$. (Đi đường vòng $27^2 = 729$ rồi lấy căn bậc ba cũng ra 9, nhưng số lớn, dễ tính sai.)",
+          "isCommonMistake": true,
+          "rule": "Khai căn trước, lũy thừa sau cho số nhỏ; và đừng nhầm $27^{2/3}$ thành $27 \\times \\frac{2}{3} = 18$"
+        }
       ],
       "result": "$27^{2/3} = 9$"
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Lỗi cực phổ biến:** $(a^m)^n \\ne a^{m^n}$. Ví dụ: $(2^3)^2 = 2^6 = 64$ (**nhân** số mũ), nhưng nhiều người nghĩ là $2^{3^2} = 2^9 = 512$ (**mũ** số mũ). Hãy nhớ: *ngoài nhân trong — không phải mũ*."
+      "content": "**Lỗi cực phổ biến:** $(a^m)^n \\ne a^{m^n}$. Ví dụ: $(2^3)^2 = 2^6 = 64$ (**nhân** số mũ), nhưng nhiều người nghĩ là $2^{3^2} = 2^9 = 512$ (**mũ** số mũ). Lưu ý thêm: viết $2^{3^2}$ không có ngoặc thì hiểu là $2^{(3^2)} = 2^9$ — lũy thừa tính từ phải sang trái. Hãy nhớ: *có ngoặc thì nhân hai số mũ*."
+    },
+    {
+      "type": "explanation",
+      "title": "Quy tắc căn & những bẫy hay gặp",
+      "content": "Căn bậc hai $\\sqrt{a}$ (với $a \\ge 0$) luôn trả về số **không âm**. Vài quy tắc dùng thường xuyên:\n\n- $\\sqrt{ab} = \\sqrt{a} \\cdot \\sqrt{b}$ và $\\sqrt{a / b} = \\sqrt{a} / \\sqrt{b}$ (với $a, b \\ge 0$, $b \\ne 0$ khi chia). VD: $\\sqrt{50} = \\sqrt{25 \\times 2} = 5\\sqrt{2}$.\n- $\\sqrt{x^2} = |x|$, KHÔNG phải $x$. VD: $\\sqrt{(-3)^2} = \\sqrt{9} = 3$.\n- $\\sqrt{a + b} \\ne \\sqrt{a} + \\sqrt{b}$. VD: $\\sqrt{9 + 16} = 5$ nhưng $\\sqrt{9} + \\sqrt{16} = 7$.\n- Căn bậc chẵn của số âm không có nghĩa trong số thực ($\\sqrt{-4}$ không xác định); căn bậc lẻ thì được: $\\sqrt[3]{-8} = -2$.\n\n**Liên hệ CS:** khoảng cách Euclid (Euclidean distance) $\\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$ dùng trong k-NN, clustering; vì căn là hàm tăng, khi chỉ cần **so sánh** khoảng cách ta bỏ căn đi cho nhanh (so sánh bình phương khoảng cách). Kiểm tra số nguyên tố chỉ cần thử ước đến $\\sqrt{n}$ vì nếu $n = a \\times b$ thì một trong hai thừa số phải $\\le \\sqrt{n}$ → $O(\\sqrt{n})$."
+    },
+    {
+      "type": "explanation",
+      "title": "Ước lượng nhanh: $2^{10} \\approx 10^3$",
+      "content": "Mẹo tính nhẩm số một của dân hệ thống: $2^{10} = 1024 \\approx 10^3$. Từ đó mọi lũy thừa của 2 quy ra được ngay:\n\n| Lũy thừa | Giá trị | Gợi nhớ |\n|---|---|---|\n| $2^{10}$ | 1024 | ≈ nghìn (KiB) |\n| $2^{20}$ | ≈ $1.05 \\times 10^6$ | ≈ triệu (MiB) |\n| $2^{30}$ | ≈ $1.07 \\times 10^9$ | ≈ tỷ (GiB) |\n| $2^{40}$ | ≈ $1.1 \\times 10^{12}$ | ≈ nghìn tỷ (TiB) |\n\nVD: $2^{32} = 2^2 \\times 2^{30} \\approx 4 \\times 10^9$. Ngược lại, \"1 tỷ phần tử cần bao nhiêu bit để đánh số?\" → $10^9 \\approx 2^{30}$ → khoảng 30 bit.\n\n**Lưu ý đơn vị:** theo chuẩn SI, 1 KB = 1000 byte; theo chuẩn nhị phân (IEC), 1 KiB = 1024 byte. Ổ cứng \"1 TB\" quảng cáo theo SI nên hệ điều hành báo chỉ khoảng 931 GiB."
+    },
+    {
+      "type": "formula",
+      "title": "Lũy thừa nhanh (binary exponentiation) — $O(\\log n)$ phép nhân",
+      "latex": "x^n = \\begin{cases} \\left(x^{n/2}\\right)^2 & n \\text{ even} \\\\ x \\cdot \\left(x^{(n-1)/2}\\right)^2 & n \\text{ odd} \\end{cases}",
+      "reading": "đọc là: muốn tính x mũ n, tính x mũ n/2 một lần rồi bình phương; nếu n lẻ thì nhân thêm một x. Mỗi bước n giảm một nửa nên chỉ cần khoảng 2·log₂ n phép nhân thay vì n − 1.",
+      "symbols": [
+        {
+          "sym": "x^{13}",
+          "meaning": "$13 = 1101_2$ nên $x^{13} = x^8 \\cdot x^4 \\cdot x^1$ — chỉ 5 phép nhân thay vì 12."
+        },
+        {
+          "sym": "\\text{use}",
+          "meaning": "Dùng trong `pow(x, n)` (câu phỏng vấn kinh điển), RSA (`pow(a, e, m)` của Python), nhân ma trận để tính Fibonacci trong $O(\\log n)$."
+        }
+      ]
     },
     {
       "type": "key_takeaways",
       "items": [
-        "$a^n$ = a nhân với nhau n lần; $a^0 = 1$; $a^{-n} = 1/a^n$.",
-        "5 quy tắc: nhân→cộng số mũ, chia→trừ, lũy thừa của lũy thừa→nhân, lũy thừa của tích, số mũ phân số=căn.",
-        "Số mũ phân số $a^{1/n} = \\sqrt[n]{a}$ — căn là lũy thừa gọn.",
-        "Trong CS: n bit biểu diễn $2^n$ giá trị; 1 byte=$2^8$=256; bộ nhớ luôn là lũy thừa 2.",
-        "$O(2^n)$ = tăng trưởng bùng nổ (combinatorial explosion) — cần tránh ở thuật toán thực tế."
+        "$a^n$ = a nhân với nhau n lần; $a^0 = 1$ (a ≠ 0); $a^{-n} = 1/a^n$ là nghịch đảo, không phải số âm.",
+        "Quy tắc: nhân → cộng số mũ, chia → trừ, lũy thừa của lũy thừa → nhân, lũy thừa của tích → tích các lũy thừa. Không có quy tắc cho $(a+b)^n$.",
+        "Số mũ phân số: $a^{1/n} = \\sqrt[n]{a}$, $a^{m/n} = (\\sqrt[n]{a})^m$. Và $\\sqrt{x^2} = |x|$, $\\sqrt{a+b} \\ne \\sqrt{a} + \\sqrt{b}$.",
+        "Trong CS: n bit biểu diễn $2^n$ giá trị; int32 có dấu chạy từ $-2^{31}$ đến $2^{31}-1$; mẹo nhẩm $2^{10} \\approx 10^3$.",
+        "Lũy thừa nhanh tính $x^n$ chỉ với $O(\\log n)$ phép nhân nhờ bình phương liên tiếp.",
+        "$O(2^n)$ = tăng trưởng bùng nổ (combinatorial explosion): mỗi +10 vào n nhân thời gian chạy lên khoảng 1000 lần."
       ]
     }
   ],
@@ -125,7 +224,31 @@
       "id": "fc-pr-bits",
       "type": "concept",
       "front": "Với n bit, máy tính biểu diễn được bao nhiêu giá trị?",
-      "back": "$2^n$ giá trị. VD: 8 bit → $2^8 = 256$; 32 bit → $2^{32} \\approx 4.3$ tỷ."
+      "back": "$2^n$ giá trị. VD: 8 bit → $2^8 = 256$; 32 bit → $2^{32} \\approx 4.3$ tỷ. Nếu có dấu (signed) thì khoảng giá trị là $-2^{n-1}$ đến $2^{n-1} - 1$."
+    },
+    {
+      "id": "fc-pr-rule-quotient",
+      "type": "formula",
+      "front": "Chia hai lũy thừa cùng cơ số: $\\dfrac{a^m}{a^n} = ?$",
+      "back": "$a^{m-n}$ — TRỪ số mũ (không chia số mũ). VD: $\\dfrac{3^6}{3^4} = 3^2 = 9$."
+    },
+    {
+      "id": "fc-pr-root-rules",
+      "type": "concept",
+      "front": "$\\sqrt{x^2} = ?$ và $\\sqrt{a+b}$ có bằng $\\sqrt{a} + \\sqrt{b}$ không?",
+      "back": "$\\sqrt{x^2} = |x|$. KHÔNG: $\\sqrt{9+16} = 5 \\ne 3 + 4$. Chỉ tích mới tách được: $\\sqrt{ab} = \\sqrt{a}\\sqrt{b}$ (a, b ≥ 0)."
+    },
+    {
+      "id": "fc-pr-estimate",
+      "type": "concept",
+      "front": "Mẹo ước lượng lũy thừa của 2 sang lũy thừa của 10?",
+      "back": "$2^{10} = 1024 \\approx 10^3$. Suy ra $2^{20} \\approx 10^6$, $2^{30} \\approx 10^9$, $2^{32} \\approx 4 \\times 10^9$, $2^{64} \\approx 1.8 \\times 10^{19}$."
+    },
+    {
+      "id": "fc-pr-fast-pow",
+      "type": "concept",
+      "front": "Tính $x^n$ cần bao nhiêu phép nhân nếu dùng lũy thừa nhanh (binary exponentiation)?",
+      "back": "$O(\\log n)$: $x^n = (x^{n/2})^2$ (n chẵn) hoặc $x \\cdot (x^{(n-1)/2})^2$ (n lẻ). VD: $x^{13} = x^8 x^4 x$ chỉ 5 phép nhân thay vì 12."
     }
   ],
   "exercises": [
@@ -138,12 +261,23 @@
         "$3^{6-4} = 3^2 = ?$"
       ],
       "solutionSteps": [
-        { "text": "Cùng cơ số 3: $\\dfrac{3^6}{3^4} = 3^{6-4} = 3^2$.", "rule": "Chia cùng cơ số → trừ số mũ" },
-        { "text": "$3^2 = 9$." }
+        {
+          "text": "Cùng cơ số 3: $\\dfrac{3^6}{3^4} = 3^{6-4} = 3^2$.",
+          "rule": "Chia cùng cơ số → trừ số mũ"
+        },
+        {
+          "text": "Lỗi hay gặp: chia số mũ, ra $3^{6/4} = 3^{1.5} \\approx 5.2$.",
+          "isCommonMistake": true,
+          "rule": "$a^m / a^n = a^{m-n}$, không phải $a^{m/n}$"
+        },
+        {
+          "text": "$3^2 = 9$.",
+          "rule": "Tính lũy thừa"
+        }
       ],
       "answer": "9",
       "commonMistake": "Chia số mũ: $3^{6/4}$ — sai. Phải trừ số mũ, không chia.",
-      "relatedFlashcard": "fc-pr-rule-product"
+      "relatedFlashcard": "fc-pr-rule-quotient"
     },
     {
       "id": "ex-pr-apply-1",
@@ -155,9 +289,19 @@
         "$x^{12} \\cdot x^{-6} = x^{?}$"
       ],
       "solutionSteps": [
-        { "text": "$(x^4)^3 = x^{4 \\times 3} = x^{12}$.", "rule": "Lũy thừa của lũy thừa → nhân số mũ" },
-        { "text": "$x^{12} \\cdot x^{-6} = x^{12 + (-6)} = x^6$.", "rule": "Nhân cùng cơ số → cộng số mũ" },
-        { "text": "Lỗi hay gặp: tính $(x^4)^3 = x^{4^3} = x^{64}$ thay vì $x^{4 \\times 3} = x^{12}$.", "isCommonMistake": true, "rule": "Mũ ngoài NHÂN với mũ trong — không lũy thừa tiếp" }
+        {
+          "text": "$(x^4)^3 = x^{4 \\times 3} = x^{12}$.",
+          "rule": "Lũy thừa của lũy thừa → nhân số mũ"
+        },
+        {
+          "text": "$x^{12} \\cdot x^{-6} = x^{12 + (-6)} = x^6$.",
+          "rule": "Nhân cùng cơ số → cộng số mũ"
+        },
+        {
+          "text": "Lỗi hay gặp: tính $(x^4)^3 = x^{4^3} = x^{64}$ thay vì $x^{4 \\times 3} = x^{12}$.",
+          "isCommonMistake": true,
+          "rule": "Mũ ngoài NHÂN với mũ trong — không lũy thừa tiếp"
+        }
       ],
       "answer": "$x^6$",
       "commonMistake": "Nhầm $(x^4)^3 = x^{64}$ thay vì $x^{12}$.",
@@ -166,20 +310,116 @@
     {
       "id": "ex-pr-challenge-1",
       "difficulty": "challenge",
-      "prompt": "Trong Python, kiểu `int` có 64 bit. Hỏi: (a) Có bao nhiêu giá trị nguyên không âm khác nhau? (b) Nếu một hàm đệ quy tạo ra 2 nhánh con ở mỗi cấp và chạy sâu 20 cấp, tổng số lời gọi hàm là bao nhiêu?",
+      "prompt": "Kiểu `uint64_t` trong C/C++ (số nguyên 64 bit không dấu) dùng 64 bit. Hỏi: (a) Nó biểu diễn được bao nhiêu giá trị khác nhau? (b) Một hàm đệ quy mỗi lời gọi sinh ra 2 lời gọi con, cây đệ quy có các tầng 0, 1, …, 20 (tầng 20 là lá). Tổng số lời gọi hàm là bao nhiêu?",
       "hints": [
-        "Với 64 bit: $2^{64}$ giá trị.",
-        "Cây nhị phân sâu 20 cấp có $2^{20}$ nút lá — nhưng tổng tất cả các nút là $2^0 + 2^1 + ... + 2^{20}$.",
-        "Tổng cấp số nhân: $2^{n+1} - 1$."
+        "Với n bit: $2^n$ giá trị.",
+        "Tầng k có $2^k$ lời gọi. Tổng là $2^0 + 2^1 + \\cdots + 2^{20}$.",
+        "Tổng cấp số nhân: $1 + 2 + 4 + \\cdots + 2^n = 2^{n+1} - 1$."
       ],
       "solutionSteps": [
-        { "text": "(a) 64 bit → $2^{64} \\approx 1.8 \\times 10^{19}$ giá trị không âm.", "rule": "n bit biểu diễn $2^n$ giá trị" },
-        { "text": "(b) Cây nhị phân sâu 20 cấp (cấp 0 đến 20): tổng nút = $\\sum_{k=0}^{20} 2^k = 2^{21} - 1 \\approx 2097151$.", "rule": "Tổng cấp số nhân: $2^{n+1} - 1$" },
-        { "text": "Lỗi hay gặp: chỉ tính $2^{20} = 1048576$ (chỉ nút lá) mà bỏ qua các cấp trên.", "isCommonMistake": true, "rule": "Đếm TOÀN BỘ nút, không chỉ nút lá" }
+        {
+          "text": "(a) 64 bit → $2^{64} \\approx 1.8 \\times 10^{19}$ giá trị (từ 0 đến $2^{64} - 1$).",
+          "rule": "n bit biểu diễn $2^n$ giá trị"
+        },
+        {
+          "text": "(b) Tổng lời gọi $= \\sum_{k=0}^{20} 2^k = 2^{21} - 1 = 2097151$.",
+          "rule": "Tổng cấp số nhân: $2^{n+1} - 1$"
+        },
+        {
+          "text": "Lỗi hay gặp: chỉ tính $2^{20} = 1048576$ (chỉ nút lá) mà bỏ qua các cấp trên.",
+          "isCommonMistake": true,
+          "rule": "Đếm TOÀN BỘ nút, không chỉ nút lá"
+        }
       ],
-      "answer": "(a) $2^{64} \\approx 1.8 \\times 10^{19}$ giá trị; (b) $2^{21} - 1 = 2{,}097{,}151$ lời gọi hàm.",
-      "commonMistake": "Phần (b): chỉ tính $2^{20}$ thay vì tổng tất cả các cấp.",
+      "answer": "(a) $2^{64} \\approx 1.8 \\times 10^{19}$ giá trị; (b) $2^{21} - 1 = 2097151$ lời gọi hàm.",
+      "commonMistake": "Phần (b): chỉ đếm tầng lá $2^{20}$ mà quên các tầng trên. (Lưu ý: kiểu `int` của Python không giới hạn 64 bit — nó là số nguyên độ chính xác tùy ý.)",
       "relatedFlashcard": "fc-pr-bits"
+    },
+    {
+      "id": "ex-pr-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tính $8^{-2/3}$ không dùng máy tính.",
+      "hints": [
+        "Tách thành ba phần: dấu âm → nghịch đảo; mẫu 3 → căn bậc ba; tử 2 → bình phương.",
+        "$\\sqrt[3]{8} = 2$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$8^{-2/3} = \\dfrac{1}{8^{2/3}}$.",
+          "rule": "$a^{-n} = 1/a^n$"
+        },
+        {
+          "text": "$8^{2/3} = (\\sqrt[3]{8})^2 = 2^2 = 4$.",
+          "rule": "$a^{m/n} = (\\sqrt[n]{a})^m$"
+        },
+        {
+          "text": "Vậy $8^{-2/3} = \\dfrac{1}{4}$. Lỗi hay gặp: thấy dấu âm rồi trả lời $-4$.",
+          "isCommonMistake": true,
+          "rule": "Số mũ âm cho nghịch đảo, không cho số âm"
+        }
+      ],
+      "answer": "$\\dfrac{1}{4} = 0.25$",
+      "commonMistake": "Trả lời $-4$ (nghĩ số mũ âm làm kết quả âm) hoặc $-\\frac{16}{3}$ (nhân 8 với $-\\frac{2}{3}$).",
+      "relatedFlashcard": "fc-pr-zero-neg"
+    },
+    {
+      "id": "ex-pr-apply-2",
+      "difficulty": "apply",
+      "prompt": "Rút gọn $\\sqrt{50} + \\sqrt{18}$ về dạng $k\\sqrt{2}$.",
+      "hints": [
+        "Tìm thừa số chính phương lớn nhất trong 50 và 18.",
+        "$50 = 25 \\times 2$, $18 = 9 \\times 2$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\sqrt{50} = \\sqrt{25 \\times 2} = 5\\sqrt{2}$.",
+          "rule": "$\\sqrt{ab} = \\sqrt{a}\\sqrt{b}$"
+        },
+        {
+          "text": "$\\sqrt{18} = \\sqrt{9 \\times 2} = 3\\sqrt{2}$.",
+          "rule": "$\\sqrt{ab} = \\sqrt{a}\\sqrt{b}$"
+        },
+        {
+          "text": "$5\\sqrt{2} + 3\\sqrt{2} = 8\\sqrt{2} \\approx 11.31$. Lỗi hay gặp: gộp thành $\\sqrt{50 + 18} = \\sqrt{68} \\approx 8.25$.",
+          "isCommonMistake": true,
+          "rule": "$\\sqrt{a} + \\sqrt{b} \\ne \\sqrt{a+b}$ — chỉ cộng được các 'căn đồng dạng'"
+        }
+      ],
+      "answer": "$8\\sqrt{2}$",
+      "commonMistake": "Viết $\\sqrt{50} + \\sqrt{18} = \\sqrt{68}$ — căn không tách/gộp được qua phép cộng.",
+      "relatedFlashcard": "fc-pr-root-rules"
+    },
+    {
+      "id": "ex-pr-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "(Câu phỏng vấn `pow(x, n)`) Dùng lũy thừa nhanh để tính $3^{13}$. Liệt kê các phép nhân và đếm tổng số phép nhân. So sánh với cách nhân lặp thông thường.",
+      "hints": [
+        "Viết 13 ở hệ nhị phân: $13 = 8 + 4 + 1 = 1101_2$.",
+        "Bình phương liên tiếp: $3^1 \\to 3^2 \\to 3^4 \\to 3^8$.",
+        "Nhân các lũy thừa ứng với bit 1: $3^8 \\cdot 3^4 \\cdot 3^1$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$13 = 1101_2$ nên $3^{13} = 3^8 \\cdot 3^4 \\cdot 3^1$.",
+          "rule": "Phân tích số mũ theo hệ nhị phân"
+        },
+        {
+          "text": "Bình phương liên tiếp: $3^2 = 9$, $3^4 = 81$, $3^8 = 6561$ → 3 phép nhân.",
+          "rule": "$x^{2k} = (x^k)^2$"
+        },
+        {
+          "text": "Ghép: $6561 \\times 81 = 531441$, rồi $531441 \\times 3 = 1594323$ → 2 phép nhân.",
+          "rule": "$a^m \\cdot a^n = a^{m+n}$"
+        },
+        {
+          "text": "Tổng: 5 phép nhân, so với 12 phép nhân khi tính $3 \\times 3 \\times \\cdots \\times 3$. Tổng quát: tối đa khoảng $2\\log_2 n$ phép nhân, tức $O(\\log n)$. Lỗi hay gặp: nghĩ lũy thừa nhanh vẫn là $O(n)$ vì 'vẫn phải nhân n lần'.",
+          "isCommonMistake": true,
+          "rule": "Mỗi lần bình phương làm số mũ tăng gấp đôi → số bước là logarit"
+        }
+      ],
+      "answer": "$3^{13} = 1594323$, chỉ cần 5 phép nhân (so với 12). Độ phức tạp $O(\\log n)$.",
+      "commonMistake": "Đếm sai thành $O(n)$, hoặc quên nhân thêm một x khi số mũ lẻ.",
+      "relatedFlashcard": "fc-pr-fast-pow"
     }
   ],
   "quiz": [
@@ -187,25 +427,79 @@
       "id": "q-pr-1",
       "type": "mcq",
       "question": "$(2^3)^4$ bằng bao nhiêu?",
-      "options": ["$2^7$", "$2^{12}$", "$2^{81}$", "$8^4$"],
-      "correct": 1,
-      "explanation": "$(2^3)^4 = 2^{3 \\times 4} = 2^{12} = 4096$. Mũ ngoài nhân với mũ trong."
+      "options": [
+        "$2^{12}$",
+        "$2^7$",
+        "$2^{81}$",
+        "$4^3$"
+      ],
+      "correct": 0,
+      "explanation": "$(2^3)^4 = 2^{3 \\times 4} = 2^{12} = 4096$. Mũ ngoài NHÂN với mũ trong (không cộng thành $2^7$, không lũy thừa thành $2^{81}$)."
     },
     {
       "id": "q-pr-2",
       "type": "mcq",
       "question": "$16^{3/4}$ bằng bao nhiêu?",
-      "options": ["4", "8", "12", "64"],
-      "correct": 1,
+      "options": [
+        "4",
+        "64",
+        "12",
+        "8"
+      ],
+      "correct": 3,
       "explanation": "$16^{3/4} = (16^{1/4})^3 = (\\sqrt[4]{16})^3 = 2^3 = 8$. Căn bậc 4 của 16 là 2."
     },
     {
       "id": "q-pr-3",
       "type": "mcq",
       "question": "Một địa chỉ IPv4 dùng 32 bit. Có tối đa bao nhiêu địa chỉ khác nhau?",
-      "options": ["$32^2$", "$2^{16}$", "$2^{32}$", "$10^{32}$"],
-      "correct": 2,
+      "options": [
+        "$32^2$",
+        "$2^{32}$",
+        "$2^{16}$",
+        "$10^{32}$"
+      ],
+      "correct": 1,
       "explanation": "n bit biểu diễn $2^n$ giá trị. Với 32 bit: $2^{32} \\approx 4.3$ tỷ địa chỉ — lý do IPv4 bị cạn kiệt."
+    },
+    {
+      "id": "q-pr-4",
+      "type": "mcq",
+      "question": "Kiểu `int` 32 bit có dấu (signed) lưu được giá trị LỚN NHẤT là bao nhiêu?",
+      "options": [
+        "$2^{32}$",
+        "$2^{32} - 1$",
+        "$2^{31}$",
+        "$2^{31} - 1$"
+      ],
+      "correct": 3,
+      "explanation": "1 bit dành cho dấu, còn 31 bit; nửa không âm gồm $2^{31}$ giá trị từ 0 đến $2^{31} - 1 = 2147483647$. $2^{32} - 1$ là max của int32 KHÔNG dấu."
+    },
+    {
+      "id": "q-pr-5",
+      "type": "mcq",
+      "question": "Với mọi số thực x, $\\sqrt{x^2}$ bằng?",
+      "options": [
+        "$|x|$",
+        "$x$",
+        "$\\pm x$",
+        "$x^2$"
+      ],
+      "correct": 0,
+      "explanation": "Căn bậc hai luôn trả về số không âm, nên $\\sqrt{x^2} = |x|$. VD: $\\sqrt{(-5)^2} = 5$, không phải $-5$."
+    },
+    {
+      "id": "q-pr-6",
+      "type": "mcq",
+      "question": "Dùng lũy thừa nhanh (bình phương liên tiếp), tính $x^n$ cần cỡ bao nhiêu phép nhân?",
+      "options": [
+        "$O(n)$",
+        "$O(\\sqrt{n})$",
+        "$O(\\log n)$",
+        "$O(1)$"
+      ],
+      "correct": 2,
+      "explanation": "Mỗi bước $x^n = (x^{n/2})^2$ giảm số mũ một nửa → khoảng $\\log_2 n$ lần bình phương cộng tối đa $\\log_2 n$ lần nhân thêm → $O(\\log n)$."
     }
   ]
 }

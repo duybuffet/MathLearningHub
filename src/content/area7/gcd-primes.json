@@ -3,20 +3,22 @@
   "title": "GCD & Số nguyên tố (GCD & Primes)",
   "area": 7,
   "unit": "a7u2",
-  "order": 4,
+  "order": 5,
   "icon": "sigma",
   "tagline": "Thuật toán Euclid (GCD) và sàng Eratosthenes (sieve) là hai trong những thuật toán cổ xưa nhất còn dùng đến tận hôm nay — nền tảng của RSA, rút gọn phân số, và chuỗi số nguyên tố.",
-  "readTime": "~18 min",
-  "prerequisites": ["area7_modular-arithmetic"],
+  "readTime": "~28 min",
+  "prerequisites": [
+    "area7_modular-arithmetic"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "**GCD (Greatest Common Divisor — Ước số chung lớn nhất)** và **số nguyên tố (prime numbers)** là hai khái niệm tưởng đơn giản nhưng lại là nền tảng của mật mã học hiện đại (RSA, Diffie-Hellman), rút gọn phân số, kiểm tra coprime (nguyên tố cùng nhau).\n\nĐặc biệt, **thuật toán Euclid** để tính GCD là một trong những thuật toán cổ nhất được biết đến (~300 TCN) và vẫn được dùng trong mọi ngôn ngữ lập trình hiện đại. Với n = 10¹⁸, nó chạy chưa đến 90 bước — hiệu quả đáng kinh ngạc!"
+      "content": "**GCD (Greatest Common Divisor — Ước số chung lớn nhất)** và **số nguyên tố (prime numbers)** là hai khái niệm tưởng đơn giản nhưng lại là nền tảng của mật mã học hiện đại (RSA, Diffie-Hellman), rút gọn phân số, kiểm tra coprime (nguyên tố cùng nhau).\n\nĐặc biệt, **thuật toán Euclid** để tính GCD là một trong những thuật toán cổ nhất được biết đến (~300 TCN) và vẫn được dùng trong mọi ngôn ngữ lập trình hiện đại. Với hai số cỡ 10¹⁸, nó chạy chưa đến 90 bước — hiệu quả đáng kinh ngạc!"
     },
     {
       "type": "analogy",
       "title": "GCD — Chia ô sàn lớn nhất có thể",
-      "content": "Hình dung bạn có căn phòng 24×36 mét và muốn lát gạch vuông không cần cắt (phủ đúng toàn bộ). Kích thước gạch lớn nhất có thể là bao nhiêu?\n\nCác ước số của 24: 1, 2, 3, 4, 6, 8, 12, 24.\nCác ước số của 36: 1, 2, 3, 4, 6, 9, 12, 18, 36.\nƯớc chung lớn nhất: **12**.\n\nVậy gạch 12×12 là lớn nhất. Đây chính xác là ý nghĩa của GCD(24, 36) = 12.\n\nTrong lập trình: `gcd(a, b)` xuất hiện khi rút gọn phân số a/b (chia cả tử lẫn mẫu cho gcd), tính LCM (Least Common Multiple = a×b/gcd), kiểm tra xem hai số có coprime không (gcd=1 → có modular inverse)."
+      "content": "Hình dung bạn có một sân 24 × 36 mét và muốn lát bằng các tấm gạch vuông bằng nhau, không phải cắt viên nào. Kích thước gạch lớn nhất có thể là bao nhiêu?\n\nCác ước số của 24: 1, 2, 3, 4, 6, 8, 12, 24.\nCác ước số của 36: 1, 2, 3, 4, 6, 9, 12, 18, 36.\nƯớc chung lớn nhất: **12**.\n\nVậy gạch 12 × 12 mét là lớn nhất (cần 2 × 3 = 6 viên). Đây chính xác là ý nghĩa của GCD(24, 36) = 12.\n\nTrong lập trình: `gcd(a, b)` xuất hiện khi rút gọn phân số a/b (chia cả tử lẫn mẫu cho gcd), tính bội chung nhỏ nhất (LCM — Least Common Multiple) = a × b / gcd, kiểm tra xem hai số có coprime không (gcd=1 → có modular inverse)."
     },
     {
       "type": "formula",
@@ -24,28 +26,100 @@
       "latex": "\\gcd(a, b) = \\gcd(b,\\; a \\bmod b) \\quad (b \\neq 0), \\quad \\gcd(a, 0) = a",
       "reading": "đọc là: GCD của a và b bằng GCD của b và phần dư (a mod b). Lặp đến khi b = 0, lúc đó a là GCD.",
       "symbols": [
-        { "sym": "\\gcd(a, b)", "meaning": "ước số chung lớn nhất của a và b." },
-        { "sym": "a \\bmod b", "meaning": "phần dư khi chia a cho b — luôn nhỏ hơn b, đảm bảo thuật toán hội tụ." },
-        { "sym": "\\gcd(a, 0) = a", "meaning": "điều kiện dừng: mọi số đều chia hết 0, nên gcd(a, 0) = a." }
+        {
+          "sym": "\\gcd(a, b)",
+          "meaning": "ước số chung lớn nhất của a và b."
+        },
+        {
+          "sym": "a \\bmod b",
+          "meaning": "phần dư khi chia a cho b — luôn nhỏ hơn b, đảm bảo thuật toán hội tụ."
+        },
+        {
+          "sym": "\\gcd(a, 0) = a",
+          "meaning": "điều kiện dừng: mọi số đều chia hết 0, nên ước chung lớn nhất của a và 0 là chính a (với a ≥ 0)."
+        }
       ],
-      "caption": "Mỗi bước, b giảm ít nhất 50% (do mod) → thuật toán dừng trong O(log(min(a,b))) bước."
+      "caption": "Vì sao đúng: mọi ước chung của a và b cũng chia hết $a \\bmod b = a - qb$, và ngược lại — nên hai cặp có cùng tập ước chung. Vì sao nhanh: $a \\bmod b < a/2$, nên cứ sau HAI bước, số lớn giảm ít nhất một nửa → $O(\\log \\min(a, b))$ bước."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: Tính GCD(48, 18) bằng thuật toán Euclid",
       "problem": "Tính $\\gcd(48, 18)$ từng bước.",
       "steps": [
-        { "text": "gcd(48, 18) = gcd(18, 48 mod 18) = gcd(18, 12).", "rule": "Áp dụng: gcd(a,b) = gcd(b, a mod b)" },
-        { "text": "gcd(18, 12) = gcd(12, 18 mod 12) = gcd(12, 6).", "rule": "Lặp tiếp" },
-        { "text": "gcd(12, 6) = gcd(6, 12 mod 6) = gcd(6, 0).", "isCommonMistake": false, "rule": "12 mod 6 = 0" },
-        { "text": "gcd(6, 0) = 6 — điều kiện dừng đạt.", "isCommonMistake": true, "rule": "Kết quả là số còn lại khi b=0, KHÔNG phải b (b=0 là điều kiện dừng, không phải GCD)" }
+        {
+          "text": "gcd(48, 18) = gcd(18, 48 mod 18) = gcd(18, 12).",
+          "rule": "Áp dụng: gcd(a,b) = gcd(b, a mod b)"
+        },
+        {
+          "text": "gcd(18, 12) = gcd(12, 18 mod 12) = gcd(12, 6).",
+          "rule": "Lặp tiếp"
+        },
+        {
+          "text": "gcd(12, 6) = gcd(6, 12 mod 6) = gcd(6, 0).",
+          "rule": "12 mod 6 = 0"
+        },
+        {
+          "text": "gcd(6, 0) = 6 — điều kiện dừng đạt.",
+          "isCommonMistake": true,
+          "rule": "Kết quả là số còn lại khi b = 0 (ở đây là 6), không phải 0"
+        }
       ],
       "result": "$\\gcd(48, 18) = 6$. Kiểm tra: 48/6=8, 18/6=3 — cả hai đều nguyên."
     },
     {
       "type": "explanation",
       "title": "GCD trong code — đệ quy và vòng lặp",
-      "content": "Thuật toán Euclid cực ngắn và hiệu quả:\n\n```\n// Đệ quy — O(log min(a,b))\nfunction gcd(a, b) {\n  return b === 0 ? a : gcd(b, a % b);\n}\n\n// Vòng lặp (tránh stack overflow với số lớn)\nfunction gcd(a, b) {\n  while (b !== 0) {\n    [a, b] = [b, a % b];\n  }\n  return a;\n}\n```\n\n**LCM từ GCD:** `lcm(a, b) = a / gcd(a, b) * b` (chia trước để tránh overflow: a/gcd × b thay vì a×b/gcd).\n\n**Coprime check:** `gcd(a, b) === 1` → a và b nguyên tố cùng nhau → modular inverse của a mod b tồn tại."
+      "content": "Thuật toán Euclid trong code cực ngắn:\n\n- Đệ quy: `const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);`\n- Vòng lặp: `while (b !== 0) { [a, b] = [b, a % b]; } return a;`\n\nNếu gọi `gcd(18, 48)` (số nhỏ đứng trước), bước đầu tiên tự đổi chỗ: `18 % 48 = 18` → `gcd(48, 18)`. Không cần sắp xếp trước.\n\n**LCM từ GCD:** `lcm(a, b) = a / gcd(a, b) * b` — chia trước rồi mới nhân để tránh tràn số (tích a × b có thể vượt int64 dù lcm thì không).\n\n**Nguyên tố cùng nhau (coprime):** `gcd(a, b) === 1` → a có nghịch đảo modular theo mod b.\n\n**Độ phức tạp chính xác hơn:** trường hợp xấu nhất là hai số Fibonacci liên tiếp (định lý Lamé), ví dụ gcd(89, 55) cần 9 phép chia lấy dư. Số bước tối đa ≈ $\\log_{\\varphi} n \\approx 2.08 \\ln n$, với $\\varphi \\approx 1.618$ là tỉ lệ vàng."
+    },
+    {
+      "type": "formula",
+      "title": "Thuật toán Euclid mở rộng (Extended Euclidean) & đẳng thức Bézout",
+      "latex": "\\gcd(a, b) = a x + b y \\quad \\text{for some integers } x, y",
+      "reading": "đọc là: luôn tìm được hai số nguyên x, y (có thể âm) sao cho a·x + b·y = gcd(a, b). Thuật toán Euclid mở rộng tìm x, y bằng cách 'đi ngược' các bước chia của Euclid.",
+      "symbols": [
+        {
+          "sym": "x, y",
+          "meaning": "hệ số Bézout — không duy nhất, thường có một số âm."
+        },
+        {
+          "sym": "\\gcd(a, m) = 1",
+          "meaning": "khi đó $a x + m y = 1$, lấy mod m được $a x \\equiv 1$ → x chính là nghịch đảo $a^{-1} \\bmod m$."
+        }
+      ],
+      "caption": "Đây là cách tìm nghịch đảo modular khi m KHÔNG nguyên tố (không dùng được Fermat). Độ phức tạp vẫn là O(log min(a, b))."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Euclid mở rộng — tìm x, y với 240x + 46y = gcd(240, 46)",
+      "problem": "Tìm $\\gcd(240, 46)$ và một cặp số nguyên x, y sao cho $240x + 46y = \\gcd(240, 46)$.",
+      "steps": [
+        {
+          "text": "Chạy Euclid, ghi lại thương: 240 = 5·46 + 10; 46 = 4·10 + 6; 10 = 1·6 + 4; 6 = 1·4 + 2; 4 = 2·2 + 0. Vậy gcd = 2.",
+          "rule": "Euclid thường, giữ lại thương q"
+        },
+        {
+          "text": "Đi ngược từ dòng có dư 2: 2 = 6 − 1·4.",
+          "rule": "Viết gcd theo hai số liền trước"
+        },
+        {
+          "text": "Thay 4 = 10 − 6: 2 = 6 − (10 − 6) = 2·6 − 10.",
+          "rule": "Thế dần từng phần dư"
+        },
+        {
+          "text": "Thay 6 = 46 − 4·10: 2 = 2·(46 − 4·10) − 10 = 2·46 − 9·10.",
+          "rule": "Cẩn thận dấu khi khai triển — đây là chỗ hay nhầm nhất",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Thay 10 = 240 − 5·46: 2 = 2·46 − 9·(240 − 5·46) = 47·46 − 9·240.",
+          "rule": "Thế lần cuối"
+        },
+        {
+          "text": "Kiểm tra: 47 × 46 − 9 × 240 = 2162 − 2160 = 2 ✓.",
+          "rule": "Luôn kiểm tra lại bằng phép nhân"
+        }
+      ],
+      "result": "$\\gcd(240, 46) = 2 = 240 \\cdot (-9) + 46 \\cdot 47$, tức $x = -9,\\ y = 47$."
     },
     {
       "type": "formula",
@@ -53,46 +127,113 @@
       "latex": "p \\text{ is prime} \\iff p > 1 \\text{ and the only positive divisors of } p \\text{ are } 1 \\text{ and } p",
       "reading": "đọc là: p là số nguyên tố khi và chỉ khi p > 1 và p không chia hết cho bất kỳ số nguyên dương nào khác ngoài 1 và chính nó.",
       "symbols": [
-        { "sym": "p", "meaning": "số nguyên tố. Ví dụ: 2, 3, 5, 7, 11, 13, ..." },
-        { "sym": "\\pi(n)", "meaning": "số lượng số nguyên tố ≤ n. Xấp xỉ: π(n) ≈ n / ln(n) (Prime Number Theorem)." }
+        {
+          "sym": "p",
+          "meaning": "số nguyên tố. Ví dụ: 2, 3, 5, 7, 11, 13, ..."
+        },
+        {
+          "sym": "\\pi(n)",
+          "meaning": "số lượng số nguyên tố ≤ n. Định lý số nguyên tố (Prime Number Theorem): $\\pi(n) \\approx n / \\ln n$."
+        }
       ],
-      "caption": "1 không phải số nguyên tố (định nghĩa loại ra). 2 là số nguyên tố chẵn DUY NHẤT."
+      "caption": "1 không phải số nguyên tố (theo định nghĩa). 2 là số nguyên tố chẵn DUY NHẤT. Ví dụ: có 78,498 số nguyên tố ≤ 10⁶, xấp xỉ n / ln n ≈ 72,382 — số nguyên tố thưa dần nhưng không bao giờ hết."
+    },
+    {
+      "type": "formula",
+      "title": "Định lý cơ bản của số học (Fundamental Theorem of Arithmetic)",
+      "latex": "n = p_1^{e_1}\\, p_2^{e_2} \\cdots p_k^{e_k}",
+      "reading": "đọc là: mọi số nguyên n > 1 đều phân tích được thành tích các lũy thừa số nguyên tố, và cách phân tích này là DUY NHẤT (không tính thứ tự).",
+      "symbols": [
+        {
+          "sym": "p_i",
+          "meaning": "các số nguyên tố khác nhau. Ví dụ $360 = 2^3 \\cdot 3^2 \\cdot 5$."
+        },
+        {
+          "sym": "e_i",
+          "meaning": "số mũ (số lần $p_i$ xuất hiện)."
+        },
+        {
+          "sym": "(e_1+1)\\cdots(e_k+1)",
+          "meaning": "số ước dương của n. Ví dụ 360 có $4 \\cdot 3 \\cdot 2 = 24$ ước."
+        }
+      ],
+      "caption": "Hệ quả: gcd lấy số mũ NHỎ NHẤT của từng thừa số, lcm lấy số mũ LỚN NHẤT. Ví dụ 12 = 2²·3, 18 = 2·3² → gcd = 2·3 = 6, lcm = 2²·3² = 36."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Phân tích 360 ra thừa số nguyên tố bằng thử chia (trial division)",
+      "problem": "Phân tích 360 ra thừa số nguyên tố và đếm số ước của nó.",
+      "steps": [
+        {
+          "text": "Thử chia cho 2 liên tục: 360 → 180 → 90 → 45. Được $2^3$, còn lại 45.",
+          "rule": "Chia hết một thừa số trước khi sang số tiếp theo"
+        },
+        {
+          "text": "Thử chia 3: 45 → 15 → 5. Được $3^2$, còn lại 5.",
+          "rule": "Chuyển sang ước tiếp theo"
+        },
+        {
+          "text": "Ước thử tiếp theo là 4, nhưng $4^2 = 16 > 5$ → dừng; số còn lại 5 > 1 chính là một thừa số nguyên tố.",
+          "rule": "Chỉ thử khi $i^2 \\le n$ hiện tại; phần còn lại > 1 là số nguyên tố",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$360 = 2^3 \\cdot 3^2 \\cdot 5^1$. Số ước = (3 + 1)(2 + 1)(1 + 1) = 24.",
+          "rule": "Công thức đếm ước"
+        }
+      ],
+      "result": "$360 = 2^3 \\cdot 3^2 \\cdot 5$, có 24 ước dương. Thuật toán thử chia tốn $O(\\sqrt{n})$."
     },
     {
       "type": "explanation",
       "title": "Sàng Eratosthenes (Sieve of Eratosthenes) — tìm mọi số nguyên tố đến n",
-      "content": "Thuật toán sàng là cách hiệu quả nhất để tìm **tất cả** số nguyên tố đến n:\n\n```\nfunction sieve(n) {\n  const isPrime = new Array(n+1).fill(true);\n  isPrime[0] = isPrime[1] = false;\n  for (let i = 2; i * i <= n; i++) {\n    if (isPrime[i]) {\n      for (let j = i*i; j <= n; j += i)\n        isPrime[j] = false;  // gạch bỏ bội số\n    }\n  }\n  return isPrime;\n}\n```\n\n**Tại sao bắt đầu từ i×i?** Vì mọi bội số nhỏ hơn i² (như 2i, 3i, ...) đã được gạch khi xử lý số nhỏ hơn i trước đó.\n\n**Độ phức tạp:** O(n log log n) — gần như O(n), cực nhanh. Với n = 10⁶, chạy trong mili-giây."
+      "content": "Sàng là cách hiệu quả để tìm **tất cả** số nguyên tố đến n:\n\n1. Tạo mảng `isPrime[0..n]` toàn `true`, đặt `isPrime[0] = isPrime[1] = false`.\n2. Với mỗi i từ 2 trong khi `i * i <= n`: nếu `isPrime[i]` thì gạch mọi bội `j = i*i, i*i + i, …` (đặt `isPrime[j] = false`).\n3. Những ô còn `true` là số nguyên tố.\n\n**Tại sao bắt đầu từ i²?** Mọi bội nhỏ hơn i² có dạng k·i với k < i, nên đã có một ước nguyên tố nhỏ hơn i và đã bị gạch trước đó.\n\n**Tại sao dừng ở √n?** Mọi hợp số ≤ n có ước nguyên tố ≤ √n, nên đã bị gạch khi xét ước đó.\n\n**Độ phức tạp:** tổng số lần gạch ≈ n/2 + n/3 + n/5 + n/7 + … ≈ $n \\ln \\ln n$ → $O(n \\log \\log n)$ thời gian, $O(n)$ bộ nhớ. Với n = 10⁶ chạy trong vài mili-giây; với n = 10⁹ thì bộ nhớ 1 GB trở thành vấn đề."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: Ứng dụng GCD & nguyên tố trong rút gọn phân số",
       "problem": "Rút gọn phân số $\\dfrac{252}{360}$ về dạng tối giản.",
       "steps": [
-        { "text": "Tính gcd(252, 360) bằng thuật toán Euclid.", "rule": "GCD cho biết ước chung lớn nhất để chia" },
-        { "text": "gcd(252, 360): 360 mod 252 = 108. gcd(252, 108): 252 mod 108 = 36. gcd(108, 36): 108 mod 36 = 0. gcd(36, 0) = 36.", "rule": "Thuật toán Euclid lặp" },
-        { "text": "252 / 36 = 7. 360 / 36 = 10.", "isCommonMistake": false, "rule": "Chia tử và mẫu cho GCD" },
-        { "text": "Phân số tối giản: 7/10. Kiểm tra: gcd(7, 10) = 1 ✓ (7 là nguyên tố, 10 = 2×5 — không chứa 7).", "isCommonMistake": true, "rule": "Luôn kiểm tra lại gcd(tử mới, mẫu mới) = 1 để xác nhận đã tối giản" }
+        {
+          "text": "Tính gcd(252, 360) bằng thuật toán Euclid.",
+          "rule": "GCD cho biết ước chung lớn nhất để chia"
+        },
+        {
+          "text": "Euclid (bước đầu tự đổi chỗ vì 252 < 360): gcd(360, 252): 360 mod 252 = 108. gcd(252, 108): 252 mod 108 = 36. gcd(108, 36): 108 mod 36 = 0. gcd(36, 0) = 36.",
+          "rule": "Thuật toán Euclid lặp"
+        },
+        {
+          "text": "252 / 36 = 7. 360 / 36 = 10.",
+          "rule": "Chia tử và mẫu cho GCD"
+        },
+        {
+          "text": "Phân số tối giản: 7/10. Kiểm tra: gcd(7, 10) = 1 ✓. Sai lầm hay gặp: chia cho một ước chung nhỏ (ví dụ 4 → 63/90) rồi dừng — phân số đó chưa tối giản.",
+          "rule": "Chia cho GCD (không phải một ước chung bất kỳ) mới ra dạng tối giản ngay một lần",
+          "isCommonMistake": true
+        }
       ],
       "result": "$\\dfrac{252}{360} = \\dfrac{7}{10}$."
     },
     {
       "type": "explanation",
-      "title": "Kết nối với RSA — vì sao số nguyên tố bảo mật internet",
-      "content": "RSA encryption (bảo mật HTTPS, SSL) dựa hoàn toàn vào hai tính chất:\n\n1. **Dễ nhân, khó phân tích**: Nhân p × q = N (với p, q là hai số nguyên tố lớn ~1024 bit) rất dễ. Nhưng biết N, tìm ngược p và q là cực khó (bài toán integer factorization — chưa có thuật toán polynomial time).\n\n2. **GCD = 1 → tồn tại modular inverse**: RSA cần e có modular inverse mod φ(N), tức gcd(e, φ(N)) = 1 (coprime). Thuật toán Euclid mở rộng (Extended Euclidean) tính được modular inverse này.\n\nKhóa công khai là (e, N). Khóa riêng là d = e⁻¹ mod φ(N). Chỉ ai biết p, q (người tạo khóa) mới tính được φ(N) = (p-1)(q-1) để tìm d.\n\nMọi kết nối HTTPS bạn dùng hàng ngày đều dựa vào GCD và số nguyên tố!"
+      "title": "Kết nối với RSA — vì sao số nguyên tố bảo vệ internet",
+      "content": "Mã hóa RSA (dùng trong chữ ký số, chứng chỉ TLS/HTTPS) dựa vào hai ý:\n\n1. **Dễ nhân, khó phân tích**: nhân hai số nguyên tố lớn p × q = N (mỗi số ~1024 bit) rất nhanh. Nhưng biết N, tìm lại p và q thì cực khó — chưa ai biết thuật toán cổ điển nào phân tích số nguyên trong thời gian đa thức.\n\n2. **Nghịch đảo modular**: chọn e với gcd(e, φ(N)) = 1, trong đó φ(N) = (p − 1)(q − 1). Khóa riêng $d = e^{-1} \\bmod \\varphi(N)$ được tính bằng Euclid mở rộng.\n\nKhóa công khai là (e, N), khóa riêng là d. Mã hóa: $c = m^e \\bmod N$; giải mã: $m = c^d \\bmod N$ — cả hai đều dùng lũy thừa nhanh. Chỉ người biết p, q mới tính được φ(N), do đó mới tìm được d.\n\nGhi chú: TLS hiện đại thường trao đổi khóa bằng Diffie–Hellman trên đường cong elliptic (ECDHE), nhưng RSA vẫn rất phổ biến trong chữ ký số — và cũng dựa trên số học modular."
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Lỗi phổ biến khi kiểm tra số nguyên tố:**\n\n```\n// SAI — O(n), quá chậm\nfor (let i = 2; i < n; i++) if (n % i === 0) return false;\n\n// ĐÚNG — O(√n), đủ nhanh\nfor (let i = 2; i * i <= n; i++) if (n % i === 0) return false;\n```\n\nLý do: nếu n có ước số d > √n thì n/d < √n — nghĩa là ước nhỏ d/n tương ứng đã được phát hiện trước √n. Không cần kiểm tra quá √n. Với n = 10¹⁸, O(n) mất hàng tỉ năm, O(√n) chỉ mất ~10⁹/10⁹ = 1 giây."
+      "content": "**Lỗi phổ biến khi kiểm tra số nguyên tố:**\n\n- SAI — $O(n)$: `for (let i = 2; i < n; i++) if (n % i === 0) return false;`\n- ĐÚNG — $O(\\sqrt{n})$: `for (let i = 2; i * i <= n; i++) if (n % i === 0) return false;`\n\nLý do: nếu n = d × e với d ≤ e thì $d \\le \\sqrt{n}$. Nghĩa là mỗi ước lớn hơn √n đều 'đi cặp' với một ước n/d nhỏ hơn √n đã được thử trước. Đừng quên xử lý n < 2 (không phải số nguyên tố).\n\nDùng `i * i <= n` thay vì `i <= Math.sqrt(n)` để tránh sai số dấu phẩy động (nhưng coi chừng `i * i` tràn int32 khi n gần 2³¹). Với n = 10¹⁸, thử chia cần ~10⁹ phép chia (cỡ giây) — khi đó người ta dùng Miller–Rabin (xác suất, $O(\\log^3 n)$)."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "GCD(a, b) = GCD(b, a mod b) — thuật toán Euclid O(log min(a,b)), cổ xưa ~300 TCN, vẫn dùng hàng ngày.",
-        "LCM(a, b) = a / GCD(a, b) × b — chia trước để tránh overflow.",
-        "Số nguyên tố p > 1 chỉ chia hết cho 1 và p. Kiểm tra đến √n là đủ: O(√n).",
-        "Sàng Eratosthenes tìm tất cả nguyên tố đến n trong O(n log log n) — khởi đầu bội số từ i² (không phải i+i).",
-        "RSA encryption: bảo mật dựa vào khó phân tích số nguyên lớn = tích hai số nguyên tố — GCD và modular inverse là công cụ cốt lõi."
+        "gcd(a, b) = gcd(b, a mod b) — thuật toán Euclid O(log min(a, b)), cổ xưa ~300 TCN, vẫn dùng hàng ngày.",
+        "Euclid mở rộng tìm x, y với ax + by = gcd(a, b) → nghịch đảo modular khi gcd = 1.",
+        "lcm(a, b) = a / gcd(a, b) × b — chia trước để tránh overflow. gcd × lcm = a × b.",
+        "Mọi n > 1 phân tích duy nhất thành tích lũy thừa nguyên tố; số ước = ∏(eᵢ + 1).",
+        "Kiểm tra / phân tích bằng thử chia đến √n: O(√n).",
+        "Sàng Eratosthenes: tất cả số nguyên tố ≤ n trong O(n log log n), gạch từ i², dừng khi i² > n.",
+        "RSA: an toàn nhờ khó phân tích N = p·q; khóa riêng là nghịch đảo modular tính bằng Euclid mở rộng."
       ]
     }
   ],
@@ -119,13 +260,43 @@
       "id": "fc-sieve",
       "type": "concept",
       "front": "Sàng Eratosthenes: gạch bội số từ i² (không phải 2i). Vì sao?",
-      "back": "Vì 2i, 3i, ..., (i-1)i đã bị gạch khi xử lý số nhỏ hơn i. Chỉ i×i trở đi mới 'mới'. Tránh gạch trùng, tăng tốc."
+      "back": "Mọi bội k·i với k < i có ước nguyên tố nhỏ hơn i nên đã bị gạch trước đó. Bắt đầu từ i² tránh gạch trùng; tương tự chỉ cần xét i đến √n."
     },
     {
       "id": "fc-gcd-rsa",
       "type": "concept",
       "front": "Vì sao GCD và số nguyên tố quan trọng với RSA?",
-      "back": "RSA: N = p×q (khó phân tích). gcd(e, φ(N))=1 → tồn tại d = e⁻¹ mod φ(N) (khóa riêng). Bảo mật = khó factoring + GCD cho modular inverse."
+      "back": "RSA: N = p·q khó phân tích. Chọn e với gcd(e, φ(N)) = 1 → tồn tại $d = e^{-1} \\bmod \\varphi(N)$ (khóa riêng), tính bằng Euclid mở rộng. Bảo mật = khó phân tích N; GCD đảm bảo nghịch đảo tồn tại."
+    },
+    {
+      "id": "fc-gcd-bezout",
+      "type": "formula",
+      "front": "Thuật toán Euclid mở rộng tìm gì? Dùng để làm gì?",
+      "back": "Tìm x, y nguyên với $ax + by = \\gcd(a, b)$ (đẳng thức Bézout). Nếu gcd(a, m) = 1 thì $ax \\equiv 1 \\pmod m$ → x là nghịch đảo của a theo mod m (dùng được cả khi m không nguyên tố)."
+    },
+    {
+      "id": "fc-gcd-fta",
+      "type": "definition",
+      "front": "Định lý cơ bản của số học (Fundamental Theorem of Arithmetic) nói gì?",
+      "back": "Mọi số nguyên n > 1 viết được thành tích các số nguyên tố $p_1^{e_1} \\cdots p_k^{e_k}$, và cách viết là duy nhất (không tính thứ tự)."
+    },
+    {
+      "id": "fc-gcd-divisors",
+      "type": "formula",
+      "front": "Cho $n = p_1^{e_1} \\cdots p_k^{e_k}$. Số ước của n? gcd và lcm từ phân tích?",
+      "back": "Số ước = $(e_1 + 1)(e_2 + 1) \\cdots (e_k + 1)$. gcd: lấy số mũ nhỏ nhất của mỗi thừa số; lcm: lấy số mũ lớn nhất."
+    },
+    {
+      "id": "fc-gcd-steps",
+      "type": "concept",
+      "front": "Vì sao Euclid chỉ cần O(log) bước? Trường hợp xấu nhất là gì?",
+      "back": "Vì a mod b < a/2, nên sau mỗi hai bước số lớn giảm ít nhất một nửa. Xấu nhất là hai số Fibonacci liên tiếp (định lý Lamé), ví dụ gcd(89, 55) mất 9 phép chia."
+    },
+    {
+      "id": "fc-sieve-complexity",
+      "type": "concept",
+      "front": "Độ phức tạp thời gian và bộ nhớ của sàng Eratosthenes?",
+      "back": "Thời gian $O(n \\log \\log n)$ (tổng n/p trên các số nguyên tố p ≤ √n), bộ nhớ $O(n)$. Gần như tuyến tính."
     }
   ],
   "exercises": [
@@ -134,38 +305,129 @@
       "difficulty": "warmup",
       "prompt": "Tính $\\gcd(56, 98)$ bằng thuật toán Euclid. Liệt kê từng bước.",
       "hints": [
-        "Bắt đầu: gcd(56, 98) = gcd(98, 56) hay gcd(56, 98 mod 56)?",
-        "98 mod 56 = 42.",
-        "Tiếp tục đến khi b = 0."
+        "Áp dụng gcd(a, b) = gcd(b, a mod b) với a = 56, b = 98: 56 mod 98 = ?",
+        "Bước đầu chỉ đổi chỗ: gcd(98, 56). Rồi 98 mod 56 = 42.",
+        "Tiếp tục đến khi số thứ hai bằng 0."
       ],
       "solutionSteps": [
-        { "text": "gcd(56, 98): 98 mod 56 = 42. → gcd(56, 42).", "rule": "gcd(a,b) = gcd(b, a mod b) — nhưng ta cũng có thể dùng gcd(a,b)=gcd(b, a mod b) với a=56, b=98 → gcd(98, 56 mod 98)=gcd(98, 56) — cách nhanh hơn: gcd(56,98) = gcd(98, 56) = gcd(56, 42)" },
-        { "text": "gcd(56, 42): 56 mod 42 = 14. → gcd(42, 14).", "isCommonMistake": false, "rule": "Luân phiên a và b theo công thức" },
-        { "text": "gcd(42, 14): 42 mod 14 = 0. → gcd(14, 0) = 14.", "isCommonMistake": true, "rule": "Dừng khi phần dư = 0, kết quả là số TRƯỚC đó (14), không phải 0" }
+        {
+          "text": "gcd(56, 98) = gcd(98, 56 mod 98) = gcd(98, 56) — bước đầu chỉ đổi chỗ vì 56 < 98.",
+          "rule": "gcd(a, b) = gcd(b, a mod b)"
+        },
+        {
+          "text": "gcd(98, 56) = gcd(56, 98 mod 56) = gcd(56, 42).",
+          "rule": "98 mod 56 = 42"
+        },
+        {
+          "text": "gcd(56, 42) = gcd(42, 14) vì 56 mod 42 = 14.",
+          "rule": "Lặp lại công thức"
+        },
+        {
+          "text": "gcd(42, 14) = gcd(14, 0) vì 42 mod 14 = 0. Kết quả là 14 — số còn lại khi số thứ hai bằng 0, không phải 0.",
+          "rule": "Điều kiện dừng: gcd(a, 0) = a",
+          "isCommonMistake": true
+        }
       ],
       "answer": "gcd(56, 98) = 14",
       "commonMistake": "Trả lời 0 (nhầm điều kiện dừng — 0 là b cuối cùng, không phải kết quả).",
       "relatedFlashcard": "fc-gcd-euclid"
     },
     {
-      "id": "ex-gcd-apply-1",
-      "difficulty": "apply",
-      "prompt": "Tìm tất cả số nguyên tố nhỏ hơn 30 bằng sàng Eratosthenes. Mô tả từng bước gạch bội số.",
+      "id": "ex-gcd-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tính gcd(12, 18) và lcm(12, 18) bằng hai cách: phân tích thừa số nguyên tố và công thức lcm = a / gcd × b.",
       "hints": [
-        "Bắt đầu với danh sách [2, 3, 4, ..., 29].",
-        "i=2: gạch 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28.",
-        "i=3: bắt đầu từ 3² = 9, gạch 9, 15, 21, 27.",
-        "i=5: 5² = 25, gạch 25. Kiểm tra đến √30 ≈ 5.5."
+        "12 = 2² · 3, 18 = 2 · 3².",
+        "gcd lấy số mũ nhỏ nhất, lcm lấy số mũ lớn nhất.",
+        "Kiểm tra: gcd × lcm phải bằng 12 × 18 = 216."
       ],
       "solutionSteps": [
-        { "text": "Danh sách ban đầu: 2-29. isPrime[0]=isPrime[1]=false.", "rule": "Khởi tạo sàng" },
-        { "text": "i=2: gạch bội của 2 từ 4: {4,6,8,...,28}.", "isCommonMistake": false, "rule": "Bội đầu tiên cần gạch là i²=4, nhưng ở đây i=2 nhỏ nên bắt đầu từ 4=2²" },
-        { "text": "i=3: gạch từ 9: {9, 15, 21, 27}. (6,12,18,24 đã gạch bởi 2).", "isCommonMistake": true, "rule": "Bắt đầu từ i² = 9, không phải 2×3=6 (đã gạch)" },
-        { "text": "i=5: gạch từ 25: {25}. i=6,7 không cần xét (√30 < 6). Số còn lại: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29." }
+        {
+          "text": "Phân tích: 12 = 2² · 3¹, 18 = 2¹ · 3².",
+          "rule": "Định lý cơ bản của số học"
+        },
+        {
+          "text": "gcd = 2^min(2,1) · 3^min(1,2) = 2 · 3 = 6.",
+          "rule": "gcd: số mũ nhỏ nhất"
+        },
+        {
+          "text": "lcm = 2^max(2,1) · 3^max(1,2) = 4 · 9 = 36. Đừng lấy số mũ nhỏ nhất cho lcm, hay nhân thẳng 12 × 18 = 216 (đó là một bội chung nhưng không nhỏ nhất).",
+          "rule": "lcm: số mũ lớn nhất",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Kiểm tra bằng công thức: 12 / 6 × 18 = 36 ✓, và gcd × lcm = 6 × 36 = 216 = 12 × 18 ✓.",
+          "rule": "gcd(a, b) · lcm(a, b) = a · b"
+        }
+      ],
+      "answer": "gcd = 6, lcm = 36.",
+      "commonMistake": "Trả lời lcm = 12 × 18 = 216 — đó là một bội chung, không phải nhỏ nhất.",
+      "relatedFlashcard": "fc-gcd-divisors"
+    },
+    {
+      "id": "ex-gcd-apply-1",
+      "difficulty": "apply",
+      "prompt": "Tìm tất cả số nguyên tố nhỏ hơn 30 bằng sàng Eratosthenes. Mô tả từng bước gạch bội.",
+      "hints": [
+        "Bắt đầu với danh sách 2, 3, 4, …, 29.",
+        "i = 2: gạch 4, 6, 8, …, 28.",
+        "i = 3: bắt đầu từ 3² = 9, gạch 9, 12, 15, 18, 21, 24, 27 (nhiều số đã bị gạch rồi).",
+        "i = 5: 5² = 25, gạch 25. Dừng khi i² > 29."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Danh sách ban đầu: 2 … 29 (0 và 1 không phải số nguyên tố).",
+          "rule": "Khởi tạo sàng"
+        },
+        {
+          "text": "i = 2: gạch bội của 2 từ 2² = 4: 4, 6, 8, …, 28.",
+          "rule": "Gạch từ i²"
+        },
+        {
+          "text": "i = 3: gạch từ 9: 9, 12, 15, 18, 21, 24, 27. Những số mới bị gạch là 9, 15, 21, 27; còn 6 không cần xét vì 6 < 9 và đã bị 2 gạch.",
+          "rule": "Bắt đầu từ i² = 9, không phải 2·3 = 6",
+          "isCommonMistake": true
+        },
+        {
+          "text": "i = 4 đã bị gạch, bỏ qua. i = 5: gạch 25. i = 6: 36 > 29 → dừng. Còn lại: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29.",
+          "rule": "Dừng khi i² > n"
+        }
       ],
       "answer": "Số nguyên tố < 30: {2, 3, 5, 7, 11, 13, 17, 19, 23, 29} — 10 số.",
-      "commonMistake": "Bắt đầu gạch bội từ 2i thay vì i² — dùng được nhưng lãng phí bước (đã gạch rồi).",
+      "commonMistake": "Quên gạch 25 (dừng ở i = 3 vì nghĩ √30 ≈ 5.5 nên 'không cần 5') — phải xét mọi i với i² ≤ n, kể cả i = 5.",
       "relatedFlashcard": "fc-sieve"
+    },
+    {
+      "id": "ex-gcd-apply-2",
+      "difficulty": "apply",
+      "prompt": "Tìm nghịch đảo của 7 theo mod 26 bằng thuật toán Euclid mở rộng. (26 không nguyên tố nên không dùng được Fermat. Bài toán xuất hiện trong mã Affine.)",
+      "hints": [
+        "Euclid: 26 = 3 · 7 + 5; 7 = 1 · 5 + 2; 5 = 2 · 2 + 1.",
+        "Đi ngược: 1 = 5 − 2 · 2, rồi thay 2 = 7 − 5, rồi thay 5 = 26 − 3 · 7.",
+        "Hệ số của 7 có thể âm — cộng thêm 26."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Euclid: 26 = 3·7 + 5; 7 = 1·5 + 2; 5 = 2·2 + 1; 2 = 2·1 + 0 → gcd = 1, nghịch đảo tồn tại.",
+          "rule": "Kiểm tra gcd = 1"
+        },
+        {
+          "text": "1 = 5 − 2·2 = 5 − 2·(7 − 5) = 3·5 − 2·7.",
+          "rule": "Thế phần dư 2"
+        },
+        {
+          "text": "= 3·(26 − 3·7) − 2·7 = 3·26 − 11·7.",
+          "rule": "Thế phần dư 5 — cẩn thận: −9·7 − 2·7 = −11·7",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Vậy $7 \\cdot (-11) \\equiv 1 \\pmod{26}$ → $7^{-1} \\equiv -11 + 26 = 15$. Kiểm tra: 7 × 15 = 105 = 4 · 26 + 1 ✓.",
+          "rule": "Đưa về [0, 25]"
+        }
+      ],
+      "answer": "$7^{-1} \\equiv 15 \\pmod{26}$",
+      "commonMistake": "Sai dấu khi thế ngược (ra −9 hoặc 9), hoặc dùng Fermat $7^{24}$ dù 26 không phải số nguyên tố.",
+      "relatedFlashcard": "fc-gcd-bezout"
     },
     {
       "id": "ex-gcd-challenge-1",
@@ -173,18 +435,67 @@
       "prompt": "Trong hệ thống RSA đơn giản hóa: p = 5, q = 11. Tính N = p×q, φ(N) = (p-1)(q-1), chọn e = 3 (kiểm tra gcd(e, φ(N)) = 1). Tính khóa riêng d = e⁻¹ mod φ(N) bằng thuật toán Euclid mở rộng.",
       "hints": [
         "N = 5 × 11 = 55. φ(N) = 4 × 10 = 40.",
-        "gcd(3, 40) = ? (xác nhận coprime).",
-        "Cần tìm d sao cho 3d ≡ 1 (mod 40). Thử: 3×27 = 81 = 2×40 + 1."
+        "gcd(3, 40) = ? (cần bằng 1).",
+        "Euclid mở rộng: 40 = 13 · 3 + 1. Suy ra 1 = 40 − 13 · 3."
       ],
       "solutionSteps": [
-        { "text": "N = 5×11 = 55. φ(N) = (5-1)(11-1) = 4×10 = 40.", "rule": "φ(pq) = (p-1)(q-1) với p, q nguyên tố" },
-        { "text": "Kiểm tra: gcd(3, 40) = gcd(40, 3) = gcd(3, 1) = gcd(1, 0) = 1. ✓ Coprime → e=3 hợp lệ.", "rule": "gcd(e, φ(N)) phải = 1 để modular inverse tồn tại" },
-        { "text": "Tìm d: 3d ≡ 1 (mod 40). Thử d=27: 3×27=81=2×40+1 → 81 mod 40=1. ✓", "isCommonMistake": true, "rule": "Kiểm tra bằng cách nhân ngược: e×d mod φ(N) phải = 1 — đừng nhầm d là gcd" },
-        { "text": "Khóa công khai: (e=3, N=55). Khóa riêng: (d=27, N=55). Mã hóa m: c = m³ mod 55. Giải mã c: m = c²⁷ mod 55." }
+        {
+          "text": "N = 5 × 11 = 55. φ(N) = (5 − 1)(11 − 1) = 4 × 10 = 40.",
+          "rule": "φ(pq) = (p − 1)(q − 1) với p, q nguyên tố"
+        },
+        {
+          "text": "gcd(3, 40): 40 mod 3 = 1, 3 mod 1 = 0 → gcd = 1 ✓. e = 3 hợp lệ.",
+          "rule": "gcd(e, φ(N)) phải bằng 1"
+        },
+        {
+          "text": "Euclid mở rộng: 40 = 13 · 3 + 1 → 1 = 40 − 13 · 3 → $3 \\cdot (-13) \\equiv 1 \\pmod{40}$.",
+          "rule": "Đi ngược bước chia để có Bézout"
+        },
+        {
+          "text": "Hệ số −13 âm → cộng 40: d = −13 + 40 = 27. Kiểm tra: 3 × 27 = 81 = 2 · 40 + 1 ✓.",
+          "rule": "Đưa nghịch đảo về [0, φ(N) − 1]",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Khóa công khai (e = 3, N = 55), khóa riêng d = 27. Ví dụ m = 2: c = 2³ mod 55 = 8; giải mã $8^{27} \\bmod 55 = 2$ ✓.",
+          "rule": "Mã hóa / giải mã bằng lũy thừa modular"
+        }
       ],
-      "answer": "d = 27. Kiểm tra: 3 × 27 = 81 ≡ 1 (mod 40).",
-      "commonMistake": "Nhầm d = φ(N)/e = 40/3 (không nguyên). Modular inverse KHÔNG phải phép chia thông thường.",
+      "answer": "N = 55, φ(N) = 40, d = 27 (vì 3 × 27 = 81 ≡ 1 mod 40).",
+      "commonMistake": "Để d = −13 (âm) hoặc nhầm d = φ(N)/e = 40/3 — nghịch đảo modular KHÔNG phải phép chia thông thường.",
       "relatedFlashcard": "fc-gcd-rsa"
+    },
+    {
+      "id": "ex-gcd-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Chứng minh: nếu $a \\ge b > 0$ thì $a \\bmod b < a/2$. Từ đó giải thích vì sao Euclid chạy $O(\\log \\min(a,b))$ bước, và đếm số phép chia lấy dư khi tính gcd(89, 55).",
+      "hints": [
+        "Xét hai trường hợp: b ≤ a/2 và b > a/2.",
+        "Nếu b > a/2 thì a mod b = a − b.",
+        "Trong Euclid, cặp (a, b) sau hai bước thành (a mod b, …)."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Nếu b ≤ a/2: a mod b < b ≤ a/2 ✓.",
+          "rule": "Phần dư luôn nhỏ hơn số chia"
+        },
+        {
+          "text": "Nếu b > a/2: thương bằng 1 nên a mod b = a − b < a − a/2 = a/2 ✓.",
+          "rule": "Trường hợp thương = 1"
+        },
+        {
+          "text": "Euclid đi (a, b) → (b, a mod b) → (a mod b, …). Sau HAI bước, số đứng đầu là a mod b < a/2 — chứ không phải mỗi bước giảm một nửa. Vậy số bước ≤ 2 log₂ a, tức O(log).",
+          "rule": "Giảm một nửa sau mỗi HAI bước",
+          "isCommonMistake": true
+        },
+        {
+          "text": "gcd(89, 55): dư lần lượt 34, 21, 13, 8, 5, 3, 2, 1, 0 → 9 phép chia. Các phần dư là dãy Fibonacci giảm dần — mỗi thương đều bằng 1, đây là trường hợp xấu nhất (định lý Lamé).",
+          "rule": "Fibonacci là worst case"
+        }
+      ],
+      "answer": "a mod b < a/2 luôn đúng → sau mỗi hai bước số lớn giảm ít nhất một nửa → O(log) bước. gcd(89, 55) = 1 cần 9 phép chia lấy dư.",
+      "commonMistake": "Khẳng định 'mỗi bước b giảm ít nhất một nửa' — sai: gcd(89, 55) đi từ 55 xuống 34, chỉ giảm khoảng 38%.",
+      "relatedFlashcard": "fc-gcd-steps"
     }
   ],
   "quiz": [
@@ -192,25 +503,92 @@
       "id": "q-gcd-1",
       "type": "mcq",
       "question": "$\\gcd(24, 36)$ bằng bao nhiêu?",
-      "options": ["4", "6", "12", "36"],
-      "correct": 2,
+      "options": [
+        "12",
+        "6",
+        "4",
+        "36"
+      ],
+      "correct": 0,
       "explanation": "gcd(24,36): 36 mod 24=12. gcd(24,12): 24 mod 12=0. gcd(12,0)=12."
     },
     {
       "id": "q-gcd-2",
       "type": "mcq",
       "question": "Sàng Eratosthenes gạch bội số của i bắt đầu từ đâu?",
-      "options": ["i+1", "2i", "i²", "2"],
-      "correct": 2,
-      "explanation": "Bắt đầu từ i² vì mọi bội số nhỏ hơn i² (như 2i, 3i, ...) đã được gạch khi xử lý số nhỏ hơn i trước đó."
+      "options": [
+        "i + 1",
+        "2i",
+        "2",
+        "i²"
+      ],
+      "correct": 3,
+      "explanation": "Bắt đầu từ i² vì mọi bội nhỏ hơn i² (dạng k·i với k < i) đều có ước nguyên tố nhỏ hơn i và đã bị gạch trước đó."
     },
     {
       "id": "q-gcd-3",
       "type": "mcq",
       "question": "Để kiểm tra số n có phải nguyên tố không, ta chỉ cần thử chia đến:",
-      "options": ["n/2", "n-1", "√n", "log n"],
+      "options": [
+        "n/2",
+        "√n",
+        "n − 1",
+        "log n"
+      ],
+      "correct": 1,
+      "explanation": "Nếu n = d × e với d ≤ e thì d ≤ √n — mỗi ước lớn hơn √n đi cặp với một ước nhỏ hơn √n đã được thử. Kiểm tra đến √n là đủ: O(√n). (n/2 cũng đúng nhưng chậm hơn rất nhiều.)"
+    },
+    {
+      "id": "q-gcd-4",
+      "question": "360 = 2³ · 3² · 5 có bao nhiêu ước dương?",
+      "type": "mcq",
+      "options": [
+        "6",
+        "30",
+        "24",
+        "12"
+      ],
       "correct": 2,
-      "explanation": "Nếu n có ước d > √n thì n/d < √n — ước nhỏ hơn đã được tìm thấy. Kiểm tra đến √n là đủ: O(√n) thay vì O(n)."
+      "explanation": "Số ước = (3 + 1)(2 + 1)(1 + 1) = 4 · 3 · 2 = 24. Mỗi ước chọn số mũ của 2 trong 0..3, của 3 trong 0..2, của 5 trong 0..1."
+    },
+    {
+      "id": "q-gcd-5",
+      "question": "Độ phức tạp thời gian của sàng Eratosthenes tìm mọi số nguyên tố ≤ n là?",
+      "type": "mcq",
+      "options": [
+        "$O(n^2)$",
+        "$O(n \\sqrt{n})$",
+        "$O(n \\log n)$",
+        "$O(n \\log \\log n)$"
+      ],
+      "correct": 3,
+      "explanation": "Tổng số lần gạch ≈ n/2 + n/3 + n/5 + … (trên các số nguyên tố) ≈ $n \\ln \\ln n$. Gần như tuyến tính."
+    },
+    {
+      "id": "q-gcd-6",
+      "question": "Biết gcd(21, 6) = 3. Vậy lcm(21, 6) = ?",
+      "type": "mcq",
+      "options": [
+        "126",
+        "42",
+        "63",
+        "18"
+      ],
+      "correct": 1,
+      "explanation": "lcm = 21 / 3 × 6 = 42. Kiểm tra: gcd × lcm = 3 × 42 = 126 = 21 × 6 ✓."
+    },
+    {
+      "id": "q-gcd-7",
+      "question": "Thuật toán Euclid mở rộng trả về gì ngoài gcd(a, b)?",
+      "type": "mcq",
+      "options": [
+        "Hai số nguyên x, y với ax + by = gcd(a, b)",
+        "Bội chung nhỏ nhất của a và b",
+        "Phân tích thừa số nguyên tố của a và b",
+        "Số bước Euclid cần chạy"
+      ],
+      "correct": 0,
+      "explanation": "Nó trả về hệ số Bézout x, y. Khi gcd(a, m) = 1, x chính là nghịch đảo của a theo mod m — đây là cách tính khóa riêng RSA."
     }
   ]
 }

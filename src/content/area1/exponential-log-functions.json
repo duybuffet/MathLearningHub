@@ -7,96 +7,182 @@
   "icon": "function",
   "tagline": "Hàm mũ (exponential) và hàm log là gương phản chiếu nhau — hiểu cả hai là hiểu tại sao O(2^n) kinh khủng còn O(log n) lại tuyệt vời.",
   "readTime": "~18 min",
-  "prerequisites": ["area1_logarithms"],
+  "prerequisites": [
+    "area1_logarithms"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Hàm mũ (exponential function) $f(x) = a^x$ và hàm logarit (logarithmic function) $f(x) = \\log_a(x)$ là **nghịch hàm (inverse functions)** của nhau — như phép cộng và trừ, nhân và chia. Nếu $2^5 = 32$ thì $\\log_2(32) = 5$.\n\nTrong CS, chúng xuất hiện ở hai thái cực đối lập:\n- **Hàm mũ** $O(2^n)$: tăng trưởng bùng nổ — brute-force duyệt tập con, thuật toán quay lui (backtracking) tệ nhất.\n- **Hàm log** $O(\\log n)$: tăng cực chậm — binary search, cây cân bằng, thuật toán chia đôi."
+      "content": "Hàm mũ (exponential function) $f(x) = a^x$ và hàm logarit (logarithmic function) $f(x) = \\log_a x$ là **hàm ngược (inverse functions)** của nhau — giống như cộng và trừ, nhân và chia: cái này \"hoàn tác\" cái kia. Nếu $2^5 = 32$ thì $\\log_2 32 = 5$.\n\nTrong CS, chúng xuất hiện ở hai thái cực đối lập:\n\n- **Hàm mũ** $O(2^n)$: tăng trưởng bùng nổ — brute-force duyệt mọi tập con, quay lui (backtracking) trong trường hợp xấu nhất.\n- **Hàm log** $O(\\log n)$: tăng cực chậm — binary search, cây cân bằng, mọi thuật toán \"chia đôi\".\n\nNgoài Big-O, hàm mũ còn có mặt trong exponential backoff khi retry request, learning rate decay, sigmoid/softmax trong ML; còn hàm log biến tích xác suất thành tổng (log-likelihood)."
     },
     {
       "type": "analogy",
-      "title": "Vi khuẩn nhân đôi vs. quần thể diệt dần",
-      "content": "Hàm mũ tăng: Một vi khuẩn nhân đôi mỗi giờ. Sau 10 giờ: $2^{10} = 1024$ vi khuẩn. Sau 20 giờ: $2^{20} \\approx 1$ triệu. Sau 30 giờ: $2^{30} \\approx 1$ tỷ. Tăng trưởng mũ (exponential growth) = tốc độ tăng tỷ lệ thuận với quy mô hiện tại.\n\nHàm log giảm tốc: Mỗi lần gấp đôi dân số chỉ thêm 1 đơn vị log. Từ 1 → 2: $\\log_2$ tăng 1. Từ 1 → 1024: $\\log_2$ chỉ tăng 10. **Đây là sức mạnh của binary search** — dù n tăng từ 1000 lên 1 tỷ, số bước chỉ tăng từ 10 lên 30."
+      "title": "Vi khuẩn nhân đôi vs. số bước binary search",
+      "content": "**Hàm mũ tăng:** một vi khuẩn nhân đôi mỗi giờ. Sau 10 giờ: $2^{10} = 1024$ con. Sau 20 giờ: $2^{20} \\approx 1$ triệu. Sau 30 giờ: $2^{30} \\approx 1$ tỷ. Tăng trưởng mũ (exponential growth) nghĩa là tốc độ tăng tỉ lệ với quy mô hiện tại.\n\n**Hàm log tăng cực chậm:** mỗi lần dân số gấp đôi, $\\log_2$ của nó chỉ tăng thêm 1. Từ 1 lên 1024 con, $\\log_2$ chỉ tăng từ 0 lên 10. **Đây là sức mạnh của binary search** — n tăng từ 1000 lên 1 tỷ (gấp 1 triệu lần), số bước chỉ tăng từ khoảng 10 lên khoảng 30."
     },
     {
       "type": "formula",
       "title": "Hàm mũ: $f(x) = a^x$",
-      "latex": "f(x) = a^x \\qquad (a > 0,\\; a \\ne 1) \\qquad f'(x) = a^x \\ln a \\qquad \\text{Special: } e^x",
-      "reading": "đọc là: f của x bằng a mũ x. Hàm mũ tự nhiên e^x có đạo hàm bằng chính nó.",
+      "latex": "\\begin{gathered} f(x) = a^x \\qquad (a > 0,\\; a \\ne 1) \\\\ \\text{special case: } f(x) = e^x, \\quad (e^x)' = e^x \\end{gathered}",
+      "reading": "đọc là: f của x bằng a mũ x. Trường hợp đặc biệt e mũ x (hàm mũ tự nhiên) có đạo hàm (tốc độ tăng) bằng chính nó.",
       "symbols": [
-        { "sym": "a", "meaning": "cơ số (base): a > 1 → hàm tăng; 0 < a < 1 → hàm giảm." },
-        { "sym": "e \\approx 2.718", "meaning": "số Euler — cơ số tự nhiên của hàm mũ tự nhiên (natural exponential). Dùng trong lãi kép liên tục, phân phối chuẩn." },
-        { "sym": "\\text{Properties}", "meaning": "Miền xác định: $x \\in \\mathbb{R}$; miền giá trị: $y > 0$. Luôn dương, không qua trục x." }
+        {
+          "sym": "a",
+          "meaning": "cơ số (base): a > 1 → hàm tăng; 0 < a < 1 → hàm giảm."
+        },
+        {
+          "sym": "e \\approx 2.718",
+          "meaning": "số Euler — cơ số tự nhiên. $e^x$ là hàm duy nhất (với $f(0) = 1$) có tốc độ tăng đúng bằng giá trị hiện tại. Dùng trong lãi kép liên tục, phân phối chuẩn, sigmoid, softmax."
+        },
+        {
+          "sym": "\\text{Properties}",
+          "meaning": "Miền xác định: mọi $x$ thực; miền giá trị: $y > 0$. Luôn dương, không cắt trục x, luôn đi qua điểm $(0, 1)$ vì $a^0 = 1$."
+        }
       ]
     },
     {
       "type": "formula",
-      "title": "Hàm log: $f(x) = \\log_a(x)$ — nghịch hàm của $a^x$",
-      "latex": "f(x) = \\log_a x \\qquad (x > 0,\\; a > 0,\\; a \\ne 1) \\qquad a^{\\log_a x} = x \\qquad \\log_a(a^x) = x",
-      "reading": "đọc là: log cơ số a của x. Hai đẳng thức cuối nói lên: hàm mũ và hàm log triệt tiêu nhau — chúng là nghịch hàm.",
+      "title": "Hàm log $f(x) = \\log_a x$ — hàm ngược của $a^x$",
+      "latex": "\\begin{gathered} f(x) = \\log_a x \\qquad (x > 0,\\; a > 0,\\; a \\ne 1) \\\\ a^{\\log_a x} = x \\qquad \\log_a(a^x) = x \\end{gathered}",
+      "reading": "đọc là: log cơ số a của x. Hai đẳng thức dưới nói: hàm mũ và hàm log triệt tiêu nhau — chúng là hàm ngược của nhau.",
       "symbols": [
-        { "sym": "a^{\\log_a x} = x", "meaning": "Áp hàm mũ lên kết quả log → trả về x. Ví dụ: $2^{\\log_2 8} = 8$." },
-        { "sym": "\\log_a(a^x) = x", "meaning": "Áp log lên kết quả hàm mũ → trả về x. Ví dụ: $\\log_2(2^5) = 5$." },
-        { "sym": "\\text{Domain}", "meaning": "x > 0 (logarit chỉ xác định với số dương)." }
+        {
+          "sym": "a^{\\log_a x} = x",
+          "meaning": "Áp hàm mũ lên kết quả log → trả về x. Ví dụ: $2^{\\log_2 8} = 8$."
+        },
+        {
+          "sym": "\\log_a(a^x) = x",
+          "meaning": "Áp log lên kết quả hàm mũ → trả về x. Ví dụ: $\\log_2(2^5) = 5$."
+        },
+        {
+          "sym": "\\text{Domain}",
+          "meaning": "x > 0 (logarit chỉ xác định với số dương). Đồ thị luôn đi qua $(1, 0)$, có tiệm cận đứng là trục y."
+        }
       ]
     },
     {
       "type": "graph",
-      "title": "Hàm mũ và hàm log là gương qua đường y = x",
+      "title": "Hàm mũ và hàm log đối xứng qua đường $y = x$",
       "functions": [
-        { "fn": "2^x", "color": "#f5a623" },
-        { "fn": "log(x) / log(2)", "color": "#4ade80" },
-        { "fn": "x", "color": "#60a5fa" }
+        {
+          "fn": "2^x",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "log(x) / log(2)",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "x",
+          "color": "#8ac6ff"
+        }
       ],
-      "xDomain": [-2, 6],
-      "yDomain": [-2, 8],
-      "caption": "2^x (cam) tăng nhanh; log₂(x) (xanh) tăng chậm; y=x (xanh dương) là gương phản chiếu. Hai đường cam và xanh lá là ảnh gương của nhau — minh họa trực quan của nghịch hàm."
+      "xDomain": [
+        -2,
+        6
+      ],
+      "yDomain": [
+        -2,
+        8
+      ],
+      "caption": "$2^x$ (vàng) tăng bùng nổ; $\\log_2 x$ (xanh bạc hà) tăng rất chậm; $y = x$ (xanh dương) là trục đối xứng. Điểm $(0, 1)$ trên đồ thị mũ ứng với $(1, 0)$ trên đồ thị log; $(3, 8)$ ứng với $(8, 3)$ — hàm ngược đổi chỗ x và y."
     },
     {
       "type": "explanation",
       "title": "Tăng trưởng mũ trong CS: khi nào gặp O(2^n)?",
-      "content": "**Những trường hợp điển hình sinh ra O(2^n):**\n\n1. **Duyệt tất cả tập con (subset enumeration)**: một tập n phần tử có $2^n$ tập con. Với n=20: >1 triệu. Với n=50: hơn 1 ngàn tỷ.\n2. **Thuật toán quay lui (backtracking) tệ nhất**: mỗi bước có 2 lựa chọn, sâu n cấp → $2^n$ nhánh.\n3. **Dãy Fibonacci ngây thơ**: `fib(n) = fib(n-1) + fib(n-2)` không ghi nhớ (no memoization) → $O(2^n)$.\n\nKhi thấy $O(2^n)$, đó là tín hiệu cần tối ưu: memoization, quy hoạch động (dynamic programming), hoặc tỉa nhánh (branch & bound)."
+      "content": "**Những trường hợp điển hình sinh ra tăng trưởng mũ:**\n\n1. **Duyệt tất cả tập con (subset enumeration)**: tập n phần tử có $2^n$ tập con. Với n = 20: khoảng 1 triệu. Với n = 50: khoảng $1.1 \\times 10^{15}$ (hơn 1 triệu tỷ).\n2. **Quay lui (backtracking) xấu nhất**: mỗi bước 2 lựa chọn, sâu n tầng → $2^n$ nhánh.\n3. **Fibonacci đệ quy ngây thơ**: `fib(n) = fib(n-1) + fib(n-2)` không ghi nhớ (no memoization) → $O(2^n)$; chặt hơn là khoảng $O(1.618^n)$.\n\nKhi thấy $O(2^n)$, đó là tín hiệu cần tối ưu: ghi nhớ (memoization), quy hoạch động (dynamic programming), hoặc tỉa nhánh (branch & bound).\n\n**Thứ bậc tăng trưởng cần thuộc:** với n đủ lớn, MỌI hàm mũ $a^n$ ($a > 1$) đều vượt MỌI đa thức $n^k$, và MỌI lũy thừa $n^{\\varepsilon}$ ($\\varepsilon > 0$) đều vượt MỌI lũy thừa của log $(\\log n)^k$. VD: $1.01^n$ cuối cùng vẫn vượt $n^{100}$ — chỉ là n phải rất lớn."
     },
     {
       "type": "explanation",
-      "title": "Nửa thời gian (half-life) và nhân đôi (doubling time)",
-      "content": "**Công thức nhân đôi**: nếu một đại lượng tăng trưởng mũ với tỉ lệ $r$ mỗi kỳ, thời gian nhân đôi ≈ $\\dfrac{\\ln 2}{\\ln(1+r)} \\approx \\dfrac{70}{r\\%}$ (quy tắc 70).\n\nVD: RAM giá giảm 50% mỗi vài năm (Định luật Moore-style) — đây là hàm mũ giảm. Ngược lại, dữ liệu internet tăng gấp đôi mỗi ~2 năm — hàm mũ tăng.\n\nTrong Machine Learning: **learning rate** ảnh hưởng đến hội tụ theo hàm mũ — learning rate quá lớn gây loss bùng nổ mũ, quá nhỏ hội tụ chậm mũ."
+      "title": "Thời gian nhân đôi (doubling time) và chu kỳ bán rã (half-life)",
+      "content": "**Thời gian nhân đôi:** một đại lượng tăng $r$ (dạng thập phân, VD 10% thì $r = 0.1$) mỗi kỳ sẽ gấp đôi sau $t = \\dfrac{\\ln 2}{\\ln(1 + r)}$ kỳ. Nhẩm nhanh: **quy tắc 70** — $t \\approx \\dfrac{70}{R}$ với R là r tính theo phần trăm, chính xác khi r nhỏ (dưới khoảng 10%).\n\n**Chu kỳ bán rã:** đại lượng giảm một nửa sau mỗi T đơn vị thời gian: $N(t) = N_0 \\cdot \\left(\\frac{1}{2}\\right)^{t/T}$. VD: bộ đếm \"độ nóng\" (decay counter) của một bài viết, trọng số trong trung bình trượt mũ (exponential moving average) — dữ liệu càng cũ càng nhẹ ký theo cấp số nhân.\n\n**Trong ML:** với gradient descent trên hàm bậc hai đơn giản, sai số sau mỗi bước bị nhân với một hệ số cố định $q$. Nếu $|q| < 1$, sai số giảm theo hàm mũ $q^k$ (hội tụ); learning rate quá lớn làm $|q| > 1$ → loss **bùng nổ** theo hàm mũ; learning rate quá nhỏ làm $q$ rất gần 1 → vẫn hội tụ nhưng rất chậm."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: Giải phương trình mũ",
       "problem": "Giải $2^{x+1} = 32$.",
       "steps": [
-        { "text": "Viết 32 là lũy thừa của 2: $32 = 2^5$.", "rule": "Đồng cơ số — tiếp cận không dùng log" },
-        { "text": "Phương trình trở thành $2^{x+1} = 2^5$.", "rule": "Cùng cơ số → so sánh số mũ" },
-        { "text": "$x + 1 = 5 \\Rightarrow x = 4$.", "isCommonMistake": true, "rule": "Cộng số mũ, không nhân: $x+1=5$ không phải $x \\cdot 1 = 5$" }
+        {
+          "text": "Viết 32 là lũy thừa của 2: $32 = 2^5$.",
+          "rule": "Đồng cơ số — tiếp cận không dùng log"
+        },
+        {
+          "text": "Phương trình trở thành $2^{x+1} = 2^5$.",
+          "rule": "Cùng cơ số → so sánh số mũ"
+        },
+        {
+          "text": "$x + 1 = 5 \\Rightarrow x = 4$. Lỗi hay gặp: coi $2^{x+1}$ như $2(x + 1)$ rồi chia hai vế cho 2, ra $x + 1 = 16$.",
+          "isCommonMistake": true,
+          "rule": "$2^{x+1}$ là lũy thừa, không phải phép nhân — so sánh SỐ MŨ"
+        }
       ],
-      "result": "$x = 4$. Kiểm tra: $2^{4+1} = 2^5 = 32$. ✓"
+      "result": "$x = 4$. Kiểm tra: $2^{4+1} = 2^5 = 32$ ✓"
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 2: Tính thời gian nhân đôi (ứng dụng CS)",
-      "problem": "Một dataset tăng 20% mỗi tháng. Sau bao nhiêu tháng, dung lượng gấp đôi? Dùng công thức $t = \\dfrac{\\ln 2}{\\ln(1.2)}$.",
+      "problem": "Một dataset tăng 20% mỗi tháng. Sau bao nhiêu tháng, dung lượng gấp đôi?",
       "steps": [
-        { "text": "Mô hình: $D(t) = D_0 \\cdot 1.2^t$. Cần tìm t sao cho $D(t) = 2D_0$.", "rule": "Mô hình tăng trưởng mũ" },
-        { "text": "$1.2^t = 2$. Lấy log tự nhiên hai vế: $t \\ln(1.2) = \\ln 2$.", "rule": "Lấy log để đưa t xuống khỏi số mũ" },
-        { "text": "$t = \\dfrac{\\ln 2}{\\ln 1.2} \\approx \\dfrac{0.693}{0.182} \\approx 3.8$ tháng.", "isCommonMistake": true, "rule": "Lấy log HAI VẾ — nhiều người chỉ lấy log vế phải hoặc nhầm $\\ln(1.2^t) = t \\cdot \\ln 1.2$" }
+        {
+          "text": "Mô hình: $D(t) = D_0 \\cdot 1.2^t$. Cần tìm t sao cho $D(t) = 2D_0$.",
+          "rule": "Mô hình tăng trưởng mũ"
+        },
+        {
+          "text": "$1.2^t = 2$. Lấy log tự nhiên hai vế: $t \\ln(1.2) = \\ln 2$.",
+          "rule": "Lấy log để đưa t xuống khỏi số mũ"
+        },
+        {
+          "text": "$t = \\dfrac{\\ln 2}{\\ln 1.2} \\approx \\dfrac{0.693}{0.182} \\approx 3.8$ tháng. Lỗi hay gặp: viết $\\ln(1.2^t) = (\\ln 1.2)^t$, hoặc tính $t = 2 / 1.2$.",
+          "isCommonMistake": true,
+          "rule": "$\\ln(a^t) = t \\ln a$ — số mũ được kéo ra thành hệ số nhân"
+        },
+        {
+          "text": "So sánh quy tắc 70: $70 / 20 = 3.5$ tháng — lệch khoảng 8% vì r = 20% khá lớn.",
+          "rule": "Quy tắc 70 chỉ chính xác khi r nhỏ"
+        }
       ],
-      "result": "Khoảng **3.8 tháng** → sau ~4 tháng dung lượng gấp đôi."
+      "result": "Khoảng **3.8 tháng** — tức sau 4 tháng dung lượng đã hơn gấp đôi ($1.2^4 \\approx 2.07$)."
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Lỗi hay gặp:** Nhầm hàm mũ $2^n$ với đa thức $n^2$. $2^{10} = 1024$ còn $10^2 = 100$ — hàm mũ lớn hơn nhiều ở n lớn. Trong Big-O: O(n²) thuật toán sắp xếp nổi bọt vẫn dùng được ở n vài nghìn; O(2^n) thì không thể dùng với n > 30."
+      "content": "**Lỗi hay gặp:** nhầm hàm mũ $2^n$ với đa thức $n^2$. $2^{10} = 1024$ còn $10^2 = 100$; $2^{40} \\approx 1.1 \\times 10^{12}$ còn $40^2 = 1600$. Trong thực tế: thuật toán $O(n^2)$ vẫn chạy ổn với n vài chục nghìn; còn $O(2^n)$ chạy 1 tỷ bước/giây thì n = 30 mất khoảng 1 giây, n = 40 mất khoảng 18 phút, n = 50 mất gần 2 tuần."
+    },
+    {
+      "type": "formula",
+      "title": "Giải phương trình mũ bằng logarit",
+      "latex": "a^x = c \\;\\Rightarrow\\; x = \\log_a c = \\frac{\\ln c}{\\ln a} \\qquad (c > 0)",
+      "reading": "đọc là: muốn đưa x xuống khỏi số mũ, lấy log hai vế. Nghiệm là log cơ số a của c, tính bằng ln c chia ln a.",
+      "symbols": [
+        {
+          "sym": "2^x = 10",
+          "meaning": "$x = \\frac{\\ln 10}{\\ln 2} \\approx 3.32$ — không viết được 10 thành lũy thừa nguyên của 2 thì dùng log."
+        },
+        {
+          "sym": "a^u = a^v",
+          "meaning": "cùng cơ số thì $u = v$ — cách nhanh hơn khi đưa được hai vế về cùng cơ số."
+        },
+        {
+          "sym": "0 < a < 1",
+          "meaning": "$\\ln a < 0$: khi chia hai vế của BẤT phương trình cho $\\ln a$ phải **đổi chiều**."
+        }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Hàm mũ & log trong hệ thống và ML",
+      "content": "- **Exponential backoff:** retry một request lỗi, lần thứ k chờ $\\text{base} \\times 2^k$ (thường kèm giới hạn trên và jitter ngẫu nhiên) để không dồn tải lên server đang quá tải. Tổng thời gian chờ của k lần đầu là $\\text{base} \\times (2^k - 1)$.\n- **Log-likelihood:** xác suất của cả dataset là TÍCH của hàng nghìn số nhỏ hơn 1 → tràn dưới (underflow) về 0 trong số thực dấu phẩy động. Lấy log biến tích thành tổng: $\\log \\prod p_i = \\sum \\log p_i$ — ổn định số học và dễ lấy đạo hàm. Hàm mất mát cross-entropy chính là $-\\sum \\log p_i$.\n- **Sigmoid & softmax:** $\\sigma(x) = \\frac{1}{1 + e^{-x}}$ ép mọi số thực vào khoảng (0, 1); softmax dùng $e^{x_i}$ để biến điểm số thành phân phối xác suất.\n- **Learning rate decay:** $\\eta_t = \\eta_0 \\cdot \\gamma^t$ với $0 < \\gamma < 1$ — learning rate giảm theo hàm mũ qua mỗi epoch."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Hàm mũ $a^x$ và hàm log $\\log_a x$ là nghịch hàm của nhau: $a^{\\log_a x} = x$ và $\\log_a(a^x) = x$.",
-        "Đồ thị: hai hàm đối xứng nhau qua đường $y=x$ — chúng là gương phản chiếu.",
-        "O(2^n) = nguy hiểm — tăng trưởng bùng nổ: n=50 → 1 ngàn tỷ bước. Cần tối ưu bằng DP/memoization.",
-        "O(log n) = tuyệt vời — tăng cực chậm: n tăng từ 1000 lên 1 tỷ, bước tăng từ 10 lên 30.",
-        "Công thức nhân đôi: $t \\approx \\ln 2 / \\ln(1+r)$. Quy tắc 70: t ≈ 70/r% — dùng được trong tính toán nhanh."
+        "Hàm mũ $a^x$ và hàm log $\\log_a x$ là hàm ngược của nhau: $a^{\\log_a x} = x$ và $\\log_a(a^x) = x$; đồ thị đối xứng qua $y = x$.",
+        "$a^x$ luôn dương, đi qua $(0, 1)$; $\\log_a x$ chỉ xác định khi $x > 0$, đi qua $(1, 0)$.",
+        "Giải $a^x = c$: $x = \\ln c / \\ln a$. Bất phương trình với $0 < a < 1$ phải đổi chiều khi chia cho $\\ln a < 0$.",
+        "$O(2^n)$ nguy hiểm: n = 50 cần khoảng $10^{15}$ bước. Mọi hàm mũ cuối cùng vượt mọi đa thức — tối ưu bằng DP/memoization.",
+        "$O(\\log n)$ tuyệt vời: n tăng từ 1000 lên 1 tỷ, số bước chỉ tăng từ khoảng 10 lên khoảng 30.",
+        "Thời gian nhân đôi $t = \\ln 2 / \\ln(1 + r)$, nhẩm bằng quy tắc 70; chu kỳ bán rã $N_0 (1/2)^{t/T}$.",
+        "Trong hệ thống & ML: exponential backoff, log-likelihood (tích → tổng), sigmoid/softmax, learning rate decay."
       ]
     }
   ],
@@ -105,25 +191,55 @@
       "id": "fc-el-inverse",
       "type": "concept",
       "front": "Hàm mũ $a^x$ và hàm log $\\log_a x$ có quan hệ gì?",
-      "back": "Nghịch hàm (inverse functions): $a^{\\log_a x} = x$ và $\\log_a(a^x) = x$. Đồ thị đối xứng qua $y=x$."
+      "back": "Hàm ngược (inverse functions): $a^{\\log_a x} = x$ (với $x > 0$) và $\\log_a(a^x) = x$. Đồ thị đối xứng qua $y = x$."
     },
     {
       "id": "fc-el-exp-growth",
       "type": "concept",
       "front": "Tại sao O(2^n) nguy hiểm hơn O(n²) rất nhiều?",
-      "back": "Hàm mũ tăng siêu nhanh: $2^{50} \\approx 10^{15}$ (1 ngàn tỷ) vs. $50^2 = 2500$. Với n > 30, O(2^n) thực tế không thể chạy."
+      "back": "Hàm mũ tăng siêu nhanh: $2^{50} \\approx 1.1 \\times 10^{15}$ (hơn 1 triệu tỷ) so với $50^2 = 2500$. Ở 1 tỷ bước/giây, $2^{50}$ bước mất gần 2 tuần; mỗi +1 vào n là gấp đôi thời gian."
     },
     {
       "id": "fc-el-e",
       "type": "definition",
       "front": "Số $e \\approx 2.718$ có ý nghĩa đặc biệt gì trong hàm mũ?",
-      "back": "Cơ số tự nhiên: $e^x$ có đạo hàm bằng chính nó. Dùng trong lãi kép liên tục, phân phối chuẩn, và rất nhiều công thức toán ứng dụng."
+      "back": "Cơ số tự nhiên: $e^x$ có đạo hàm bằng chính nó; $\\ln$ là log cơ số e. Dùng trong lãi kép liên tục, phân phối chuẩn, sigmoid, softmax."
     },
     {
       "id": "fc-el-doubling",
       "type": "formula",
-      "front": "Công thức thời gian nhân đôi khi tăng trưởng r%/kỳ là?",
-      "back": "$t = \\dfrac{\\ln 2}{\\ln(1+r)}$. Gần đúng: $t \\approx 70/r$ (quy tắc 70). VD: tăng 10%/năm → nhân đôi sau ~7 năm."
+      "front": "Công thức thời gian nhân đôi khi một đại lượng tăng r mỗi kỳ là gì?",
+      "back": "$t = \\dfrac{\\ln 2}{\\ln(1+r)}$ với r dạng thập phân. Nhẩm: $t \\approx 70 / R$ với R là r theo phần trăm (quy tắc 70). VD tăng 10%/năm → khoảng 7.3 năm (quy tắc 70 cho 7)."
+    },
+    {
+      "id": "fc-el-solve-log",
+      "type": "formula",
+      "front": "Giải $a^x = c$ khi không đưa được về cùng cơ số?",
+      "back": "Lấy log hai vế: $x = \\log_a c = \\dfrac{\\ln c}{\\ln a}$. VD $2^x = 10 \\Rightarrow x \\approx 3.32$. Nếu là bất phương trình và $0 < a < 1$ thì đổi chiều khi chia cho $\\ln a < 0$."
+    },
+    {
+      "id": "fc-el-same-base",
+      "type": "formula",
+      "front": "Phương trình mũ cùng cơ số $a^u = a^v$ (với $a > 0$, $a \\ne 1$) suy ra gì?",
+      "back": "$u = v$. VD $3^{2x-1} = 27 = 3^3 \\Rightarrow 2x - 1 = 3 \\Rightarrow x = 2$."
+    },
+    {
+      "id": "fc-el-backoff",
+      "type": "concept",
+      "front": "Exponential backoff là gì? Tổng thời gian chờ sau k lần retry?",
+      "back": "Lần retry thứ i (i = 0, 1, …) chờ $\\text{base} \\times 2^i$, thường kèm giới hạn trên và jitter. Tổng k lần đầu: $\\text{base} \\times (2^k - 1)$."
+    },
+    {
+      "id": "fc-el-log-likelihood",
+      "type": "concept",
+      "front": "Vì sao ML tối ưu log-likelihood (tổng log xác suất) thay vì tích xác suất?",
+      "back": "Tích hàng nghìn số < 1 bị tràn dưới (underflow) về 0. $\\log \\prod p_i = \\sum \\log p_i$: ổn định số học, dễ lấy đạo hàm; và log là hàm tăng nên cực đại không đổi chỗ."
+    },
+    {
+      "id": "fc-el-growth-hierarchy",
+      "type": "concept",
+      "front": "Thứ bậc tăng trưởng: log, đa thức, hàm mũ — cái nào thắng khi n rất lớn?",
+      "back": "$(\\log n)^k \\ll n^{\\varepsilon} \\ll n^k \\ll a^n$ (với $\\varepsilon > 0$, $a > 1$). VD $1.01^n$ cuối cùng vượt $n^{100}$; $\\log^{10} n$ cuối cùng thua $\\sqrt{n}$."
     }
   ],
   "exercises": [
@@ -136,10 +252,18 @@
         "$\\log_a(a^x) = ?$"
       ],
       "solutionSteps": [
-        { "text": "Áp dụng tính chất nghịch hàm: $\\log_3(3^7) = 7$.", "rule": "$\\log_a(a^x) = x$ — log và mũ triệt tiêu nhau" }
+        {
+          "text": "Áp dụng tính chất hàm ngược: $\\log_3(3^7) = 7$.",
+          "rule": "$\\log_a(a^x) = x$ — log và mũ triệt tiêu nhau"
+        },
+        {
+          "text": "Lỗi hay gặp: trả lời $3^7 = 2187$ (quên áp log) hoặc $7 \\log 3$ rồi dừng (quên $\\log_3 3 = 1$).",
+          "isCommonMistake": true,
+          "rule": "$\\log_3(3^7) = 7 \\log_3 3 = 7 \\times 1$"
+        }
       ],
       "answer": "$7$",
-      "commonMistake": "Tính $3^7 = 2187$ rồi tìm log — đúng nhưng dài không cần thiết; nhận ra nghịch hàm là đủ.",
+      "commonMistake": "Trả lời 2187 (tính $3^7$ mà quên lấy log), hoặc để nguyên $7\\log 3$.",
       "relatedFlashcard": "fc-el-inverse"
     },
     {
@@ -152,31 +276,142 @@
         "Cùng cơ số → so sánh số mũ."
       ],
       "solutionSteps": [
-        { "text": "$27 = 3^3$. Phương trình: $3^{2x-1} = 3^3$.", "rule": "Đồng cơ số" },
-        { "text": "Cùng cơ số 3: $2x - 1 = 3$.", "rule": "Cùng cơ số → số mũ bằng nhau" },
-        { "text": "$2x = 4 \\Rightarrow x = 2$.", "isCommonMistake": true, "rule": "$2x-1=3 \\Rightarrow 2x=4$ — nhiều người sai ở bước cộng 1 hai vế: viết $2x=3$ hoặc $2x=3-1$" }
+        {
+          "text": "$27 = 3^3$. Phương trình: $3^{2x-1} = 3^3$.",
+          "rule": "Đồng cơ số"
+        },
+        {
+          "text": "Cùng cơ số 3: $2x - 1 = 3$.",
+          "rule": "Cùng cơ số → số mũ bằng nhau"
+        },
+        {
+          "text": "$2x = 4 \\Rightarrow x = 2$. Kiểm tra: $3^{2 \\cdot 2 - 1} = 3^3 = 27$ ✓. Lỗi hay gặp: chuyển vế sai, $2x - 1 = 3 \\Rightarrow 2x = 2 \\Rightarrow x = 1$.",
+          "isCommonMistake": true,
+          "rule": "Chuyển vế đổi dấu: cộng 1 vào hai vế"
+        }
       ],
       "answer": "$x = 2$",
-      "commonMistake": "Sau khi có $2x-1=3$, sai bước cộng 1 hai vế → $2x=3$ thay vì $2x=4$.",
-      "relatedFlashcard": "fc-el-inverse"
+      "commonMistake": "Chuyển vế sai dấu ($2x = 2$), hoặc so sánh $2x - 1 = 27$ mà quên đưa 27 về $3^3$.",
+      "relatedFlashcard": "fc-el-same-base"
     },
     {
       "id": "ex-el-challenge-1",
       "difficulty": "challenge",
-      "prompt": "Hàm Fibonacci ngây thơ `def fib(n): return fib(n-1) + fib(n-2)` (không memoization) có độ phức tạp xấp xỉ $O(\\phi^n)$ với $\\phi \\approx 1.618$ (tỉ số vàng). So sánh: fib(50) cần bao nhiêu lần gọi hàm? fib(50) với memoization cần bao nhiêu? Điều này minh họa điều gì về hàm mũ?",
+      "prompt": "Hàm Fibonacci đệ quy ngây thơ `fib(n) = fib(n-1) + fib(n-2)` (với `fib(0) = 0`, `fib(1) = 1`, không memoization) có số lời gọi tăng như $\\phi^n$ với $\\phi \\approx 1.618$ (tỉ lệ vàng). (a) Ước lượng bậc độ lớn số lời gọi khi tính fib(50). (b) Với memoization cần khoảng bao nhiêu lần tính? (c) Điều này minh họa gì?",
       "hints": [
-        "$\\phi^{50} \\approx 1.618^{50}$. Dùng $\\log_{10}$ để ước tính.",
-        "$\\log_{10}(1.618^{50}) = 50 \\cdot \\log_{10}(1.618) \\approx 50 \\times 0.209$.",
-        "Với memoization: mỗi giá trị fib(k) chỉ tính một lần → O(n) = 50 lần."
+        "Dùng $\\log_{10}$: $\\log_{10}(\\phi^{50}) = 50 \\log_{10} \\phi$.",
+        "$\\log_{10} 1.618 \\approx 0.209$.",
+        "Với memoization: mỗi giá trị fib(0), …, fib(50) chỉ tính một lần."
       ],
       "solutionSteps": [
-        { "text": "Không memoization: số lần gọi $\\approx \\phi^{50}$. $\\log_{10}(\\phi^{50}) = 50 \\times \\log_{10}(1.618) \\approx 50 \\times 0.209 = 10.45$.", "rule": "$\\log_{10}(a^n) = n \\log_{10} a$" },
-        { "text": "$\\phi^{50} \\approx 10^{10.45} \\approx 2.8 \\times 10^{10}$ — khoảng **28 tỷ** lời gọi hàm.", "rule": "Hàm mũ cơ số >1 tăng nhanh kinh khủng" },
-        { "text": "Với memoization: O(n) = chỉ 50 lần tính. Tỉ lệ cải thiện: $2.8 \\times 10^{10} / 50 \\approx 560$ triệu lần nhanh hơn!", "isCommonMistake": true, "rule": "Đây là lý do memoization/DP quan trọng: biến O(φⁿ) thành O(n) — từ không thể thành tức thì" }
+        {
+          "text": "$\\log_{10}(\\phi^{50}) = 50 \\times 0.209 \\approx 10.45$, nên $\\phi^{50} \\approx 10^{10.45} \\approx 2.8 \\times 10^{10}$.",
+          "rule": "$\\log_{10}(a^n) = n \\log_{10} a$"
+        },
+        {
+          "text": "Đếm chính xác: số lời gọi là $2F_{51} - 1 \\approx 4.1 \\times 10^{10}$ (khoảng 41 tỷ) — cùng bậc $10^{10}$ với ước lượng $\\phi^{50}$. Lỗi hay gặp: ước lượng bằng $2^{50} \\approx 10^{15}$ — đó chỉ là cận trên lỏng.",
+          "isCommonMistake": true,
+          "rule": "Số lời gọi tăng như $\\phi^n$, không phải $2^n$; $O(2^n)$ chỉ là cận trên"
+        },
+        {
+          "text": "Với memoization: mỗi fib(k), k = 0..50, tính đúng một lần → khoảng 51 lần tính, $O(n)$.",
+          "rule": "Memoization: mỗi bài toán con giải một lần"
+        },
+        {
+          "text": "Tỉ lệ: $4.1 \\times 10^{10} / 51 \\approx 8 \\times 10^8$ — nhanh hơn gần 1 tỷ lần. Một thay đổi nhỏ trong thuật toán biến $O(\\phi^n)$ thành $O(n)$.",
+          "rule": "Hàm mũ vs tuyến tính"
+        }
       ],
-      "answer": "Không memoization: ~$2.8 \\times 10^{10}$ lần gọi (28 tỷ). Memoization: 50 lần. Cải thiện ~560 triệu lần. Minh họa: hàm mũ tăng cực nhanh, một thay đổi thuật toán đơn giản tạo ra sự khác biệt thiên văn.",
-      "commonMistake": "Nghĩ memoization chỉ 'nhanh hơn một chút' — thực ra là sự khác biệt giữa không thể chạy và tức thì.",
+      "answer": "(a) Khoảng $10^{10}$ lời gọi (chính xác $2F_{51} - 1 \\approx 4.1 \\times 10^{10}$; ước lượng $\\phi^{50} \\approx 2.8 \\times 10^{10}$). (b) Khoảng 51 lần tính. (c) Hàm mũ tăng cực nhanh; memoization/DP biến 'không chạy nổi' thành tức thì.",
+      "commonMistake": "Nghĩ memoization chỉ 'nhanh hơn một chút', hoặc dùng $2^{50}$ làm ước lượng (lệch khoảng 25 nghìn lần).",
       "relatedFlashcard": "fc-el-exp-growth"
+    },
+    {
+      "id": "ex-el-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tính $e^{\\ln 7} + \\ln(e^3)$.",
+      "hints": [
+        "$\\ln$ là log cơ số e — hàm ngược của $e^x$.",
+        "$e^{\\ln x} = x$ và $\\ln(e^x) = x$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$e^{\\ln 7} = 7$.",
+          "rule": "$a^{\\log_a x} = x$"
+        },
+        {
+          "text": "$\\ln(e^3) = 3$.",
+          "rule": "$\\log_a(a^x) = x$"
+        },
+        {
+          "text": "Tổng $= 7 + 3 = 10$. Lỗi hay gặp: nghĩ $e^{\\ln 7} = e \\cdot 7$ hoặc $\\ln(e^3) = e^3$.",
+          "isCommonMistake": true,
+          "rule": "Hàm ngược triệt tiêu nhau, không nhân"
+        }
+      ],
+      "answer": "10",
+      "commonMistake": "Nhân thay vì triệt tiêu ($e \\times 7$), hoặc quên rằng $\\ln$ có cơ số e.",
+      "relatedFlashcard": "fc-el-inverse"
+    },
+    {
+      "id": "ex-el-apply-2",
+      "difficulty": "apply",
+      "prompt": "Client retry request theo exponential backoff: sau lần thất bại thứ k (k = 0, 1, 2, …) chờ $100 \\times 2^k$ ms. (a) Lần chờ đầu tiên dài ít nhất 10 giây ứng với k bằng bao nhiêu? (b) Tổng thời gian chờ cho k = 0 đến 6 là bao nhiêu?",
+      "hints": [
+        "(a) Giải $100 \\times 2^k \\ge 10000$, tức $2^k \\ge 100$.",
+        "$\\log_2 100 \\approx 6.64$ — k phải nguyên.",
+        "(b) $1 + 2 + 4 + \\cdots + 2^6 = 2^7 - 1$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) $100 \\times 2^k \\ge 10000 \\iff 2^k \\ge 100 \\iff k \\ge \\log_2 100 \\approx 6.64$.",
+          "rule": "Lấy $\\log_2$ hai vế"
+        },
+        {
+          "text": "k nguyên → $k = 7$ (chờ 12.8 giây). Kiểm tra: $k = 6$ chỉ chờ 6.4 giây. Lỗi hay gặp: làm tròn xuống k = 6.",
+          "isCommonMistake": true,
+          "rule": "Bất phương trình 'ít nhất' → làm tròn LÊN"
+        },
+        {
+          "text": "(b) Tổng $= 100 \\times (2^0 + 2^1 + \\cdots + 2^6) = 100 \\times (2^7 - 1) = 12700$ ms.",
+          "rule": "$1 + 2 + \\cdots + 2^n = 2^{n+1} - 1$"
+        }
+      ],
+      "answer": "(a) k = 7; (b) 12 700 ms = 12.7 giây.",
+      "commonMistake": "Làm tròn 6.64 xuống 6; hoặc tính tổng thành $100 \\times 2^7 = 12800$ (quên trừ 1).",
+      "relatedFlashcard": "fc-el-backoff"
+    },
+    {
+      "id": "ex-el-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Learning rate giảm theo hàm mũ: $\\eta_t = 0.1 \\times 0.95^t$ sau mỗi epoch t. Từ epoch nào trở đi thì $\\eta_t < 0.01$?",
+      "hints": [
+        "Chia hai vế cho 0.1: $0.95^t < 0.1$.",
+        "Lấy ln hai vế: $t \\ln 0.95 < \\ln 0.1$.",
+        "$\\ln 0.95 < 0$ — chia cho số âm thì sao?"
+      ],
+      "solutionSteps": [
+        {
+          "text": "$0.1 \\times 0.95^t < 0.01 \\iff 0.95^t < 0.1$.",
+          "rule": "Chia hai vế cho số dương 0.1"
+        },
+        {
+          "text": "Lấy ln: $t \\ln 0.95 < \\ln 0.1$, tức $t \\times (-0.0513) < -2.303$.",
+          "rule": "$\\ln(a^t) = t \\ln a$; ln là hàm tăng nên giữ chiều"
+        },
+        {
+          "text": "Chia cho $\\ln 0.95 < 0$ → **đổi chiều**: $t > \\dfrac{\\ln 0.1}{\\ln 0.95} \\approx 44.9$. Lỗi hay gặp: giữ nguyên chiều, ra $t < 44.9$ (vô lý: tức là ngay từ đầu đã < 0.01).",
+          "isCommonMistake": true,
+          "rule": "Chia bất phương trình cho số âm phải đổi chiều"
+        },
+        {
+          "text": "t nguyên → từ epoch 45. Kiểm tra: $0.1 \\times 0.95^{44} \\approx 0.01047$, $0.1 \\times 0.95^{45} \\approx 0.00994$ ✓.",
+          "rule": "Thay số kiểm tra hai giá trị biên"
+        }
+      ],
+      "answer": "Từ epoch t = 45 trở đi.",
+      "commonMistake": "Quên đổi chiều khi chia cho $\\ln 0.95 < 0$.",
+      "relatedFlashcard": "fc-el-solve-log"
     }
   ],
   "quiz": [
@@ -184,7 +419,12 @@
       "id": "q-el-1",
       "type": "mcq",
       "question": "$2^{\\log_2 100}$ bằng bao nhiêu?",
-      "options": ["$\\log_2 100$", "$100$", "$200$", "$10$"],
+      "options": [
+        "$\\log_2 100$",
+        "$100$",
+        "$200$",
+        "$10$"
+      ],
       "correct": 1,
       "explanation": "$a^{\\log_a x} = x$. Vì hàm mũ và log là nghịch hàm: $2^{\\log_2 100} = 100$."
     },
@@ -192,9 +432,14 @@
       "id": "q-el-2",
       "type": "mcq",
       "question": "Một thuật toán có độ phức tạp O(2^n). Khi n tăng từ 20 lên 21, số phép tính tăng bao nhiêu lần?",
-      "options": ["Tăng thêm 1", "Tăng thêm 21 lần", "Tăng thêm gấp đôi", "Tăng thêm $n$ lần"],
+      "options": [
+        "Tăng thêm 1 phép tính",
+        "Tăng 21 lần",
+        "Gấp đôi",
+        "Tăng $n$ lần"
+      ],
       "correct": 2,
-      "explanation": "$2^{21} = 2 \\times 2^{20}$. Tăng thêm 1 đơn vị trong số mũ = gấp đôi. Đây là bản chất của tăng trưởng mũ."
+      "explanation": "$2^{21} = 2 \\times 2^{20}$. Tăng số mũ thêm 1 = nhân đôi. Đây là bản chất của tăng trưởng mũ: mỗi phần tử thêm vào làm thời gian chạy gấp đôi."
     },
     {
       "id": "q-el-3",
@@ -203,11 +448,50 @@
       "options": [
         "Chúng song song nhau",
         "Chúng trùng nhau",
-        "Chúng đối xứng nhau qua đường $y = x$",
-        "Chúng không liên quan"
+        "Chúng không liên quan",
+        "Chúng đối xứng nhau qua đường $y = x$"
+      ],
+      "correct": 3,
+      "explanation": "Hàm ngược có đồ thị đối xứng nhau qua đường $y = x$: điểm $(a, b)$ trên đồ thị $2^x$ ứng với điểm $(b, a)$ trên đồ thị $\\log_2 x$."
+    },
+    {
+      "id": "q-el-4",
+      "type": "mcq",
+      "question": "Nghiệm của $3^x = 20$ là?",
+      "options": [
+        "$x = \\ln 20 / \\ln 3 \\approx 2.73$",
+        "$x = 20/3 \\approx 6.67$",
+        "$x = \\ln(20/3) \\approx 1.90$",
+        "$x = \\log_{20} 3 \\approx 0.37$"
+      ],
+      "correct": 0,
+      "explanation": "Lấy ln hai vế: $x \\ln 3 = \\ln 20 \\Rightarrow x = \\frac{\\ln 20}{\\ln 3} \\approx 2.73$. Kiểm tra: $3^{2.73} \\approx 20$. Chú ý $\\frac{\\ln 20}{\\ln 3} \\ne \\ln \\frac{20}{3}$."
+    },
+    {
+      "id": "q-el-5",
+      "type": "mcq",
+      "question": "Khi n RẤT lớn, hàm nào lớn nhất?",
+      "options": [
+        "$n^{100}$",
+        "$(\\log n)^{10}$",
+        "$n \\log n$",
+        "$1.01^n$"
+      ],
+      "correct": 3,
+      "explanation": "Mọi hàm mũ $a^n$ với $a > 1$ cuối cùng vượt mọi đa thức, kể cả $n^{100}$ (dù n phải rất lớn mới thấy). Lũy thừa của log thì nhỏ hơn mọi đa thức."
+    },
+    {
+      "id": "q-el-6",
+      "type": "mcq",
+      "question": "Vì sao khi huấn luyện mô hình xác suất, ta tối đa hóa TỔNG log xác suất thay vì TÍCH các xác suất?",
+      "options": [
+        "Vì log làm thay đổi vị trí điểm cực đại",
+        "Vì tổng luôn lớn hơn tích",
+        "Vì tích của nhiều số nhỏ hơn 1 bị tràn dưới (underflow) về 0; log biến tích thành tổng ổn định hơn",
+        "Vì xác suất có thể âm"
       ],
       "correct": 2,
-      "explanation": "Nghịch hàm có đồ thị đối xứng nhau qua đường $y = x$. Vì $f(x) = 2^x$ và $g(x) = \\log_2 x$ là nghịch hàm của nhau."
+      "explanation": "$\\log \\prod p_i = \\sum \\log p_i$ tránh underflow và dễ lấy đạo hàm. Log là hàm tăng nên điểm cực đại KHÔNG đổi chỗ."
     }
   ]
 }

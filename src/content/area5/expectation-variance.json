@@ -6,12 +6,14 @@
   "order": 3,
   "icon": "dice",
   "tagline": "Kỳ vọng cho biết giá trị \"trung bình\" dài hạn; phương sai đo độ \"dao động\". Cả hai cốt lõi để phân tích thuật toán trung bình.",
-  "readTime": "~18 min",
-  "prerequisites": ["area5_random-variables"],
+  "readTime": "~25 min",
+  "prerequisites": [
+    "area5_random-variables"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Biết phân phối của biến ngẫu nhiên X là tốt, nhưng thường ta chỉ cần hai con số tóm tắt: **kỳ vọng (expectation/mean)** và **phương sai (variance)**.\n\n**Kỳ vọng E[X]** trả lời: \"Nếu lặp lại thử nghiệm rất nhiều lần, giá trị trung bình của X là bao nhiêu?\" — đây chính là **thời gian chạy trung bình (average-case)** trong phân tích thuật toán.\n\n**Phương sai Var(X)** trả lời: \"Kết quả có dao động nhiều quanh trung bình không?\" — độ phân tán lớn nghĩa là đôi khi chậm đột biến, cần dùng **tail bound** để kiểm soát.\n\nVí dụ CS ngay lập tức: Quicksort có E[comparisons] = O(n log n) — đây là kết quả từ kỳ vọng, không phải worst-case."
+      "content": "Biết phân phối của biến ngẫu nhiên X là tốt, nhưng thường ta chỉ cần hai con số tóm tắt: **kỳ vọng (expectation/mean)** và **phương sai (variance)**.\n\n**Kỳ vọng E[X]** trả lời: \"Nếu lặp lại thử nghiệm rất nhiều lần, giá trị trung bình của X là bao nhiêu?\" — đây chính là **thời gian chạy trung bình (average-case)** trong phân tích thuật toán.\n\n**Phương sai Var(X)** trả lời: \"Kết quả có dao động nhiều quanh trung bình không?\" — độ phân tán lớn nghĩa là đôi khi chậm đột biến, cần dùng **tail bound** để kiểm soát.\n\nVí dụ CS ngay lập tức: randomized quicksort có kỳ vọng số phép so sánh là $O(n \\log n)$ — đây là kết quả về kỳ vọng, không phải worst-case. Bài này cũng trang bị \"mẹo phỏng vấn\" mạnh nhất của xác suất: **linearity of expectation** với biến chỉ báo, và trực giác về luật số lớn / định lý giới hạn trung tâm cho A/B testing."
     },
     {
       "type": "analogy",
@@ -24,82 +26,218 @@
       "latex": "E[X] = \\sum_{k} k \\cdot P(X = k)",
       "reading": "đọc là: \"kỳ vọng của X bằng tổng của mỗi giá trị k nhân với xác suất X nhận giá trị k\".",
       "symbols": [
-        { "sym": "E[X]", "meaning": "kỳ vọng (expectation / mean / expected value) của X" },
-        { "sym": "k", "meaning": "một giá trị cụ thể mà X có thể nhận" },
-        { "sym": "P(X=k)", "meaning": "xác suất X nhận giá trị k (từ PMF)" },
-        { "sym": "\\sum_k", "meaning": "tổng trên tất cả giá trị k có thể" }
+        {
+          "sym": "E[X]",
+          "meaning": "kỳ vọng (expectation / mean / expected value) của X"
+        },
+        {
+          "sym": "k",
+          "meaning": "một giá trị cụ thể mà X có thể nhận"
+        },
+        {
+          "sym": "P(X=k)",
+          "meaning": "xác suất X nhận giá trị k (từ PMF)"
+        },
+        {
+          "sym": "\\sum_k",
+          "meaning": "tổng trên tất cả giá trị k có thể"
+        }
       ]
     },
     {
       "type": "explanation",
-      "title": "Tính tuyến tính của kỳ vọng — vũ khí mạnh nhất",
-      "content": "**Linearity of Expectation** là một trong những công cụ mạnh nhất trong phân tích probabilistic:\n\n> E[X + Y] = E[X] + E[Y] **luôn đúng**, kể cả khi X và Y không độc lập!\n\nVí dụ CS: Insertion sort trên n phần tử. Gọi X_i = số comparisons để chèn phần tử thứ i. Tổng comparisons = X_1 + X_2 + ... + X_n. E[tổng] = E[X_1] + E[X_2] + ... + E[X_n]. Ta chỉ cần tính kỳ vọng từng X_i riêng lẻ — không cần biết chúng có độc lập hay không!\n\nĐây là lý do nhiều bài toán phân tích thuật toán trở nên thanh lịch hơn nhiều khi dùng indicator random variables."
+      "title": "Tính tuyến tính của kỳ vọng (Linearity of Expectation) — vũ khí mạnh nhất",
+      "content": "Với mọi biến ngẫu nhiên X, Y và hằng số a, b:\n\n$$E[aX + bY] = aE[X] + bE[Y]$$\n\nĐẳng thức này **luôn đúng, kể cả khi X và Y phụ thuộc nhau**! (Ngược lại, $E[XY] = E[X]E[Y]$ thì cần độc lập.)\n\n**Chiến thuật kinh điển:** muốn tính kỳ vọng của một đại lượng \"đếm\" phức tạp, hãy viết nó thành **tổng các biến chỉ báo (indicator random variable)** 0/1, rồi cộng kỳ vọng từng biến — không cần biết phân phối của tổng, không cần độc lập.\n\nVí dụ: insertion sort trên n phần tử. Số phép so sánh ≈ số **nghịch thế (inversion)** — cặp (i, j) với i < j nhưng a[i] > a[j]. Mỗi cặp là nghịch thế với xác suất 1/2 trong một hoán vị ngẫu nhiên, có $\\binom{n}{2}$ cặp, nên kỳ vọng số nghịch thế là $\\frac{n(n-1)}{4}$ — average case vẫn là $\\Theta(n^2)$."
     },
     {
       "type": "formula",
-      "title": "Phương sai và Độ lệch chuẩn",
-      "latex": "\\text{Var}(X) = E[(X - \\mu)^2] = E[X^2] - (E[X])^2 \\qquad \\sigma = \\sqrt{\\text{Var}(X)}",
-      "reading": "đọc là: \"phương sai bằng kỳ vọng bình phương độ lệch; bằng E[X²] trừ E[X] bình phương\". Độ lệch chuẩn σ là căn bậc 2 của phương sai.",
+      "title": "Biến chỉ báo (Indicator Random Variable)",
+      "latex": "\\mathbf{1}_A = \\begin{cases} 1 & \\text{if } A \\text{ occurs} \\\\ 0 & \\text{otherwise} \\end{cases} \\qquad E[\\mathbf{1}_A] = P(A)",
+      "reading": "đọc là: \"biến chỉ báo của sự kiện A bằng 1 nếu A xảy ra, 0 nếu không; kỳ vọng của nó đúng bằng xác suất của A\".",
       "symbols": [
-        { "sym": "\\mu", "meaning": "ký hiệu khác của E[X] — giá trị trung bình" },
-        { "sym": "E[(X-\\mu)^2]", "meaning": "kỳ vọng bình phương khoảng cách đến trung bình" },
-        { "sym": "E[X^2] - (E[X])^2", "meaning": "công thức tính tắt — thường dễ tính hơn" },
-        { "sym": "\\sigma", "meaning": "độ lệch chuẩn — cùng đơn vị với X, dễ diễn giải hơn phương sai" }
+        {
+          "sym": "\\mathbf{1}_A",
+          "meaning": "biến chỉ báo (indicator) — một biến Bernoulli với p = P(A)"
+        },
+        {
+          "sym": "E[\\mathbf{1}_A] = P(A)",
+          "meaning": "vì $1 \\cdot P(A) + 0 \\cdot (1 - P(A)) = P(A)$"
+        }
+      ],
+      "caption": "Công thức chung: đếm = tổng các indicator → kỳ vọng = tổng các xác suất."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ phỏng vấn: số điểm bất động của hoán vị ngẫu nhiên",
+      "problem": "Xáo trộn ngẫu nhiên (random shuffle) một mảng n phần tử phân biệt. Kỳ vọng số phần tử nằm **đúng vị trí cũ** (fixed point) là bao nhiêu? (Phiên bản đời thường: n người gửi mũ, nhận lại mũ ngẫu nhiên — trung bình mấy người nhận đúng mũ của mình?)",
+      "steps": [
+        {
+          "text": "Đặt $X_i = 1$ nếu phần tử i vẫn ở vị trí i, ngược lại 0. Số fixed point $X = X_1 + X_2 + \\dots + X_n$.",
+          "rule": "Phân rã thành tổng các biến chỉ báo"
+        },
+        {
+          "text": "Phần tử i rơi vào vị trí i với xác suất $\\frac{(n-1)!}{n!} = \\frac{1}{n}$, nên $E[X_i] = 1/n$.",
+          "rule": "$E[\\mathbf{1}_A] = P(A)$"
+        },
+        {
+          "text": "Các $X_i$ **không** độc lập (VD nếu n − 1 phần tử đúng chỗ thì phần tử cuối chắc chắn đúng chỗ). Nhưng linearity không cần độc lập! Không cần tính phân phối của X bằng bao hàm–loại trừ (derangement).",
+          "rule": "Linearity of expectation",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$E[X] = n \\times \\frac{1}{n} = 1$. Kiểm chứng n = 3: 6 hoán vị 123, 132, 213, 231, 312, 321 có lần lượt 3, 1, 1, 0, 0, 1 fixed point — tổng 6, trung bình 1.",
+          "rule": "Cộng kỳ vọng"
+        }
+      ],
+      "result": "E[số fixed point] = **1** với mọi n — dù n = 3 hay n = 1 triệu."
+    },
+    {
+      "type": "explanation",
+      "title": "Coupon collector — cần bao nhiêu lần thử để gặp đủ n loại?",
+      "content": "Mỗi lần thử nhận ngẫu nhiên 1 trong n loại (đồng khả năng). Kỳ vọng số lần thử T để gặp **đủ cả n loại** là bao nhiêu?\n\nChia thành các giai đoạn: khi đã có i loại, mỗi lần thử ra loại mới với xác suất $(n-i)/n$, nên số lần thử trong giai đoạn đó là Geometric với kỳ vọng $\\frac{n}{n-i}$. Theo linearity:\n\n$$E[T] = \\frac{n}{n} + \\frac{n}{n-1} + \\dots + \\frac{n}{1} = n H_n \\approx n \\ln n$$\n\nvới $H_n = 1 + \\frac{1}{2} + \\dots + \\frac{1}{n}$ là số điều hòa (harmonic number). Ví dụ n = 50: $E[T] = 50 H_{50} \\approx 225$ lần — gấp 4.5 lần n, phần lớn tốn ở những loại cuối (riêng loại cuối cùng đã mất trung bình 50 lần).\n\nỨng dụng CS: số request ngẫu nhiên cần để chạm tới mọi shard, số key cần hash để mọi bucket đều có ít nhất 1 key, số lần chạy random test để phủ hết n nhánh code."
+    },
+    {
+      "type": "formula",
+      "title": "Phương sai (Variance) và Độ lệch chuẩn (Standard Deviation)",
+      "latex": "\\operatorname{Var}(X) = E[(X - \\mu)^2] = E[X^2] - (E[X])^2",
+      "reading": "đọc là: \"phương sai bằng kỳ vọng của bình phương độ lệch so với trung bình; tính tắt bằng E[X²] trừ bình phương của E[X]\". **Độ lệch chuẩn (standard deviation)** $\\sigma = \\sqrt{\\operatorname{Var}(X)}$.",
+      "symbols": [
+        {
+          "sym": "\\mu",
+          "meaning": "ký hiệu khác của E[X] — giá trị trung bình"
+        },
+        {
+          "sym": "E[(X-\\mu)^2]",
+          "meaning": "kỳ vọng bình phương khoảng cách đến trung bình"
+        },
+        {
+          "sym": "E[X^2] - (E[X])^2",
+          "meaning": "công thức tính tắt — thường dễ tính hơn"
+        },
+        {
+          "sym": "\\sigma",
+          "meaning": "độ lệch chuẩn — cùng đơn vị với X, dễ diễn giải hơn phương sai"
+        }
       ]
+    },
+    {
+      "type": "formula",
+      "title": "Tính chất của phương sai",
+      "latex": "\\begin{aligned} \\operatorname{Var}(aX + b) &= a^2 \\operatorname{Var}(X) \\\\ \\operatorname{Var}(X + Y) &= \\operatorname{Var}(X) + \\operatorname{Var}(Y) \\end{aligned}",
+      "reading": "Cộng hằng số b không đổi độ phân tán; nhân với a thì phương sai nhân $a^2$ (độ lệch chuẩn nhân |a|). Dòng thứ hai **chỉ đúng khi X, Y độc lập** (hoặc không tương quan) — tổng quát phải cộng thêm $2\\operatorname{Cov}(X, Y)$.",
+      "symbols": [
+        {
+          "sym": "a, b",
+          "meaning": "hằng số"
+        },
+        {
+          "sym": "\\operatorname{Cov}(X, Y)",
+          "meaning": "hiệp phương sai (covariance) — đo mức hai biến cùng biến thiên; bằng 0 khi độc lập"
+        }
+      ],
+      "caption": "Bẫy: $\\operatorname{Var}(X - Y) = \\operatorname{Var}(X) + \\operatorname{Var}(Y)$ (cũng cộng!) khi độc lập. Hệ quả: trung bình của n mẫu độc lập có phương sai $\\sigma^2/n$."
     },
     {
       "type": "graph",
       "title": "Hai phân phối cùng kỳ vọng nhưng phương sai khác nhau",
       "functions": [
-        { "fn": "exp(-(x^2) / 0.5) * 0.8", "color": "#7fded1" },
-        { "fn": "exp(-(x^2) / 8) * 0.2", "color": "#ff9ecb" }
+        {
+          "fn": "exp(-(x^2) / 0.5) * 0.8",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "exp(-(x^2) / 8) * 0.2",
+          "color": "#ff9ecb"
+        }
       ],
-      "xDomain": [-5, 5],
-      "yDomain": [0, 1],
-      "caption": "Cả hai đường cùng tập trung tại x=0 (E[X]=0), nhưng đường xanh (phương sai nhỏ) tập trung hơn còn đường hồng (phương sai lớn) trải rộng hơn. Trong CS: phương sai lớn = thời gian chạy không ổn định, đôi khi chậm đột biến (outlier)."
+      "xDomain": [
+        -5,
+        5
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "caption": "Hai phân phối chuẩn cùng kỳ vọng 0: đường xanh mint σ = 0.5 (tập trung), đường hồng σ = 2 (trải rộng). Trong CS: phương sai lớn = thời gian chạy không ổn định, thỉnh thoảng chậm đột biến (outlier)."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: E[X] và Var(X) của tung xúc xắc",
       "problem": "X = số chấm khi tung xúc xắc 6 mặt công bằng. Tính E[X] và Var(X).",
       "steps": [
-        { "text": "PMF: P(X=k) = 1/6 cho k ∈ {1,2,3,4,5,6}.", "rule": "Xúc xắc công bằng — mọi kết quả như nhau" },
-        { "text": "E[X] = Σk × (1/6) = (1+2+3+4+5+6)/6 = 21/6 = 3.5.", "rule": "Công thức kỳ vọng" },
-        { "text": "E[X²] = (1²+2²+3²+4²+5²+6²)/6 = (1+4+9+16+25+36)/6 = 91/6 ≈ 15.17.", "rule": "Tính E[X²] riêng" },
-        { "text": "Var(X) = E[X²] − (E[X])² = 91/6 − (3.5)² = 15.167 − 12.25 = 2.917.", "isCommonMistake": true, "rule": "Lỗi hay gặp: tính (E[X])² = (3.5)² = 12.25, không phải 3.5" }
+        {
+          "text": "PMF: P(X=k) = 1/6 cho k ∈ {1,2,3,4,5,6}.",
+          "rule": "Xúc xắc công bằng — mọi kết quả như nhau"
+        },
+        {
+          "text": "E[X] = Σk × (1/6) = (1+2+3+4+5+6)/6 = 21/6 = 3.5.",
+          "rule": "Công thức kỳ vọng"
+        },
+        {
+          "text": "E[X²] = (1²+2²+3²+4²+5²+6²)/6 = (1+4+9+16+25+36)/6 = 91/6 ≈ 15.17.",
+          "rule": "Tính E[X²] riêng"
+        },
+        {
+          "text": "Var(X) = E[X²] − (E[X])² = $\\frac{91}{6} - \\frac{49}{4} = \\frac{35}{12} \\approx 2.917$.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: nhầm E[X²] với (E[X])² = 12.25 — hai đại lượng khác nhau, hiệu của chúng chính là phương sai"
+        },
+        {
+          "text": "$\\sigma = \\sqrt{35/12} \\approx 1.71$.",
+          "rule": "Độ lệch chuẩn = căn của phương sai"
+        }
       ],
-      "result": "E[X] = 3.5, Var(X) ≈ 2.92, σ ≈ 1.71"
+      "result": "E[X] = 3.5, Var(X) = 35/12 ≈ 2.92, σ ≈ 1.71"
     },
     {
       "type": "explanation",
-      "title": "Kỳ vọng của Binomial và Geometric",
-      "content": "Hai phân phối quan trọng nhất trong CS có công thức kỳ vọng đơn giản:\n\n| Phân phối | E[X] | Var(X) |\n|---|---|---|\n| Binomial(n, p) | np | np(1−p) |\n| Geometric(p) | 1/p | (1−p)/p² |\n\n**Binomial:** n=100 request, p=0.01 lỗi → E[lỗi] = 100×0.01 = 1 lỗi trung bình.\n\n**Geometric:** retry với p=0.8 thành công → E[số lần thử] = 1/0.8 = 1.25 lần trung bình.\n\n**Quicksort CS insight:** Số comparisons của randomized quicksort là biến ngẫu nhiên. Dùng linearity of expectation và indicator variables chứng minh được E[comparisons] = 2n ln n ≈ 1.39 × n log₂n. Đây là cơ sở của O(n log n) average case."
+      "title": "Kỳ vọng và phương sai của các phân phối thường gặp",
+      "content": "| Phân phối | E[X] | Var(X) |\n|---|---|---|\n| Bernoulli(p) | p | p(1 − p) |\n| Binomial(n, p) | np | np(1 − p) |\n| Geometric(p) | 1/p | (1 − p)/p² |\n| Poisson(λ) | λ | λ |\n\nBinomial là tổng n Bernoulli **độc lập**, nên cả E và Var đều nhân n (Var cộng được nhờ độc lập).\n\n**Binomial:** n = 100 request, p = 0.01 lỗi → E[lỗi] = 1 lỗi trung bình, Var = 0.99.\n\n**Geometric:** retry với p = 0.8 thành công → E[số lần thử] = 1/0.8 = 1.25 lần trung bình.\n\n**Quicksort:** số phép so sánh của randomized quicksort là biến ngẫu nhiên. Dùng linearity of expectation và indicator variables chứng minh được $E = 2(n+1)H_n - 4n \\approx 2n \\ln n \\approx 1.39\\, n \\log_2 n$ — cơ sở của average case $O(n \\log n)$."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ CS: E[comparisons] của randomized quicksort (simplified)",
-      "problem": "Mảng 4 phần tử {1,2,3,4}. Pivot chọn ngẫu nhiên đều. Tính E[số comparisons] bằng indicator variables: X_{ij} = 1 nếu i và j được compare.",
+      "problem": "Mảng 4 phần tử phân biệt, gọi theo thứ tự đã sắp xếp là 1 < 2 < 3 < 4. Pivot chọn ngẫu nhiên đều. Tính E[số phép so sánh] bằng indicator: $X_{ij} = 1$ nếu phần tử i và j được so sánh trực tiếp.",
       "steps": [
-        { "text": "Định nghĩa X_{ij} = 1 nếu phần tử i và j được compare, 0 nếu không. Tổng comparisons = Σ_{i<j} X_{ij}.", "rule": "Indicator random variable — mỗi cặp (i,j) tạo một biến 0/1" },
-        { "text": "E[tổng] = Σ_{i<j} E[X_{ij}] = Σ_{i<j} P(i và j được compare).", "rule": "Linearity of expectation — không cần các X_{ij} độc lập" },
-        { "text": "P(i và j được compare) = 2/(j−i+1): trong j−i+1 phần tử từ i đến j, nếu pivot là i hoặc j thì chúng được compare, ngược lại bị tách sang subtree khác.", "rule": "Xác suất so sánh trực tiếp" },
-        { "text": "Với n=4: E[comparisons] = 2/2 + 2/3 + 2/4 + 2/3 + 2/4 + 2/2 ≈ 1 + 0.67 + 0.5 + 0.67 + 0.5 + 1 = 4.34.", "isCommonMistake": true, "rule": "Lỗi hay gặp: quên các cặp (i,j) với j−i > 1 cũng có xác suất nhỏ hơn 1" }
+        {
+          "text": "Tổng số phép so sánh $= \\sum_{i<j} X_{ij}$ (mỗi cặp so sánh tối đa 1 lần, vì chỉ so sánh với pivot và pivot không được so sánh lại).",
+          "rule": "Phân rã thành tổng indicator"
+        },
+        {
+          "text": "$E[\\text{total}] = \\sum_{i<j} P(i \\text{ and } j \\text{ compared})$.",
+          "rule": "Linearity of expectation — không cần các $X_{ij}$ độc lập"
+        },
+        {
+          "text": "Xét j − i + 1 phần tử từ i đến j. Pivot **đầu tiên** được chọn trong đoạn này quyết định: nếu là i hoặc j thì cặp được so sánh; nếu là phần tử nằm giữa thì i, j bị tách sang hai phía và không bao giờ gặp nhau. Vậy $P = \\frac{2}{j-i+1}$.",
+          "rule": "Lập luận đối xứng"
+        },
+        {
+          "text": "6 cặp: 3 cặp kề nhau (1,2), (2,3), (3,4) → mỗi cặp 2/2 = 1; 2 cặp cách 2 (1,3), (2,4) → mỗi cặp 2/3; cặp (1,4) → 2/4. Tổng $= 3 + \\frac{4}{3} + \\frac{1}{2} = \\frac{29}{6} \\approx 4.83$.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: đếm sai số cặp ở mỗi khoảng cách, hoặc coi mọi cặp đều chắc chắn được so sánh (ra 6)"
+        }
       ],
-      "result": "E[comparisons] ≈ 4.34 với n=4. Công thức tổng quát: E = 2(n+1)H_n − 4n ≈ 2n ln n"
+      "result": "E[số phép so sánh] = 29/6 ≈ 4.83 với n = 4. Công thức tổng quát $2(n+1)H_n - 4n \\approx 2n \\ln n$ (với n = 4: $10 \\cdot \\frac{25}{12} - 16 = \\frac{29}{6}$, khớp)."
+    },
+    {
+      "type": "explanation",
+      "title": "Luật số lớn & Định lý giới hạn trung tâm — trực giác cho A/B testing",
+      "content": "**Luật số lớn (Law of Large Numbers — LLN):** trung bình mẫu $\\bar{X}_n = \\frac{1}{n}\\sum_{i=1}^n X_i$ của n mẫu độc lập, cùng phân phối tiến về kỳ vọng $\\mu$ khi n lớn. Đây là lý do E[X] được gọi là \"trung bình dài hạn\", và là lý do mô phỏng Monte Carlo hoạt động.\n\n**Định lý giới hạn trung tâm (Central Limit Theorem — CLT):** với n đủ lớn, $\\bar{X}_n$ xấp xỉ phân phối chuẩn quanh $\\mu$ với độ lệch chuẩn $\\sigma/\\sqrt{n}$ (gọi là **standard error**) — bất kể X ban đầu có phân phối gì (miễn phương sai hữu hạn).\n\n**Ví dụ A/B test:** tỷ lệ chuyển đổi (conversion) p = 10%, mỗi nhóm n = 10000 user. Mỗi user là một Bernoulli với $\\sigma = \\sqrt{p(1-p)} = 0.3$, nên standard error $= 0.3/\\sqrt{10000} = 0.003$. Theo quy tắc 95% (khoảng ±2σ), tỷ lệ đo được dao động trong khoảng 10% ± 0.6 điểm phần trăm. Hai nhóm chênh nhau 0.2 điểm phần trăm hoàn toàn có thể chỉ là nhiễu!\n\n**Hệ quả thực dụng:** sai số giảm theo $\\sqrt{n}$ — muốn sai số giảm một nửa, cần **gấp 4 lần** dữ liệu."
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**E[X] ≠ giá trị thường gặp nhất!** Kỳ vọng là trung bình có trọng số — không phải mode (giá trị phổ biến nhất) cũng không phải median. Ví dụ: xúc xắc E[X]=3.5 nhưng không bao giờ ra 3.5. Trong CS: E[thời gian] = 1ms có thể ẩn chứa 0.1% trường hợp 1000ms — phương sai lớn là vấn đề nghiêm trọng cho SLA."
+      "content": "**E[X] ≠ giá trị thường gặp nhất!** Kỳ vọng là trung bình có trọng số — không phải mode (giá trị phổ biến nhất) cũng không phải median. Ví dụ: xúc xắc có E[X] = 3.5 nhưng không bao giờ ra 3.5. Trong CS: latency trung bình 1ms có thể che giấu 0.1% request mất 1000ms — vì vậy SLA thường đo theo percentile (p99) chứ không chỉ trung bình."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "E[X] = Σk·P(X=k) — trung bình dài hạn, không nhất thiết là giá trị có thể xảy ra.",
-        "Linearity: E[X+Y] = E[X]+E[Y] luôn đúng, kể cả khi X,Y không độc lập — công cụ mạnh nhất trong phân tích thuật toán.",
-        "Var(X) = E[X²] − (E[X])² — đo độ phân tán. Phương sai lớn = kết quả không ổn định.",
-        "Binomial(n,p): E=np, Var=np(1-p). Geometric(p): E=1/p, Var=(1-p)/p².",
-        "CS ứng dụng: E[comparisons quicksort] = O(n log n) chứng minh bằng indicator variables và linearity of expectation."
+        "$E[X] = \\sum_k k \\cdot P(X = k)$ — trung bình có trọng số, trung bình dài hạn; không nhất thiết là giá trị có thể xảy ra.",
+        "Linearity: $E[X + Y] = E[X] + E[Y]$ luôn đúng, kể cả khi phụ thuộc. Kết hợp indicator ($E[\\mathbf{1}_A] = P(A)$) để giải bài đếm: fixed points = 1, coupon collector = $nH_n$, quicksort ≈ $2n \\ln n$.",
+        "$\\operatorname{Var}(X) = E[X^2] - (E[X])^2$, $\\sigma = \\sqrt{\\operatorname{Var}(X)}$. $\\operatorname{Var}(aX + b) = a^2\\operatorname{Var}(X)$.",
+        "Phương sai của tổng = tổng phương sai **chỉ khi độc lập**; độ lệch chuẩn thì không cộng trực tiếp.",
+        "Binomial: E = np, Var = np(1 − p). Geometric: E = 1/p, Var = (1 − p)/p². Poisson: E = Var = λ.",
+        "LLN: trung bình mẫu → μ. CLT: trung bình mẫu ≈ chuẩn với sai số $\\sigma/\\sqrt{n}$ — giảm nửa sai số cần gấp 4 lần dữ liệu (A/B test)."
       ]
     }
   ],
@@ -120,7 +258,7 @@
       "id": "fc-ev-variance",
       "type": "formula",
       "front": "Công thức tính tắt của phương sai Var(X)?",
-      "back": "Var(X) = E[X²] − (E[X])². Thường dễ tính hơn E[(X−μ)²]. Độ lệch chuẩn σ = √Var(X)."
+      "back": "$\\operatorname{Var}(X) = E[X^2] - (E[X])^2$. Thường dễ tính hơn $E[(X - \\mu)^2]$. Độ lệch chuẩn $\\sigma = \\sqrt{\\operatorname{Var}(X)}$, cùng đơn vị với X."
     },
     {
       "id": "fc-ev-binomial-ev",
@@ -132,7 +270,37 @@
       "id": "fc-ev-quicksort",
       "type": "concept",
       "front": "Tại sao quicksort có expected O(n log n) comparisons?",
-      "back": "Dùng indicator variables X_{ij}=1 nếu phần tử i và j được compare. P(compare) = 2/(j−i+1). E[tổng] = Σ 2/(j−i+1) = 2n H_n ≈ 2n ln n = O(n log n)."
+      "back": "Indicator $X_{ij} = 1$ nếu phần tử hạng i và j được so sánh; $P = 2/(j-i+1)$ (pivot đầu tiên trong đoạn [i, j] phải là i hoặc j). Linearity: $E = \\sum_{i<j} \\frac{2}{j-i+1} = 2(n+1)H_n - 4n \\approx 2n \\ln n = O(n \\log n)$."
+    },
+    {
+      "id": "fc-ev-indicator",
+      "type": "concept",
+      "front": "Biến chỉ báo (indicator) là gì? Kỳ vọng của nó?",
+      "back": "$\\mathbf{1}_A = 1$ nếu A xảy ra, 0 nếu không; $E[\\mathbf{1}_A] = P(A)$. Mẹo: viết đại lượng đếm thành tổng indicator → kỳ vọng = tổng xác suất (VD số cặp collision = $\\binom{n}{2}/m$)."
+    },
+    {
+      "id": "fc-ev-var-props",
+      "type": "formula",
+      "front": "$\\operatorname{Var}(aX + b)$ = ? $\\operatorname{Var}(X + Y)$ = ?",
+      "back": "$\\operatorname{Var}(aX + b) = a^2 \\operatorname{Var}(X)$. $\\operatorname{Var}(X \\pm Y) = \\operatorname{Var}(X) + \\operatorname{Var}(Y)$ khi X, Y độc lập (tổng quát cộng thêm $\\pm 2\\operatorname{Cov}(X, Y)$). Độ lệch chuẩn không cộng trực tiếp."
+    },
+    {
+      "id": "fc-ev-fixed-points",
+      "type": "concept",
+      "front": "Kỳ vọng số fixed point của một hoán vị ngẫu nhiên n phần tử?",
+      "back": "Bằng 1 với mọi n. Indicator $X_i$ = phần tử i đúng chỗ, $E[X_i] = 1/n$, cộng n số hạng → 1. Các $X_i$ phụ thuộc nhưng linearity vẫn đúng."
+    },
+    {
+      "id": "fc-ev-coupon",
+      "type": "formula",
+      "front": "Coupon collector: kỳ vọng số lần thử để gặp đủ n loại?",
+      "back": "$E[T] = n H_n = n(1 + \\frac{1}{2} + \\dots + \\frac{1}{n}) \\approx n \\ln n$. Giai đoạn đã có i loại là Geometric với kỳ vọng $n/(n-i)$, cộng lại bằng linearity."
+    },
+    {
+      "id": "fc-ev-lln-clt",
+      "type": "concept",
+      "front": "LLN và CLT nói gì? Áp dụng cho A/B test thế nào?",
+      "back": "LLN: trung bình mẫu → E[X]. CLT: trung bình của n mẫu ≈ phân phối chuẩn, độ lệch chuẩn $\\sigma/\\sqrt{n}$ (standard error). Muốn sai số giảm một nửa cần gấp 4 lần mẫu."
     }
   ],
   "exercises": [
@@ -145,12 +313,45 @@
         "Tính từng số hạng: 0×0.5, 1×0.3, 2×0.2."
       ],
       "solutionSteps": [
-        { "text": "E[X] = 0×0.5 + 1×0.3 + 2×0.2.", "rule": "Công thức kỳ vọng" },
-        { "text": "= 0 + 0.3 + 0.4 = 0.7.", "rule": "Tính số học" }
+        {
+          "text": "E[X] = 0×0.5 + 1×0.3 + 2×0.2.",
+          "rule": "Công thức kỳ vọng"
+        },
+        {
+          "text": "= 0 + 0.3 + 0.4 = 0.7.",
+          "rule": "Tính số học"
+        }
       ],
       "answer": "E[X] = 0.7",
       "commonMistake": "Tính trung bình đơn giản (0+1+2)/3 = 1 — không tính trọng số theo xác suất.",
       "relatedFlashcard": "fc-ev-expectation"
+    },
+    {
+      "id": "ex-ev-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Biến X có Var(X) = 4. Tính Var(3X + 7) và độ lệch chuẩn của 3X + 7. (Ví dụ: đổi đơn vị latency rồi cộng thêm overhead cố định.)",
+      "hints": [
+        "Cộng hằng số không làm thay đổi độ phân tán.",
+        "Nhân với 3 thì phương sai nhân $3^2$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Hằng số 7 không ảnh hưởng: Var(3X + 7) = Var(3X).",
+          "rule": "Var(X + b) = Var(X)"
+        },
+        {
+          "text": "Var(3X) = $3^2 \\times 4 = 36$.",
+          "rule": "$\\operatorname{Var}(aX) = a^2\\operatorname{Var}(X)$",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Độ lệch chuẩn = $\\sqrt{36} = 6$ (= 3 × σ_X = 3 × 2).",
+          "rule": "σ = √Var"
+        }
+      ],
+      "answer": "Var(3X + 7) = 36; σ = 6",
+      "commonMistake": "Tính 3 × 4 + 7 = 19 hoặc 3 × 4 = 12 — quên bình phương hệ số và cộng nhầm hằng số vào phương sai.",
+      "relatedFlashcard": "fc-ev-var-props"
     },
     {
       "id": "ex-ev-apply-1",
@@ -161,32 +362,119 @@
         "So sánh E[X] với 3ms."
       ],
       "solutionSteps": [
-        { "text": "E[X] = 1×0.7 + 5×0.2 + 20×0.1 = 0.7 + 1.0 + 2.0 = 3.7ms.", "rule": "Công thức kỳ vọng" },
-        { "text": "E[X] = 3.7ms > 3ms: vi phạm SLA!", "rule": "So sánh với ngưỡng" },
-        { "text": "10% request mất 20ms kéo trung bình lên cao — cần tối ưu trường hợp chậm.", "isCommonMistake": true, "rule": "Lỗi hay gặp: nghĩ 70% request < 3ms nên SLA đạt — SLA đo E[X], không phải median" }
+        {
+          "text": "E[X] = 1×0.7 + 5×0.2 + 20×0.1 = 0.7 + 1.0 + 2.0 = 3.7ms.",
+          "rule": "Công thức kỳ vọng"
+        },
+        {
+          "text": "E[X] = 3.7ms > 3ms: vi phạm SLA!",
+          "rule": "So sánh với ngưỡng"
+        },
+        {
+          "text": "10% request mất 20ms kéo trung bình lên cao — cần tối ưu trường hợp chậm.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: thấy 70% request chỉ mất 1ms (median = 1ms) nên nghĩ SLA đạt — SLA ở đây đo trung bình E[X], bị đuôi chậm kéo lên"
+        }
       ],
       "answer": "E[X] = 3.7ms — vi phạm SLA, dù 70% request chỉ mất 1ms",
       "commonMistake": "Nhầm SLA trung bình với percentile — median và mean khác nhau khi phân phối lệch.",
       "relatedFlashcard": "fc-ev-expectation"
     },
     {
-      "id": "ex-ev-challenge-1",
-      "difficulty": "challenge",
-      "prompt": "[CS Challenge] Quicksort chọn pivot ngẫu nhiên từ n phần tử. Gọi X = số lần pivot rơi vào 'good split' (25%-75% phần tử ở mỗi phía). P(good split) = 0.5. Dùng Geometric: (a) E[số lần chọn pivot đến khi có good split]? (b) Với n=1000 và log₂(1000)≈10 level recursion, E[tổng pivot chọn] ≈ ?",
+      "id": "ex-ev-apply-2",
+      "difficulty": "apply",
+      "prompt": "Hash n = 100 key vào m = 1000 bucket, mỗi key độc lập và đều. Kỳ vọng số **cặp** key bị collision (cùng bucket) là bao nhiêu?",
       "hints": [
-        "X ~ Geometric(p=0.5). E[X] = 1/0.5.",
-        "Mỗi level recursion cần 1 good split. Có ~log₂(n) level.",
-        "Dùng linearity: E[tổng] = (số level) × E[pivot/level]."
+        "Với mỗi cặp (i, j), đặt indicator $X_{ij} = 1$ nếu hai key cùng bucket.",
+        "$P(\\text{key i and key j same bucket}) = 1/m$.",
+        "Có bao nhiêu cặp? $\\binom{100}{2}$."
       ],
       "solutionSteps": [
-        { "text": "X ~ Geometric(p=0.5). E[X] = 1/p = 1/0.5 = 2 lần chọn pivot trung bình đến khi good split.", "rule": "Kỳ vọng Geometric" },
-        { "text": "Số level recursion ≈ log₂(n) = log₂(1000) ≈ 10.", "rule": "Chia để trị: mỗi good split giảm kích thước bài toán còn max 75%" },
-        { "text": "E[tổng pivot] ≈ 2 × 10 = 20 lần chọn pivot cho toàn bộ.", "rule": "Linearity of expectation qua các level" },
-        { "text": "Mỗi lần chọn pivot, compare với ~n phần tử → E[tổng comparisons] = O(n × 2 × log n) = O(n log n).", "isCommonMistake": true, "rule": "Lỗi hay gặp: nghĩ worst-case O(n²) là average case — không phải, với pivot random thì expected O(n log n)" }
+        {
+          "text": "Số cặp collision $C = \\sum_{i<j} X_{ij}$.",
+          "rule": "Phân rã thành tổng indicator"
+        },
+        {
+          "text": "Key j rơi đúng bucket của key i với xác suất 1/1000 → $E[X_{ij}] = 0.001$.",
+          "rule": "$E[\\mathbf{1}_A] = P(A)$"
+        },
+        {
+          "text": "$E[C] = \\binom{100}{2} \\times \\frac{1}{1000} = \\frac{4950}{1000} = 4.95$. Các $X_{ij}$ phụ thuộc nhau nhưng linearity vẫn đúng.",
+          "rule": "Linearity of expectation",
+          "isCommonMistake": true
+        },
+        {
+          "text": "So sánh: P(có ít nhất 1 collision) ≈ $1 - e^{-4.95} \\approx 99.3\\%$ — kỳ vọng 5 cặp collision giải thích vì sao gần như chắc chắn có collision.",
+          "rule": "Liên hệ birthday paradox"
+        }
       ],
-      "answer": "(a) E[pivot đến good split] = 2 lần; (b) E[total] ≈ 20 lần → O(n log n) average comparisons",
-      "commonMistake": "Nhầm O(n²) worst-case với average-case — quicksort expected O(n log n) với random pivot.",
+      "answer": "E[số cặp collision] = 4950/1000 = 4.95",
+      "commonMistake": "Dùng n/m = 0.1 (tỷ lệ lấp đầy) thay vì số cặp $\\binom{n}{2}/m$ — collision là chuyện của từng CẶP key, nên tăng theo $n^2$.",
+      "relatedFlashcard": "fc-ev-indicator"
+    },
+    {
+      "id": "ex-ev-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "[CS Challenge] Randomized quicksort: gọi pivot là \"tốt\" nếu nó nằm giữa phân vị 25% và 75% của mảng con hiện tại — khi đó mỗi phía còn tối đa 3/4 số phần tử. P(pivot tốt) = 1/2. Theo dõi một phần tử x bất kỳ qua các lần đệ quy. (a) Kỳ vọng số lần phân hoạch (trên đường đi của x) cho đến khi gặp 1 pivot tốt? (b) Cần tối đa bao nhiêu pivot tốt để mảng con chứa x co từ n = 1000 về kích thước 1? (c) Suy ra chặn trên cho kỳ vọng tổng số phép so sánh.",
+      "hints": [
+        "Số lần thử đến pivot tốt đầu tiên ~ Geometric(1/2).",
+        "Sau k pivot tốt, kích thước ≤ $(3/4)^k n$. Giải $(3/4)^k n \\le 1$.",
+        "Mỗi lần mảng con chứa x được phân hoạch, x bị so sánh với pivot tối đa 1 lần. Cộng đóng góp của n phần tử bằng linearity."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) Số lần phân hoạch đến pivot tốt ~ Geometric(1/2) → kỳ vọng $1/p = 2$.",
+          "rule": "Kỳ vọng Geometric = 1/p"
+        },
+        {
+          "text": "(b) Cần $(3/4)^k \\cdot 1000 \\le 1$, tức $k \\ge \\log_{4/3} 1000 = \\frac{\\ln 1000}{\\ln(4/3)} \\approx \\frac{6.91}{0.288} \\approx 24$.",
+          "rule": "Pivot tốt chỉ đảm bảo co về 3/4, không phải 1/2",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Theo linearity qua tối đa 24 giai đoạn, mỗi giai đoạn kỳ vọng 2 lần phân hoạch: E[số lần x nằm trong mảng con bị phân hoạch] ≤ 2 × 24 = 48.",
+          "rule": "Linearity of expectation"
+        },
+        {
+          "text": "(c) Mỗi lần như vậy x bị so sánh với pivot tối đa 1 lần → E[tổng so sánh] ≤ $n \\cdot 2\\log_{4/3} n \\approx 48 \\times 1000 = 48000$ = $O(n \\log n)$. (Giá trị chính xác $2(n+1)H_n - 4n \\approx 10986$ — chặn trên lỏng hằng số nhưng đúng bậc.)",
+          "rule": "Cộng đóng góp từng phần tử (linearity)"
+        }
+      ],
+      "answer": "(a) 2 lần; (b) khoảng 24 pivot tốt ($\\log_{4/3} 1000$); (c) E[so sánh] ≤ $2n\\log_{4/3} n \\approx 48n$ = $O(n \\log n)$",
+      "commonMistake": "Dùng $\\log_2 n \\approx 10$ tầng — pivot tốt chỉ đảm bảo mảng co còn 3/4 nên số tầng là $\\log_{4/3} n$ (vẫn là $O(\\log n)$, chỉ khác hằng số). Và nhầm worst-case $O(n^2)$ với kỳ vọng.",
       "relatedFlashcard": "fc-ev-quicksort"
+    },
+    {
+      "id": "ex-ev-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "[CS Challenge] Cache phân tán có 10 shard. Mỗi request được route ngẫu nhiên đều tới 1 shard. Kỳ vọng cần bao nhiêu request để **mọi** shard đều nhận ít nhất 1 request (VD để warm-up toàn bộ cache)? Riêng shard cuối cùng tốn trung bình bao nhiêu request?",
+      "hints": [
+        "Đây là coupon collector với n = 10.",
+        "Khi đã chạm i shard, xác suất request kế tiếp chạm shard mới là $(10 - i)/10$.",
+        "Mỗi giai đoạn là Geometric; cộng kỳ vọng các giai đoạn."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Giai đoạn i (đã có i shard, i = 0..9): số request ~ Geometric($\\frac{10-i}{10}$), kỳ vọng $\\frac{10}{10-i}$.",
+          "rule": "Kỳ vọng Geometric = 1/p"
+        },
+        {
+          "text": "$E[T] = \\frac{10}{10} + \\frac{10}{9} + \\dots + \\frac{10}{1} = 10 H_{10}$.",
+          "rule": "Linearity of expectation"
+        },
+        {
+          "text": "$H_{10} = 1 + \\frac{1}{2} + \\dots + \\frac{1}{10} \\approx 2.929$ → $E[T] \\approx 29.3$ request.",
+          "rule": "Số điều hòa"
+        },
+        {
+          "text": "Shard cuối cùng: xác suất trúng chỉ 1/10 → riêng giai đoạn này trung bình 10 request, chiếm hơn 1/3 tổng. Không phải \"10 request là đủ\".",
+          "rule": "Kỳ vọng Geometric(1/10)",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "$E[T] = 10H_{10} \\approx 29.3$ request; shard cuối cùng tốn trung bình 10 request",
+      "commonMistake": "Trả lời 10 (mỗi shard 1 request) hoặc dùng $n \\ln n \\approx 23$ như giá trị chính xác — $n\\ln n$ chỉ là xấp xỉ, đánh giá thấp khi n nhỏ ($nH_n \\approx n\\ln n + 0.577n$).",
+      "relatedFlashcard": "fc-ev-coupon"
     }
   ],
   "quiz": [
@@ -194,8 +482,13 @@
       "id": "q-ev-1",
       "type": "mcq",
       "question": "X ~ Binomial(n=20, p=0.3). E[X] = ?",
-      "options": ["3", "6", "8", "0.3"],
-      "correct": 1,
+      "options": [
+        "6",
+        "3",
+        "8",
+        "0.3"
+      ],
+      "correct": 0,
       "explanation": "E[X] = np = 20 × 0.3 = 6. Binomial(n,p) đơn giản: kỳ vọng = số thử nghiệm × xác suất thành công."
     },
     {
@@ -206,10 +499,10 @@
         "Chỉ khi X và Y độc lập",
         "Chỉ khi X và Y có cùng phân phối",
         "Luôn luôn đúng",
-        "Chỉ khi E[X] và E[Y] đều hữu hạn và X,Y không tương quan"
+        "Chỉ khi X và Y không tương quan (uncorrelated)"
       ],
       "correct": 2,
-      "explanation": "Linearity of expectation luôn đúng — đây là tính chất đặc biệt của kỳ vọng. KHÔNG cần X,Y độc lập hay bất kỳ điều kiện nào khác."
+      "explanation": "Linearity of expectation luôn đúng (chỉ cần các kỳ vọng tồn tại) — không cần độc lập hay không tương quan. Điều kiện độc lập/không tương quan là cho PHƯƠNG SAI: $\\operatorname{Var}(X + Y) = \\operatorname{Var}(X) + \\operatorname{Var}(Y)$, và cho $E[XY] = E[X]E[Y]$."
     },
     {
       "id": "q-ev-3",
@@ -217,12 +510,51 @@
       "question": "Phương sai Var(X) = 0 có nghĩa là gì?",
       "options": [
         "X luôn bằng 0",
-        "X là hằng số (không có sự ngẫu nhiên)",
         "E[X] = 0",
-        "X và Y độc lập"
+        "X độc lập với mọi biến khác",
+        "X là hằng số (không có sự ngẫu nhiên)"
+      ],
+      "correct": 3,
+      "explanation": "$\\operatorname{Var}(X) = E[(X - \\mu)^2] = 0$ khi và chỉ khi $X = \\mu$ với xác suất 1 — X không dao động, luôn nhận một giá trị cố định. Giá trị đó không nhất thiết là 0."
+    },
+    {
+      "id": "q-ev-4",
+      "type": "mcq",
+      "question": "Xáo trộn ngẫu nhiên một mảng 100 phần tử. Kỳ vọng số phần tử vẫn ở đúng vị trí cũ là bao nhiêu?",
+      "options": [
+        "0",
+        "1",
+        "Khoảng 1/e ≈ 0.37",
+        "Khoảng 10"
       ],
       "correct": 1,
-      "explanation": "Var(X) = E[(X−μ)²] = 0 khi và chỉ khi X = μ với xác suất 1. Nghĩa là X không dao động — nó luôn nhận một giá trị cố định (deterministic)."
+      "explanation": "Indicator $X_i$ = phần tử i đúng chỗ, $E[X_i] = 1/100$. Linearity: $E = 100 \\times 1/100 = 1$ (với mọi n). Con số 1/e ≈ 0.37 là xác suất KHÔNG có fixed point nào (derangement) — một đại lượng khác."
+    },
+    {
+      "id": "q-ev-5",
+      "type": "mcq",
+      "question": "X, Y độc lập với Var(X) = 4, Var(Y) = 9. Độ lệch chuẩn của X + Y là?",
+      "options": [
+        "5",
+        "13",
+        "√13 ≈ 3.61",
+        "√5 ≈ 2.24"
+      ],
+      "correct": 2,
+      "explanation": "Độc lập → $\\operatorname{Var}(X + Y) = 4 + 9 = 13$, nên $\\sigma = \\sqrt{13} \\approx 3.61$. Đáp án 5 là bẫy cộng độ lệch chuẩn (2 + 3) — phương sai cộng được, độ lệch chuẩn thì không."
+    },
+    {
+      "id": "q-ev-6",
+      "type": "mcq",
+      "question": "A/B test: bạn muốn sai số (standard error) của tỷ lệ chuyển đổi đo được giảm còn một nửa. Cần tăng số user mỗi nhóm lên bao nhiêu lần?",
+      "options": [
+        "Gấp 4 lần",
+        "Gấp 2 lần",
+        "Gấp √2 lần",
+        "Gấp 8 lần"
+      ],
+      "correct": 0,
+      "explanation": "Standard error $= \\sigma/\\sqrt{n}$. Muốn giảm một nửa cần $\\sqrt{n}$ tăng gấp đôi, tức n tăng gấp 4. Đây là lý do phát hiện hiệu ứng nhỏ cần rất nhiều dữ liệu."
     }
   ]
 }

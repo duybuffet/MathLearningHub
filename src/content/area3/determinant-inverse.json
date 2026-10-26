@@ -5,18 +5,20 @@
   "unit": "a3u2",
   "order": 4,
   "icon": "matrix",
-  "tagline": "Định thức cho biết ma trận có thể nghịch đảo không; nghịch đảo là chìa khóa giải phương trình tuyến tính và hiểu hệ số biến đổi diện tích/thể tích.",
-  "readTime": "~16 min",
-  "prerequisites": ["area3_matrix-multiplication"],
+  "tagline": "Định thức đo phép biến đổi co giãn diện tích/thể tích bao nhiêu lần và cho biết ma trận có nghịch đảo không; vector riêng là những hướng mà phép biến đổi chỉ kéo giãn chứ không xoay.",
+  "readTime": "~22 min",
+  "prerequisites": [
+    "area3_matrix-multiplication"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Định thức (determinant) và nghịch đảo (inverse) là hai khái niệm quan trọng nhất để hiểu khi nào một hệ phương trình có nghiệm duy nhất — và ứng dụng vào CS:\n\n- **Định thức = 0?** Ma trận không thể nghịch đảo, hệ phương trình không có nghiệm duy nhất — trong ML: ma trận đặc kỳ (singular), không thể tính closed-form solution.\n- **Nghịch đảo ma trận:** dùng để giải $A\\mathbf{x} = \\mathbf{b}$ → $\\mathbf{x} = A^{-1}\\mathbf{b}$. Trong thực tế, ta dùng Gaussian elimination thay vì tính trực tiếp $A^{-1}$.\n- **Định thức = hệ số co/giãn diện tích:** trong computer graphics, định thức của ma trận transform nói lên ảnh của phép biến đổi co hay giãn không gian bao nhiêu lần."
+      "content": "Định thức (determinant) và nghịch đảo (inverse) trả lời hai câu hỏi: phép biến đổi này **co giãn không gian bao nhiêu**, và nó có **đảo ngược được** không. Ứng dụng trong CS:\n\n- **Định thức = hệ số co giãn diện tích/thể tích:** trong đồ họa, $|\\det(A)|$ cho biết một hình bị phóng to hay thu nhỏ bao nhiêu lần sau phép biến đổi $A$; dấu âm nghĩa là hình bị lật (soi gương).\n- **Định thức = 0** ⇔ ma trận suy biến (singular): không gian bị ép xuống ít chiều hơn, thông tin bị mất, không có nghịch đảo — hệ $A\\mathbf{x} = \\mathbf{b}$ không có nghiệm duy nhất.\n- **Nghịch đảo** cho phép \"hoàn tác\" một phép biến đổi (ví dụ chuyển tọa độ màn hình về tọa độ thế giới trong game) và về lý thuyết giải được $A\\mathbf{x} = \\mathbf{b}$ bằng $\\mathbf{x} = A^{-1}\\mathbf{b}$. Thực tế ta giải bằng khử Gauss/LU, không tính $A^{-1}$.\n- **Vector riêng & giá trị riêng (eigenvectors & eigenvalues)** — phần cuối bài — là nền tảng của PageRank và PCA."
     },
     {
       "type": "analogy",
       "title": "Định thức là \"hệ số biến dạng không gian\"",
-      "content": "Tưởng tượng bạn vẽ một hình vuông đơn vị (cạnh 1) trên mặt phẳng, rồi áp dụng phép biến đổi ma trận A lên tất cả các điểm của hình vuông đó.\n\n- Nếu $|\\det(A)| = 2$: hình vuông bị kéo giãn thành hình bình hành có diện tích gấp 2.\n- Nếu $|\\det(A)| = 0.5$: diện tích co lại còn một nửa.\n- Nếu $\\det(A) = 0$: hình vuông bị \"bẹp\" thành đường thẳng (hoặc điểm) — mất một chiều! Đây là lý do ma trận có định thức 0 không thể nghịch đảo được — thông tin bị mất, không thể khôi phục.\n\nDấu của định thức cho biết chiều hướng có bị lật (flip) không: dương = giữ chiều, âm = lật."
+      "content": "Tưởng tượng bạn vẽ một hình vuông đơn vị (cạnh 1) trên mặt phẳng, rồi áp dụng phép biến đổi ma trận A lên tất cả các điểm của hình vuông đó.\n\n- Nếu $|\\det(A)| = 2$: hình vuông bị kéo giãn thành hình bình hành có diện tích gấp 2.\n- Nếu $|\\det(A)| = 0.5$: diện tích co lại còn một nửa.\n- Nếu $\\det(A) = 0$: hình vuông bị \"bẹp\" thành đường thẳng (hoặc điểm) — mất một chiều! Đây là lý do ma trận có định thức 0 không thể nghịch đảo được — thông tin bị mất, không thể khôi phục.\n\nDấu của định thức cho biết hình có bị lật (flip, như soi gương) không: dương = giữ nguyên chiều, âm = bị lật. Ví dụ phép soi gương qua trục y $\\begin{bmatrix} -1 & 0 \\\\ 0 & 1 \\end{bmatrix}$ có det = −1: diện tích giữ nguyên nhưng hình bị lật.\n\nTrong 3D, $|\\det(A)|$ là hệ số co giãn **thể tích** của khối lập phương đơn vị."
     },
     {
       "type": "formula",
@@ -24,33 +26,114 @@
       "latex": "\\det(A) = \\det\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix} = ad - bc",
       "reading": "đọc là: định thức của ma trận 2×2 bằng tích đường chéo chính trừ tích đường chéo phụ.",
       "symbols": [
-        { "sym": "ad", "meaning": "tích hai phần tử trên đường chéo chính (top-left × bottom-right)" },
-        { "sym": "bc", "meaning": "tích hai phần tử trên đường chéo phụ (top-right × bottom-left)" },
-        { "sym": "\\det(A) = 0", "meaning": "ma trận đặc kỳ (singular) — không có nghịch đảo" },
-        { "sym": "|\\det(A)|", "meaning": "hệ số co/giãn diện tích khi áp dụng phép biến đổi A" }
+        {
+          "sym": "ad",
+          "meaning": "tích hai phần tử trên đường chéo chính (top-left × bottom-right)"
+        },
+        {
+          "sym": "bc",
+          "meaning": "tích hai phần tử trên đường chéo phụ (top-right × bottom-left)"
+        },
+        {
+          "sym": "\\det(A) = 0",
+          "meaning": "ma trận đặc kỳ (singular) — không có nghịch đảo"
+        },
+        {
+          "sym": "|\\det(A)|",
+          "meaning": "hệ số co/giãn diện tích khi áp dụng phép biến đổi A"
+        }
       ],
       "caption": "Quy tắc 'đường chéo chính trừ đường chéo phụ' — dễ nhớ với hình vẽ chéo."
     },
     {
       "type": "graph",
-      "title": "Minh họa: det = diện tích của hình bình hành",
+      "title": "Minh họa: |det| = diện tích hình bình hành tạo bởi hai cột",
       "functions": [
-        { "fn": "2*x", "color": "#ffe08a" },
-        { "fn": "0.5*x + 1", "color": "#7fded1" }
+        {
+          "fn": "x/3",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "x/3 + 5/3",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "2*x",
+          "color": "#7fded1"
+        },
+        {
+          "fn": "2*x - 5",
+          "color": "#7fded1"
+        }
       ],
-      "xDomain": [-1, 4],
-      "yDomain": [-1, 4],
-      "caption": "Hai vector cột của ma trận A tạo thành hai cạnh của hình bình hành. Diện tích hình bình hành đó bằng |det(A)|. Khi hai vector song song (det=0), hình bình hành bị bẹt thành đường thẳng."
+      "xDomain": [
+        -0.5,
+        5
+      ],
+      "yDomain": [
+        -0.5,
+        4.5
+      ],
+      "caption": "Ma trận A = [[3, 1], [1, 2]] có hai cột (3, 1) và (1, 2). Hình vuông đơn vị bị biến thành hình bình hành có 4 đỉnh (0,0), (3,1), (4,3), (1,2) — giao của các đường vàng (song song với cột 1) và các đường xanh (song song với cột 2). Diện tích của nó là det(A) = 3×2 − 1×1 = 5. Nếu hai cột song song, hình bình hành bẹp thành đoạn thẳng và det = 0."
     },
     {
       "type": "formula",
       "title": "Nghịch đảo ma trận 2×2",
       "latex": "A^{-1} = \\frac{1}{\\det(A)} \\begin{bmatrix} d & -b \\\\ -c & a \\end{bmatrix} = \\frac{1}{ad - bc} \\begin{bmatrix} d & -b \\\\ -c & a \\end{bmatrix}",
-      "reading": "đọc là: nghịch đảo của A bằng 1 chia định thức nhân với ma trận đổi chỗ đường chéo và đổi dấu đường phụ.",
+      "reading": "đọc là: nghịch đảo của A bằng 1 chia định thức, nhân với ma trận có hai phần tử đường chéo chính đổi chỗ cho nhau và hai phần tử đường chéo phụ đổi dấu.",
       "symbols": [
-        { "sym": "A^{-1}", "meaning": "ma trận nghịch đảo, thỏa $A A^{-1} = A^{-1} A = I$ (ma trận đơn vị)" },
-        { "sym": "I", "meaning": "ma trận đơn vị (identity matrix) — đường chéo chính = 1, còn lại = 0" },
-        { "sym": "\\det(A) \\neq 0", "meaning": "điều kiện để tồn tại $A^{-1}$ — nếu det = 0 thì không có nghịch đảo" }
+        {
+          "sym": "A^{-1}",
+          "meaning": "ma trận nghịch đảo, thỏa $A A^{-1} = A^{-1} A = I$ (ma trận đơn vị)"
+        },
+        {
+          "sym": "I",
+          "meaning": "ma trận đơn vị (identity matrix) — đường chéo chính = 1, còn lại = 0"
+        },
+        {
+          "sym": "\\det(A) \\neq 0",
+          "meaning": "điều kiện để tồn tại $A^{-1}$ — nếu det = 0 thì không có nghịch đảo"
+        }
+      ]
+    },
+    {
+      "type": "formula",
+      "title": "Định thức 3×3 (khai triển theo hàng 1)",
+      "latex": "\\det\\begin{bmatrix} a & b & c \\\\ d & e & f \\\\ g & h & i \\end{bmatrix} = a(ei - fh) - b(di - fg) + c(dh - eg)",
+      "reading": "đọc là: lấy từng phần tử của hàng 1, nhân với định thức 2×2 còn lại khi bỏ hàng và cột của phần tử đó, với dấu xen kẽ cộng, trừ, cộng.",
+      "symbols": [
+        {
+          "sym": "ei - fh",
+          "meaning": "định thức 2×2 còn lại sau khi bỏ hàng 1 và cột 1 (minor của a)"
+        },
+        {
+          "sym": "+,\\ -,\\ +",
+          "meaning": "dấu xen kẽ theo bàn cờ — dấu trừ ở giữa là chỗ hay quên nhất"
+        },
+        {
+          "sym": "O(n^3)",
+          "meaning": "máy tính không khai triển như vậy cho n lớn (tốn O(n!)); nó dùng khử Gauss: det = tích các pivot (đổi dấu mỗi lần đổi hàng)"
+        }
+      ]
+    },
+    {
+      "type": "formula",
+      "title": "Tính chất cần nhớ của định thức và nghịch đảo",
+      "latex": "\\begin{aligned} \\det(AB) &= \\det(A)\\det(B) \\\\ \\det(A^T) &= \\det(A) \\\\ \\det(A^{-1}) &= 1/\\det(A) \\\\ \\det(kA) &= k^n \\det(A) \\\\ (AB)^{-1} &= B^{-1}A^{-1} \\end{aligned}",
+      "reading": "đọc là: định thức của tích bằng tích các định thức; chuyển vị không đổi định thức; định thức của nghịch đảo là nghịch đảo của định thức; nhân cả ma trận n×n với k thì định thức nhân k mũ n; nghịch đảo của tích bằng tích các nghịch đảo theo thứ tự ngược.",
+      "symbols": [
+        {
+          "sym": "\\det(AB)",
+          "meaning": "hợp hai phép biến đổi → hệ số co giãn diện tích nhân với nhau"
+        },
+        {
+          "sym": "k^n",
+          "meaning": "nhân mọi phần tử với k là co giãn mỗi trong n trục k lần, nên thể tích nhân k mũ n (không phải k)"
+        },
+        {
+          "sym": "B^{-1}A^{-1}",
+          "meaning": "\"cởi giày trước, cởi tất sau\": hoàn tác theo thứ tự ngược với lúc làm"
+        }
       ]
     },
     {
@@ -58,44 +141,130 @@
       "title": "Ví dụ 1: Tính định thức và nghịch đảo 2×2",
       "problem": "Cho $A = \\begin{bmatrix} 3 & 1 \\\\ 2 & 4 \\end{bmatrix}$. Tính $\\det(A)$ và $A^{-1}$.",
       "steps": [
-        { "text": "$\\det(A) = 3\\times4 - 1\\times2 = 12 - 2 = 10$.", "rule": "$ad - bc$ với a=3, b=1, c=2, d=4" },
-        { "text": "Vì $\\det(A) = 10 \\neq 0$, ma trận có nghịch đảo.", "rule": "Điều kiện tồn tại nghịch đảo: det ≠ 0" },
-        { "text": "$A^{-1} = \\frac{1}{10}\\begin{bmatrix} 4 & -1 \\\\ -2 & 3 \\end{bmatrix} = \\begin{bmatrix} 0.4 & -0.1 \\\\ -0.2 & 0.3 \\end{bmatrix}$.", "rule": "Công thức nghịch đảo 2×2: đổi chỗ đường chéo, đổi dấu đường phụ, chia det" },
-        { "text": "Lỗi hay gặp: đổi dấu a và d (đường chéo) thay vì chỉ đổi chỗ — công thức đổi CHỖ a↔d, đổi DẤU b và c.", "isCommonMistake": true, "rule": "Công thức: đổi CHỖ đường chéo + đổi DẤU đường phụ, rồi chia det" }
+        {
+          "text": "$\\det(A) = 3\\times4 - 1\\times2 = 12 - 2 = 10$.",
+          "rule": "$ad - bc$ với a=3, b=1, c=2, d=4"
+        },
+        {
+          "text": "Vì $\\det(A) = 10 \\neq 0$, ma trận có nghịch đảo.",
+          "rule": "Điều kiện tồn tại nghịch đảo: det ≠ 0"
+        },
+        {
+          "text": "$A^{-1} = \\frac{1}{10}\\begin{bmatrix} 4 & -1 \\\\ -2 & 3 \\end{bmatrix} = \\begin{bmatrix} 0.4 & -0.1 \\\\ -0.2 & 0.3 \\end{bmatrix}$.",
+          "rule": "Công thức nghịch đảo 2×2: đổi chỗ đường chéo, đổi dấu đường phụ, chia det"
+        },
+        {
+          "text": "Lỗi hay gặp: đổi dấu a và d (đường chéo) thay vì chỉ đổi chỗ — công thức đổi CHỖ a↔d, đổi DẤU b và c.",
+          "isCommonMistake": true,
+          "rule": "Công thức: đổi CHỖ đường chéo + đổi DẤU đường phụ, rồi chia det"
+        }
       ],
       "result": "$\\det(A) = 10$, $A^{-1} = \\begin{bmatrix} 0.4 & -0.1 \\\\ -0.2 & 0.3 \\end{bmatrix}$"
     },
     {
       "type": "explanation",
       "title": "Khi nào ma trận KHÔNG có nghịch đảo?",
-      "content": "Ma trận không có nghịch đảo (gọi là **đặc kỳ / singular**) khi $\\det(A) = 0$. Điều này xảy ra khi:\n\n1. **Hai hàng (hoặc cột) tỉ lệ với nhau** — ví dụ: hàng 2 = 2 × hàng 1.\n2. **Một hàng hoặc cột toàn số 0.**\n3. **Các cột (hàng) phụ thuộc tuyến tính** — một vector có thể biểu diễn bằng tổ hợp tuyến tính các vector khác.\n\nTrong ML, khi ma trận feature $X^TX$ là singular, bài toán **ordinary least squares** không có nghiệm duy nhất — cần regularization (thêm $\\lambda I$, gọi là Ridge regression).\n\nVí dụ ma trận singular:\n\n| 1 | 2 |\n|---|---|\n| 2 | 4 |\n\n$\\det = 1\\times4 - 2\\times2 = 0$ — hàng 2 = 2 × hàng 1."
+      "content": "Ma trận không có nghịch đảo (gọi là **đặc kỳ / singular**) khi $\\det(A) = 0$. Điều này xảy ra khi:\n\n1. **Hai hàng (hoặc cột) tỉ lệ với nhau** — ví dụ: hàng 2 = 2 × hàng 1.\n2. **Một hàng hoặc cột toàn số 0.**\n3. **Các cột (hàng) phụ thuộc tuyến tính** — một vector có thể biểu diễn bằng tổ hợp tuyến tính các vector khác.\n\nTrong ML, khi $X^TX$ singular (ví dụ hai feature trùng lặp như giá theo USD và giá theo VND, hoặc số feature lớn hơn số mẫu), bài toán **ordinary least squares** không có nghiệm duy nhất — cần regularization (thêm $\\lambda I$, gọi là Ridge regression).\n\nTrên máy tính, ma trận hiếm khi có det **đúng bằng** 0 do sai số làm tròn; vấn đề thực tế là ma trận **gần suy biến (ill-conditioned)** — det rất nhỏ so với các phần tử — khiến nghiệm cực kỳ nhạy với sai số. Đừng kiểm tra `det(A) == 0`; hãy xem condition number (`np.linalg.cond`).\n\nVí dụ ma trận singular:\n\n| 1 | 2 |\n|---|---|\n| 2 | 4 |\n\n$\\det = 1\\times4 - 2\\times2 = 0$ — hàng 2 = 2 × hàng 1."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 2: Giải phương trình $A\\mathbf{x} = \\mathbf{b}$ dùng nghịch đảo",
       "problem": "Dùng $A^{-1}$ từ ví dụ trên để giải $A\\mathbf{x} = \\begin{bmatrix} 7 \\\\ 8 \\end{bmatrix}$.",
       "steps": [
-        { "text": "Nếu $A\\mathbf{x} = \\mathbf{b}$, thì $\\mathbf{x} = A^{-1}\\mathbf{b}$ (nhân cả hai vế bên trái với $A^{-1}$).", "rule": "$A^{-1}A\\mathbf{x} = A^{-1}\\mathbf{b}$ → $I\\mathbf{x} = A^{-1}\\mathbf{b}$" },
-        { "text": "$\\mathbf{x} = \\begin{bmatrix} 0.4 & -0.1 \\\\ -0.2 & 0.3 \\end{bmatrix} \\begin{bmatrix} 7 \\\\ 8 \\end{bmatrix}$." },
-        { "text": "$x_1 = 0.4\\times7 + (-0.1)\\times8 = 2.8 - 0.8 = 2$." },
-        { "text": "$x_2 = (-0.2)\\times7 + 0.3\\times8 = -1.4 + 2.4 = 1$." },
-        { "text": "Lỗi hay gặp: nhân bên phải thay vì bên trái — $\\mathbf{b}A^{-1}$ không có nghĩa khi b là vector cột.", "isCommonMistake": true, "rule": "Nhân $A^{-1}$ bên TRÁI cả hai vế: $A^{-1}(A\\mathbf{x}) = A^{-1}\\mathbf{b}$" }
+        {
+          "text": "Nếu $A\\mathbf{x} = \\mathbf{b}$, thì $\\mathbf{x} = A^{-1}\\mathbf{b}$ (nhân cả hai vế bên trái với $A^{-1}$).",
+          "rule": "$A^{-1}A\\mathbf{x} = A^{-1}\\mathbf{b}$ → $I\\mathbf{x} = A^{-1}\\mathbf{b}$"
+        },
+        {
+          "text": "$\\mathbf{x} = \\begin{bmatrix} 0.4 & -0.1 \\\\ -0.2 & 0.3 \\end{bmatrix} \\begin{bmatrix} 7 \\\\ 8 \\end{bmatrix}$."
+        },
+        {
+          "text": "$x_1 = 0.4\\times7 + (-0.1)\\times8 = 2.8 - 0.8 = 2$."
+        },
+        {
+          "text": "$x_2 = (-0.2)\\times7 + 0.3\\times8 = -1.4 + 2.4 = 1$."
+        },
+        {
+          "text": "Lỗi hay gặp: nhân bên phải thay vì bên trái — $\\mathbf{b}A^{-1}$ không có nghĩa khi b là vector cột.",
+          "isCommonMistake": true,
+          "rule": "Nhân $A^{-1}$ bên TRÁI cả hai vế: $A^{-1}(A\\mathbf{x}) = A^{-1}\\mathbf{b}$"
+        }
       ],
       "result": "$\\mathbf{x} = \\begin{bmatrix} 2 \\\\ 1 \\end{bmatrix}$ — kiểm tra: $3\\times2 + 1\\times1 = 7$ ✓, $2\\times2 + 4\\times1 = 8$ ✓"
     },
     {
+      "type": "explanation",
+      "title": "Vector riêng & giá trị riêng (Eigenvectors & Eigenvalues) — trực giác",
+      "content": "Phần lớn vector bị ma trận $A$ vừa xoay vừa kéo giãn. Nhưng có những hướng đặc biệt mà $A$ **chỉ kéo giãn (hoặc lật), không xoay**: vector $\\mathbf{v} \\neq \\mathbf{0}$ thỏa $A\\mathbf{v} = \\lambda\\mathbf{v}$ gọi là **vector riêng (eigenvector)**, và hệ số $\\lambda$ là **giá trị riêng (eigenvalue)**.\n\nVí dụ $A = \\begin{bmatrix} 2 & 1 \\\\ 1 & 2 \\end{bmatrix}$: $A(1, 1) = (3, 3) = 3 \\cdot (1, 1)$ và $A(1, -1) = (1, -1) = 1 \\cdot (1, -1)$. Vậy theo hướng $(1,1)$ mọi thứ giãn 3 lần, theo hướng $(1,-1)$ giữ nguyên. Còn $(1, 0)$ thành $(2, 1)$ — bị đổi hướng, nên không phải vector riêng.\n\n**Liên hệ với định thức:** $A\\mathbf{v} = \\lambda\\mathbf{v}$ ⇔ $(A - \\lambda I)\\mathbf{v} = \\mathbf{0}$ có nghiệm khác 0 ⇔ $A - \\lambda I$ suy biến ⇔ $\\det(A - \\lambda I) = 0$. Hệ quả hay dùng: tích các eigenvalue = $\\det(A)$, tổng các eigenvalue = trace (tổng đường chéo). Ví dụ trên: $3 \\times 1 = 3 = \\det(A)$, $3 + 1 = 4 = 2 + 2$.\n\nỨng dụng trong CS:\n\n- **PageRank:** xếp hạng trang web là vector riêng ứng với $\\lambda = 1$ của ma trận chuyển trạng thái $M$: $M\\mathbf{r} = \\mathbf{r}$. Tính bằng **power iteration** — nhân $M$ liên tục vào một vector bất kỳ cho đến khi hội tụ.\n- **PCA:** các vector riêng của covariance matrix là các hướng dữ liệu biến thiên nhiều nhất; eigenvalue cho biết mức biến thiên theo hướng đó. Giữ vài hướng có eigenvalue lớn nhất để giảm chiều.\n- **Hệ động lực / Markov chain:** $|\\lambda| > 1$ thì thành phần tương ứng bùng nổ khi lặp, $|\\lambda| < 1$ thì tắt dần — lý do gradient bùng nổ/biến mất (exploding/vanishing) trong RNN."
+    },
+    {
+      "type": "formula",
+      "title": "Phương trình đặc trưng (characteristic equation)",
+      "latex": "A\\mathbf{v} = \\lambda\\mathbf{v} \\iff \\det(A - \\lambda I) = 0",
+      "reading": "đọc là: v là vector riêng với giá trị riêng lambda khi và chỉ khi định thức của A trừ lambda nhân ma trận đơn vị bằng 0.",
+      "symbols": [
+        {
+          "sym": "\\lambda",
+          "meaning": "giá trị riêng — hệ số kéo giãn theo hướng v (âm thì bị lật chiều)"
+        },
+        {
+          "sym": "\\mathbf{v}",
+          "meaning": "vector riêng — khác vector 0; mọi bội khác 0 của nó cũng là vector riêng"
+        },
+        {
+          "sym": "A - \\lambda I",
+          "meaning": "chỉ trừ λ trên đường chéo chính, không trừ ở mọi phần tử"
+        },
+        {
+          "sym": "\\lambda^2 - (a+d)\\lambda + (ad - bc) = 0",
+          "meaning": "dạng cụ thể cho ma trận 2×2: hệ số là trace và det"
+        }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 3: Tìm giá trị riêng và vector riêng 2×2",
+      "problem": "Tìm giá trị riêng và vector riêng của $A = \\begin{bmatrix} 2 & 1 \\\\ 1 & 2 \\end{bmatrix}$.",
+      "steps": [
+        {
+          "text": "$A - \\lambda I = \\begin{bmatrix} 2-\\lambda & 1 \\\\ 1 & 2-\\lambda \\end{bmatrix}$.",
+          "rule": "Chỉ trừ λ trên đường chéo"
+        },
+        {
+          "text": "Lỗi hay gặp: trừ $\\lambda$ ở cả 4 phần tử. $\\lambda I$ chỉ có $\\lambda$ trên đường chéo chính.",
+          "rule": "λI là ma trận đường chéo",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$\\det = (2-\\lambda)^2 - 1 = \\lambda^2 - 4\\lambda + 3 = (\\lambda - 3)(\\lambda - 1) = 0$ → $\\lambda_1 = 3$, $\\lambda_2 = 1$.",
+          "rule": "det(A − λI) = 0"
+        },
+        {
+          "text": "$\\lambda = 3$: $(A - 3I)\\mathbf{v} = \\begin{bmatrix} -1 & 1 \\\\ 1 & -1 \\end{bmatrix}\\mathbf{v} = \\mathbf{0}$ → $v_1 = v_2$, chọn $\\mathbf{v} = (1, 1)$.",
+          "rule": "Giải hệ thuần nhất"
+        },
+        {
+          "text": "$\\lambda = 1$: $\\begin{bmatrix} 1 & 1 \\\\ 1 & 1 \\end{bmatrix}\\mathbf{v} = \\mathbf{0}$ → $v_1 = -v_2$, chọn $\\mathbf{v} = (1, -1)$. Kiểm tra: $3 \\times 1 = \\det(A) = 3$ ✓.",
+          "rule": "Tích eigenvalue = det"
+        }
+      ],
+      "result": "$\\lambda = 3$ với $\\mathbf{v} = (1, 1)$; $\\lambda = 1$ với $\\mathbf{v} = (1, -1)$."
+    },
+    {
       "type": "callout",
       "variant": "warning",
-      "content": "**Thực tế trong CS:** Tính $A^{-1}$ trực tiếp tốn kém $O(n^3)$ và bất ổn định số học (numerically unstable). Trong thực tế, để giải $A\\mathbf{x} = \\mathbf{b}$, ta dùng **`np.linalg.solve(A, b)`** thay vì `np.linalg.inv(A) @ b`. `solve` dùng LU decomposition — nhanh hơn và ổn định số học hơn."
+      "content": "**Thực tế trong CS:** Để giải $A\\mathbf{x} = \\mathbf{b}$, dùng **`np.linalg.solve(A, b)`** thay vì `np.linalg.inv(A) @ b`. Cả hai đều $O(n^3)$, nhưng `solve` chỉ cần một lần phân rã LU rồi thế xuôi/ngược (khoảng $\\frac{2}{3}n^3$ phép tính), còn tính đủ $A^{-1}$ tốn khoảng $2n^3$ — gấp khoảng 3 lần — và tích lũy nhiều sai số làm tròn hơn. Chỉ tính $A^{-1}$ khi thật sự cần chính ma trận đó (ví dụ ma trận 4×4 trong đồ họa)."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "Định thức 2×2: $\\det(A) = ad - bc$ — đường chéo chính trừ đường chéo phụ.",
-        "$|\\det(A)|$ = hệ số co/giãn diện tích khi áp phép biến đổi A.",
-        "$\\det(A) = 0$ → ma trận singular (đặc kỳ), không có nghịch đảo, thông tin bị mất.",
-        "Nghịch đảo 2×2: đổi chỗ đường chéo, đổi dấu đường phụ, chia $\\det(A)$.",
-        "Trong thực tế: dùng `np.linalg.solve(A,b)` thay vì tính $A^{-1}$ trực tiếp."
+        "Định thức 2×2: $\\det(A) = ad - bc$; 3×3: khai triển theo hàng với dấu $+, -, +$.",
+        "$|\\det(A)|$ = hệ số co giãn diện tích (thể tích trong 3D); det âm = hình bị lật.",
+        "$\\det(A) = 0$ ⇔ singular: cột phụ thuộc tuyến tính, không gian bị ép, không có nghịch đảo.",
+        "Nghịch đảo 2×2: đổi chỗ đường chéo chính, đổi dấu đường chéo phụ, chia $\\det(A)$. $(AB)^{-1} = B^{-1}A^{-1}$.",
+        "$\\det(AB) = \\det(A)\\det(B)$, $\\det(kA) = k^n\\det(A)$.",
+        "Eigenvector: $A\\mathbf{v} = \\lambda\\mathbf{v}$ — hướng chỉ bị kéo giãn; tìm λ từ $\\det(A - \\lambda I) = 0$. Nền tảng của PageRank và PCA.",
+        "Thực tế: dùng `np.linalg.solve(A, b)` thay vì tính $A^{-1}$ rồi nhân."
       ]
     }
   ],
@@ -110,7 +279,7 @@
       "id": "fc-det-meaning",
       "type": "concept",
       "front": "Ý nghĩa hình học của $|\\det(A)|$?",
-      "back": "Hệ số co/giãn diện tích khi áp phép biến đổi A. det=0: không gian bị sụp (collapse) — mất chiều."
+      "back": "Hệ số co giãn diện tích (2D) hoặc thể tích (3D) khi áp phép biến đổi A. Dấu âm: hình bị lật. det = 0: không gian bị ép (collapse) xuống ít chiều hơn."
     },
     {
       "id": "fc-inv-condition",
@@ -128,7 +297,37 @@
       "id": "fc-inv-solve",
       "type": "concept",
       "front": "Tại sao nên dùng `np.linalg.solve(A,b)` thay vì tính $A^{-1}$?",
-      "back": "Nhanh hơn (LU decomposition vs. Gauss-Jordan), ổn định số học hơn, tránh lỗi làm tròn tích lũy khi tính $A^{-1}$ rồi nhân."
+      "back": "Cả hai đều $O(n^3)$, nhưng `solve` chỉ cần phân rã LU + thế xuôi/ngược (khoảng $\\frac{2}{3}n^3$), còn tính $A^{-1}$ tốn khoảng $2n^3$ — gấp khoảng 3 lần — và kém chính xác hơn do tích lũy sai số làm tròn."
+    },
+    {
+      "id": "fc-det-product",
+      "type": "formula",
+      "front": "$\\det(AB)$, $\\det(A^{-1})$ và $\\det(kA)$ (A cỡ n×n) bằng gì?",
+      "back": "$\\det(AB) = \\det(A)\\det(B)$; $\\det(A^{-1}) = 1/\\det(A)$; $\\det(kA) = k^n\\det(A)$ (không phải $k\\det(A)$)."
+    },
+    {
+      "id": "fc-inv-product",
+      "type": "formula",
+      "front": "$(AB)^{-1} = ?$",
+      "back": "$B^{-1}A^{-1}$ — hoàn tác theo thứ tự ngược (giống $(AB)^T = B^TA^T$). Chỉ tồn tại khi cả A và B khả nghịch."
+    },
+    {
+      "id": "fc-eigen-def",
+      "type": "definition",
+      "front": "Vector riêng (eigenvector) và giá trị riêng (eigenvalue) là gì?",
+      "back": "$\\mathbf{v} \\neq \\mathbf{0}$ với $A\\mathbf{v} = \\lambda\\mathbf{v}$: hướng mà A chỉ kéo giãn λ lần, không xoay. Tìm λ từ $\\det(A - \\lambda I) = 0$. Tích các λ = det(A), tổng các λ = trace(A)."
+    },
+    {
+      "id": "fc-eigen-cs",
+      "type": "concept",
+      "front": "Eigenvector xuất hiện ở đâu trong CS?",
+      "back": "PageRank: vector xếp hạng là eigenvector ($\\lambda = 1$) của ma trận chuyển trạng thái, tính bằng power iteration. PCA: eigenvector của covariance matrix là các hướng biến thiên lớn nhất."
+    },
+    {
+      "id": "fc-det-3x3",
+      "type": "formula",
+      "front": "Cách tính định thức 3×3?",
+      "back": "Khai triển theo hàng 1: $a(ei - fh) - b(di - fg) + c(dh - eg)$ — dấu xen kẽ $+, -, +$. Với n lớn, máy tính dùng khử Gauss: det = tích các pivot."
     }
   ],
   "exercises": [
@@ -141,12 +340,55 @@
         "Nghịch đảo tồn tại khi det ≠ 0."
       ],
       "solutionSteps": [
-        { "text": "$\\det(A) = 5\\times4 - 2\\times3 = 20 - 6 = 14$.", "rule": "$ad - bc$" },
-        { "text": "det = 14 ≠ 0, vậy ma trận có nghịch đảo.", "rule": "Điều kiện: det ≠ 0" }
+        {
+          "text": "$\\det(A) = 5\\times4 - 2\\times3 = 20 - 6 = 14$.",
+          "rule": "ad − bc"
+        },
+        {
+          "text": "Lỗi hay gặp: nhân nhầm cặp, tính $5\\times3 - 2\\times4 = 7$ (nhân theo cột). Đường chéo chính là $a, d$ = 5 và 4; đường chéo phụ là $b, c$ = 2 và 3.",
+          "rule": "Đường chéo chính: trên-trái × dưới-phải",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$14 \\neq 0$, vậy ma trận có nghịch đảo: $A^{-1} = \\frac{1}{14}\\begin{bmatrix} 4 & -2 \\\\ -3 & 5 \\end{bmatrix}$.",
+          "rule": "Điều kiện: det ≠ 0"
+        }
       ],
       "answer": "$\\det(A) = 14 \\neq 0$ → có nghịch đảo",
-      "commonMistake": "Tính $ad + bc$ thay vì $ad - bc$ — công thức là TRỪ đường chéo phụ.",
+      "commonMistake": "Nhân nhầm cặp phần tử, hoặc tính $ad + bc$ thay vì $ad - bc$.",
       "relatedFlashcard": "fc-det-formula"
+    },
+    {
+      "id": "ex-det-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tìm nghịch đảo của $A = \\begin{bmatrix} 2 & 1 \\\\ 5 & 3 \\end{bmatrix}$ và kiểm tra bằng cách tính $AA^{-1}$.",
+      "hints": [
+        "$\\det(A) = 2\\times3 - 1\\times5$.",
+        "Đổi chỗ 2 và 3, đổi dấu 1 và 5, rồi chia det.",
+        "Kết quả đúng thì $AA^{-1} = I$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\det(A) = 6 - 5 = 1 \\neq 0$ → có nghịch đảo.",
+          "rule": "ad − bc"
+        },
+        {
+          "text": "$A^{-1} = \\frac{1}{1}\\begin{bmatrix} 3 & -1 \\\\ -5 & 2 \\end{bmatrix} = \\begin{bmatrix} 3 & -1 \\\\ -5 & 2 \\end{bmatrix}$.",
+          "rule": "Công thức nghịch đảo 2×2"
+        },
+        {
+          "text": "Lỗi hay gặp: đổi dấu cả đường chéo chính, ra $\\begin{bmatrix} -3 & -1 \\\\ -5 & -2 \\end{bmatrix}$. Đường chéo chính chỉ **đổi chỗ**, đường chéo phụ mới **đổi dấu**.",
+          "rule": "Đổi chỗ a↔d, đổi dấu b, c",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Kiểm tra: $AA^{-1} = \\begin{bmatrix} 2\\cdot3 + 1\\cdot(-5) & 2\\cdot(-1) + 1\\cdot2 \\\\ 5\\cdot3 + 3\\cdot(-5) & 5\\cdot(-1) + 3\\cdot2 \\end{bmatrix} = \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix}$ ✓.",
+          "rule": "AA⁻¹ = I"
+        }
+      ],
+      "answer": "$A^{-1} = \\begin{bmatrix} 3 & -1 \\\\ -5 & 2 \\end{bmatrix}$ (det = 1 nên nghịch đảo toàn số nguyên).",
+      "commonMistake": "Đổi dấu sai chỗ hoặc quên chia cho det; luôn kiểm tra lại bằng $AA^{-1} = I$.",
+      "relatedFlashcard": "fc-inv-formula"
     },
     {
       "id": "ex-det-apply-1",
@@ -157,33 +399,131 @@
         "Nhìn vào hàng 2: nó có quan hệ gì với hàng 1?"
       ],
       "solutionSteps": [
-        { "text": "$\\det(A) = 2\\times3 - 1\\times6 = 6 - 6 = 0$.", "rule": "$ad - bc$" },
-        { "text": "det = 0 → ma trận singular, không có nghịch đảo.", "rule": "det=0 ↔ không có inverse" },
-        { "text": "Lý do hình học: hàng 2 = 3 × hàng 1 → hai hàng phụ thuộc tuyến tính → ma trận 'bẹp' xuống, không thể khôi phục thông tin.", "isCommonMistake": false },
-        { "text": "Lỗi hay gặp: dù biết det=0, vẫn cố áp công thức $\\frac{1}{0}\\begin{bmatrix}...\\end{bmatrix}$ — chia cho 0 là không xác định.", "isCommonMistake": true, "rule": "Khi det=0: dừng lại, không có inverse, phải xử lý khác (ví dụ pseudoinverse)" }
+        {
+          "text": "$\\det(A) = 2\\times3 - 1\\times6 = 6 - 6 = 0$.",
+          "rule": "$ad - bc$"
+        },
+        {
+          "text": "det = 0 → ma trận singular, không có nghịch đảo.",
+          "rule": "det=0 ↔ không có inverse"
+        },
+        {
+          "text": "Lý do hình học: hàng 2 = 3 × hàng 1 (tương đương: cột 2 = $\\frac{1}{2}$ × cột 1). Hai cột $(2, 6)$ và $(1, 3)$ cùng nằm trên đường thẳng $y = 3x$, nên cả mặt phẳng bị ép lên đường thẳng đó — nhiều điểm khác nhau cùng đi đến một chỗ, không thể đảo ngược.",
+          "rule": "Cột phụ thuộc tuyến tính ⇔ det = 0"
+        },
+        {
+          "text": "Lỗi hay gặp: dù biết det=0, vẫn cố áp công thức $\\frac{1}{0}\\begin{bmatrix}...\\end{bmatrix}$ — chia cho 0 là không xác định.",
+          "isCommonMistake": true,
+          "rule": "Khi det=0: dừng lại, không có inverse, phải xử lý khác (ví dụ pseudoinverse)"
+        }
       ],
       "answer": "$\\det(A) = 0$ — ma trận singular, không có $A^{-1}$. Hàng 2 = 3 × hàng 1.",
       "commonMistake": "Tiếp tục tính công thức nghịch đảo khi det=0 — dẫn đến chia cho 0.",
       "relatedFlashcard": "fc-inv-condition"
     },
     {
-      "id": "ex-det-challenge-1",
-      "difficulty": "challenge",
-      "prompt": "Trong Ridge Regression, để giải $\\mathbf{w} = (X^TX + \\lambda I)^{-1}X^T\\mathbf{y}$, tại sao ta thêm $\\lambda I$ (với $\\lambda > 0$)? Gợi ý: xét trường hợp $X^TX$ là singular.",
+      "id": "ex-det-apply-2",
+      "difficulty": "apply",
+      "prompt": "Cho $A = \\begin{bmatrix} 1 & 2 & 3 \\\\ 0 & 1 & 4 \\\\ 5 & 6 & 0 \\end{bmatrix}$. (a) Tính $\\det(A)$. (b) Một mô hình 3D có thể tích 10 đơn vị khối; sau phép biến đổi $2A$ thì thể tích là bao nhiêu? (c) $\\det(A^{-1})$ bằng bao nhiêu?",
       "hints": [
-        "Nếu $X^TX$ singular thì $\\det(X^TX) = 0$ → không tính được nghịch đảo.",
-        "Thêm $\\lambda I$ thay đổi eigenvalues của ma trận như thế nào?",
-        "$\\det(X^TX + \\lambda I)$ có thể bằng 0 khi $\\lambda > 0$ không?"
+        "Khai triển theo hàng 1: $a(ei - fh) - b(di - fg) + c(dh - eg)$.",
+        "$\\det(2A) = 2^3\\det(A)$ với ma trận 3×3.",
+        "$\\det(A^{-1}) = 1/\\det(A)$."
       ],
       "solutionSteps": [
-        { "text": "Nếu $X^TX$ singular (det=0), ta không thể tính $(X^TX)^{-1}$ — không có nghiệm least squares thông thường.", "rule": "det=0 → không có inverse" },
-        { "text": "Thêm $\\lambda I$ (với $\\lambda > 0$): $(X^TX + \\lambda I)$ — tất cả eigenvalues của ma trận mới đều cộng thêm $\\lambda$.", "rule": "Eigenvalue của (A + λI) = eigenvalue(A) + λ" },
-        { "text": "Vì $X^TX$ là ma trận nửa xác định dương (PSD), eigenvalues ≥ 0. Sau khi thêm λ > 0, mọi eigenvalue > 0 → ma trận xác định dương (PD) → det > 0 → có nghịch đảo.", "isCommonMistake": false },
-        { "text": "Lỗi hay gặp: nghĩ rằng thêm $\\lambda I$ thay đổi bài toán tùy tiện — thực ra đây là regularization có cơ sở xác suất (MAP estimation với Gaussian prior).", "isCommonMistake": true, "rule": "Ridge regression = thêm penalization L2 norm của w vào objective" }
+        {
+          "text": "$1 \\cdot (1\\cdot0 - 4\\cdot6) - 2 \\cdot (0\\cdot0 - 4\\cdot5) + 3 \\cdot (0\\cdot6 - 1\\cdot5) = -24 + 40 - 15 = 1$.",
+          "rule": "Khai triển theo hàng 1, dấu + − +"
+        },
+        {
+          "text": "Lỗi hay gặp: quên dấu trừ ở số hạng giữa, tính $-24 - 40 - 15 = -79$. Dấu xen kẽ $+, -, +$ áp lên hệ số $b$, và $(di - fg) = -20$ nên $-2 \\cdot (-20) = +40$.",
+          "rule": "Dấu xen kẽ theo bàn cờ",
+          "isCommonMistake": true
+        },
+        {
+          "text": "(b) $\\det(2A) = 2^3 \\cdot 1 = 8$, nên thể tích mới $= 10 \\times 8 = 80$.",
+          "rule": "det(kA) = kⁿ det(A)"
+        },
+        {
+          "text": "(c) $\\det(A^{-1}) = 1/1 = 1$.",
+          "rule": "det(A⁻¹) = 1/det(A)"
+        }
       ],
-      "answer": "$\\lambda I$ đảm bảo ma trận luôn có định thức > 0 (invertible), đồng thời regularize tránh overfitting.",
-      "commonMistake": "Nghĩ thêm λI là hack kỹ thuật — thực ra có nền tảng thống kê chặt chẽ (Bayesian MAP).",
-      "relatedFlashcard": "fc-inv-solve"
+      "answer": "(a) $\\det(A) = 1$; (b) thể tích 80 (vì $\\det(2A) = 8$); (c) $\\det(A^{-1}) = 1$.",
+      "commonMistake": "Cho rằng $\\det(2A) = 2\\det(A)$ — với ma trận 3×3 phải là $2^3 = 8$ lần, vì mỗi trục bị giãn gấp đôi.",
+      "relatedFlashcard": "fc-det-product"
+    },
+    {
+      "id": "ex-det-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Trong Ridge Regression, nghiệm là $\\mathbf{w} = (X^TX + \\lambda I)^{-1}X^T\\mathbf{y}$ với $\\lambda > 0$. Giải thích vì sao thêm $\\lambda I$ đảm bảo ma trận luôn khả nghịch, kể cả khi $X^TX$ singular (ví dụ có hai feature trùng lặp).",
+      "hints": [
+        "Nếu $X^TX$ singular thì $\\det(X^TX) = 0$ → không có nghịch đảo.",
+        "Nếu $X^TX\\mathbf{v} = \\mu\\mathbf{v}$ thì $(X^TX + \\lambda I)\\mathbf{v} = ?$",
+        "Eigenvalue của $X^TX$ không âm vì $\\mathbf{v}^TX^TX\\mathbf{v} = \\|X\\mathbf{v}\\|^2 \\ge 0$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Nếu $X^TX$ singular thì $\\det(X^TX) = 0$, nghĩa là có một eigenvalue bằng 0 (vì det = tích các eigenvalue) → không tính được $(X^TX)^{-1}$.",
+          "rule": "det = tích các eigenvalue"
+        },
+        {
+          "text": "Với mỗi vector riêng: $(X^TX + \\lambda I)\\mathbf{v} = \\mu\\mathbf{v} + \\lambda\\mathbf{v} = (\\mu + \\lambda)\\mathbf{v}$ — mọi eigenvalue được cộng thêm $\\lambda$, vector riêng giữ nguyên.",
+          "rule": "Eigenvalue của A + λI là μ + λ"
+        },
+        {
+          "text": "$X^TX$ đối xứng và nửa xác định dương: $\\mathbf{v}^TX^TX\\mathbf{v} = \\|X\\mathbf{v}\\|^2 \\ge 0$, nên mọi $\\mu \\ge 0$. Sau khi cộng, mọi eigenvalue $\\ge \\lambda > 0$.",
+          "rule": "Ma trận PSD có eigenvalue ≥ 0"
+        },
+        {
+          "text": "Lỗi hay gặp: nghĩ chỉ cần $\\lambda \\neq 0$. Nếu $\\lambda < 0$, ví dụ $\\lambda = -\\mu$ với $\\mu$ là một eigenvalue dương, ma trận mới lại có eigenvalue 0 và singular. Điều kiện đúng là $\\lambda > 0$.",
+          "rule": "Cần λ > 0, không chỉ λ ≠ 0",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Mọi eigenvalue dương → $\\det(X^TX + \\lambda I) = \\prod(\\mu_i + \\lambda) > 0$ → khả nghịch. Bonus: eigenvalue nhỏ nhất bị đẩy lên ít nhất $\\lambda$ nên bài toán cũng ổn định số học hơn (condition number nhỏ hơn).",
+          "rule": "det > 0 ⇒ khả nghịch"
+        }
+      ],
+      "answer": "Thêm $\\lambda I$ cộng $\\lambda$ vào mọi eigenvalue; vì eigenvalue của $X^TX$ đều $\\ge 0$, sau khi cộng đều $\\ge \\lambda > 0$ → det > 0 → luôn khả nghịch (và ổn định số học hơn). Về thống kê, đây là phạt $\\lambda\\|\\mathbf{w}\\|^2$ để tránh overfitting.",
+      "commonMistake": "Cho rằng mọi $\\lambda \\neq 0$ đều được — $\\lambda$ âm có thể làm ma trận singular trở lại.",
+      "relatedFlashcard": "fc-eigen-def"
+    },
+    {
+      "id": "ex-det-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Tìm giá trị riêng và vector riêng của $A = \\begin{bmatrix} 4 & 1 \\\\ 2 & 3 \\end{bmatrix}$. Kiểm tra bằng quan hệ tích các eigenvalue = det, tổng = trace. Nếu nhân A liên tục vào một vector ngẫu nhiên (power iteration), vector sẽ dần quay về hướng nào?",
+      "hints": [
+        "Giải $\\det(A - \\lambda I) = (4-\\lambda)(3-\\lambda) - 2 = 0$.",
+        "Với mỗi λ, giải $(A - \\lambda I)\\mathbf{v} = \\mathbf{0}$ — hai phương trình sẽ tỉ lệ với nhau.",
+        "Power iteration hội tụ về vector riêng của eigenvalue có trị tuyệt đối lớn nhất."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$(4-\\lambda)(3-\\lambda) - 1\\cdot2 = \\lambda^2 - 7\\lambda + 12 - 2 = \\lambda^2 - 7\\lambda + 10 = (\\lambda - 5)(\\lambda - 2)$.",
+          "rule": "det(A − λI) = 0"
+        },
+        {
+          "text": "Lỗi hay gặp: quên trừ tích đường chéo phụ ($-2$) hoặc trừ λ ở cả các phần tử ngoài đường chéo, ra phương trình sai như $\\lambda^2 - 7\\lambda + 12 = 0$ (nghiệm 3 và 4).",
+          "rule": "Chỉ trừ λ trên đường chéo; vẫn là ad − bc",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$\\lambda_1 = 5$: $\\begin{bmatrix} -1 & 1 \\\\ 2 & -2 \\end{bmatrix}\\mathbf{v} = \\mathbf{0}$ → $v_1 = v_2$ → $\\mathbf{v}_1 = (1, 1)$. Kiểm tra $A(1,1) = (5, 5)$ ✓.",
+          "rule": "Giải hệ thuần nhất"
+        },
+        {
+          "text": "$\\lambda_2 = 2$: $\\begin{bmatrix} 2 & 1 \\\\ 2 & 1 \\end{bmatrix}\\mathbf{v} = \\mathbf{0}$ → $v_2 = -2v_1$ → $\\mathbf{v}_2 = (1, -2)$. Kiểm tra $A(1,-2) = (2, -4)$ ✓.",
+          "rule": "Giải hệ thuần nhất"
+        },
+        {
+          "text": "Kiểm tra: $5 \\times 2 = 10 = \\det(A) = 12 - 2$ ✓; $5 + 2 = 7 = 4 + 3$ ✓. Power iteration: thành phần theo $\\mathbf{v}_1$ nhân 5 mỗi bước, theo $\\mathbf{v}_2$ chỉ nhân 2, nên vector quay dần về hướng $(1, 1)$ — đúng cơ chế PageRank tìm vector xếp hạng.",
+          "rule": "Tích = det, tổng = trace; power iteration"
+        }
+      ],
+      "answer": "$\\lambda = 5$, $\\mathbf{v} = (1, 1)$; $\\lambda = 2$, $\\mathbf{v} = (1, -2)$. Power iteration hội tụ về hướng $(1, 1)$.",
+      "commonMistake": "Lập sai $\\det(A - \\lambda I)$: trừ λ ở mọi phần tử hoặc quên số hạng $-bc$.",
+      "relatedFlashcard": "fc-eigen-cs"
     }
   ],
   "quiz": [
@@ -191,7 +531,12 @@
       "id": "q-det-1",
       "type": "mcq",
       "question": "$\\det\\begin{bmatrix} 4 & 2 \\\\ 1 & 3 \\end{bmatrix}$ bằng bao nhiêu?",
-      "options": ["10", "14", "8", "12"],
+      "options": [
+        "10",
+        "14",
+        "8",
+        "12"
+      ],
       "correct": 0,
       "explanation": "$\\det = 4\\times3 - 2\\times1 = 12 - 2 = 10$."
     },
@@ -219,7 +564,46 @@
         "`x = np.dot(b, A)`"
       ],
       "correct": 1,
-      "explanation": "`np.linalg.solve(A, b)` dùng LU decomposition — ổn định hơn và hiệu quả hơn tính $A^{-1}$ trực tiếp."
+      "explanation": "`np.linalg.solve(A, b)` phân rã LU rồi thế xuôi/ngược — rẻ hơn khoảng 3 lần và chính xác hơn so với tính đủ $A^{-1}$ rồi nhân. `A / b` là chia từng phần tử, không phải giải hệ."
+    },
+    {
+      "id": "q-det-4",
+      "type": "mcq",
+      "question": "A là ma trận 3×3 với $\\det(A) = 2$. $\\det(3A)$ bằng bao nhiêu?",
+      "options": [
+        "6",
+        "18",
+        "8",
+        "54"
+      ],
+      "correct": 3,
+      "explanation": "$\\det(kA) = k^n\\det(A) = 3^3 \\times 2 = 54$. Nhân mọi phần tử với 3 là giãn cả 3 trục, nên thể tích nhân 27 lần."
+    },
+    {
+      "id": "q-det-5",
+      "type": "mcq",
+      "question": "Giá trị riêng và vector riêng của $\\begin{bmatrix} 2 & 0 \\\\ 0 & 3 \\end{bmatrix}$ là gì?",
+      "options": [
+        "λ = 2 với hướng trục x, λ = 3 với hướng trục y",
+        "λ = 5 với hướng (1, 1)",
+        "λ = 6 với mọi vector",
+        "Không có giá trị riêng vì ma trận đường chéo"
+      ],
+      "correct": 0,
+      "explanation": "Ma trận đường chéo giãn trục x 2 lần và trục y 3 lần mà không xoay: $(1,0) \\mapsto (2,0)$, $(0,1) \\mapsto (0,3)$. Kiểm tra: $2 \\times 3 = 6 = \\det$, $2 + 3 = 5 = $ trace."
+    },
+    {
+      "id": "q-det-6",
+      "type": "mcq",
+      "question": "Trong đồ họa, model transform là $M = TR$ (xoay R trước, dịch chuyển T sau). Ma trận để hoàn tác $M$ là gì?",
+      "options": [
+        "$T^{-1}R^{-1}$",
+        "$TR$",
+        "$R^{-1}T^{-1}$",
+        "$R^T T^T$"
+      ],
+      "correct": 2,
+      "explanation": "$(TR)^{-1} = R^{-1}T^{-1}$: hoàn tác bước làm sau cùng (T) trước, rồi mới hoàn tác R — giống cởi giày trước khi cởi tất."
     }
   ]
 }

@@ -6,76 +6,238 @@
   "order": 1,
   "icon": "matrix",
   "tagline": "Vector là mũi tên có hướng và độ lớn — nền tảng của embeddings trong AI, tọa độ trong đồ họa, và tính tương đồng ngữ nghĩa.",
-  "readTime": "~14 min",
+  "readTime": "~18 min",
   "prerequisites": [],
   "sections": [
     {
       "type": "intro",
-      "content": "Vector (vectơ) là một trong những khái niệm toán học hữu ích nhất trong khoa học máy tính hiện đại. Ở cấp phổ thông, vector là \"mũi tên có hướng và độ lớn\". Nhưng trong CS, vector quan trọng hơn nhiều:\n\n- **Embeddings** trong AI/NLP (word2vec, BERT): mỗi từ là một vector hàng trăm chiều; hai từ cùng nghĩa sẽ có vector gần nhau.\n- **Tọa độ pixel** trong đồ họa: vị trí, hướng di chuyển, màu sắc — tất cả là vector.\n- **Feature vectors** trong machine learning: mỗi mẫu dữ liệu là một vector; thuật toán học dựa trên khoảng cách giữa các vector.\n\nHiểu vector = hiểu nền tảng của AI, computer graphics, và data science."
+      "content": "Vector (vectơ) là một trong những khái niệm toán học hữu ích nhất trong khoa học máy tính hiện đại. Ở cấp phổ thông, vector là \"mũi tên có hướng và độ lớn\". Trong CS, vector đơn giản là **một mảng số có thứ tự** — và nó xuất hiện khắp nơi:\n\n- **Embeddings** trong AI/NLP (word2vec, BERT, embedding của LLM): mỗi từ/câu/tài liệu là một vector hàng trăm đến hàng nghìn chiều; nội dung gần nghĩa có vector gần nhau.\n- **Tìm kiếm ngữ nghĩa (semantic search) và vector database:** tìm tài liệu có vector \"gần\" vector câu hỏi nhất — đo bằng cosine similarity hoặc khoảng cách.\n- **Đồ họa máy tính:** vị trí, vận tốc, hướng pháp tuyến (normal), màu RGB — tất cả là vector.\n- **Feature vectors** trong machine learning: mỗi mẫu dữ liệu là một vector; nhiều thuật toán (kNN, k-means) dựa trên khoảng cách giữa các vector.\n\nBài này đi qua các công cụ cốt lõi: cộng/nhân vô hướng, độ dài (norm L1/L2), tích vô hướng (dot product) ↔ góc ↔ cosine similarity, và phép chiếu (projection)."
     },
     {
       "type": "analogy",
       "title": "Vector là \"chỉ đường\" có độ chính xác",
-      "content": "Khi bạn nói \"đi thẳng 3km rồi quẹo phải 4km\", bạn đang dùng vector mà không biết. Mũi tên từ điểm xuất phát đến điểm đích là **vector tổng hợp** — nó mang cả thông tin về hướng lẫn khoảng cách.\n\nTrong không gian 2D, vector **v** = (3, 4) nghĩa là: di chuyển 3 đơn vị theo trục x, 4 đơn vị theo trục y. Độ dài của vector đó chính là khoảng cách đường chim bay: $\\sqrt{3^2 + 4^2} = 5$ km.\n\nTrong không gian 100 chiều (như embedding), \"hướng\" vẫn có nghĩa toán học dù không hình dung được — và khoảng cách giữa hai vector vẫn đo được bằng cùng công thức."
+      "content": "Khi bạn nói \"đi thẳng 3km rồi quẹo phải 4km\", bạn đang dùng vector mà không biết. Mũi tên từ điểm xuất phát đến điểm đích là **vector tổng hợp** — nó mang cả thông tin về hướng lẫn khoảng cách.\n\nTrong không gian 2D, vector **v** = (3, 4) nghĩa là: di chuyển 3 đơn vị theo trục x, 4 đơn vị theo trục y. Độ dài của vector đó chính là khoảng cách đường chim bay: $\\sqrt{3^2 + 4^2} = 5$ km.\n\nTrong không gian 768 chiều (như embedding của BERT), \"hướng\" vẫn có nghĩa toán học dù không hình dung được — độ dài và khoảng cách vẫn tính bằng đúng công thức đó, chỉ là tổng có nhiều số hạng hơn."
     },
     {
       "type": "formula",
-      "title": "Biểu diễn vector và độ dài (norm)",
+      "title": "Biểu diễn vector và độ dài (norm L2)",
       "latex": "\\mathbf{v} = \\begin{bmatrix} v_1 \\\\ v_2 \\\\ \\vdots \\\\ v_n \\end{bmatrix}, \\quad \\|\\mathbf{v}\\| = \\sqrt{v_1^2 + v_2^2 + \\cdots + v_n^2}",
       "reading": "đọc là: vector v có các thành phần v₁, v₂, …, vₙ; độ dài (norm) của v bằng căn bậc hai tổng bình phương các thành phần.",
       "symbols": [
-        { "sym": "\\mathbf{v}", "meaning": "ký hiệu vector (in đậm) hoặc viết là v⃗" },
-        { "sym": "v_i", "meaning": "thành phần (component) thứ i của vector" },
-        { "sym": "\\|\\mathbf{v}\\|", "meaning": "norm L2 — độ dài Euclidean của vector" },
-        { "sym": "n", "meaning": "số chiều (dimensions) của vector" }
+        {
+          "sym": "\\mathbf{v}",
+          "meaning": "ký hiệu vector (in đậm) hoặc viết là v⃗"
+        },
+        {
+          "sym": "v_i",
+          "meaning": "thành phần (component) thứ i của vector"
+        },
+        {
+          "sym": "\\|\\mathbf{v}\\|",
+          "meaning": "norm L2 — độ dài Euclidean của vector"
+        },
+        {
+          "sym": "n",
+          "meaning": "số chiều (dimensions) của vector"
+        }
       ]
     },
     {
       "type": "explanation",
       "title": "Phép toán trên vector: cộng và nhân vô hướng",
-      "content": "Hai phép toán cơ bản trên vector:\n\n**Cộng vector (vector addition):** cộng từng thành phần tương ứng.\n\n| | v₁ | v₂ |\n|---|---|---|\n| **a** | 2 | 3 |\n| **b** | 1 | -1 |\n| **a + b** | 3 | 2 |\n\n**Nhân vô hướng (scalar multiplication):** nhân một số thực (scalar) vào từng thành phần — co giãn độ lớn nhưng giữ nguyên hướng.\n\n| | v₁ | v₂ |\n|---|---|---|\n| **a** | 2 | 3 |\n| **2a** | 4 | 6 |\n| **-1·a** | -2 | -3 |\n\nNhân với số âm sẽ đảo ngược hướng. Nhân với 0 tạo ra vector không (zero vector)."
+      "content": "Hai phép toán cơ bản trên vector:\n\n**Cộng vector (vector addition):** cộng từng thành phần tương ứng.\n\n| | v₁ | v₂ |\n|---|---|---|\n| **a** | 2 | 3 |\n| **b** | 1 | -1 |\n| **a + b** | 3 | 2 |\n\n**Nhân vô hướng (scalar multiplication):** nhân một số thực (scalar) vào từng thành phần — co giãn độ lớn nhưng giữ nguyên hướng.\n\n| | v₁ | v₂ |\n|---|---|---|\n| **a** | 2 | 3 |\n| **2a** | 4 | 6 |\n| **(−1)a** | -2 | -3 |\n\nNhân với số âm sẽ đảo ngược hướng. Nhân với 0 tạo ra vector không (zero vector). Hai vector có thể cộng với nhau chỉ khi **cùng số chiều** — giống như hai mảng phải cùng độ dài."
     },
     {
       "type": "formula",
-      "title": "Tích vô hướng (Dot Product)",
+      "title": "Các loại norm: L1, L2, L∞",
+      "latex": "\\|\\mathbf{v}\\|_1 = \\sum_{i=1}^{n} |v_i| \\qquad \\|\\mathbf{v}\\|_2 = \\sqrt{\\sum_{i=1}^{n} v_i^2} \\qquad \\|\\mathbf{v}\\|_\\infty = \\max_i |v_i|",
+      "reading": "đọc là: norm L1 là tổng trị tuyệt đối các thành phần; norm L2 là căn của tổng bình phương; norm L-vô-cùng là trị tuyệt đối lớn nhất.",
+      "symbols": [
+        {
+          "sym": "\\|\\mathbf{v}\\|_1",
+          "meaning": "norm L1 (Manhattan) — quãng đường đi theo lưới ô bàn cờ"
+        },
+        {
+          "sym": "\\|\\mathbf{v}\\|_2",
+          "meaning": "norm L2 (Euclidean) — đường chim bay; viết tắt là ‖v‖ khi không ghi chỉ số"
+        },
+        {
+          "sym": "\\|\\mathbf{v}\\|_\\infty",
+          "meaning": "norm L∞ (max norm, Chebyshev) — thành phần lớn nhất về trị tuyệt đối"
+        },
+        {
+          "sym": "\\|\\mathbf{a} - \\mathbf{b}\\|",
+          "meaning": "khoảng cách (distance) giữa hai vector = norm của hiệu"
+        }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Norm, khoảng cách và vector đơn vị trong CS",
+      "content": "Với $\\mathbf{v} = (3, -4)$: $\\|\\mathbf{v}\\|_2 = \\sqrt{9 + 16} = 5$, $\\|\\mathbf{v}\\|_1 = 3 + 4 = 7$, $\\|\\mathbf{v}\\|_\\infty = 4$. Luôn có $\\|\\mathbf{v}\\|_\\infty \\le \\|\\mathbf{v}\\|_2 \\le \\|\\mathbf{v}\\|_1$.\n\n**Khoảng cách (distance)** giữa hai điểm là norm của hiệu: $d(\\mathbf{a}, \\mathbf{b}) = \\|\\mathbf{a} - \\mathbf{b}\\|$. Dùng L2 ta có khoảng cách Euclid; dùng L1 ta có khoảng cách Manhattan (di chuyển trên lưới phố, hoặc heuristic của thuật toán `A*` trên grid 4 hướng).\n\n**Vector đơn vị (unit vector)** có độ dài 1. Chuẩn hóa (normalize) một vector: $\\hat{\\mathbf{v}} = \\mathbf{v} / \\|\\mathbf{v}\\|$ — giữ hướng, bỏ độ lớn. Ví dụ $(3, -4) / 5 = (0.6, -0.8)$.\n\nTrong ML:\n\n- **L2 regularization (Ridge)** phạt $\\|\\mathbf{w}\\|_2^2$ → trọng số nhỏ đều.\n- **L1 regularization (Lasso)** phạt $\\|\\mathbf{w}\\|_1$ → đẩy nhiều trọng số về đúng 0 (sparse, tự chọn feature).\n- Gradient clipping trong deep learning giới hạn $\\|\\mathbf{g}\\|_2$ của gradient."
+    },
+    {
+      "type": "formula",
+      "title": "Tích vô hướng (Dot Product) và góc giữa hai vector",
       "latex": "\\mathbf{a} \\cdot \\mathbf{b} = \\sum_{i=1}^{n} a_i b_i = \\|\\mathbf{a}\\| \\|\\mathbf{b}\\| \\cos\\theta",
       "reading": "đọc là: tích vô hướng của a và b bằng tổng tích từng cặp thành phần, cũng bằng tích hai độ dài nhân với cosine góc giữa chúng.",
       "symbols": [
-        { "sym": "a_i b_i", "meaning": "nhân thành phần thứ i của a với thành phần thứ i của b" },
-        { "sym": "\\cos\\theta", "meaning": "cosine của góc θ giữa hai vector" },
-        { "sym": "\\mathbf{a} \\cdot \\mathbf{b} = 0", "meaning": "hai vector vuông góc (orthogonal) với nhau" },
-        { "sym": "\\mathbf{a} \\cdot \\mathbf{b} > 0", "meaning": "hai vector cùng hướng chung (góc nhọn)" }
+        {
+          "sym": "a_i b_i",
+          "meaning": "nhân thành phần thứ i của a với thành phần thứ i của b"
+        },
+        {
+          "sym": "\\cos\\theta",
+          "meaning": "cosine của góc θ (0° đến 180°) giữa hai vector"
+        },
+        {
+          "sym": "\\mathbf{a} \\cdot \\mathbf{b} > 0",
+          "meaning": "góc nhọn (dưới 90°) — hai vector \"cùng phía\""
+        },
+        {
+          "sym": "\\mathbf{a} \\cdot \\mathbf{b} = 0",
+          "meaning": "hai vector vuông góc (orthogonal), góc đúng 90°"
+        },
+        {
+          "sym": "\\mathbf{a} \\cdot \\mathbf{b} < 0",
+          "meaning": "góc tù (trên 90°) — hai vector \"ngược phía\""
+        },
+        {
+          "sym": "\\mathbf{v} \\cdot \\mathbf{v}",
+          "meaning": "bằng ‖v‖² — dot product của vector với chính nó cho bình phương độ dài"
+        }
       ],
       "caption": "Dot product là nền tảng của cosine similarity — công cụ đo độ tương đồng trong NLP và recommendation systems."
     },
     {
+      "type": "formula",
+      "title": "Cosine similarity",
+      "latex": "\\cos\\theta = \\frac{\\mathbf{a} \\cdot \\mathbf{b}}{\\|\\mathbf{a}\\| \\, \\|\\mathbf{b}\\|} \\in [-1, 1]",
+      "reading": "đọc là: cosine của góc giữa a và b bằng dot product chia cho tích hai độ dài; giá trị luôn nằm trong đoạn từ −1 đến 1.",
+      "symbols": [
+        {
+          "sym": "\\cos\\theta = 1",
+          "meaning": "cùng hướng hoàn toàn (một vector là bội dương của vector kia)"
+        },
+        {
+          "sym": "\\cos\\theta = 0",
+          "meaning": "vuông góc — không liên quan về hướng"
+        },
+        {
+          "sym": "\\cos\\theta = -1",
+          "meaning": "ngược hướng hoàn toàn"
+        },
+        {
+          "sym": "1 - \\cos\\theta",
+          "meaning": "cosine distance — nhiều vector database (ví dụ pgvector) dùng đại lượng này"
+        }
+      ]
+    },
+    {
       "type": "diagram",
       "title": "Ứng dụng Dot Product: Cosine Similarity trong NLP",
-      "mermaid": "graph LR\n    A[\"Từ: 'king'\\n vector [0.9, 0.1]\"] -->|dot product| C[\"Cosine Similarity\\n = cos(θ)\"] \n    B[\"Từ: 'queen'\\n vector [0.85, 0.15]\"] -->|dot product| C\n    C -->|\"≈ 0.99 (gần 1)\"| D[\"Hai từ RẤT tương đồng\"]\n    E[\"Từ: 'apple'\\n vector [0.1, 0.9]\"] -->|dot product| F[\"Cosine Similarity\"]\n    A -->|dot product| F\n    F -->|\"≈ 0.24 (gần 0)\"| G[\"Hai từ ít liên quan\"]",
-      "caption": "Trong word embeddings, cosine similarity đo góc giữa hai vector từ — góc nhỏ (cosine lớn) nghĩa là hai từ có nghĩa gần nhau."
+      "mermaid": "graph LR\n    A[\"Từ: 'king'\\n vector [0.9, 0.1]\"] -->|dot product| C[\"Cosine Similarity\\n = cos(θ)\"] \n    B[\"Từ: 'queen'\\n vector [0.85, 0.15]\"] -->|dot product| C\n    C -->|\"≈ 0.998 (gần 1)\"| D[\"Hai từ RẤT tương đồng\"]\n    E[\"Từ: 'apple'\\n vector [0.1, 0.9]\"] -->|dot product| F[\"Cosine Similarity\"]\n    A -->|dot product| F\n    F -->|\"≈ 0.22 (thấp)\"| G[\"Hai từ ít liên quan\"]",
+      "caption": "Ví dụ embedding 2 chiều (đồ chơi): cos(king, queen) ≈ 0.998, cos(king, apple) = 0.18 / 0.82 ≈ 0.22. Góc nhỏ (cosine lớn) nghĩa là hai từ có nghĩa gần nhau. Embedding thật có hàng trăm chiều nhưng cách tính y hệt."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 1: Tính dot product và ý nghĩa",
-      "problem": "Cho $\\mathbf{a} = (2, 3)$ và $\\mathbf{b} = (4, 1)$. Tính $\\mathbf{a} \\cdot \\mathbf{b}$ và $\\|\\mathbf{a}\\|$.",
+      "problem": "Cho $\\mathbf{a} = (2, 3)$ và $\\mathbf{b} = (4, 1)$. Tính $\\mathbf{a} \\cdot \\mathbf{b}$, $\\|\\mathbf{a}\\|$ và góc giữa hai vector.",
       "steps": [
-        { "text": "Dot product: $\\mathbf{a} \\cdot \\mathbf{b} = 2 \\times 4 + 3 \\times 1 = 8 + 3 = 11$.", "rule": "Nhân từng cặp thành phần rồi cộng" },
-        { "text": "Norm của a: $\\|\\mathbf{a}\\| = \\sqrt{2^2 + 3^2} = \\sqrt{4 + 9} = \\sqrt{13} \\approx 3.61$.", "rule": "Công thức norm L2" },
-        { "text": "Vì dot product > 0, góc giữa a và b nhỏ hơn 90°, hai vector cùng hướng chung.", "isCommonMistake": false }
+        {
+          "text": "Dot product: $\\mathbf{a} \\cdot \\mathbf{b} = 2 \\times 4 + 3 \\times 1 = 8 + 3 = 11$.",
+          "rule": "Nhân từng cặp thành phần rồi cộng"
+        },
+        {
+          "text": "Norm: $\\|\\mathbf{a}\\| = \\sqrt{2^2 + 3^2} = \\sqrt{13} \\approx 3.61$, $\\|\\mathbf{b}\\| = \\sqrt{4^2 + 1^2} = \\sqrt{17} \\approx 4.12$.",
+          "rule": "Công thức norm L2"
+        },
+        {
+          "text": "$\\cos\\theta = \\frac{11}{\\sqrt{13} \\times \\sqrt{17}} = \\frac{11}{\\sqrt{221}} \\approx 0.74$, nên $\\theta \\approx 42^\\circ$.",
+          "rule": "Cosine similarity"
+        },
+        {
+          "text": "Lỗi hay gặp: kết luận góc từ riêng dot product (11 \\\"lớn\\\" nên góc rất nhỏ). Độ lớn của dot product phụ thuộc độ dài vector — chỉ **dấu** của nó cho biết góc nhọn hay tù; muốn biết góc phải chia cho tích hai norm.",
+          "rule": "Dấu của dot product ↔ nhọn/vuông/tù",
+          "isCommonMistake": true
+        }
       ],
-      "result": "$\\mathbf{a} \\cdot \\mathbf{b} = 11$, $\\|\\mathbf{a}\\| \\approx 3.61$"
+      "result": "$\\mathbf{a} \\cdot \\mathbf{b} = 11$, $\\|\\mathbf{a}\\| \\approx 3.61$, $\\cos\\theta \\approx 0.74$ (góc khoảng 42°)"
     },
     {
       "type": "worked_example",
       "title": "Ví dụ 2: Cosine Similarity giữa hai document vectors",
       "problem": "Document A = $(1, 0, 1)$, Document B = $(1, 1, 0)$ (đại diện tần suất từ). Tính cosine similarity.",
       "steps": [
-        { "text": "$\\mathbf{A} \\cdot \\mathbf{B} = 1\\times1 + 0\\times1 + 1\\times0 = 1$.", "rule": "Dot product" },
-        { "text": "$\\|\\mathbf{A}\\| = \\sqrt{1+0+1} = \\sqrt{2}$, $\\|\\mathbf{B}\\| = \\sqrt{1+1+0} = \\sqrt{2}$.", "rule": "Norm L2" },
-        { "text": "$\\cos\\theta = \\frac{1}{\\sqrt{2} \\times \\sqrt{2}} = \\frac{1}{2} = 0.5$.", "rule": "Công thức cosine similarity" },
-        { "text": "Lỗi hay gặp: dùng dot product trực tiếp (= 1) mà không chia cho norm, dẫn đến so sánh sai khi vector có độ dài khác nhau.", "isCommonMistake": true, "rule": "Phải chuẩn hóa (normalize) bằng cách chia cho tích hai norm" }
+        {
+          "text": "$\\mathbf{A} \\cdot \\mathbf{B} = 1\\times1 + 0\\times1 + 1\\times0 = 1$.",
+          "rule": "Dot product"
+        },
+        {
+          "text": "$\\|\\mathbf{A}\\| = \\sqrt{1+0+1} = \\sqrt{2}$, $\\|\\mathbf{B}\\| = \\sqrt{1+1+0} = \\sqrt{2}$.",
+          "rule": "Norm L2"
+        },
+        {
+          "text": "$\\cos\\theta = \\frac{1}{\\sqrt{2} \\times \\sqrt{2}} = \\frac{1}{2} = 0.5$, tức góc 60°.",
+          "rule": "Công thức cosine similarity"
+        },
+        {
+          "text": "Lỗi hay gặp: dùng dot product trực tiếp (= 1) mà không chia cho norm, dẫn đến so sánh sai khi vector có độ dài khác nhau.",
+          "isCommonMistake": true,
+          "rule": "Phải chuẩn hóa (normalize) bằng cách chia cho tích hai norm"
+        }
       ],
-      "result": "$\\text{cosine similarity}(A, B) = 0.5$ — hai document khá tương đồng nhưng không giống hệt."
+      "result": "Cosine similarity = 0.5 (góc 60°) — hai document có chung một phần từ vựng nhưng không giống hệt."
+    },
+    {
+      "type": "formula",
+      "title": "Phép chiếu (Projection) của a lên b",
+      "latex": "\\text{proj}_{\\mathbf{b}}\\,\\mathbf{a} = \\frac{\\mathbf{a} \\cdot \\mathbf{b}}{\\mathbf{b} \\cdot \\mathbf{b}} \\, \\mathbf{b}",
+      "reading": "đọc là: hình chiếu của a lên b bằng (a chấm b chia b chấm b) nhân với vector b — tức là phần \"bóng\" của a nằm dọc theo hướng b.",
+      "symbols": [
+        {
+          "sym": "\\frac{\\mathbf{a} \\cdot \\mathbf{b}}{\\|\\mathbf{b}\\|}",
+          "meaning": "hình chiếu vô hướng (scalar projection) — độ dài có dấu của cái bóng"
+        },
+        {
+          "sym": "\\mathbf{a} - \\text{proj}_{\\mathbf{b}}\\,\\mathbf{a}",
+          "meaning": "phần dư (residual), luôn vuông góc với b"
+        },
+        {
+          "sym": "\\|\\mathbf{b}\\| = 1",
+          "meaning": "nếu b là vector đơn vị, công thức gọn thành (a·b)·b"
+        }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Trực giác về phép chiếu",
+      "content": "Hãy tưởng tượng chiếu đèn thẳng góc xuống đường thẳng chứa $\\mathbf{b}$: **bóng** của $\\mathbf{a}$ trên đường đó chính là $\\text{proj}_{\\mathbf{b}}\\,\\mathbf{a}$. Phép chiếu tách $\\mathbf{a}$ thành hai phần: một phần song song với $\\mathbf{b}$ và một phần vuông góc với $\\mathbf{b}$.\n\nỨng dụng trong CS:\n\n- **Least squares / linear regression:** dự đoán tốt nhất là hình chiếu của vector nhãn $\\mathbf{y}$ lên không gian các cột của $X$; sai số (residual) vuông góc với không gian đó.\n- **Gram–Schmidt / QR decomposition:** trừ dần các hình chiếu để tạo hệ vector trực giao.\n- **Game/physics:** tách vận tốc thành thành phần dọc theo mặt tường và vuông góc với tường để tính trượt (slide) và nảy (bounce).\n- **PCA:** chiếu dữ liệu nhiều chiều xuống vài hướng quan trọng nhất."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 3: Chiếu vector và kiểm tra phần dư",
+      "problem": "Chiếu $\\mathbf{a} = (2, 4)$ lên $\\mathbf{b} = (3, 1)$. Tìm hình chiếu và phần dư, kiểm tra phần dư vuông góc với $\\mathbf{b}$.",
+      "steps": [
+        {
+          "text": "$\\mathbf{a} \\cdot \\mathbf{b} = 2 \\times 3 + 4 \\times 1 = 10$; $\\mathbf{b} \\cdot \\mathbf{b} = 9 + 1 = 10$.",
+          "rule": "Dot product"
+        },
+        {
+          "text": "Lỗi hay gặp: chia cho $\\|\\mathbf{b}\\| = \\sqrt{10}$ thay vì $\\mathbf{b} \\cdot \\mathbf{b} = \\|\\mathbf{b}\\|^2 = 10$. Nhân lại với vector $\\mathbf{b}$ (không phải vector đơn vị) thì mẫu phải là bình phương độ dài.",
+          "rule": "Mẫu số là b·b, không phải ‖b‖",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$\\text{proj}_{\\mathbf{b}}\\,\\mathbf{a} = \\frac{10}{10}(3, 1) = (3, 1)$.",
+          "rule": "Công thức projection"
+        },
+        {
+          "text": "Phần dư: $\\mathbf{a} - (3, 1) = (-1, 3)$. Kiểm tra: $(-1, 3) \\cdot (3, 1) = -3 + 3 = 0$ — vuông góc với $\\mathbf{b}$.",
+          "rule": "Residual ⊥ b"
+        }
+      ],
+      "result": "$\\text{proj}_{\\mathbf{b}}\\,\\mathbf{a} = (3, 1)$, phần dư $(-1, 3)$ vuông góc với $\\mathbf{b}$."
     },
     {
       "type": "callout",
@@ -83,13 +245,19 @@
       "content": "**Lỗi hay gặp:** Dot product $\\mathbf{a} \\cdot \\mathbf{b}$ và cosine similarity **không phải một**. Dot product phụ thuộc vào độ dài vector — vector dài sẽ cho dot product lớn dù không thực sự \"gần nhau\". Cosine similarity chuẩn hóa bằng cách chia cho tích hai norm, chỉ đo **góc** giữa hai vector, không phụ thuộc độ dài."
     },
     {
+      "type": "callout",
+      "variant": "info",
+      "content": "**Vector search trong thực tế:** các hệ RAG/semantic search thường **chuẩn hóa embedding về độ dài 1 một lần khi lưu**. Khi đó $\\cos\\theta = \\mathbf{a} \\cdot \\mathbf{b}$, nên chỉ cần dot product (inner product) — rẻ hơn và tận dụng được SIMD/GPU. Hơn nữa với vector đơn vị, $\\|\\mathbf{a} - \\mathbf{b}\\|^2 = 2 - 2\\cos\\theta$, nên xếp hạng theo khoảng cách Euclid, theo cosine hay theo dot product cho **cùng một thứ tự**. Nếu vector **chưa** chuẩn hóa, ba thước đo này có thể cho kết quả khác nhau."
+    },
+    {
       "type": "key_takeaways",
       "items": [
         "Vector là mảng số có thứ tự, biểu diễn điểm hoặc hướng trong không gian n chiều.",
-        "Cộng vector: cộng từng thành phần. Nhân scalar: nhân toàn bộ thành phần với cùng một số.",
-        "Norm (độ dài) $\\|\\mathbf{v}\\| = \\sqrt{\\sum v_i^2}$ — khoảng cách Euclidean từ gốc tọa độ đến đầu mũi tên.",
-        "Dot product $\\mathbf{a}\\cdot\\mathbf{b} = \\sum a_i b_i = \\|a\\|\\|b\\|\\cos\\theta$ — dương: cùng hướng, âm: ngược hướng, 0: vuông góc.",
-        "Cosine similarity = dot product chia tích hai norm — đo góc giữa hai vector, bất kể độ dài. Nền tảng của NLP embeddings."
+        "Cộng vector: cộng từng thành phần (cùng số chiều). Nhân scalar: nhân mọi thành phần với cùng một số.",
+        "Norm L2 $\\|\\mathbf{v}\\| = \\sqrt{\\sum v_i^2}$ (đường chim bay), L1 $= \\sum |v_i|$ (Manhattan), L∞ $= \\max |v_i|$. Khoảng cách $= \\|\\mathbf{a} - \\mathbf{b}\\|$.",
+        "Dot product $\\mathbf{a}\\cdot\\mathbf{b} = \\sum a_i b_i = \\|\\mathbf{a}\\|\\|\\mathbf{b}\\|\\cos\\theta$ — dương: góc nhọn, 0: vuông góc, âm: góc tù.",
+        "Cosine similarity = dot product chia tích hai norm — chỉ đo góc, bất kể độ dài. Nền tảng của semantic search và embeddings.",
+        "Hình chiếu $\\text{proj}_{\\mathbf{b}}\\mathbf{a} = \\frac{\\mathbf{a}\\cdot\\mathbf{b}}{\\mathbf{b}\\cdot\\mathbf{b}}\\mathbf{b}$; phần dư vuông góc với b — ý tưởng gốc của least squares."
       ]
     }
   ],
@@ -116,13 +284,37 @@
       "id": "fc-vec-cosine",
       "type": "concept",
       "front": "Cosine similarity dùng để làm gì trong CS?",
-      "back": "Đo độ tương đồng giữa hai vector (embeddings, documents) bằng góc giữa chúng: $\\frac{\\mathbf{a}\\cdot\\mathbf{b}}{\\|\\mathbf{a}\\|\\|\\mathbf{b}\\|}$. Bằng 1: giống hệt hướng; bằng 0: vuông góc."
+      "back": "Đo độ tương đồng giữa hai vector (embeddings, documents) bằng góc giữa chúng: $\\frac{\\mathbf{a}\\cdot\\mathbf{b}}{\\|\\mathbf{a}\\|\\|\\mathbf{b}\\|}$. Bằng 1: cùng hướng; 0: vuông góc; −1: ngược hướng. Không phụ thuộc độ dài vector."
     },
     {
       "id": "fc-vec-ortho",
       "type": "concept",
       "front": "Khi nào hai vector vuông góc (orthogonal)?",
       "back": "Khi $\\mathbf{a} \\cdot \\mathbf{b} = 0$ — dot product bằng 0, cosine similarity bằng 0, góc giữa chúng là 90°."
+    },
+    {
+      "id": "fc-vec-l1",
+      "type": "formula",
+      "front": "Norm L1, L2, L∞ của vector khác nhau thế nào?",
+      "back": "$\\|\\mathbf{v}\\|_1 = \\sum |v_i|$ (Manhattan), $\\|\\mathbf{v}\\|_2 = \\sqrt{\\sum v_i^2}$ (Euclid), $\\|\\mathbf{v}\\|_\\infty = \\max |v_i|$. Ví dụ $(3,-4)$: L1 = 7, L2 = 5, L∞ = 4."
+    },
+    {
+      "id": "fc-vec-unit",
+      "type": "concept",
+      "front": "Chuẩn hóa (normalize) vector là gì và để làm gì?",
+      "back": "$\\hat{\\mathbf{v}} = \\mathbf{v}/\\|\\mathbf{v}\\|$ — giữ hướng, độ dài thành 1. Sau khi chuẩn hóa, cosine similarity = dot product → vector search chỉ cần inner product."
+    },
+    {
+      "id": "fc-vec-proj",
+      "type": "formula",
+      "front": "Công thức hình chiếu của $\\mathbf{a}$ lên $\\mathbf{b}$?",
+      "back": "$\\text{proj}_{\\mathbf{b}}\\mathbf{a} = \\frac{\\mathbf{a}\\cdot\\mathbf{b}}{\\mathbf{b}\\cdot\\mathbf{b}}\\mathbf{b}$. Phần dư $\\mathbf{a} - \\text{proj}_{\\mathbf{b}}\\mathbf{a}$ vuông góc với $\\mathbf{b}$."
+    },
+    {
+      "id": "fc-vec-dist-cos",
+      "type": "concept",
+      "front": "Với hai vector đơn vị, khoảng cách Euclid liên hệ với cosine thế nào?",
+      "back": "$\\|\\mathbf{a}-\\mathbf{b}\\|^2 = 2 - 2\\cos\\theta$. Vì vậy với embedding đã chuẩn hóa, xếp hạng theo khoảng cách L2 và theo cosine là như nhau."
     }
   ],
   "exercises": [
@@ -135,29 +327,119 @@
         "$\\|\\mathbf{a}\\| = \\sqrt{3^2 + (-1)^2}$"
       ],
       "solutionSteps": [
-        { "text": "$\\mathbf{a} + \\mathbf{b} = (3+2, -1+4) = (5, 3)$.", "rule": "Cộng từng thành phần" },
-        { "text": "$\\|\\mathbf{a}\\| = \\sqrt{9 + 1} = \\sqrt{10} \\approx 3.16$.", "rule": "Norm L2" }
+        {
+          "text": "$\\mathbf{a} + \\mathbf{b} = (3+2, -1+4) = (5, 3)$.",
+          "rule": "Cộng từng thành phần"
+        },
+        {
+          "text": "Lỗi hay gặp: viết $\\|\\mathbf{a}\\| = 3 + (-1) = 2$ hoặc $\\sqrt{9} + \\sqrt{1} = 4$. Phải cộng **bình phương** rồi mới lấy căn.",
+          "rule": "Norm L2 = căn của tổng bình phương",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$\\|\\mathbf{a}\\| = \\sqrt{3^2 + (-1)^2} = \\sqrt{9 + 1} = \\sqrt{10} \\approx 3.16$.",
+          "rule": "Norm L2"
+        }
       ],
       "answer": "$\\mathbf{a}+\\mathbf{b} = (5,3)$, $\\|\\mathbf{a}\\| = \\sqrt{10}$",
-      "commonMistake": "Nhân thành phần thay vì cộng: $(3\\times2, -1\\times4)$ — đó là phép khác, không phải cộng vector.",
+      "commonMistake": "Tính norm bằng $\\sqrt{3^2} + \\sqrt{(-1)^2} = 4$ — căn của tổng khác tổng của các căn; phải cộng bình phương trước rồi mới lấy căn.",
       "relatedFlashcard": "fc-vec-norm"
+    },
+    {
+      "id": "ex-vec-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Cho $\\mathbf{v} = (3, -4, 12)$. Tính $\\|\\mathbf{v}\\|_1$, $\\|\\mathbf{v}\\|_2$, $\\|\\mathbf{v}\\|_\\infty$ và vector đơn vị cùng hướng với $\\mathbf{v}$.",
+      "hints": [
+        "L1: cộng trị tuyệt đối. L∞: lấy trị tuyệt đối lớn nhất.",
+        "L2: $\\sqrt{9 + 16 + 144}$ — là một số nguyên đẹp.",
+        "Vector đơn vị = v chia cho norm L2."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\|\\mathbf{v}\\|_1 = |3| + |-4| + |12| = 19$.",
+          "rule": "Norm L1 = tổng trị tuyệt đối"
+        },
+        {
+          "text": "Lỗi hay gặp: quên trị tuyệt đối, tính $3 - 4 + 12 = 11$. Norm luôn không âm và mỗi thành phần đóng góp $|v_i|$.",
+          "rule": "Norm L1 dùng |vᵢ|",
+          "isCommonMistake": true
+        },
+        {
+          "text": "$\\|\\mathbf{v}\\|_2 = \\sqrt{9 + 16 + 144} = \\sqrt{169} = 13$; $\\|\\mathbf{v}\\|_\\infty = 12$.",
+          "rule": "Norm L2 và L∞"
+        },
+        {
+          "text": "$\\hat{\\mathbf{v}} = \\frac{1}{13}(3, -4, 12) \\approx (0.23, -0.31, 0.92)$; kiểm tra $\\|\\hat{\\mathbf{v}}\\| = 1$.",
+          "rule": "Chuẩn hóa: chia cho norm L2"
+        }
+      ],
+      "answer": "L1 = 19, L2 = 13, L∞ = 12; $\\hat{\\mathbf{v}} = (3/13, -4/13, 12/13)$.",
+      "commonMistake": "Quên trị tuyệt đối khi tính L1, hoặc chuẩn hóa bằng cách chia cho L1 thay vì L2.",
+      "relatedFlashcard": "fc-vec-l1"
     },
     {
       "id": "ex-vec-apply-1",
       "difficulty": "apply",
-      "prompt": "Tính dot product $\\mathbf{a} \\cdot \\mathbf{b}$ với $\\mathbf{a} = (1, 2, 3)$ và $\\mathbf{b} = (4, -1, 2)$. Hai vector này có tạo góc nhọn không?",
+      "prompt": "Tính dot product $\\mathbf{a} \\cdot \\mathbf{b}$ với $\\mathbf{a} = (1, 2, 3)$ và $\\mathbf{b} = (4, -1, 2)$. Góc giữa hai vector là nhọn, vuông hay tù? Ước lượng góc đó.",
       "hints": [
         "Dot product = tổng tích từng cặp thành phần.",
-        "Góc nhọn ↔ dot product > 0."
+        "Dấu của dot product quyết định góc nhọn/vuông/tù.",
+        "Để ra góc cụ thể: $\\cos\\theta = \\frac{\\mathbf{a}\\cdot\\mathbf{b}}{\\|\\mathbf{a}\\|\\|\\mathbf{b}\\|}$."
       ],
       "solutionSteps": [
-        { "text": "$\\mathbf{a} \\cdot \\mathbf{b} = 1\\times4 + 2\\times(-1) + 3\\times2 = 4 - 2 + 6 = 8$.", "rule": "Dot product = tổng tích thành phần" },
-        { "text": "Dot product = 8 > 0, vậy góc giữa hai vector < 90° — tạo góc nhọn.", "isCommonMistake": false },
-        { "text": "Lưu ý: không được kết luận là hai vector song song — dot product > 0 chỉ nói góc nhọn, không phải song song.", "isCommonMistake": true, "rule": "Song song (cùng hướng) ↔ cosine = 1, không chỉ > 0" }
+        {
+          "text": "$\\mathbf{a} \\cdot \\mathbf{b} = 1\\times4 + 2\\times(-1) + 3\\times2 = 4 - 2 + 6 = 8$.",
+          "rule": "Dot product = tổng tích thành phần"
+        },
+        {
+          "text": "$8 > 0$ nên góc giữa hai vector nhỏ hơn 90° — góc nhọn.",
+          "rule": "Dấu của dot product"
+        },
+        {
+          "text": "$\\|\\mathbf{a}\\| = \\sqrt{14}$, $\\|\\mathbf{b}\\| = \\sqrt{16 + 1 + 4} = \\sqrt{21}$, nên $\\cos\\theta = \\frac{8}{\\sqrt{294}} \\approx 0.47$, $\\theta \\approx 62°$.",
+          "rule": "Cosine similarity"
+        },
+        {
+          "text": "Lỗi hay gặp: thấy dot product dương rồi kết luận hai vector \\\"gần như cùng hướng\\\" hoặc song song. Thực tế góc ~62° — khá xa. Song song cùng hướng chỉ khi $\\cos\\theta = 1$.",
+          "rule": "Dot product > 0 chỉ nói góc < 90°",
+          "isCommonMistake": true
+        }
       ],
-      "answer": "$\\mathbf{a} \\cdot \\mathbf{b} = 8 > 0$ → góc nhọn",
+      "answer": "$\\mathbf{a} \\cdot \\mathbf{b} = 8 > 0$ → góc nhọn, khoảng 62° ($\\cos\\theta \\approx 0.47$).",
       "commonMistake": "Kết luận hai vector song song khi dot product > 0 — chỉ có thể nói góc < 90°.",
       "relatedFlashcard": "fc-vec-dot"
+    },
+    {
+      "id": "ex-vec-apply-2",
+      "difficulty": "apply",
+      "prompt": "Trong một game 2D, nhân vật có vận tốc $\\mathbf{v} = (5, 1)$ va vào bức tường chạy dọc theo hướng $\\mathbf{t} = (1, 1)$. Tách $\\mathbf{v}$ thành thành phần trượt dọc tường (hình chiếu lên $\\mathbf{t}$) và thành phần vuông góc với tường.",
+      "hints": [
+        "Thành phần dọc tường = $\\text{proj}_{\\mathbf{t}}\\mathbf{v}$.",
+        "$\\mathbf{v}\\cdot\\mathbf{t} = 6$, $\\mathbf{t}\\cdot\\mathbf{t} = 2$.",
+        "Thành phần vuông góc = v trừ hình chiếu; kiểm tra bằng dot product."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\mathbf{v}\\cdot\\mathbf{t} = 5 + 1 = 6$, $\\mathbf{t}\\cdot\\mathbf{t} = 1 + 1 = 2$.",
+          "rule": "Dot product"
+        },
+        {
+          "text": "$\\text{proj}_{\\mathbf{t}}\\mathbf{v} = \\frac{6}{2}(1, 1) = (3, 3)$.",
+          "rule": "Công thức projection"
+        },
+        {
+          "text": "Lỗi hay gặp: dùng $\\frac{\\mathbf{v}\\cdot\\mathbf{t}}{\\|\\mathbf{t}\\|}\\mathbf{t} = \\frac{6}{\\sqrt{2}}(1,1) \\approx (4.24, 4.24)$ — dài hơn cả phần đóng góp thật. Mẫu số phải là $\\|\\mathbf{t}\\|^2$.",
+          "rule": "Mẫu số là t·t",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Thành phần vuông góc: $(5, 1) - (3, 3) = (2, -2)$. Kiểm tra: $(2,-2)\\cdot(1,1) = 0$ ✓.",
+          "rule": "Residual ⊥ t"
+        }
+      ],
+      "answer": "Dọc tường: $(3, 3)$; vuông góc với tường: $(2, -2)$. (Khi trượt, game giữ $(3,3)$ và bỏ $(2,-2)$.)",
+      "commonMistake": "Chia cho $\\|\\mathbf{t}\\|$ thay vì $\\|\\mathbf{t}\\|^2$ khi nhân lại với $\\mathbf{t}$ chưa chuẩn hóa.",
+      "relatedFlashcard": "fc-vec-proj"
     },
     {
       "id": "ex-vec-challenge-1",
@@ -169,14 +451,67 @@
         "$\\|\\mathbf{a}\\| = \\sqrt{0.36 + 0.64 + 0} = 1$"
       ],
       "solutionSteps": [
-        { "text": "$\\mathbf{a} \\cdot \\mathbf{b} = 0.6\\times0 + 0.8\\times0.6 + 0\\times0.8 = 0 + 0.48 + 0 = 0.48$.", "rule": "Dot product" },
-        { "text": "$\\|\\mathbf{a}\\| = \\sqrt{0.36+0.64+0} = 1$, $\\|\\mathbf{b}\\| = \\sqrt{0+0.36+0.64} = 1$ — cả hai đã chuẩn hóa.", "rule": "Norm L2" },
-        { "text": "$\\text{cosine}(A,B) = \\frac{0.48}{1 \\times 1} = 0.48$ — tương đồng vừa phải (không cao, không thấp).", "rule": "Cosine similarity" },
-        { "text": "Hệ thống sẽ xếp A và B là \"somewhat similar\" — có thể gợi ý nhưng không phải ưu tiên cao.", "isCommonMistake": false }
+        {
+          "text": "$\\mathbf{a} \\cdot \\mathbf{b} = 0.6\\times0 + 0.8\\times0.6 + 0\\times0.8 = 0.48$.",
+          "rule": "Dot product"
+        },
+        {
+          "text": "$\\|\\mathbf{a}\\| = \\sqrt{0.36+0.64+0} = 1$, $\\|\\mathbf{b}\\| = \\sqrt{0+0.36+0.64} = 1$ — cả hai đã là vector đơn vị.",
+          "rule": "Norm L2"
+        },
+        {
+          "text": "$\\cos\\theta = \\frac{0.48}{1 \\times 1} = 0.48$ (góc khoảng 61°) — tương đồng vừa phải.",
+          "rule": "Cosine similarity"
+        },
+        {
+          "text": "Lỗi hay gặp: dùng thẳng dot product làm độ tương đồng mà không kiểm tra norm. Ở đây ra đúng **chỉ vì** hai vector đã chuẩn hóa; nếu nhân $\\mathbf{b}$ lên 10 lần, dot product thành 4.8 nhưng cosine vẫn là 0.48.",
+          "rule": "Cosine = dot product chỉ khi cả hai là vector đơn vị",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Kết luận: A và B có liên quan (cùng chia trục thứ hai) nhưng không phải cặp rất giống nhau — có thể gợi ý, ưu tiên thấp hơn các sản phẩm có cosine gần 1.",
+          "rule": "Diễn giải cosine trong recommendation"
+        }
       ],
       "answer": "Cosine similarity = 0.48 — tương đồng vừa phải, có thể gợi ý nhưng không phải cặp tốt nhất.",
       "commonMistake": "Quên chia cho norm (dùng dot product = 0.48 luôn) — may mắn ra cùng kết quả vì vector đã chuẩn hóa, nhưng sẽ sai với vector chưa chuẩn hóa.",
       "relatedFlashcard": "fc-vec-cosine"
+    },
+    {
+      "id": "ex-vec-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "(Câu hỏi phỏng vấn về vector search) Chứng minh rằng với hai vector đơn vị $\\mathbf{a}, \\mathbf{b}$: $\\|\\mathbf{a} - \\mathbf{b}\\|^2 = 2 - 2\\cos\\theta$. Từ đó giải thích vì sao tìm \\\"k láng giềng gần nhất\\\" theo khoảng cách L2 hay theo cosine similarity cho cùng kết quả khi embedding đã chuẩn hóa. Kiểm tra bằng số với $\\mathbf{a} = (0.6, 0.8)$, $\\mathbf{b} = (1, 0)$.",
+      "hints": [
+        "Viết $\\|\\mathbf{a}-\\mathbf{b}\\|^2 = (\\mathbf{a}-\\mathbf{b})\\cdot(\\mathbf{a}-\\mathbf{b})$ rồi khai triển như $(x-y)^2$.",
+        "$\\mathbf{a}\\cdot\\mathbf{a} = \\|\\mathbf{a}\\|^2 = 1$.",
+        "Hàm 2 − 2c giảm khi c tăng: cosine lớn hơn ↔ khoảng cách nhỏ hơn."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\|\\mathbf{a}-\\mathbf{b}\\|^2 = (\\mathbf{a}-\\mathbf{b})\\cdot(\\mathbf{a}-\\mathbf{b}) = \\mathbf{a}\\cdot\\mathbf{a} - 2\\,\\mathbf{a}\\cdot\\mathbf{b} + \\mathbf{b}\\cdot\\mathbf{b}$.",
+          "rule": "Dot product có tính phân phối và đối xứng"
+        },
+        {
+          "text": "Lỗi hay gặp: khai triển thành $\\mathbf{a}\\cdot\\mathbf{a} - \\mathbf{b}\\cdot\\mathbf{b}$ (quên số hạng chéo $-2\\,\\mathbf{a}\\cdot\\mathbf{b}$) — giống lỗi $(x-y)^2 = x^2 - y^2$.",
+          "rule": "Hằng đẳng thức bình phương hiệu",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Với vector đơn vị: $\\mathbf{a}\\cdot\\mathbf{a} = \\mathbf{b}\\cdot\\mathbf{b} = 1$ và $\\mathbf{a}\\cdot\\mathbf{b} = \\cos\\theta$, nên $\\|\\mathbf{a}-\\mathbf{b}\\|^2 = 2 - 2\\cos\\theta$.",
+          "rule": "v·v = ‖v‖²"
+        },
+        {
+          "text": "$2 - 2\\cos\\theta$ là hàm giảm của $\\cos\\theta$: vector nào có cosine lớn hơn thì khoảng cách nhỏ hơn → thứ tự k láng giềng gần nhất giống hệt nhau.",
+          "rule": "Hàm đơn điệu giữ nguyên thứ tự"
+        },
+        {
+          "text": "Kiểm tra: $\\cos\\theta = 0.6$; $\\mathbf{a}-\\mathbf{b} = (-0.4, 0.8)$, $\\|\\mathbf{a}-\\mathbf{b}\\|^2 = 0.16 + 0.64 = 0.8 = 2 - 2(0.6)$ ✓.",
+          "rule": "Kiểm tra bằng số"
+        }
+      ],
+      "answer": "$\\|\\mathbf{a}-\\mathbf{b}\\|^2 = 2 - 2\\cos\\theta$ (với ví dụ: 0.8). Vì quan hệ đơn điệu giảm, xếp hạng theo L2 và theo cosine trùng nhau trên embedding đã chuẩn hóa.",
+      "commonMistake": "Áp dụng kết luận này cho vector chưa chuẩn hóa — khi đó L2, cosine và dot product có thể xếp hạng khác nhau.",
+      "relatedFlashcard": "fc-vec-dist-cos"
     }
   ],
   "quiz": [
@@ -184,7 +519,12 @@
       "id": "q-vec-1",
       "type": "mcq",
       "question": "Cho $\\mathbf{a} = (1, 2)$ và $\\mathbf{b} = (-2, 1)$. Tính $\\mathbf{a} \\cdot \\mathbf{b}$.",
-      "options": ["0", "3", "-3", "5"],
+      "options": [
+        "0",
+        "3",
+        "-3",
+        "5"
+      ],
       "correct": 0,
       "explanation": "$\\mathbf{a}\\cdot\\mathbf{b} = 1\\times(-2) + 2\\times1 = -2+2 = 0$ — hai vector vuông góc với nhau!"
     },
@@ -212,7 +552,46 @@
         "Một từ là từ đặc biệt (stop word)"
       ],
       "correct": 2,
-      "explanation": "Cosine similarity ≈ 1 → góc giữa hai vector ≈ 0° → cùng hướng → hai từ có ngữ nghĩa rất gần (ví dụ: 'king' và 'queen', 'cat' và 'kitten')."
+      "explanation": "Cosine similarity ≈ 1 → góc giữa hai vector ≈ 0° → cùng hướng → hai từ có ngữ nghĩa rất gần (ví dụ 'cat' và 'kitten'). Lưu ý: cosine ≈ −1 hiếm gặp trong embedding thật, và từ trái nghĩa thường vẫn có cosine khá cao vì xuất hiện trong ngữ cảnh giống nhau."
+    },
+    {
+      "id": "q-vec-4",
+      "type": "mcq",
+      "question": "Norm L1 của $\\mathbf{v} = (3, -4)$ bằng bao nhiêu?",
+      "options": [
+        "5",
+        "−1",
+        "12",
+        "7"
+      ],
+      "correct": 3,
+      "explanation": "$\\|\\mathbf{v}\\|_1 = |3| + |-4| = 7$. Số 5 là norm L2, −1 là lỗi quên trị tuyệt đối."
+    },
+    {
+      "id": "q-vec-5",
+      "type": "mcq",
+      "question": "Một vector database lưu embedding đã chuẩn hóa về độ dài 1. Vì sao nó có thể dùng inner product (dot product) thay cho cosine similarity?",
+      "options": [
+        "Vì khi cả hai vector có độ dài 1, mẫu số $\\|\\mathbf{a}\\|\\|\\mathbf{b}\\|$ bằng 1 nên cosine = dot product",
+        "Vì dot product luôn bằng cosine với mọi vector",
+        "Vì chuẩn hóa làm mọi vector vuông góc với nhau",
+        "Vì inner product chính xác hơn cosine về mặt số học"
+      ],
+      "correct": 0,
+      "explanation": "Cosine = dot / (‖a‖‖b‖). Khi ‖a‖ = ‖b‖ = 1, mẫu số bằng 1 nên cosine = dot product — tiết kiệm phép chia và phép tính norm lúc truy vấn."
+    },
+    {
+      "id": "q-vec-6",
+      "type": "mcq",
+      "question": "Hai vector đơn vị có cosine similarity 0.5. Khoảng cách Euclid giữa chúng bằng bao nhiêu?",
+      "options": [
+        "0.5",
+        "$\\sqrt{2}$",
+        "1",
+        "2"
+      ],
+      "correct": 2,
+      "explanation": "$\\|\\mathbf{a}-\\mathbf{b}\\|^2 = 2 - 2\\cos\\theta = 2 - 1 = 1$, nên khoảng cách bằng 1 (góc 60°, tam giác đều)."
     }
   ]
 }

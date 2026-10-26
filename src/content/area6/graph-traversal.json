@@ -5,65 +5,73 @@
   "unit": "a6u1",
   "order": 2,
   "icon": "graph",
-  "tagline": "BFS và DFS là hai thuật toán nền tảng — nắm chúng là nắm được chìa khóa giải hàng trăm bài toán đồ thị từ shortest path đến cycle detection.",
-  "readTime": "~20 min",
-  "prerequisites": ["area6_graph-basics"],
+  "tagline": "BFS, DFS và Dijkstra — bộ ba nền tảng để giải đường đi ngắn nhất, phát hiện chu trình, sắp xếp topo và hàng trăm bài phỏng vấn về đồ thị.",
+  "readTime": "~30 min",
+  "prerequisites": [
+    "area6_graph-basics"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Khi đã có đồ thị, câu hỏi tiếp theo là: **làm sao duyệt qua tất cả các đỉnh một cách có hệ thống?**\n\nCó hai chiến lược cơ bản:\n- **BFS (Breadth-First Search — Tìm kiếm theo chiều rộng)**: Duyệt từng lớp — hàng xóm gần trước, xa sau. Như sóng nước lan ra từ tâm.\n- **DFS (Depth-First Search — Tìm kiếm theo chiều sâu)**: Đi sâu hết sức vào một nhánh, rồi mới quay lại. Như người thám hiểm đi hết một hành lang trước khi thử hành lang khác.\n\nMỗi thuật toán phù hợp với những bài toán khác nhau — BFS cho shortest path, DFS cho cycle detection và topological sort."
+      "content": "Khi đã có đồ thị, câu hỏi tiếp theo là: **làm sao đi qua tất cả các đỉnh một cách có hệ thống?**\n\nCó hai chiến lược cơ bản:\n- **BFS (Breadth-First Search — tìm kiếm theo chiều rộng)**: duyệt từng lớp — hàng xóm gần trước, xa sau. Như sóng nước lan ra từ tâm.\n- **DFS (Depth-First Search — tìm kiếm theo chiều sâu)**: đi sâu hết mức vào một nhánh rồi mới quay lại. Như người thám hiểm đi hết một hành lang trước khi thử hành lang khác.\n\nMỗi thuật toán hợp với những bài toán khác nhau — BFS cho đường đi ngắn nhất (theo số cạnh), DFS cho phát hiện chu trình và sắp xếp topo. Cuối bài là **Dijkstra** — câu trả lời khi cạnh có trọng số và BFS không còn đúng."
     },
     {
       "type": "analogy",
       "title": "BFS = lan sóng, DFS = thám hiểm mê cung",
-      "content": "**BFS** — hình dung bạn ném đá xuống ao: sóng lan ra từng vòng đồng tâm đều nhau. BFS thăm tất cả đỉnh cách nguồn 1 bước trước, rồi 2 bước, rồi 3 bước... Đây là lý do BFS tìm được **đường đi ngắn nhất** (theo số cạnh).\n\n**DFS** — hình dung bạn giải mê cung: luôn rẽ trái (hoặc phải) đến khi gặp tường, rồi mới quay lại (backtrack). DFS đi sâu vào một nhánh đến cùng trước khi thử nhánh khác. Tốt cho bài toán cần khám phá **toàn bộ con đường**: cycle detection, topological sort, connected components.\n\nTrong thực tế: Google crawl web dùng BFS (khám phá theo lớp từ domain trung tâm). Git `git log --graph` dùng DFS để trace lịch sử commit."
+      "content": "**BFS** — hình dung bạn ném đá xuống ao: sóng lan ra từng vòng đồng tâm đều nhau. BFS thăm tất cả đỉnh cách nguồn 1 bước trước, rồi 2 bước, rồi 3 bước... Đây là lý do BFS tìm được **đường đi ngắn nhất** (theo số cạnh).\n\n**DFS** — hình dung bạn giải mê cung: luôn rẽ trái (hoặc phải) đến khi gặp tường, rồi mới quay lại (backtrack). DFS đi sâu vào một nhánh đến cùng trước khi thử nhánh khác. Tốt cho bài toán cần khám phá **toàn bộ con đường**: cycle detection, topological sort, connected components.\n\nTrong thực tế: web crawler thường duyệt kiểu BFS (trang gần trang gốc được crawl trước); gợi ý \"bạn của bạn\" là BFS 2 lớp. Garbage collector kiểu mark-and-sweep duyệt đồ thị object từ các root (thường kiểu DFS) để đánh dấu object còn dùng; build tool dùng DFS để sắp thứ tự dependency."
     },
     {
       "type": "diagram",
       "title": "Đồ thị ví dụ cho BFS và DFS",
       "mermaid": "graph TD\n  S((S)) --> A((A))\n  S --> B((B))\n  A --> C((C))\n  A --> D((D))\n  B --> D\n  B --> E((E))\n  C --> F((F))\n  D --> F",
-      "caption": "Đồ thị có hướng 7 đỉnh. Xuất phát từ S. Ta sẽ trace cả BFS và DFS trên đồ thị này."
+      "caption": "Đồ thị có hướng 7 đỉnh, xuất phát từ S. Thứ tự hàng xóm (theo chữ cái): S: [A, B]; A: [C, D]; B: [D, E]; C: [F]; D: [F]; E, F: không có cạnh ra. Thứ tự này quyết định thứ tự duyệt bên dưới."
     },
     {
       "type": "explanation",
       "title": "BFS: Thuật toán và cấu trúc dữ liệu",
-      "content": "BFS dùng **Queue (hàng đợi — FIFO)**: thăm đỉnh, enqueue các hàng xóm chưa thăm, dequeue để thăm tiếp.\n\n```\nBFS(graph, start):\n  visited = {start}\n  queue = [start]\n  while queue không rỗng:\n    u = queue.dequeue()   # FIFO\n    xử lý u\n    for v in graph[u]:\n      if v not in visited:\n        visited.add(v)\n        queue.enqueue(v)\n```\n\nMấu chốt: **đánh dấu visited khi enqueue**, không phải khi dequeue — tránh enqueue cùng một đỉnh nhiều lần."
+      "content": "BFS dùng **hàng đợi (queue, FIFO)**: lấy đỉnh ở đầu hàng, đưa các hàng xóm chưa thăm vào cuối hàng.\n\n1. Khởi tạo: `visited = {s}`, `dist[s] = 0`, `queue = [s]`.\n2. Khi queue còn phần tử: `u = queue.popleft()`, xử lý u.\n3. Với mỗi hàng xóm `v` của `u`: nếu `v` chưa có trong `visited` thì `visited.add(v)`, `dist[v] = dist[u] + 1`, `queue.append(v)`.\n\nMấu chốt: **đánh dấu visited khi enqueue**, không phải khi dequeue — để mỗi đỉnh vào queue đúng một lần.\n\nTrong Python dùng `collections.deque`: `list.pop(0)` tốn $O(n)$ mỗi lần và biến BFS thành $O(V^2)$."
     },
     {
       "type": "worked_example",
       "title": "Trace BFS từ đỉnh S",
       "problem": "Chạy BFS từ S trên đồ thị trên. Liệt kê thứ tự thăm đỉnh và thứ tự từng bước của queue.",
       "steps": [
-        { "text": "Khởi tạo: visited={S}, queue=[S].", "rule": "Đánh dấu đỉnh bắt đầu ngay khi enqueue" },
-        { "text": "Dequeue S. Hàng xóm S: A, B (chưa thăm). Enqueue A, B. visited={S,A,B}, queue=[A,B]. Thăm: S.", "rule": "Xử lý xong đỉnh thì enqueue hàng xóm chưa thăm" },
-        { "text": "Dequeue A. Hàng xóm A: C, D (chưa thăm). Enqueue C, D. visited={S,A,B,C,D}, queue=[B,C,D]. Thăm: S→A." },
-        { "text": "Dequeue B. Hàng xóm B: D (đã thăm), E (chưa thăm). Chỉ enqueue E. visited={S,A,B,C,D,E}, queue=[C,D,E]. Thăm: S→A→B.", "isCommonMistake": true, "rule": "D đã trong visited khi A xử lý — KHÔNG enqueue lại. Đây là lỗi phổ biến nhất: quên check visited trước khi enqueue" },
-        { "text": "Dequeue C. Hàng xóm C: F (chưa thăm). Enqueue F. queue=[D,E,F]. Thăm: S→A→B→C." },
-        { "text": "Dequeue D. Hàng xóm D: F (đã thăm). Bỏ qua. queue=[E,F]. Thăm: S→A→B→C→D." },
-        { "text": "Dequeue E. Không có hàng xóm mới. queue=[F]. Thăm: S→A→B→C→D→E." },
-        { "text": "Dequeue F. Không có hàng xóm. queue=[]. Thăm: S→A→B→C→D→E→F. Xong." }
+        {
+          "text": "Khởi tạo: visited={S}, queue=[S].",
+          "rule": "Đánh dấu đỉnh bắt đầu ngay khi enqueue"
+        },
+        {
+          "text": "Dequeue S. Hàng xóm S: A, B (chưa thăm). Enqueue A, B. visited={S,A,B}, queue=[A,B]. Thăm: S.",
+          "rule": "Xử lý xong đỉnh thì enqueue hàng xóm chưa thăm"
+        },
+        {
+          "text": "Dequeue A. Hàng xóm A: C, D (chưa thăm). Enqueue C, D. visited={S,A,B,C,D}, queue=[B,C,D]. Thăm: S→A."
+        },
+        {
+          "text": "Dequeue B. Hàng xóm B: D (đã thăm), E (chưa thăm). Chỉ enqueue E. visited={S,A,B,C,D,E}, queue=[C,D,E]. Thăm: S→A→B.",
+          "isCommonMistake": true,
+          "rule": "D đã vào visited từ lúc xử lý A — KHÔNG enqueue lại. Quên kiểm tra visited trước khi enqueue là lỗi phổ biến nhất"
+        },
+        {
+          "text": "Dequeue C. Hàng xóm C: F (chưa thăm). Enqueue F. visited={S,A,B,C,D,E,F}, queue=[D,E,F]. Thăm: S→A→B→C."
+        },
+        {
+          "text": "Dequeue D. Hàng xóm D: F (đã trong visited). Bỏ qua. queue=[E,F]. Thăm: S→A→B→C→D."
+        },
+        {
+          "text": "Dequeue E. Không có hàng xóm mới. queue=[F]. Thăm: S→A→B→C→D→E."
+        },
+        {
+          "text": "Dequeue F. Không có hàng xóm. queue=[]. Thăm: S→A→B→C→D→E→F. Xong."
+        }
       ],
       "result": "Thứ tự BFS: S → A → B → C → D → E → F. Khoảng cách từ S: A,B=1 bước; C,D,E=2 bước; F=3 bước."
     },
     {
-      "type": "explanation",
-      "title": "DFS: Thuật toán và cấu trúc dữ liệu",
-      "content": "DFS dùng **Stack (ngăn xếp — LIFO)** hoặc **đệ quy** (call stack là stack ngầm định):\n\n```\nDFS(graph, u, visited):\n  visited.add(u)\n  xử lý u\n  for v in graph[u]:\n    if v not in visited:\n      DFS(graph, v, visited)  # đệ quy sâu ngay\n```\n\nPhiên bản iterative (dùng stack tường minh):\n```\nDFS_iter(graph, start):\n  visited = set()\n  stack = [start]\n  while stack không rỗng:\n    u = stack.pop()     # LIFO\n    if u not in visited:\n      visited.add(u)\n      xử lý u\n      for v in graph[u]: stack.push(v)\n```\n\nLưu ý: với DFS iterative, đánh dấu visited khi **pop** (khác BFS đánh dấu khi push)."
-    },
-    {
-      "type": "worked_example",
-      "title": "Trace DFS từ đỉnh S (đệ quy)",
-      "problem": "Chạy DFS đệ quy từ S. Liệt kê thứ tự thăm đỉnh (giả sử duyệt hàng xóm theo thứ tự A trước B, C trước D, v.v.).",
-      "steps": [
-        { "text": "DFS(S): visited={S}. Thăm S. Hàng xóm: A, B.", "rule": "Đánh dấu trước khi đệ quy để tránh vòng lặp vô tận" },
-        { "text": "DFS(A): visited={S,A}. Thăm A. Hàng xóm: C, D.", "rule": "Đi sâu vào A trước khi thử B" },
-        { "text": "DFS(C): visited={S,A,C}. Thăm C. Hàng xóm: F.", "isCommonMistake": false },
-        { "text": "DFS(F): visited={S,A,C,F}. Thăm F. Không có hàng xóm mới. Return.", "rule": "Đến đáy nhánh, backtrack" },
-        { "text": "Quay lại C: xong. Quay lại A: còn D. DFS(D): visited={S,A,C,F,D}. Thăm D. Hàng xóm: F đã thăm. Return." },
-        { "text": "Quay lại A: xong. Quay lại S: còn B. DFS(B): visited={...B}. Thăm B. Hàng xóm: D (thăm), E (chưa).", "isCommonMistake": true, "rule": "Quay lại S sau khi hoàn thành toàn bộ cây con của A — đây là bản chất DFS: HOÀN THÀNH nhánh trước khi thử nhánh tiếp" },
-        { "text": "DFS(E): Thăm E. Không có hàng xóm mới. Return. Quay lại B: xong. Quay lại S: xong." }
-      ],
-      "result": "Thứ tự DFS: S → A → C → F → D → B → E. Thứ tự khác BFS hoàn toàn."
+      "type": "diagram",
+      "title": "BFS: Thứ tự thăm theo lớp",
+      "mermaid": "graph TD\n  S((S-L0)) --> A((A-L1))\n  S --> B((B-L1))\n  A --> C((C-L2))\n  A --> D((D-L2))\n  B --> D\n  B --> E((E-L2))\n  C --> F((F-L3))\n  D --> F",
+      "caption": "BFS thăm theo lớp (level): L0 = {S}, L1 = {A, B}, L2 = {C, D, E}, L3 = {F}. Chỉ số lớp = khoảng cách ngắn nhất (số cạnh) từ S."
     },
     {
       "type": "formula",
@@ -71,10 +79,56 @@
       "latex": "d(s, v) \\le d(s, u) + 1 \\quad \\text{for every edge } (u, v)",
       "reading": "đọc là: khoảng cách (số cạnh) từ nguồn s đến v không vượt quá khoảng cách s đến u cộng 1.",
       "symbols": [
-        { "sym": "d(s, v)", "meaning": "khoảng cách ngắn nhất (số cạnh) từ nguồn s đến đỉnh v" },
-        { "sym": "d(s, u) + 1", "meaning": "đi từ s đến u rồi thêm một bước qua cạnh (u,v)" }
+        {
+          "sym": "d(s, v)",
+          "meaning": "khoảng cách ngắn nhất (số cạnh) từ nguồn s đến đỉnh v"
+        },
+        {
+          "sym": "d(s, u) + 1",
+          "meaning": "đi từ s đến u rồi thêm một bước qua cạnh (u,v)"
+        }
       ],
-      "caption": "BFS khai thác bất đẳng thức này: khi dequeue đỉnh u ở lớp k, mọi hàng xóm chưa thăm của u được gán khoảng cách k+1 — đây là khoảng cách tối ưu. Chứng minh: nếu có đường ngắn hơn, BFS đã tìm thấy nó ở lớp trước."
+      "caption": "BFS khai thác bất đẳng thức này: khi lấy đỉnh u ở lớp k ra khỏi queue, mọi hàng xóm chưa thăm của u được gán khoảng cách k + 1 — và đó là khoảng cách tối ưu, vì queue luôn chứa các đỉnh theo khoảng cách không giảm (lớp k hết rồi mới tới lớp k + 1)."
+    },
+    {
+      "type": "explanation",
+      "title": "DFS: Thuật toán và cấu trúc dữ liệu",
+      "content": "DFS dùng **ngăn xếp (stack, LIFO)** — thường là ngầm định qua **đệ quy** (call stack).\n\nBản đệ quy:\n1. `dfs(u)`: `visited.add(u)`, xử lý u.\n2. Với mỗi hàng xóm `v` của `u`: nếu `v` chưa thăm thì gọi `dfs(v)` — đi sâu ngay, chỉ quay lại khi cả nhánh của v đã xong.\n\nBản lặp (stack tường minh):\n1. `stack = [s]`.\n2. Khi stack còn phần tử: `u = stack.pop()`; nếu `u` đã thăm thì bỏ qua, ngược lại `visited.add(u)` và xử lý u.\n3. Đẩy các hàng xóm chưa thăm của u vào stack.\n\nBản lặp đánh dấu khi **pop** (khác BFS đánh dấu khi enqueue): một đỉnh có thể nằm trong stack nhiều lần, nên stack có thể chứa tới $O(E)$ phần tử. Vì LIFO, hàng xóm đẩy vào sau được thăm trước — muốn cùng thứ tự với bản đệ quy thì đẩy hàng xóm theo **thứ tự ngược**. Trên đồ thị mẫu, đẩy theo thứ tự thuận cho S, B, E, D, F, A, C — vẫn là DFS hợp lệ, chỉ khác thứ tự.\n\nLưu ý thực tế: đệ quy trên đồ thị dạng chuỗi dài (ví dụ $10^5$ đỉnh) có thể tràn call stack — Python mặc định giới hạn khoảng 1000 tầng. Khi đó dùng bản lặp."
+    },
+    {
+      "type": "worked_example",
+      "title": "Trace DFS từ đỉnh S (đệ quy)",
+      "problem": "Chạy DFS đệ quy từ S trên đồ thị mẫu. Liệt kê thứ tự thăm đỉnh (duyệt hàng xóm theo thứ tự chữ cái như đã nêu: A trước B, C trước D, D trước E).",
+      "steps": [
+        {
+          "text": "DFS(S): visited={S}. Thăm S. Hàng xóm: A, B.",
+          "rule": "Đánh dấu trước khi đệ quy để tránh vòng lặp vô tận"
+        },
+        {
+          "text": "DFS(A): visited={S,A}. Thăm A. Hàng xóm: C, D.",
+          "rule": "Đi sâu vào A trước khi thử B"
+        },
+        {
+          "text": "DFS(C): visited={S,A,C}. Thăm C. Hàng xóm: F.",
+          "isCommonMistake": false
+        },
+        {
+          "text": "DFS(F): visited={S,A,C,F}. Thăm F. Không có hàng xóm mới. Return.",
+          "rule": "Đến đáy nhánh, backtrack"
+        },
+        {
+          "text": "Quay lại C: xong. Quay lại A: còn D. DFS(D): visited={S,A,C,F,D}. Thăm D. Hàng xóm: F đã thăm. Return."
+        },
+        {
+          "text": "Quay lại A: xong. Quay lại S: còn B. DFS(B): visited={S,A,C,F,D,B}. Thăm B. Hàng xóm: D (đã thăm), E (chưa).",
+          "isCommonMistake": true,
+          "rule": "Quay lại S sau khi hoàn thành toàn bộ cây con của A — đây là bản chất DFS: HOÀN THÀNH nhánh trước khi thử nhánh tiếp"
+        },
+        {
+          "text": "DFS(E): visited={S,A,C,F,D,B,E}. Thăm E. Không có cạnh ra. Return. Quay lại B: xong. Quay lại S: xong."
+        }
+      ],
+      "result": "Thứ tự DFS: S → A → C → F → D → B → E (BFS là S → A → B → C → D → E → F). Thứ tự khác hẳn: DFS đến F (xa nhất) ở bước thứ 4."
     },
     {
       "type": "formula",
@@ -82,37 +136,158 @@
       "latex": "\\text{BFS and DFS: } O(V + E) \\text{ time, } O(V) \\text{ memory}",
       "reading": "đọc là: cả BFS và DFS đều chạy trong O(V+E) — mỗi đỉnh thăm một lần, mỗi cạnh xét một lần. Bộ nhớ queue/stack tối đa O(V).",
       "symbols": [
-        { "sym": "V", "meaning": "số đỉnh — mỗi đỉnh thăm đúng 1 lần" },
-        { "sym": "E", "meaning": "số cạnh — mỗi cạnh xét đúng 1 lần khi duyệt adj list" },
-        { "sym": "O(V)", "meaning": "bộ nhớ cho visited set, queue (BFS) hoặc call stack (DFS)" }
+        {
+          "sym": "V",
+          "meaning": "số đỉnh — mỗi đỉnh vào queue/được thăm đúng 1 lần"
+        },
+        {
+          "sym": "E",
+          "meaning": "số cạnh — cạnh có hướng được xét 1 lần, cạnh vô hướng 2 lần (từ hai đầu), vẫn là O(E)"
+        },
+        {
+          "sym": "O(V)",
+          "meaning": "bộ nhớ cho visited, queue (BFS) hoặc call stack (DFS đệ quy)"
+        }
       ],
-      "caption": "BFS và DFS có cùng độ phức tạp lý thuyết — sự khác biệt là ORDER thăm đỉnh và ứng dụng phù hợp."
+      "caption": "Đây là độ phức tạp với adjacency list. Với adjacency matrix, liệt kê hàng xóm tốn O(V) mỗi đỉnh nên BFS/DFS thành O(V²). Duyệt toàn bộ đồ thị nhiều thành phần (gọi BFS/DFS lại từ mỗi đỉnh chưa thăm) vẫn chỉ O(V + E) vì visited dùng chung."
     },
     {
       "type": "explanation",
       "title": "Ứng dụng CS của BFS và DFS",
-      "content": "**BFS dùng cho:**\n- **Shortest path (unweighted)**: Số cạnh từ nguồn đến đích — BFS đảm bảo đường đi ít cạnh nhất vì thăm theo lớp.\n- **Level-order traversal**: Duyệt cây theo từng tầng.\n- **Web crawler**: Crawl theo lớp từ domain seed.\n- **Social network**: \"Bạn bè trong 2 bước\" (friends-of-friends).\n\n**DFS dùng cho:**\n- **Cycle detection**: Nếu DFS gặp đỉnh đã thăm (back edge) → có chu trình.\n- **Topological sort**: Sắp xếp dependency (DFS, push vào stack khi finished).\n- **Connected components**: Mỗi DFS call mới từ unvisited đỉnh = 1 component.\n- **Backtracking**: Giải Sudoku, N-Queens, maze solving.\n\nQuy tắc ngón tay cái: **cần khoảng cách ngắn nhất → BFS; cần khám phá toàn bộ cấu trúc → DFS**."
+      "content": "**BFS dùng cho:**\n- **Đường đi ngắn nhất (không trọng số)**: BFS cho đường ít cạnh nhất vì thăm theo lớp.\n- **Duyệt theo tầng (level-order)** của cây.\n- **Mạng xã hội**: \"bạn bè trong vòng 2 bước\" = BFS dừng ở lớp 2.\n- **Lưới 2D (grid)**: mê cung, \"số bước ít nhất\" — mỗi ô là đỉnh, 4 ô kề là hàng xóm.\n\n**DFS dùng cho:**\n- **Phát hiện chu trình (cycle detection)**: xem mục dưới — với đồ thị có hướng cần phân biệt đỉnh \"đang xử lý\" và \"đã xong\".\n- **Sắp xếp topo (topological sort)**: thứ tự ngược của thời điểm hoàn thành (finish) trong DFS.\n- **Thành phần liên thông**: mỗi lần phải khởi động DFS mới từ một đỉnh chưa thăm = thêm 1 thành phần. Bài \"Number of Islands\" chính là đếm thành phần trên lưới, $O(R \\times C)$.\n- **Quay lui (backtracking)**: Sudoku, N-Queens, sinh hoán vị.\n\nThực ra đếm thành phần liên thông dùng BFS hay DFS đều được. Quy tắc ngón tay cái: **cần khoảng cách ít cạnh nhất → BFS; cần cấu trúc (chu trình, thứ tự, quay lui) → DFS; cạnh có trọng số → Dijkstra**."
+    },
+    {
+      "type": "explanation",
+      "title": "Phát hiện chu trình bằng DFS: 3 màu",
+      "content": "Với **đồ thị có hướng**, \"gặp lại đỉnh đã thăm\" KHÔNG đủ để kết luận có chu trình. Ta tô 3 màu:\n- **Trắng (white)**: chưa thăm.\n- **Xám (gray)**: đã vào `dfs(u)` nhưng chưa xong — u đang nằm trên call stack.\n- **Đen (black)**: đã duyệt xong toàn bộ nhánh của u.\n\nGặp cạnh u→v với v **xám** = **cạnh ngược (back edge)** = có chu trình (v → … → u → v). Gặp v **đen** thì không sao. Ví dụ trên đồ thị mẫu: khi DFS(D) xét cạnh D→F, F đã đen (thăm xong từ nhánh C) — không có chu trình nào cả.\n\nVới **đồ thị vô hướng** chỉ cần 2 trạng thái: gặp hàng xóm đã thăm mà **không phải đỉnh cha** vừa đi tới = có chu trình."
+    },
+    {
+      "type": "explanation",
+      "title": "Sắp xếp topo (Topological Sort)",
+      "content": "**Sắp xếp topo** của DAG là một thứ tự các đỉnh sao cho mọi cạnh u→v thì u đứng trước v. Ứng dụng: thứ tự build module, cài package, chạy migration, xếp lịch môn học có tiên quyết. Chỉ tồn tại khi đồ thị **không có chu trình**; thường có **nhiều** thứ tự hợp lệ.\n\n**Thuật toán Kahn (dựa trên BFS):**\n1. Tính in-degree mọi đỉnh; đưa các đỉnh in-degree 0 vào queue.\n2. Lấy u ra, ghi vào kết quả; với mỗi cạnh u→v giảm in-degree của v, nếu về 0 thì enqueue v.\n3. Nếu kết quả có ít hơn V đỉnh → đồ thị có chu trình.\n\n**Cách DFS:** chạy DFS, ghi đỉnh khi nó **hoàn thành** (post-order), rồi đảo ngược danh sách. Cả hai cách đều $O(V + E)$."
     },
     {
       "type": "diagram",
-      "title": "BFS: Thứ tự thăm theo lớp",
-      "mermaid": "graph TD\n  S((S-L0)) --> A((A-L1))\n  S --> B((B-L1))\n  A --> C((C-L2))\n  A --> D((D-L2))\n  B --> D\n  B --> E((E-L2))\n  C --> F((F-L3))\n  D --> F",
-      "caption": "BFS thăm theo lớp (Level). L0=S, L1={A,B}, L2={C,D,E}, L3={F}. Số lớp = khoảng cách ngắn nhất từ S."
+      "title": "DAG phụ thuộc giữa các module",
+      "mermaid": "graph LR\n  utils --> db\n  utils --> api\n  db --> api\n  api --> app\n  config --> app",
+      "caption": "Cạnh X → Y nghĩa là \"X phải build trước Y\". In-degree: utils = 0, config = 0, db = 1, api = 2, app = 2."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: Kahn trên DAG module",
+      "problem": "Tìm một thứ tự build hợp lệ cho DAG ở trên bằng thuật toán Kahn (khi nhiều đỉnh cùng sẵn sàng, lấy theo thứ tự chữ cái).",
+      "steps": [
+        {
+          "text": "In-degree: utils 0, config 0, db 1, api 2, app 2. Queue = [config, utils].",
+          "rule": "Bắt đầu từ mọi đỉnh in-degree 0"
+        },
+        {
+          "text": "Lấy config. Cạnh config→app: in(app) = 1. Kết quả: [config]. Queue = [utils].",
+          "rule": "Xóa đỉnh = giảm in-degree các đỉnh nó trỏ tới"
+        },
+        {
+          "text": "Lấy utils. utils→db: in(db) = 0 → enqueue db. utils→api: in(api) = 1. Kết quả: [config, utils]. Queue = [db]."
+        },
+        {
+          "text": "Lấy db. db→api: in(api) = 0 → enqueue api. Kết quả: [config, utils, db].",
+          "isCommonMistake": true,
+          "rule": "api chỉ sẵn sàng khi CẢ utils và db đã xong — enqueue api ngay khi gặp lần đầu (lúc in-degree còn 1) là sai"
+        },
+        {
+          "text": "Lấy api. api→app: in(app) = 0 → enqueue app. Lấy app. Kết quả đủ 5 đỉnh → không có chu trình."
+        }
+      ],
+      "result": "Thứ tự build: config, utils, db, api, app. (utils, config, db, api, app cũng hợp lệ — topo sort thường không duy nhất.)"
+    },
+    {
+      "type": "explanation",
+      "title": "Đường đi ngắn nhất có trọng số: Dijkstra",
+      "content": "Khi cạnh có trọng số (km, ms, chi phí), **ít cạnh nhất không còn là ngắn nhất**: hai cạnh 1 + 2 = 3 rẻ hơn một cạnh nặng 4. BFS không dùng được nữa.\n\n**Dijkstra** là BFS \"có ưu tiên\": thay queue FIFO bằng **hàng đợi ưu tiên (priority queue / min-heap)** theo khoảng cách tạm thời `dist`.\n1. `dist[s] = 0`, các đỉnh khác $\\infty$; đưa `(0, s)` vào heap.\n2. Lấy đỉnh u có `dist` nhỏ nhất chưa chốt. **Chốt** u: `dist[u]` giờ là đáp số cuối.\n3. **Nới lỏng (relax)** mọi cạnh u→v: nếu `dist[u] + w(u, v) < dist[v]` thì cập nhật `dist[v]` và đẩy `(dist[v], v)` vào heap.\n\nVì sao tham lam (greedy) lại đúng? Đỉnh u đang có `dist` nhỏ nhất trong heap; mọi đường khác tới u phải đi qua một đỉnh trong heap có `dist` ≥ `dist[u]` rồi cộng thêm trọng số **không âm** — nên không thể rẻ hơn. Lập luận này sụp đổ ngay khi có cạnh âm.\n\nCài đặt phổ biến (Python `heapq`) không có thao tác decrease-key: cứ đẩy bản ghi mới, khi pop ra bản ghi cũ của đỉnh đã chốt thì bỏ qua."
+    },
+    {
+      "type": "diagram",
+      "title": "Đồ thị có trọng số (vô hướng)",
+      "mermaid": "graph LR\n  S((S)) ---|4| A((A))\n  S ---|1| B((B))\n  B ---|2| A\n  A ---|1| C((C))\n  B ---|5| C\n  C ---|3| D((D))",
+      "caption": "Cạnh vô hướng có trọng số: S–A 4, S–B 1, B–A 2, A–C 1, B–C 5, C–D 3. Cạnh thẳng S–A (4) đắt hơn đường vòng S–B–A (1 + 2 = 3)."
+    },
+    {
+      "type": "formula",
+      "title": "Phép nới lỏng (relaxation) và độ phức tạp Dijkstra",
+      "latex": "d[v] \\leftarrow \\min\\big(d[v],\\; d[u] + w(u,v)\\big) \\qquad T = O\\big((V + E)\\log V\\big)",
+      "reading": "đọc là: khoảng cách tạm của v được thay bằng đường qua u nếu đường đó rẻ hơn. Với binary heap, mỗi lần đẩy/lấy tốn O(log V), có tối đa V lần chốt và E lần cập nhật.",
+      "symbols": [
+        {
+          "sym": "d[v]",
+          "meaning": "khoảng cách ngắn nhất tạm thời từ nguồn tới v"
+        },
+        {
+          "sym": "w(u,v)",
+          "meaning": "trọng số cạnh u→v, phải ≥ 0"
+        },
+        {
+          "sym": "\\log V",
+          "meaning": "chi phí một thao tác trên binary heap"
+        }
+      ],
+      "caption": "So sánh: BFS O(V + E) cho đồ thị không trọng số; Dijkstra O((V + E) log V) cho trọng số không âm; Bellman-Ford O(V × E) khi có cạnh âm."
+    },
+    {
+      "type": "worked_example",
+      "title": "Trace Dijkstra từ S",
+      "problem": "Chạy Dijkstra từ S trên đồ thị có trọng số ở trên. Tìm khoảng cách ngắn nhất tới mọi đỉnh và đường đi tới D.",
+      "steps": [
+        {
+          "text": "Khởi tạo: dist S = 0, A = B = C = D = ∞. Heap = [(0, S)].",
+          "rule": "Chỉ nguồn có khoảng cách 0"
+        },
+        {
+          "text": "Pop (0, S), chốt S. Relax: A = 4, B = 1. Heap = [(1, B), (4, A)].",
+          "rule": "Nới lỏng mọi cạnh của đỉnh vừa chốt"
+        },
+        {
+          "text": "Pop (1, B), chốt B. Relax B–A: 1 + 2 = 3 < 4 → A = 3. Relax B–C: 1 + 5 = 6 → C = 6. Heap = [(3, A), (4, A), (6, C)].",
+          "isCommonMistake": true,
+          "rule": "KHÔNG chốt A = 4 lúc vừa thấy cạnh S–A. Chỉ chốt khi đỉnh được pop ra với giá trị nhỏ nhất"
+        },
+        {
+          "text": "Pop (3, A), chốt A. Relax A–C: 3 + 1 = 4 < 6 → C = 4. Heap = [(4, A), (4, C), (6, C)].",
+          "rule": "Một đỉnh có thể được cập nhật nhiều lần trước khi chốt"
+        },
+        {
+          "text": "Pop (4, A): A đã chốt → bỏ qua bản ghi cũ. Pop (4, C), chốt C. Relax C–D: 4 + 3 = 7 → D = 7.",
+          "rule": "Lazy deletion: bỏ qua bản ghi lỗi thời trong heap"
+        },
+        {
+          "text": "Pop (6, C): bỏ qua. Pop (7, D), chốt D. Heap rỗng → xong."
+        }
+      ],
+      "result": "dist: S = 0, B = 1, A = 3, C = 4, D = 7. Đường tới D: S → B → A → C → D (1 + 2 + 1 + 3 = 7), dài 4 cạnh — trong khi đường ít cạnh nhất S → A → C → D (3 cạnh) nặng 8. Ít cạnh ≠ nhẹ nhất."
     },
     {
       "type": "callout",
       "variant": "warning",
-      "content": "**Lỗi kinh điển trong BFS:** Đánh dấu đỉnh visited khi **dequeue** thay vì khi **enqueue**. Hậu quả: cùng một đỉnh có thể được enqueue nhiều lần (khi nhiều đỉnh khác nhau đều trỏ vào nó), dẫn đến xử lý trùng lặp và trong đồ thị có chu trình có thể gây vòng lặp vô tận. Luôn đánh dấu visited **ngay khi enqueue**."
+      "content": "**Dijkstra sai khi có cạnh âm.** Ví dụ: S→A = 2, S→B = 5, B→A = −4. Dijkstra chốt A = 2 ngay bước đầu, nhưng đường thật S→B→A = 1. Khi có cạnh âm, dùng **Bellman-Ford**: nới lỏng TẤT CẢ các cạnh, lặp $V - 1$ vòng, $O(V \\times E)$; nếu vòng thứ V vẫn còn cập nhật được thì đồ thị có **chu trình âm** (không tồn tại đường ngắn nhất). Mẹo sai hay gặp: cộng một hằng số vào mọi cạnh cho hết âm — cách này phạt đường nhiều cạnh nặng hơn nên làm thay đổi đáp án."
+    },
+    {
+      "type": "explanation",
+      "title": "Chọn thuật toán nào?",
+      "content": "| Bài toán | Thuật toán | Thời gian |\n|---|---|---|\n| Duyệt, đếm thành phần | BFS / DFS | $O(V+E)$ |\n| Ngắn nhất, không trọng số | BFS | $O(V+E)$ |\n| Ngắn nhất, trọng số ≥ 0 | Dijkstra | $O((V+E)\\log V)$ |\n| Ngắn nhất, có cạnh âm | Bellman-Ford | $O(VE)$ |\n| Thứ tự phụ thuộc | Topo sort | $O(V+E)$ |\n| Phát hiện chu trình | DFS 3 màu | $O(V+E)$ |\n\nPhỏng vấn hay hỏi ngược: \"tại sao không dùng Dijkstra cho đồ thị không trọng số?\" — được, nhưng BFS đơn giản hơn và nhanh hơn một hệ số log."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Lỗi kinh điển trong BFS:** đánh dấu visited khi **dequeue** thay vì khi **enqueue**. Khi nhiều đỉnh cùng trỏ tới v, v bị enqueue nhiều lần → xử lý trùng và queue phình tới $O(E)$ phần tử; còn nếu quên kiểm tra visited hoàn toàn thì trên đồ thị có chu trình BFS chạy mãi không dừng. Luôn đánh dấu visited **ngay khi enqueue**."
     },
     {
       "type": "key_takeaways",
       "items": [
-        "BFS dùng Queue (FIFO): thăm theo lớp từ nguồn → tìm đường đi ngắn nhất (số cạnh).",
-        "DFS dùng Stack/đệ quy (LIFO): đi sâu vào nhánh đến cùng → cycle detection, topo sort, backtracking.",
-        "Cả BFS và DFS đều O(V+E) thời gian — khác nhau ở order thăm và ứng dụng.",
-        "Đánh dấu visited khi ENQUEUE (BFS) hoặc khi bắt đầu xử lý đỉnh (DFS) — không phải khi dequeue/pop.",
-        "BFS = sóng nước (lan rộng). DFS = thám hiểm mê cung (đi sâu trước, backtrack sau).",
-        "Quy tắc: shortest path → BFS; cycle/topo/backtrack → DFS."
+        "BFS dùng queue (FIFO): thăm theo lớp → đường đi ít cạnh nhất trên đồ thị không trọng số.",
+        "DFS dùng stack/đệ quy (LIFO): đi sâu rồi quay lui → chu trình, topo sort, thành phần liên thông, backtracking.",
+        "BFS/DFS đều O(V + E) với adjacency list (O(V²) với ma trận) — khác nhau ở thứ tự thăm.",
+        "Đánh dấu visited khi ENQUEUE (BFS) hoặc khi vào dfs(u) (DFS đệ quy); DFS bản lặp thì kiểm tra khi pop.",
+        "Đồ thị có hướng: chu trình ⇔ có back edge tới đỉnh XÁM (đang trên call stack), không phải mọi đỉnh đã thăm.",
+        "Topo sort chỉ có trên DAG: Kahn (in-degree 0) hoặc đảo ngược thứ tự hoàn thành DFS; Kahn xuất thiếu đỉnh ⇔ có chu trình.",
+        "Trọng số không âm → Dijkstra (min-heap, O((V+E) log V)); có cạnh âm → Bellman-Ford O(V × E)."
       ]
     }
   ],
@@ -121,7 +296,7 @@
       "id": "fc-bfs-queue",
       "type": "concept",
       "front": "BFS dùng cấu trúc dữ liệu gì? Tại sao?",
-      "back": "Queue (FIFO). Vì thăm theo lớp: hàng xóm gần (enqueue trước) thì được xử lý trước — đảm bảo đường đi ngắn nhất."
+      "back": "Queue (FIFO). Đỉnh được phát hiện trước (gần nguồn hơn) được xử lý trước → thăm hết lớp k rồi mới tới lớp k + 1, nên BFS cho đường ít cạnh nhất."
     },
     {
       "id": "fc-dfs-stack",
@@ -139,13 +314,43 @@
       "id": "fc-dfs-cycle",
       "type": "concept",
       "front": "DFS phát hiện chu trình (cycle) như thế nào?",
-      "back": "Trong DFS, nếu gặp cạnh đến đỉnh đang trong call stack hiện tại (back edge / trạng thái GRAY), có chu trình. Với đồ thị vô hướng: gặp đỉnh đã thăm không phải đỉnh cha = chu trình."
+      "back": "Đồ thị có hướng: dùng 3 màu; gặp cạnh tới đỉnh XÁM (đang trên call stack) = back edge = có chu trình. Gặp đỉnh đen (đã xong) thì không. Đồ thị vô hướng: gặp đỉnh đã thăm không phải đỉnh cha = có chu trình."
     },
     {
       "id": "fc-traversal-complexity",
       "type": "formula",
       "front": "Độ phức tạp thời gian và bộ nhớ của BFS/DFS?",
-      "back": "Thời gian: $O(V+E)$ — mỗi đỉnh thăm 1 lần, mỗi cạnh xét 1 lần. Bộ nhớ: $O(V)$ cho queue/stack và visited set."
+      "back": "Thời gian: $O(V+E)$ với adjacency list — mỗi đỉnh thăm 1 lần, mỗi cạnh xét 1 lần (vô hướng: 2 lần). Với ma trận kề: $O(V^2)$. Bộ nhớ: $O(V)$ cho queue/stack và visited."
+    },
+    {
+      "id": "fc-traversal-visited-timing",
+      "type": "concept",
+      "front": "Trong BFS, đánh dấu visited lúc nào? Sai thì sao?",
+      "back": "Ngay khi ENQUEUE. Nếu đợi tới lúc dequeue, một đỉnh có thể bị enqueue nhiều lần (xử lý trùng, queue tới O(E)); nếu quên hẳn thì có thể lặp vô hạn trên đồ thị có chu trình."
+    },
+    {
+      "id": "fc-traversal-topo-sort",
+      "type": "concept",
+      "front": "Sắp xếp topo là gì? Hai cách làm?",
+      "back": "Thứ tự đỉnh của DAG sao cho mọi cạnh u→v có u trước v. Kahn: lặp lấy đỉnh in-degree 0 (xuất thiếu đỉnh ⇔ có chu trình). DFS: đảo ngược thứ tự hoàn thành. Cả hai $O(V+E)$."
+    },
+    {
+      "id": "fc-traversal-dijkstra",
+      "type": "concept",
+      "front": "Ý tưởng của Dijkstra? Độ phức tạp?",
+      "back": "Tham lam: luôn chốt đỉnh có dist tạm nhỏ nhất (lấy từ min-heap), rồi nới lỏng các cạnh của nó: dist[v] = min(dist[v], dist[u] + w). Với binary heap: $O((V+E)\\log V)$. Yêu cầu mọi trọng số ≥ 0."
+    },
+    {
+      "id": "fc-traversal-dijkstra-negative",
+      "type": "concept",
+      "front": "Vì sao Dijkstra sai với cạnh âm? Dùng gì thay?",
+      "back": "Dijkstra coi đỉnh vừa pop là đã chốt, vì mọi đường khác chỉ có thể dài thêm — điều này sai khi có cạnh âm. Dùng Bellman-Ford: relax mọi cạnh V − 1 vòng, $O(VE)$, còn phát hiện được chu trình âm."
+    },
+    {
+      "id": "fc-traversal-components",
+      "type": "concept",
+      "front": "Đếm số thành phần liên thông bằng BFS/DFS thế nào? Tốn bao lâu?",
+      "back": "Duyệt mọi đỉnh; gặp đỉnh chưa thăm thì tăng bộ đếm và chạy BFS/DFS từ nó. Tổng $O(V+E)$ vì visited dùng chung. Number of Islands trên lưới R × C: $O(R \\times C)$."
     }
   ],
   "exercises": [
@@ -159,16 +364,71 @@
         "Dequeue 1, enqueue hàng xóm chưa thăm của 1."
       ],
       "solutionSteps": [
-        { "text": "Init: queue=[0], visited={0}." },
-        { "text": "Dequeue 0. Hàng xóm: 1,2. Enqueue. queue=[1,2], visited={0,1,2}. Thăm: 0." },
-        { "text": "Dequeue 1. Hàng xóm: 0(thăm),3(mới). Enqueue 3. queue=[2,3], visited={0,1,2,3}. Thăm: 0→1.", "isCommonMistake": false },
-        { "text": "Dequeue 2. Hàng xóm: 0(thăm),3(thăm). Không enqueue. queue=[3]. Thăm: 0→1→2.", "isCommonMistake": true, "rule": "3 đã thăm (enqueue khi xử lý đỉnh 1) — KHÔNG enqueue lại" },
-        { "text": "Dequeue 3. Hàng xóm: 1(thăm),2(thăm),4(mới). Enqueue 4. Thăm: 0→1→2→3." },
-        { "text": "Dequeue 4. Không có hàng xóm mới. Xong. Thăm: 0→1→2→3→4." }
+        {
+          "text": "Init: queue=[0], visited={0}.",
+          "rule": "Đánh dấu đỉnh nguồn ngay khi enqueue"
+        },
+        {
+          "text": "Dequeue 0. Hàng xóm: 1,2. Enqueue. queue=[1,2], visited={0,1,2}. Thăm: 0.",
+          "rule": "Dequeue rồi enqueue hàng xóm chưa thăm, đánh dấu ngay khi enqueue"
+        },
+        {
+          "text": "Dequeue 1. Hàng xóm: 0(thăm),3(mới). Enqueue 3. queue=[2,3], visited={0,1,2,3}. Thăm: 0→1.",
+          "rule": "Chỉ enqueue đỉnh chưa có trong visited"
+        },
+        {
+          "text": "Dequeue 2. Hàng xóm: 0(thăm),3(thăm). Không enqueue. queue=[3]. Thăm: 0→1→2.",
+          "isCommonMistake": true,
+          "rule": "3 đã thăm (enqueue khi xử lý đỉnh 1) — KHÔNG enqueue lại"
+        },
+        {
+          "text": "Dequeue 3. Hàng xóm: 1(thăm), 2(thăm), 4(mới). Enqueue 4. queue=[4]. Thăm: 0→1→2→3.",
+          "rule": "Đỉnh mới ở lớp kế tiếp: dist = dist(u) + 1"
+        },
+        {
+          "text": "Dequeue 4. Không có hàng xóm mới. Xong. Thăm: 0→1→2→3→4.",
+          "rule": "Queue rỗng → BFS kết thúc"
+        }
       ],
-      "answer": "0 → 1 → 2 → 3 → 4",
+      "answer": "0 → 1 → 2 → 3 → 4 (khoảng cách từ 0: 1 và 2 cách 1 cạnh, 3 cách 2 cạnh, 4 cách 3 cạnh).",
       "commonMistake": "Enqueue đỉnh 3 hai lần (một lần từ 1, một lần từ 2) nếu quên check visited trước khi enqueue.",
       "relatedFlashcard": "fc-bfs-queue"
+    },
+    {
+      "id": "ex-traversal-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Môn học và tiên quyết (X → Y nghĩa là phải học X trước Y): Nhập môn (I) → Cấu trúc dữ liệu (D), I → Toán rời rạc (M), M → Thuật toán (T), D → T, T → Học máy (L). Dùng Kahn tìm một thứ tự học hợp lệ, và cho biết có tất cả bao nhiêu thứ tự hợp lệ.",
+      "hints": [
+        "Tính in-degree: I = 0, D = 1, M = 1, T = 2, L = 1.",
+        "Sau khi học I, cả D và M cùng có in-degree 0.",
+        "T chỉ học được khi CẢ D và M đã xong."
+      ],
+      "solutionSteps": [
+        {
+          "text": "In-degree ban đầu: I 0, D 1, M 1, T 2, L 1. Queue = [I].",
+          "rule": "Kahn bắt đầu từ các đỉnh in-degree 0"
+        },
+        {
+          "text": "Lấy I: in(D) = 0, in(M) = 0 → enqueue D, M. Kết quả [I].",
+          "rule": "Xóa đỉnh = giảm in-degree các đỉnh nó trỏ tới"
+        },
+        {
+          "text": "Lấy D: in(T) = 1, chưa enqueue. Lấy M: in(T) = 0 → enqueue T. Kết quả [I, D, M].",
+          "isCommonMistake": true,
+          "rule": "Không đưa T vào ngay sau D — T còn chờ M (in-degree chưa về 0)"
+        },
+        {
+          "text": "Lấy T: in(L) = 0 → enqueue L. Lấy L. Kết quả [I, D, M, T, L] — đủ 5 môn nên không có chu trình.",
+          "rule": "Kahn xuất đủ V đỉnh ⇔ không có chu trình"
+        },
+        {
+          "text": "Chỉ D và M đổi chỗ được cho nhau; I phải đầu, T rồi L phải cuối. Vậy có đúng 2 thứ tự hợp lệ.",
+          "rule": "Topo sort không duy nhất khi có nhiều đỉnh cùng sẵn sàng"
+        }
+      ],
+      "answer": "Ví dụ I, D, M, T, L. Có đúng 2 thứ tự hợp lệ: I-D-M-T-L và I-M-D-T-L.",
+      "commonMistake": "Xếp T ngay sau D mà quên T còn cần M.",
+      "relatedFlashcard": "fc-traversal-topo-sort"
     },
     {
       "id": "ex-traversal-apply-1",
@@ -180,16 +440,71 @@
         "DFS(1): hàng xóm 1 là {0(thăm), 3} → đi vào 3."
       ],
       "solutionSteps": [
-        { "text": "DFS(0): visited={0}. Hàng xóm: 1,2. Đi vào 1 trước.", "rule": "DFS đi sâu vào hàng xóm đầu tiên ngay" },
-        { "text": "DFS(1): visited={0,1}. Hàng xóm: 0(thăm),3. Đi vào 3." },
-        { "text": "DFS(3): visited={0,1,3}. Hàng xóm: 1(thăm),2,4. Đi vào 2." },
-        { "text": "DFS(2): visited={0,1,3,2}. Hàng xóm: 0(thăm),3(thăm). Không đi tiếp. Return.", "isCommonMistake": true, "rule": "2 được thăm từ DFS(3) vì 3 là hàng xóm của 2 — không phải từ 0 trực tiếp. Thứ tự DFS phụ thuộc vào cấu trúc adj list và hướng đi đệ quy" },
-        { "text": "Quay lại DFS(3): còn 4. DFS(4): visited={0,1,3,2,4}. Không hàng xóm mới. Return." },
-        { "text": "Tất cả unwind. Thứ tự: 0→1→3→2→4." }
+        {
+          "text": "DFS(0): visited={0}. Hàng xóm: 1,2. Đi vào 1 trước.",
+          "rule": "DFS đi sâu vào hàng xóm đầu tiên ngay"
+        },
+        {
+          "text": "DFS(1): visited={0,1}. Hàng xóm: 0(thăm),3. Đi vào 3.",
+          "rule": "Đi sâu vào hàng xóm chưa thăm đầu tiên"
+        },
+        {
+          "text": "DFS(3): visited={0,1,3}. Hàng xóm: 1(thăm),2,4. Đi vào 2.",
+          "rule": "Hàng xóm duyệt theo thứ tự tăng dần"
+        },
+        {
+          "text": "DFS(2): visited={0,1,3,2}. Hàng xóm: 0(thăm),3(thăm). Không đi tiếp. Return.",
+          "isCommonMistake": true,
+          "rule": "2 được thăm từ DFS(3), không phải từ 0 trực tiếp — DFS đi sâu theo chuỗi đệ quy trước khi quay về thử hàng xóm thứ hai của 0"
+        },
+        {
+          "text": "Quay lại DFS(3): còn 4. DFS(4): visited={0,1,3,2,4}. Không hàng xóm mới. Return.",
+          "rule": "Backtrack về đỉnh gần nhất còn hàng xóm chưa thăm"
+        },
+        {
+          "text": "Tất cả unwind; khi quay về DFS(0), hàng xóm 2 đã thăm nên không gọi lại. Thứ tự: 0→1→3→2→4.",
+          "rule": "DFS kết thúc khi call stack rỗng"
+        }
       ],
       "answer": "0 → 1 → 3 → 2 → 4",
       "commonMistake": "Nhầm thứ tự DFS với BFS. DFS không theo lớp: 2 được thăm TRONG chuỗi đệ quy từ 3, không phải sau khi xong 1.",
       "relatedFlashcard": "fc-dfs-stack"
+    },
+    {
+      "id": "ex-traversal-apply-2",
+      "difficulty": "apply",
+      "prompt": "Đồ thị có hướng có trọng số: A→B 2, A→C 6, B→C 3, B→D 8, C→D 2, C→E 7, D→E 1. Chạy Dijkstra từ A. Cho khoảng cách ngắn nhất tới mọi đỉnh và đường đi tới E.",
+      "hints": [
+        "Bắt đầu: dist A = 0, đẩy (0, A) vào heap.",
+        "Sau khi chốt B (dist 2), C có đường mới qua B: 2 + 3 = 5 < 6.",
+        "Chỉ chốt một đỉnh khi pop nó ra khỏi heap; nhớ lưu cha (prev) để dựng lại đường đi."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Pop A (0). Relax: B = 2, C = 6.",
+          "rule": "Relax: dist[v] = min(dist[v], dist[u] + w)"
+        },
+        {
+          "text": "Pop B (2). Relax: C = min(6, 2 + 3) = 5; D = 2 + 8 = 10.",
+          "isCommonMistake": true,
+          "rule": "C = 6 lúc đầu chỉ là tạm thời — đừng chốt khi mới phát hiện"
+        },
+        {
+          "text": "Pop C (5). Relax: D = min(10, 5 + 2) = 7; E = 5 + 7 = 12.",
+          "rule": "Relax mọi cạnh ra của đỉnh vừa chốt"
+        },
+        {
+          "text": "Pop D (7). Relax: E = min(12, 7 + 1) = 8. Pop E (8). Xong.",
+          "rule": "Đỉnh pop ra từ min-heap có khoảng cách cuối cùng (trọng số không âm)"
+        },
+        {
+          "text": "Dựng đường: prev(E) = D, prev(D) = C, prev(C) = B, prev(B) = A → A → B → C → D → E, tổng 2 + 3 + 2 + 1 = 8.",
+          "rule": "Lưu prev mỗi khi cập nhật dist"
+        }
+      ],
+      "answer": "dist: A = 0, B = 2, C = 5, D = 7, E = 8. Đường ngắn nhất tới E: A → B → C → D → E (8).",
+      "commonMistake": "Chốt C = 6 (cạnh trực tiếp) hoặc E = 12 ngay lúc phát hiện, bỏ lỡ đường vòng rẻ hơn.",
+      "relatedFlashcard": "fc-traversal-dijkstra"
     },
     {
       "id": "ex-traversal-challenge-1",
@@ -202,29 +517,74 @@
         "(b) Trace DFS: A→B→D→E→B? Check: B có trong call stack không?"
       ],
       "solutionSteps": [
-        { "text": "(a) BFS từ A:\n- L0: {A}, dist[A]=0\n- L1: {B,C} (hàng xóm A), dist[B]=dist[C]=1\n- L2: {D} (B→D, C→D nhưng D đã thăm từ B), dist[D]=2\n- L3: {E} (D→E), dist[E]=3", "rule": "BFS đảm bảo đường ngắn nhất: D được tìm qua B (dist=2), dù C cũng trỏ D — nhưng 2 cạnh là tối ưu" },
-        { "text": "(b) Thêm E→B. DFS từ A (theo thứ tự B trước C):\n- Call stack: A → B → D → E", "isCommonMistake": false },
-        { "text": "Tại E: hàng xóm là B. B đang trong call stack (trạng thái GRAY/đang xử lý). Đây là BACK EDGE E→B → **CHU TRÌNH PHÁT HIỆN**: E→B→D→E.", "rule": "Back edge = cạnh đến đỉnh đang trong call stack hiện tại (chưa finished)" },
-        { "text": "Chu trình: B → D → E → B. DFS phát hiện tại bước xử lý hàng xóm của E.", "isCommonMistake": true, "rule": "Lỗi phổ biến: nhầm 'đã thăm' với 'trong call stack'. Trong đồ thị có hướng, gặp đỉnh 'đã thăm' KHÔNG nhất thiết là cycle — chỉ back edge (đỉnh GRAY) mới là cycle" }
+        {
+          "text": "(a) BFS từ A: L0 = {A}, dist A = 0. L1 = {B, C}, dist = 1. L2 = {D} (tìm thấy qua B; khi xét C→D thì D đã thăm), dist D = 2. L3 = {E}, dist E = 3.",
+          "rule": "BFS gán khoảng cách lúc phát hiện đỉnh lần đầu — đó là khoảng cách ngắn nhất"
+        },
+        {
+          "text": "(b) Thêm E→B. DFS từ A (B trước C): call stack A → B → D → E, các đỉnh này đều đang XÁM.",
+          "rule": "DFS: đỉnh đang trên call stack có màu XÁM"
+        },
+        {
+          "text": "Tại E: hàng xóm B đang XÁM (còn trên call stack) → back edge E→B → có chu trình B → D → E → B.",
+          "rule": "Back edge = cạnh tới đỉnh đang trên call stack (chưa hoàn thành)"
+        },
+        {
+          "text": "Sau đó E, D, B lần lượt hoàn thành (đen). DFS quay về A, đi C, xét cạnh C→D: D đã thăm nhưng là ĐEN → không phải chu trình. Nếu chỉ kiểm tra \"đã thăm\" thì sẽ báo nhầm có chu trình A→C→D.",
+          "isCommonMistake": true,
+          "rule": "Đồ thị có hướng: gặp đỉnh đã thăm ≠ chu trình. Chỉ back edge (đỉnh XÁM) mới là chu trình"
+        }
       ],
-      "answer": "(a) dist: A=0, B=1, C=1, D=2, E=3. (b) Chu trình B→D→E→B phát hiện qua back edge E→B trong DFS.",
+      "answer": "(a) dist: A = 0, B = 1, C = 1, D = 2, E = 3. (b) Chu trình B → D → E → B, phát hiện qua back edge E→B; cạnh C→D tới đỉnh đen không phải chu trình.",
       "commonMistake": "Với đồ thị có hướng: gặp đỉnh đã thăm ≠ cycle. Chỉ back edge (cạnh đến đỉnh đang trong call stack) mới xác định cycle.",
       "relatedFlashcard": "fc-dfs-cycle"
+    },
+    {
+      "id": "ex-traversal-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Đồ thị có hướng: S→A 2, S→B 5, B→A −4, A→C 1. (a) Chạy Dijkstra từ S (đỉnh đã chốt không cập nhật lại). Kết quả cho A và C là bao nhiêu? (b) Khoảng cách đúng là bao nhiêu? (c) Một bạn đề xuất cộng 4 vào mọi cạnh để hết âm rồi chạy Dijkstra. Cách này có đúng không?",
+      "hints": [
+        "(a) Lần pop đầu sau S là đỉnh có dist nhỏ nhất: A (2), trước B (5).",
+        "(b) Liệt kê mọi đường từ S tới A: S→A và S→B→A.",
+        "(c) Sau khi cộng 4: S→A = 6, S→B = 9, B→A = 0. Đường nào tới A rẻ hơn bây giờ?"
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) Pop S: A = 2, B = 5. Pop A (2) → chốt A = 2, relax C = 3. Pop C (3) → chốt. Pop B (5): relax B→A cho 1 < 2, nhưng A đã chốt nên bị bỏ qua. Dijkstra trả về A = 2, C = 3.",
+          "rule": "Dijkstra giả định đỉnh vừa pop là cuối cùng"
+        },
+        {
+          "text": "(b) Đúng: S→B→A = 5 + (−4) = 1, nên A = 1 và C = 1 + 1 = 2. Dijkstra sai cả A lẫn C.",
+          "rule": "Cạnh âm phá vỡ lập luận tham lam"
+        },
+        {
+          "text": "(c) Cộng 4: S→A = 6, S→B→A = 9 + 0 = 9 → đường \"ngắn nhất\" mới là S→A, khác đường thật S→B→A. Cách này SAI: đường k cạnh bị cộng 4k, nên đường nhiều cạnh bị phạt nặng hơn.",
+          "isCommonMistake": true,
+          "rule": "Cộng hằng số vào mọi cạnh không bảo toàn đường ngắn nhất"
+        },
+        {
+          "text": "Cách đúng: Bellman-Ford — relax tất cả 4 cạnh, lặp V − 1 = 3 vòng, $O(V \\times E)$, cho A = 1, C = 2. Chạy thêm vòng thứ V để kiểm tra chu trình âm (ở đây không có).",
+          "rule": "Bellman-Ford xử lý được cạnh âm"
+        }
+      ],
+      "answer": "(a) Dijkstra: A = 2, C = 3. (b) Đúng: A = 1 (S→B→A), C = 2. (c) Sai — cộng hằng số phạt đường nhiều cạnh; dùng Bellman-Ford.",
+      "commonMistake": "Nghĩ rằng chỉ cần cộng hằng số cho hết cạnh âm là dùng được Dijkstra.",
+      "relatedFlashcard": "fc-traversal-dijkstra-negative"
     }
   ],
   "quiz": [
     {
       "id": "q-traversal-1",
       "type": "mcq",
-      "question": "BFS và DFS đều xuất phát từ đỉnh S. Đỉnh nào BFS tìm thấy trước DFS?",
+      "question": "BFS từ đỉnh s bảo đảm điều gì về thứ tự các đỉnh được lấy ra khỏi queue?",
       "options": [
-        "Đỉnh xa S nhất (nhiều cạnh nhất)",
-        "Đỉnh gần S nhất (ít cạnh nhất)",
-        "Luôn cùng thứ tự",
-        "Phụ thuộc vào cấu trúc adj list, không đoán được"
+        "Khoảng cách (số cạnh) tới s không giảm: hết lớp 0, rồi lớp 1, rồi lớp 2…",
+        "Đỉnh có bậc cao hơn được thăm trước",
+        "Thứ tự giống hệt DFS nếu cùng thứ tự hàng xóm",
+        "Không có bảo đảm gì, phụ thuộc adjacency list"
       ],
-      "correct": 1,
-      "explanation": "BFS thăm theo lớp — đỉnh gần S (ít cạnh) được thăm trước. DFS đi sâu ngay vào một nhánh, có thể đến đỉnh xa S rất sớm trước khi quay lại đỉnh gần."
+      "correct": 0,
+      "explanation": "Queue FIFO khiến mọi đỉnh lớp k được lấy ra trước mọi đỉnh lớp k + 1. Thứ tự TRONG một lớp phụ thuộc adjacency list, nhưng thứ tự giữa các lớp thì luôn được bảo đảm. DFS thì đi sâu, có thể tới đỉnh xa rất sớm."
     },
     {
       "id": "q-traversal-2",
@@ -242,10 +602,67 @@
     {
       "id": "q-traversal-3",
       "type": "mcq",
-      "question": "Đồ thị có 6 đỉnh và 8 cạnh. BFS/DFS mất bao lâu?",
-      "options": ["O(6²) = O(36)", "O(6 + 8) = O(14)", "O(8²) = O(64)", "O(6 × 8) = O(48)"],
+      "question": "Đếm thành phần liên thông: lặp qua mọi đỉnh, gặp đỉnh chưa thăm thì chạy BFS từ đó (visited dùng chung). Tổng thời gian với adjacency list?",
+      "options": [
+        "$O(V \\cdot (V+E))$ vì có thể gọi BFS tới V lần",
+        "$O(V^2)$",
+        "$O(E \\log V)$",
+        "$O(V+E)$ — mỗi đỉnh và cạnh vẫn chỉ được xử lý một lần"
+      ],
+      "correct": 3,
+      "explanation": "Các lần BFS không chồng lên nhau: visited dùng chung nên mỗi đỉnh được enqueue đúng một lần và mỗi cạnh được xét hằng số lần trên toàn bộ quá trình. Tổng là O(V + E), không phải nhân với số lần gọi."
+    },
+    {
+      "id": "q-traversal-4",
+      "type": "mcq",
+      "question": "Độ phức tạp của Dijkstra dùng binary heap trên adjacency list?",
+      "options": [
+        "$O(V+E)$",
+        "$O(V \\cdot E)$",
+        "$O((V+E)\\log V)$",
+        "$O(V^3)$"
+      ],
+      "correct": 2,
+      "explanation": "Mỗi đỉnh được chốt một lần và mỗi cạnh có thể gây một lần đẩy vào heap; mỗi thao tác heap $O(\\log V)$. O(V + E) là BFS; O(V × E) là Bellman-Ford; O(V³) là Floyd-Warshall."
+    },
+    {
+      "id": "q-traversal-5",
+      "type": "mcq",
+      "question": "Đồ thị có hướng có trọng số, một vài cạnh âm nhưng không có chu trình âm. Muốn khoảng cách ngắn nhất từ một nguồn, dùng gì?",
+      "options": [
+        "Dijkstra",
+        "Bellman-Ford",
+        "BFS",
+        "Dijkstra sau khi cộng một hằng số vào mọi cạnh cho hết âm"
+      ],
       "correct": 1,
-      "explanation": "BFS và DFS đều O(V+E). Với V=6, E=8: O(6+8) = O(14). Mỗi đỉnh thăm 1 lần, mỗi cạnh xét 1 lần."
+      "explanation": "Dijkstra chốt đỉnh quá sớm khi có cạnh âm. Cộng hằng số làm thay đổi đường ngắn nhất (đường nhiều cạnh bị phạt nặng hơn). Bellman-Ford xử lý được cạnh âm trong O(V × E) và phát hiện chu trình âm."
+    },
+    {
+      "id": "q-traversal-6",
+      "type": "mcq",
+      "question": "Chạy thuật toán Kahn trên đồ thị có hướng 8 đỉnh, nhưng queue rỗng khi mới xuất được 5 đỉnh. Kết luận?",
+      "options": [
+        "Đồ thị có chu trình — 3 đỉnh còn lại nằm trên chu trình hoặc phụ thuộc vào nó",
+        "Đồ thị không liên thông",
+        "Có 3 đỉnh cô lập",
+        "Không kết luận được gì"
+      ],
+      "correct": 0,
+      "explanation": "Đỉnh trên chu trình không bao giờ có in-degree về 0, nên Kahn kẹt lại. Xuất thiếu đỉnh ⇔ có chu trình ⇔ không có thứ tự topo. Đỉnh cô lập có in-degree 0 nên vẫn được xuất bình thường."
+    },
+    {
+      "id": "q-traversal-7",
+      "type": "mcq",
+      "question": "Bài \"Number of Islands\": lưới R × C gồm đất (1) và nước (0), đếm số đảo (nhóm ô đất kề nhau theo 4 hướng). Cách giải chuẩn và độ phức tạp?",
+      "options": [
+        "Dijkstra từ mỗi ô đất, $O(RC \\log(RC))$",
+        "Sắp xếp các ô theo tọa độ, $O(RC \\log(RC))$",
+        "BFS/DFS từ mỗi ô chưa thăm, $O(R^2 C^2)$",
+        "BFS/DFS từ mỗi ô đất chưa thăm, đếm số lần khởi động, $O(R \\times C)$"
+      ],
+      "correct": 3,
+      "explanation": "Lưới là đồ thị ngầm định: V = R × C ô, mỗi ô tối đa 4 cạnh nên E = O(RC). Số đảo = số thành phần liên thông; visited dùng chung nên tổng O(V + E) = O(R × C)."
     }
   ]
 }

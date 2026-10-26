@@ -6,17 +6,19 @@
   "order": 2,
   "icon": "logic",
   "tagline": "Tập hợp là nền tảng của cơ sở dữ liệu, hash set, và JOIN — hiểu set operations là hiểu cách SQL thực sự hoạt động.",
-  "readTime": "~20 min",
-  "prerequisites": ["area4_propositional-logic"],
+  "readTime": "~28 min",
+  "prerequisites": [
+    "area4_propositional-logic"
+  ],
   "sections": [
     {
       "type": "intro",
-      "content": "Tập hợp (set) là khái niệm đơn giản nhất trong toán học rời rạc — nhưng có sức mạnh đáng ngạc nhiên trong CS. Một tập hợp là **bộ sưu tập các phần tử không có thứ tự và không lặp**.\n\nTại sao CS cần tập hợp?\n- **Deduplication**: `HashSet` loại bỏ trùng lặp trong O(1)\n- **Database JOIN**: INNER JOIN = giao (∩); FULL OUTER JOIN = hợp (∪); LEFT JOIN xử lý hiệu (\\\\)\n- **Quan hệ (Relation)**: cơ sở lý thuyết của bảng trong relational database\n- **Hàm (Function)**: mô hình hóa API, ánh xạ key→value trong hash map\n\nHiểu tập hợp = hiểu cấu trúc dữ liệu và database ở tầng lý thuyết."
+      "content": "Tập hợp (set) là khái niệm đơn giản nhất trong toán học rời rạc — nhưng có sức mạnh đáng ngạc nhiên trong CS. Một tập hợp là **bộ sưu tập các phần tử không có thứ tự và không lặp**.\n\nTại sao CS cần tập hợp?\n- **Deduplication**: `HashSet` thêm/kiểm tra phần tử trung bình O(1), tự loại trùng lặp\n- **Database**: INNER JOIN trên khóa ≈ giao (∩); FULL OUTER JOIN ≈ hợp (∪); LEFT JOIN kèm `WHERE b.id IS NULL` (anti-join) ≈ hiệu (∖)\n- **Bitmask**: mỗi tập con của n phần tử ↔ một số n-bit — nền tảng của DP bitmask\n- **Quan hệ (relation)**: lý thuyết của bảng trong relational DB, của Union-Find và topological sort\n- **Hàm (function)**: mô hình hóa hash function, ánh xạ key→value trong hash map\n\nHiểu tập hợp = hiểu cấu trúc dữ liệu và database ở tầng lý thuyết."
     },
     {
       "type": "analogy",
       "title": "Tập hợp như danh sách thành viên không trùng",
-      "content": "Hãy nghĩ một tập hợp như **danh sách thành viên câu lạc bộ**: không ai xuất hiện hai lần, và thứ tự tên trong danh sách không quan trọng.\n\n- **Hợp (Union ∪)**: gộp hai danh sách thành viên của hai CLB, mỗi người chỉ xuất hiện một lần.\n- **Giao (Intersection ∩)**: những người có mặt trong **cả hai** CLB.\n- **Hiệu (Difference \\\\)**: những người trong CLB A nhưng **không** trong CLB B.\n\nTrong Python: `set_a | set_b` (union), `set_a & set_b` (intersection), `set_a - set_b` (difference). Trong SQL: `UNION`, `INTERSECT`, `EXCEPT`."
+      "content": "Hãy nghĩ một tập hợp như **danh sách thành viên câu lạc bộ**: không ai xuất hiện hai lần, và thứ tự tên trong danh sách không quan trọng.\n\n- **Hợp (Union ∪)**: gộp hai danh sách thành viên của hai CLB, mỗi người chỉ xuất hiện một lần.\n- **Giao (Intersection ∩)**: những người có mặt trong **cả hai** CLB.\n- **Hiệu (Difference ∖)**: những người trong CLB A nhưng **không** trong CLB B.\n\nTrong Python: `set_a | set_b` (union), `set_a & set_b` (intersection), `set_a - set_b` (difference). Trong SQL: `UNION`, `INTERSECT`, `EXCEPT`."
     },
     {
       "type": "formula",
@@ -24,10 +26,22 @@
       "latex": "A = \\{1, 2, 3\\} \\quad x \\in A \\quad A \\subseteq B \\quad |A| \\quad \\{x \\mid x > 0\\}",
       "reading": "đọc là: A là tập {1,2,3}; x thuộc A; A là tập con của B; |A| là số phần tử của A (cardinality); tập các x sao cho x > 0.",
       "symbols": [
-        { "sym": "\\in", "meaning": "thuộc — x∈A nghĩa là x là phần tử của A" },
-        { "sym": "\\subseteq", "meaning": "tập con — A⊆B nghĩa là mọi phần tử của A đều trong B" },
-        { "sym": "|A|", "meaning": "cardinality — số phần tử của A" },
-        { "sym": "\\{x \\mid P(x)\\}", "meaning": "set-builder notation — tập các x thỏa điều kiện P(x)" }
+        {
+          "sym": "\\in",
+          "meaning": "thuộc — x∈A nghĩa là x là phần tử của A"
+        },
+        {
+          "sym": "\\subseteq",
+          "meaning": "tập con — A⊆B nghĩa là mọi phần tử của A đều trong B"
+        },
+        {
+          "sym": "|A|",
+          "meaning": "cardinality — số phần tử của A"
+        },
+        {
+          "sym": "\\{x \\mid P(x)\\}",
+          "meaning": "set-builder notation — tập các x thỏa điều kiện P(x)"
+        }
       ]
     },
     {
@@ -36,9 +50,18 @@
       "latex": "A \\cup B = \\{x \\mid x \\in A \\lor x \\in B\\} \\qquad A \\cap B = \\{x \\mid x \\in A \\land x \\in B\\} \\qquad A \\setminus B = \\{x \\mid x \\in A \\land x \\notin B\\}",
       "reading": "đọc là: A hợp B — các phần tử thuộc A hoặc B; A giao B — các phần tử thuộc cả A và B; A trừ B — các phần tử trong A nhưng không trong B.",
       "symbols": [
-        { "sym": "\\cup", "meaning": "union — hợp, tương ứng OR trong logic" },
-        { "sym": "\\cap", "meaning": "intersection — giao, tương ứng AND trong logic" },
-        { "sym": "\\setminus", "meaning": "difference — hiệu tập hợp" }
+        {
+          "sym": "\\cup",
+          "meaning": "union — hợp, tương ứng OR trong logic"
+        },
+        {
+          "sym": "\\cap",
+          "meaning": "intersection — giao, tương ứng AND trong logic"
+        },
+        {
+          "sym": "\\setminus",
+          "meaning": "difference — hiệu tập hợp"
+        }
       ]
     },
     {
@@ -48,24 +71,97 @@
       "caption": "Các phép toán tập hợp ánh xạ trực tiếp sang SQL: UNION = ∪, INTERSECT = ∩, EXCEPT = ∖. JOIN trong SQL là phép tích Descartes (Cartesian product A×B) rồi lọc theo điều kiện."
     },
     {
-      "type": "explanation",
-      "title": "Quan hệ (Relation) — nền tảng của relational database",
-      "content": "**Quan hệ** là tập con của tích Descartes: $R \\subseteq A \\times B$, tức là tập các cặp có thứ tự $(a, b)$ với $a \\in A$, $b \\in B$.\n\nBảng trong database **chính là một quan hệ**: mỗi hàng là một bộ (tuple), mỗi cột tương ứng một tập giá trị. Bảng `users(id, name, email)` là quan hệ $\\subseteq \\mathbb{N} \\times \\text{String} \\times \\text{String}$.\n\n**Tính chất của quan hệ** (quan trọng cho thiết kế DB):\n\n| Tính chất | Định nghĩa | Ví dụ DB |\n|-----------|------------|----------|\n| Phản xạ (reflexive) | $(a,a) \\in R$ với mọi $a$ | `id = id` |\n| Đối xứng (symmetric) | $(a,b)\\in R \\Rightarrow (b,a)\\in R$ | quan hệ bạn bè |\n| Bắc cầu (transitive) | $(a,b),(b,c)\\in R \\Rightarrow (a,c)\\in R$ | quan hệ cha-ông-cháu |\n| Quan hệ tương đương | Phản xạ + đối xứng + bắc cầu | GROUP BY, partition |"
+      "type": "formula",
+      "title": "Đếm trên tập hợp: tập lũy thừa, tích, hàm",
+      "latex": "|\\mathcal{P}(A)| = 2^{|A|} \\qquad |A \\times B| = |A| \\cdot |B| \\qquad |B^A| = |B|^{|A|}",
+      "reading": "đọc là: tập lũy thừa (power set) của A — tập mọi tập con — có 2 mũ |A| phần tử; tích Descartes có |A| nhân |B| cặp; số hàm từ A vào B là |B| mũ |A|.",
+      "symbols": [
+        {
+          "sym": "\\mathcal{P}(A)",
+          "meaning": "power set — tập của mọi tập con của A, gồm cả ∅ và chính A"
+        },
+        {
+          "sym": "2^{|A|}",
+          "meaning": "mỗi phần tử có 2 lựa chọn: có mặt hoặc không có mặt trong tập con"
+        },
+        {
+          "sym": "|B|^{|A|}",
+          "meaning": "mỗi phần tử của A chọn tự do một ảnh trong B"
+        },
+        {
+          "sym": "|A \\cup B| = |A| + |B| - |A \\cap B|",
+          "meaning": "bao hàm–loại trừ (inclusion–exclusion) cho hai tập: trừ phần đếm hai lần"
+        }
+      ],
+      "caption": "Tập con ↔ chuỗi bit độ dài n là một song ánh, nên số tập con bằng số chuỗi n-bit: 2^n."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: liệt kê tập con bằng bitmask",
+      "problem": "Liệt kê mọi tập con của $A = \\{a, b, c\\}$ bằng cách duyệt `mask` từ 0 đến $2^3 - 1$. Mask 5 ứng với tập con nào?",
+      "steps": [
+        {
+          "text": "Gán bit 0 ↔ a, bit 1 ↔ b, bit 2 ↔ c. Phần tử thứ i có mặt khi `mask >> i & 1` bằng 1.",
+          "rule": "Song ánh tập con ↔ chuỗi bit"
+        },
+        {
+          "text": "Duyệt `for mask in range(1 << 3)` — tức 0..7, đúng $2^3 = 8$ tập con.",
+          "rule": "|P(A)| = 2^n"
+        },
+        {
+          "text": "Mask 0 = 000 → ∅ (tập rỗng cũng là tập con!). Mask 7 = 111 → {a,b,c}.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: quên ∅ và chính A, đếm ra 6 thay vì 8"
+        },
+        {
+          "text": "Mask 5 = 101 (nhị phân) → bit 0 và bit 2 bật → {a, c}.",
+          "rule": "Đọc bit từ phải sang trái"
+        }
+      ],
+      "result": "8 tập con: ∅, {a}, {b}, {a,b}, {c}, {a,c}, {b,c}, {a,b,c}. Mask 5 = {a, c}. Duyệt tất cả tập con tốn $O(2^n)$ — chỉ khả thi khi n khoảng ≤ 20–25."
     },
     {
       "type": "explanation",
-      "title": "Hàm (Function) — ánh xạ một-một hoặc nhiều-một",
-      "content": "**Hàm** $f: A \\to B$ là quan hệ đặc biệt: mỗi phần tử $a \\in A$ ánh xạ đến **đúng một** phần tử $f(a) \\in B$.\n\nCác loại hàm quan trọng trong CS:\n\n| Loại | Định nghĩa | Ví dụ CS |\n|------|------------|----------|\n| Injective (1-1) | $f(a)=f(b) \\Rightarrow a=b$ | hash function tốt (ít collision) |\n| Surjective (onto) | Mọi $b\\in B$ đều có $a$ ánh xạ đến | hàm hash modulo |\n| Bijective | Cả injective lẫn surjective | mã hoá 1-1, key↔value unique |\n\n**Hash collision** xảy ra khi hash function KHÔNG injective: hai key khác nhau ra cùng hash value. Thiết kế hash tốt cố gắng gần injective."
+      "title": "Quan hệ (Relation) — nền tảng của relational database",
+      "content": "**Quan hệ (relation)** hai ngôi là tập con của tích Descartes (Cartesian product): $R \\subseteq A \\times B$, tức là tập các cặp có thứ tự $(a, b)$ với $a \\in A$, $b \\in B$.\n\nBảng trong database **chính là một quan hệ** (nhiều ngôi): mỗi hàng là một bộ (tuple). Bảng `users(id, name, email)` là tập con của $\\mathbb{N} \\times \\text{String} \\times \\text{String}$.\n\n**Tính chất của quan hệ** trên một tập A:\n\n| Tính chất | Định nghĩa | Ví dụ |\n|---|---|---|\n| Phản xạ (reflexive) | $(a,a) \\in R$ với mọi $a$ | $=$, $\\le$ |\n| Đối xứng (symmetric) | $aRb \\Rightarrow bRa$ | bạn bè, cùng công ty |\n| Phản đối xứng (antisymmetric) | $aRb \\land bRa \\Rightarrow a=b$ | $\\le$, $\\subseteq$ |\n| Bắc cầu (transitive) | $aRb \\land bRc \\Rightarrow aRc$ | tổ tiên (ancestor), $<$ |\n\nLưu ý: \"là cha của\" **không** bắc cầu (cha của cha là ông, không phải cha); \"là tổ tiên của\" mới bắc cầu. Hai tổ hợp tính chất quan trọng nhất được trình bày ngay dưới đây: **quan hệ tương đương** và **thứ tự bộ phận**."
+    },
+    {
+      "type": "explanation",
+      "title": "Quan hệ tương đương (Union-Find) và thứ tự bộ phận (topological sort)",
+      "content": "**Quan hệ tương đương (equivalence relation)** = phản xạ + đối xứng + bắc cầu. Nó chia tập thành các **lớp tương đương (equivalence classes)** rời nhau, phủ kín cả tập — tức một phân hoạch (partition).\n\n- \"cùng số dư khi chia cho 3\": các lớp là {..., 0, 3, 6}, {..., 1, 4, 7}, {..., 2, 5, 8}\n- \"cùng connected component trong đồ thị vô hướng\": mỗi component là một lớp\n- `GROUP BY department`: mỗi nhóm là một lớp\n\nCấu trúc **Union-Find (Disjoint Set Union)** chính là cách lưu một quan hệ tương đương đang lớn dần: `union(a, b)` gộp hai lớp, `find(a)` trả về đại diện của lớp. Bắc cầu được đảm bảo tự động — biết a~b và b~c thì `find(a) == find(c)`.\n\n**Thứ tự bộ phận (partial order)** = phản xạ + **phản đối xứng** + bắc cầu. \"Bộ phận\" vì có thể có hai phần tử **không so sánh được**: với $\\subseteq$, {1} và {2} không cái nào chứa cái nào. Ví dụ: $\\subseteq$, \"a chia hết b\" trên số nguyên dương, \"task A phải xong trước task B, hoặc A chính là B\".\n\n**Topological sort** = tìm một thứ tự tuyến tính (total order) tương thích với thứ tự bộ phận — làm được khi và chỉ khi đồ thị phụ thuộc không có chu trình (DAG). Build system, package manager, course prerequisite đều làm việc này."
+    },
+    {
+      "type": "diagram",
+      "title": "Thứ tự bộ phận: phụ thuộc giữa các bước build",
+      "mermaid": "graph LR\n    A[\"install deps\"] --> B[\"compile\"]\n    A --> C[\"lint\"]\n    B --> D[\"unit test\"]\n    C --> E[\"package\"]\n    D --> E\n    E --> F[\"deploy\"]",
+      "caption": "Mũi tên = \"phải xong trước\". compile và lint không so sánh được (chạy song song được). Một topological order hợp lệ: install deps, lint, compile, unit test, package, deploy."
+    },
+    {
+      "type": "explanation",
+      "title": "Hàm (Function) — mỗi input đúng một output",
+      "content": "**Hàm** $f: A \\to B$ là quan hệ đặc biệt: mỗi phần tử $a \\in A$ ánh xạ đến **đúng một** phần tử $f(a) \\in B$. A là miền xác định (domain), B là đối miền (codomain).\n\n| Loại | Định nghĩa | Ví dụ CS |\n|---|---|---|\n| Đơn ánh (injective) | $f(a)=f(b) \\Rightarrow a=b$ | không có collision |\n| Toàn ánh (surjective) | mọi $b \\in B$ đều có tiền ảnh | mọi bucket đều có thể nhận key |\n| Song ánh (bijective) | đơn ánh và toàn ánh | hoán vị, mã hóa/giải mã, có hàm ngược |\n\n**Hash collision** xảy ra chính xác khi hash function KHÔNG đơn ánh trên tập key đang dùng. Nếu số key lớn hơn số bucket ($|A| > |B|$), **không thể** có đơn ánh — collision là bắt buộc (nguyên lý chuồng bồ câu). Vì vậy hash tốt không cố gắng đơn ánh, mà cố **phân tán đều** để collision hiếm và ngắn.\n\nToàn ánh hay không phụ thuộc vào **đối miền**: $n \\bmod 5$ là toàn ánh lên $\\{0,1,2,3,4\\}$ nhưng không toàn ánh lên $\\mathbb{N}$."
     },
     {
       "type": "worked_example",
       "title": "Ví dụ: phân tích JOIN bằng set operations",
       "problem": "Cho bảng Users = {1, 2, 3} và bảng Orders gồm user_id = {2, 3, 4}. Xác định kết quả INNER JOIN, LEFT JOIN, FULL OUTER JOIN theo set theory.",
       "steps": [
-        { "text": "Đặt U = {1,2,3} (user IDs), O = {2,3,4} (order user_ids).", "rule": "Mô hình hóa bằng tập hợp" },
-        { "text": "INNER JOIN = U ∩ O = {2, 3} — chỉ các user có đơn hàng.", "rule": "Intersection — giao tập hợp" },
-        { "text": "LEFT JOIN = U = {1,2,3} — tất cả user, kể cả user 1 không có đơn (cột order NULL).", "isCommonMistake": true, "rule": "LEFT JOIN giữ toàn bộ bảng trái — lỗi hay gặp là nhầm với INNER JOIN" },
-        { "text": "FULL OUTER JOIN = U ∪ O = {1,2,3,4} — mọi user và mọi order, NULL ở bên nào thiếu." }
+        {
+          "text": "Đặt U = {1,2,3} (user IDs), O = {2,3,4} (order user_ids).",
+          "rule": "Mô hình hóa bằng tập hợp"
+        },
+        {
+          "text": "INNER JOIN = U ∩ O = {2, 3} — chỉ các user có đơn hàng.",
+          "rule": "Intersection — giao tập hợp"
+        },
+        {
+          "text": "LEFT JOIN = U = {1,2,3} — tất cả user, kể cả user 1 không có đơn (cột order NULL).",
+          "isCommonMistake": true,
+          "rule": "LEFT JOIN giữ toàn bộ bảng trái — lỗi hay gặp là nhầm với INNER JOIN"
+        },
+        {
+          "text": "FULL OUTER JOIN = U ∪ O = {1,2,3,4} — mọi user và mọi order, NULL ở bên nào thiếu."
+        }
       ],
       "result": "INNER={2,3}, LEFT={1,2,3}, FULL OUTER={1,2,3,4}"
     },
@@ -74,9 +170,18 @@
       "title": "Ví dụ: deduplication với HashSet",
       "problem": "Mảng [3, 1, 4, 1, 5, 9, 2, 6, 5] có phần tử nào trùng? Dùng set để khử trùng.",
       "steps": [
-        { "text": "HashSet không chứa phần tử trùng. Thêm lần lượt vào set.", "rule": "Tính chất tập hợp: mỗi phần tử xuất hiện 0 hoặc 1 lần" },
-        { "text": "Khi thêm 1 lần thứ hai: set đã có 1 → bỏ qua. Tương tự với 5.", "isCommonMistake": true, "rule": "Set bỏ qua silently — không báo lỗi khi thêm trùng" },
-        { "text": "Kết quả: {1,2,3,4,5,6,9} — 7 phần tử duy nhất từ 9 phần tử ban đầu." }
+        {
+          "text": "HashSet không chứa phần tử trùng. Thêm lần lượt vào set.",
+          "rule": "Tính chất tập hợp: mỗi phần tử xuất hiện 0 hoặc 1 lần"
+        },
+        {
+          "text": "Khi thêm 1 lần thứ hai: set đã có 1 → bỏ qua. Tương tự với 5.",
+          "isCommonMistake": true,
+          "rule": "Set bỏ qua silently — không báo lỗi khi thêm trùng"
+        },
+        {
+          "text": "Kết quả: {1,2,3,4,5,6,9} — 7 phần tử duy nhất từ 9 phần tử ban đầu."
+        }
       ],
       "result": "Set {1,2,3,4,5,6,9} — phần tử trùng: 1 và 5."
     },
@@ -90,8 +195,10 @@
       "items": [
         "Tập hợp (set): bộ sưu tập không thứ tự, không trùng — nền tảng của HashSet, deduplication.",
         "∪ (union) = OR, ∩ (intersection) = AND, ∖ (difference) — ánh xạ sang SQL UNION/INTERSECT/EXCEPT.",
-        "Quan hệ R ⊆ A×B là nền tảng lý thuyết của bảng trong relational database.",
-        "Hàm = quan hệ đặc biệt: mỗi input có đúng một output. Injective → ít collision trong hash.",
+        "Tập n phần tử có $2^n$ tập con (kể cả ∅) — duyệt bằng bitmask `for mask in range(1 << n)`.",
+        "Quan hệ tương đương (phản xạ, đối xứng, bắc cầu) chia tập thành các lớp rời nhau → Union-Find.",
+        "Thứ tự bộ phận (phản xạ, phản đối xứng, bắc cầu) + DAG → topological sort.",
+        "Hàm: mỗi input đúng một output. Nếu |A| > |B| thì không có đơn ánh → hash collision là bắt buộc.",
         "Set-builder notation $\\{x \\mid P(x)\\}$ = SQL WHERE clause — cùng ý nghĩa, khác cú pháp."
       ]
     }
@@ -107,7 +214,7 @@
       "id": "fc-set-intersection",
       "type": "definition",
       "front": "$A \\cap B$ (intersection) chứa những phần tử nào?",
-      "back": "Chỉ những phần tử thuộc **cả A lẫn B**. Tương đương SQL INTERSECT / INNER JOIN. Python: `A & B`."
+      "back": "Chỉ những phần tử thuộc **cả A lẫn B**. Tương đương SQL INTERSECT; INNER JOIN trên khóa cho giao các khóa. Python: `A & B`."
     },
     {
       "id": "fc-set-relation",
@@ -119,13 +226,43 @@
       "id": "fc-set-function",
       "type": "definition",
       "front": "Hàm injective (one-to-one) là gì? Tại sao quan trọng với hashing?",
-      "back": "$f(a)=f(b) \\Rightarrow a=b$ — hai input khác nhau → output khác nhau. Hash function injective = **không có collision**."
+      "back": "$f(a)=f(b) \\Rightarrow a=b$ — hai input khác nhau → output khác nhau. Hash đơn ánh = **không có collision**, nhưng khi số key > số bucket thì không thể đơn ánh (nguyên lý chuồng bồ câu)."
     },
     {
       "id": "fc-set-builder",
       "type": "formula",
       "front": "Set-builder notation $\\{x \\mid x > 0, x \\in \\mathbb{Z}\\}$ nghĩa là gì?",
       "back": "Tập tất cả số nguyên dương: {1,2,3,...}. Tương đương `WHERE x > 0` trong SQL — cùng ý nghĩa lọc."
+    },
+    {
+      "id": "fc-set-powerset",
+      "type": "formula",
+      "front": "Tập n phần tử có bao nhiêu tập con? Liên hệ bitmask?",
+      "back": "$2^n$ (kể cả ∅ và chính nó). Mỗi tập con ↔ một số n-bit: bit i bật khi phần tử i có mặt. Duyệt: `for mask in range(1 << n)`."
+    },
+    {
+      "id": "fc-set-equivalence",
+      "type": "definition",
+      "front": "Quan hệ tương đương (equivalence relation) là gì? Cấu trúc dữ liệu nào hiện thực nó?",
+      "back": "Phản xạ + đối xứng + bắc cầu. Chia tập thành các lớp tương đương rời nhau (partition). Union-Find (DSU): `union` gộp lớp, `find` trả về đại diện."
+    },
+    {
+      "id": "fc-set-partial-order",
+      "type": "definition",
+      "front": "Thứ tự bộ phận (partial order) là gì? Liên hệ topological sort?",
+      "back": "Phản xạ + phản đối xứng + bắc cầu; có thể có cặp không so sánh được (ví dụ ⊆). Topological sort tìm một thứ tự tuyến tính tương thích — tồn tại khi đồ thị phụ thuộc là DAG."
+    },
+    {
+      "id": "fc-set-pigeonhole",
+      "type": "concept",
+      "front": "Vì sao hash function từ không gian key lớn vào m bucket chắc chắn có collision?",
+      "back": "Nếu $|A| > |B|$ thì không có đơn ánh $A \\to B$ (nguyên lý chuồng bồ câu): đặt m+1 key vào m bucket thì ít nhất một bucket có ≥ 2 key."
+    },
+    {
+      "id": "fc-set-function-count",
+      "type": "formula",
+      "front": "Có bao nhiêu hàm $A \\to B$ với $|A|=k$, $|B|=n$? Bao nhiêu hàm đơn ánh?",
+      "back": "Tổng: $n^k$. Đơn ánh: $n(n-1)\\cdots(n-k+1) = P(n,k)$ (bằng 0 nếu k > n). Đây là \"k key vào n bucket\" có/không collision."
     }
   ],
   "exercises": [
@@ -139,13 +276,51 @@
         "A∖B: phần tử trong A nhưng không trong B."
       ],
       "solutionSteps": [
-        { "text": "A∪B = {1,2,3,4,5,6} — gộp, không trùng.", "rule": "Union: p∈A OR p∈B" },
-        { "text": "A∩B = {3,4} — chỉ 3 và 4 có trong cả hai.", "rule": "Intersection: p∈A AND p∈B" },
-        { "text": "A∖B = {1,2} — 1,2 trong A nhưng không trong B.", "isCommonMistake": true, "rule": "Hiệu A∖B KHÔNG đối xứng: A∖B ≠ B∖A" }
+        {
+          "text": "A∪B = {1,2,3,4,5,6} — gộp, không trùng.",
+          "rule": "Union: p∈A OR p∈B"
+        },
+        {
+          "text": "A∩B = {3,4} — chỉ 3 và 4 có trong cả hai.",
+          "rule": "Intersection: p∈A AND p∈B"
+        },
+        {
+          "text": "A∖B = {1,2} — 1,2 trong A nhưng không trong B.",
+          "isCommonMistake": true,
+          "rule": "Hiệu A∖B KHÔNG đối xứng: A∖B ≠ B∖A"
+        }
       ],
       "answer": "A∪B={1,2,3,4,5,6}, A∩B={3,4}, A∖B={1,2}",
       "commonMistake": "Nhầm A∖B={1,2,5,6} — đó là symmetric difference, không phải hiệu.",
       "relatedFlashcard": "fc-set-union"
+    },
+    {
+      "id": "ex-set-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Cho $A = \\{1, 2, \\ldots, 10\\}$. (a) A có bao nhiêu tập con? (b) Bao nhiêu tập con chứa phần tử 1? (c) Bao nhiêu tập con chứa 1 nhưng không chứa 2?",
+      "hints": [
+        "Mỗi phần tử: có mặt hoặc không — 2 lựa chọn.",
+        "Nếu 1 bắt buộc có mặt, chỉ 9 phần tử còn lại được chọn tự do.",
+        "Nếu 1 bắt buộc có và 2 bắt buộc không, còn 8 phần tử tự do."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) $2^{10} = 1024$ tập con (kể cả ∅ và A).",
+          "rule": "|P(A)| = 2^n"
+        },
+        {
+          "text": "(b) Cố định bit của phần tử 1 = 1, 9 bit còn lại tự do: $2^9 = 512$.",
+          "rule": "Quy tắc nhân: các bit độc lập"
+        },
+        {
+          "text": "(c) Cố định bit 1 = 1, bit 2 = 0, 8 bit tự do: $2^8 = 256$.",
+          "isCommonMistake": true,
+          "rule": "Lỗi hay gặp: trừ 1 thay vì chia 2 cho mỗi ràng buộc (ra 1023, 1022) — mỗi bit bị cố định làm số tập con giảm một nửa"
+        }
+      ],
+      "answer": "(a) 1024, (b) 512, (c) 256.",
+      "commonMistake": "Tính (b) là 1024 − 1 hoặc 1024 − 9 — thực ra đúng một nửa số tập con chứa phần tử 1.",
+      "relatedFlashcard": "fc-set-powerset"
     },
     {
       "id": "ex-set-apply-1",
@@ -156,13 +331,51 @@
         "LEFT JOIN giữ toàn bộ bảng trái (customers)."
       ],
       "solutionSteps": [
-        { "text": "C = {101,102,103,104}, O = {102,103,105}.", "rule": "Mô hình hóa tập hợp" },
-        { "text": "(a) INNER JOIN: C∩O = {102,103} — khách hàng có đơn hàng.", "rule": "INNER JOIN = intersection" },
-        { "text": "(b) LEFT JOIN: giữ toàn bộ C={101,102,103,104}; customer 101,104 không có đơn → cột order = NULL.", "isCommonMistake": true, "rule": "LEFT JOIN không loại bỏ hàng từ bảng trái — lỗi thường gặp là dùng INNER JOIN nhầm" }
+        {
+          "text": "C = {101,102,103,104}, O = {102,103,105}.",
+          "rule": "Mô hình hóa tập hợp"
+        },
+        {
+          "text": "(a) INNER JOIN: C∩O = {102,103} — khách hàng có đơn hàng.",
+          "rule": "INNER JOIN = intersection"
+        },
+        {
+          "text": "(b) LEFT JOIN: giữ toàn bộ C={101,102,103,104}; customer 101,104 không có đơn → cột order = NULL.",
+          "isCommonMistake": true,
+          "rule": "LEFT JOIN không loại bỏ hàng từ bảng trái — lỗi thường gặp là dùng INNER JOIN nhầm"
+        }
       ],
       "answer": "(a) {102,103} — (b) {101,102,103,104} với NULL cho 101,104",
       "commonMistake": "Dùng INNER JOIN khi cần LEFT JOIN → mất khách hàng chưa có đơn.",
       "relatedFlashcard": "fc-set-intersection"
+    },
+    {
+      "id": "ex-set-apply-2",
+      "difficulty": "apply",
+      "prompt": "Trên tập user, xét hai quan hệ: $R_1$: \"a và b dùng chung một công ty\" (mỗi user thuộc đúng một công ty); $R_2$: \"a follow b\". Quan hệ nào là quan hệ tương đương? Với quan hệ đó, nếu lần lượt biết (An, Bình), (Bình, Chi), (Dũng, Em) có quan hệ, Union-Find cho ra mấy nhóm trên 5 user này?",
+      "hints": [
+        "Kiểm tra lần lượt: phản xạ, đối xứng, bắc cầu.",
+        "An follow Bình có kéo theo Bình follow An không?",
+        "Union-Find: mỗi cặp là một lệnh union."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$R_1$: a cùng công ty với chính a (phản xạ); a cùng công ty b thì b cùng công ty a (đối xứng); a~b, b~c thì cả ba cùng một công ty (bắc cầu) → **tương đương**.",
+          "rule": "Kiểm tra đủ 3 tính chất"
+        },
+        {
+          "text": "$R_2$: An follow Bình không kéo theo Bình follow An → không đối xứng → **không** tương đương (cũng không bắc cầu, không phản xạ).",
+          "rule": "Một phản ví dụ là đủ bác bỏ"
+        },
+        {
+          "text": "Union(An, Bình), Union(Bình, Chi) → {An, Bình, Chi}. Union(Dũng, Em) → {Dũng, Em}.",
+          "isCommonMistake": true,
+          "rule": "Bắc cầu: An và Chi cùng nhóm dù không có cặp (An, Chi) trực tiếp — lỗi hay gặp là tách thành 3 nhóm"
+        }
+      ],
+      "answer": "Chỉ $R_1$ là quan hệ tương đương. Union-Find cho 2 nhóm: {An, Bình, Chi} và {Dũng, Em}.",
+      "commonMistake": "Chỉ kiểm tra đối xứng mà quên bắc cầu, hoặc quên rằng bắc cầu gộp An với Chi.",
+      "relatedFlashcard": "fc-set-equivalence"
     },
     {
       "id": "ex-set-challenge-1",
@@ -174,13 +387,56 @@
         "15 mod 10 = ?, 25 mod 10 = ?, 35 mod 10 = ?"
       ],
       "solutionSteps": [
-        { "text": "h(k) = k mod 10. Kiểm tra injective: h(15)=5, h(25)=5 — hai input khác nhau cùng output → **KHÔNG injective**.", "rule": "Injective: f(a)=f(b) ⟹ a=b — vi phạm khi có collision" },
-        { "text": "Kiểm tra surjective: với mọi b∈{0..9}, tồn tại k: k mod 10 = b (ví dụ k=b). → **Surjective**.", "rule": "Surjective: mọi output đều có input ánh xạ đến" },
-        { "text": "15,25,35 đều mod 10 = 5 → ba key đều vào **bucket 5**, gây collision.", "isCommonMistake": true, "rule": "Collision = không injective tại giá trị đó — phải dùng chaining hoặc open addressing" }
+        {
+          "text": "h(k) = k mod 10. Kiểm tra injective: h(15)=5, h(25)=5 — hai input khác nhau cùng output → **KHÔNG injective**.",
+          "rule": "Injective: f(a)=f(b) ⟹ a=b — vi phạm khi có collision"
+        },
+        {
+          "text": "Kiểm tra surjective: với mọi b∈{0..9}, tồn tại k: k mod 10 = b (ví dụ k=b). → **Surjective**.",
+          "rule": "Surjective: mọi output đều có input ánh xạ đến"
+        },
+        {
+          "text": "15,25,35 đều mod 10 = 5 → ba key đều vào **bucket 5**, gây collision.",
+          "isCommonMistake": true,
+          "rule": "Ba key cùng bucket = hàm không đơn ánh trên tập key này — xử lý bằng chaining hoặc open addressing"
+        }
       ],
       "answer": "(a) Không injective — h(15)=h(25)=h(35)=5. (b) Surjective. (c) Collision tại bucket 5.",
-      "commonMistake": "Nghĩ surjective ⟹ tốt cho hashing. Thực ra cần gần-injective (phân tán đều) để tránh collision.",
+      "commonMistake": "Nghĩ toàn ánh là đủ tốt cho hashing. Thực ra cần phân tán đều; và khi số key > số bucket thì collision là không tránh được.",
       "relatedFlashcard": "fc-set-function"
+    },
+    {
+      "id": "ex-set-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "Băm 5 key khác nhau vào hash table 8 bucket, giả sử mỗi key vào bucket ngẫu nhiên đều và độc lập. (a) Có bao nhiêu cách phân bổ (hàm từ key vào bucket)? (b) Bao nhiêu cách không có collision? (c) Xác suất có ít nhất một collision? (d) Với 9 key thì sao?",
+      "hints": [
+        "(a) Mỗi key chọn 1 trong 8 bucket độc lập.",
+        "(b) Không collision = hàm đơn ánh: key đầu 8 lựa chọn, key sau 7, ...",
+        "(c) Lấy phần bù: 1 − (đơn ánh / tổng).",
+        "(d) 9 > 8 — nguyên lý chuồng bồ câu."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) Số hàm: $8^5 = 32768$.",
+          "rule": "|B|^|A|"
+        },
+        {
+          "text": "(b) Số đơn ánh: $8 \\times 7 \\times 6 \\times 5 \\times 4 = 6720$.",
+          "rule": "P(n,k) = số đơn ánh"
+        },
+        {
+          "text": "(c) $P(\\text{no collision}) = 6720 / 32768 \\approx 0.205$, nên $P(\\text{collision}) \\approx 0.795$ — gần 80% dù bảng mới đầy 5/8.",
+          "isCommonMistake": true,
+          "rule": "Phần bù — lỗi hay gặp là ước lượng theo trực giác \"5 < 8 nên chắc ít collision\""
+        },
+        {
+          "text": "(d) 9 key, 8 bucket: không tồn tại đơn ánh → collision với xác suất 100%.",
+          "rule": "Nguyên lý chuồng bồ câu"
+        }
+      ],
+      "answer": "(a) 32768, (b) 6720, (c) ≈ 79.5%, (d) chắc chắn 100%.",
+      "commonMistake": "Tính số cách không collision là $\\binom{8}{5} = 56$ — quên rằng các key khác nhau nên thứ tự gán vào bucket có ý nghĩa.",
+      "relatedFlashcard": "fc-set-function-count"
     }
   ],
   "quiz": [
@@ -188,30 +444,79 @@
       "id": "q-set-1",
       "type": "mcq",
       "question": "Cho A={1,2,3} và B={2,3,4}. $A \\cap B$ là gì?",
-      "options": ["{1,2,3,4}", "{2,3}", "{1,4}", "{1,2,3,4} trừ {2,3}"],
-      "correct": 1,
+      "options": [
+        "{1,2,3,4}",
+        "{1,4}",
+        "{2,3}",
+        "∅"
+      ],
+      "correct": 2,
       "explanation": "Giao A∩B chứa phần tử thuộc **cả A lẫn B**: chỉ 2 và 3."
     },
     {
       "id": "q-set-2",
       "type": "mcq",
       "question": "INNER JOIN trong SQL tương ứng phép toán tập hợp nào?",
-      "options": ["Union (∪)", "Intersection (∩)", "Difference (∖)", "Complement"],
-      "correct": 1,
-      "explanation": "INNER JOIN lấy các hàng khớp ở **cả hai bảng** — tương đương intersection (∩) của các khóa."
+      "options": [
+        "Intersection (∩) của các khóa",
+        "Union (∪)",
+        "Difference (∖)",
+        "Complement"
+      ],
+      "correct": 0,
+      "explanation": "INNER JOIN chỉ giữ các hàng có khóa khớp ở **cả hai bảng** — tập khóa xuất hiện trong kết quả là giao (∩) của hai tập khóa."
     },
     {
       "id": "q-set-3",
       "type": "mcq",
-      "question": "Hàm $f: \\mathbb{N} \\to \\mathbb{N}$, $f(n) = n \\mod 5$ có tính chất gì?",
+      "question": "Hàm $f: \\mathbb{N} \\to \\{0,1,2,3,4\\}$, $f(n) = n \\bmod 5$ có tính chất gì?",
       "options": [
         "Injective nhưng không surjective",
-        "Surjective nhưng không injective",
         "Bijective",
-        "Không phải injective lẫn surjective"
+        "Không phải injective lẫn surjective",
+        "Surjective nhưng không injective"
+      ],
+      "correct": 3,
+      "explanation": "Surjective: mọi giá trị 0..4 đều đạt được. Không injective: f(0)=f(5)=f(10)=0. Lưu ý: nếu đối miền là $\\mathbb{N}$ thì hàm này KHÔNG surjective (không có n nào cho f(n)=7) — tính toàn ánh phụ thuộc đối miền."
+    },
+    {
+      "id": "q-set-4",
+      "type": "mcq",
+      "question": "Duyệt mọi tập con của một tập 5 phần tử bằng `for mask in range(1 << 5)` sẽ chạy bao nhiêu vòng?",
+      "options": [
+        "25",
+        "32",
+        "31",
+        "120"
       ],
       "correct": 1,
-      "explanation": "Surjective: mọi giá trị 0..4 đều đạt được. Không injective: f(0)=f(5)=f(10)=0 — nhiều input cùng output."
+      "explanation": "$2^5 = 32$ tập con, gồm cả tập rỗng (mask 0) và cả tập (mask 31). 31 là quên ∅; 120 = 5! là số hoán vị, không phải số tập con."
+    },
+    {
+      "id": "q-set-5",
+      "type": "mcq",
+      "question": "Quan hệ nào sau đây là quan hệ tương đương trên tập số nguyên / tập người?",
+      "options": [
+        "$a < b$",
+        "\"a là cha của b\"",
+        "\"a follow b\" trên mạng xã hội",
+        "$a \\equiv b \\pmod 3$ (cùng số dư khi chia 3)"
+      ],
+      "correct": 3,
+      "explanation": "Đồng dư mod 3 phản xạ, đối xứng, bắc cầu → chia số nguyên thành 3 lớp. $<$ không phản xạ, không đối xứng; \"cha của\" không bắc cầu; \"follow\" không đối xứng."
+    },
+    {
+      "id": "q-set-6",
+      "type": "mcq",
+      "question": "Một hàm hash 32-bit được dùng cho 5 tỉ chuỗi khác nhau. Điều nào **chắc chắn** đúng?",
+      "options": [
+        "Có ít nhất một collision",
+        "Không có collision nếu hàm hash đủ tốt",
+        "Collision chỉ xảy ra khi bảng đầy 75%",
+        "Xác suất collision khoảng 50%"
+      ],
+      "correct": 0,
+      "explanation": "Có $2^{32} \\approx 4.29$ tỉ giá trị hash < 5 tỉ chuỗi → không thể đơn ánh, theo nguyên lý chuồng bồ câu chắc chắn có ít nhất hai chuỗi cùng hash."
     }
   ]
 }

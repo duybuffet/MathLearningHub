@@ -1,0 +1,591 @@
+{
+  "id": "area1_summations-series",
+  "title": "Ký hiệu Σ & Chuỗi số (Summations & Series)",
+  "area": 1,
+  "unit": "a1u3",
+  "order": 6,
+  "icon": "sigma",
+  "tagline": "Đếm số bước của vòng lặp chính là tính tổng — nắm ký hiệu Σ, cấp số cộng, cấp số nhân và chuỗi điều hòa là đọc được Big-O của mọi đoạn code lồng nhau.",
+  "readTime": "~22 min",
+  "prerequisites": [
+    "area1_logarithms"
+  ],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Mỗi khi phân tích độ phức tạp của một vòng lặp, bạn đang **tính một tổng**: vòng ngoài chạy i từ 0 đến n − 1, mỗi lần vòng trong chạy một số bước nào đó — cộng tất cả lại là tổng số bước. Ký hiệu Sigma $\\Sigma$ (summation) là cách viết gọn những tổng đó.\n\nBài này trang bị bốn \"công thức tổng\" xuất hiện liên tục trong CS:\n\n- **Cấp số cộng (arithmetic series)** $1 + 2 + \\cdots + n$ → vòng lặp lồng nhau kiểu tam giác, $O(n^2)$.\n- **Tổng bình phương** $1^2 + 2^2 + \\cdots + n^2$ → ba vòng lặp lồng nhau, $O(n^3)$.\n- **Cấp số nhân (geometric series)** $1 + 2 + 4 + \\cdots$ → mảng động (dynamic array) nhân đôi dung lượng, cây nhị phân, chia để trị.\n- **Chuỗi điều hòa (harmonic series)** $1 + \\frac{1}{2} + \\frac{1}{3} + \\cdots$ → quicksort trung bình, bài toán sưu tập phiếu (coupon collector), $O(n \\log n)$ bất ngờ."
+    },
+    {
+      "type": "analogy",
+      "title": "Cậu bé Gauss và mẹo ghép cặp",
+      "content": "Chuyện kể rằng thầy giáo bắt cả lớp cộng các số từ 1 đến 100 cho... yên lặng. Cậu bé Gauss trả lời gần như ngay lập tức: **5050**.\n\nMẹo của cậu: viết tổng hai lần, một lần xuôi, một lần ngược, rồi cộng theo cột: $(1 + 100) + (2 + 99) + \\cdots + (100 + 1)$. Mỗi cặp đều bằng **101**, có **100 cặp**, nhưng như thế là đã đếm tổng **hai lần** → $\\frac{100 \\times 101}{2} = 5050$.\n\nTrực giác hình học: các số $1, 2, \\ldots, n$ xếp thành một \"cầu thang\" hình tam giác. Hai cầu thang ghép lại thành hình chữ nhật $n \\times (n+1)$ — một cầu thang là **một nửa** hình chữ nhật. Đó là lý do hai vòng lặp tam giác tốn khoảng $\\frac{n^2}{2}$ bước."
+    },
+    {
+      "type": "formula",
+      "title": "Ký hiệu Σ (Sigma notation)",
+      "latex": "\\sum_{i=m}^{n} a_i = a_m + a_{m+1} + \\cdots + a_n",
+      "reading": "đọc là: tổng của a_i với i chạy từ m đến n. Giống một vòng `for i in range(m, n + 1): total += a(i)`.",
+      "symbols": [
+        {
+          "sym": "i",
+          "meaning": "chỉ số (index) — biến chạy, giống biến vòng lặp; đổi tên thành j, k không làm thay đổi tổng."
+        },
+        {
+          "sym": "m, n",
+          "meaning": "cận dưới và cận trên, **tính cả hai đầu**. Số số hạng là $n - m + 1$ (không phải $n - m$)."
+        },
+        {
+          "sym": "a_i",
+          "meaning": "số hạng thứ i, VD $a_i = i^2$ hoặc $a_i = 2^i$."
+        }
+      ]
+    },
+    {
+      "type": "formula",
+      "title": "Quy tắc biến đổi tổng",
+      "latex": "\\begin{gathered} \\sum_{i=1}^{n} (c\\,a_i + b_i) = c \\sum_{i=1}^{n} a_i + \\sum_{i=1}^{n} b_i \\qquad \\sum_{i=1}^{n} c = cn \\\\ \\sum_{i=1}^{n} a_i = \\sum_{j=0}^{n-1} a_{j+1} \\qquad \\sum_{i=1}^{n} a_i = \\sum_{i=1}^{k} a_i + \\sum_{i=k+1}^{n} a_i \\end{gathered}",
+      "reading": "đọc là: tổng là tuyến tính — tách được tổng của tổng, đưa hằng số ra ngoài; cộng một hằng số c đúng n lần được cn; đổi chỉ số j = i − 1 (dời chỉ số, index shift) thì cận cũng dời theo; và tách một tổng thành hai đoạn liên tiếp.",
+      "symbols": [
+        {
+          "sym": "\\text{linearity}",
+          "meaning": "Tuyến tính (linearity): $\\sum (3i + 2) = 3\\sum i + \\sum 2 = 3\\sum i + 2n$. Chú ý: hằng số 2 được cộng **n lần**."
+        },
+        {
+          "sym": "\\text{index shift}",
+          "meaning": "Dời chỉ số: đặt $j = i - 1$ thì $i = 1 \\to j = 0$ và $i = n \\to j = n - 1$. Hữu ích khi chuyển giữa code 0-indexed và công thức 1-indexed."
+        },
+        {
+          "sym": "\\sum a_i b_i",
+          "meaning": "KHÔNG bằng $\\left(\\sum a_i\\right)\\left(\\sum b_i\\right)$ — tổng không tách qua phép nhân. VD $1 \\cdot 1 + 2 \\cdot 2 = 5$ nhưng $(1 + 2)(1 + 2) = 9$."
+        }
+      ]
+    },
+    {
+      "type": "formula",
+      "title": "Cấp số cộng: tổng 1 + 2 + … + n",
+      "latex": "\\begin{gathered} \\sum_{i=1}^{n} i = \\frac{n(n+1)}{2} \\qquad \\sum_{i=0}^{n-1} i = \\frac{n(n-1)}{2} = \\binom{n}{2} \\\\ \\text{arithmetic: } \\; \\text{sum} = \\frac{(\\text{first} + \\text{last}) \\times \\text{count}}{2} \\end{gathered}",
+      "reading": "đọc là: tổng từ 1 đến n bằng n nhân (n cộng 1) chia 2; tổng từ 0 đến n − 1 bằng n nhân (n trừ 1) chia 2, cũng chính là số cách chọn 2 phần tử từ n. Tổng quát: tổng một cấp số cộng = (số đầu + số cuối) × số số hạng / 2.",
+      "symbols": [
+        {
+          "sym": "\\frac{n(n+1)}{2}",
+          "meaning": "cỡ $\\frac{n^2}{2}$ → $\\Theta(n^2)$. VD n = 100: 5050."
+        },
+        {
+          "sym": "\\binom{n}{2}",
+          "meaning": "số cặp (i, j) với $i < j$ — số lần chạy của vòng lặp `for i ... for j in range(i + 1, n)`; cũng là số cái bắt tay khi n người bắt tay nhau từng đôi."
+        }
+      ]
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 1: Tổng các số lẻ",
+      "problem": "Tính $\\sum_{i=1}^{n} (2i - 1) = 1 + 3 + 5 + \\cdots + (2n - 1)$. Kiểm tra với n = 10.",
+      "steps": [
+        {
+          "text": "Tách theo tuyến tính: $\\sum_{i=1}^{n} (2i - 1) = 2\\sum_{i=1}^{n} i - \\sum_{i=1}^{n} 1$.",
+          "rule": "Tuyến tính của Σ"
+        },
+        {
+          "text": "$= 2 \\cdot \\dfrac{n(n+1)}{2} - n$. Lỗi hay gặp: viết $\\sum_{i=1}^{n} 1 = 1$ thay vì n.",
+          "isCommonMistake": true,
+          "rule": "$\\sum_{i=1}^{n} c = cn$ — hằng số được cộng n lần"
+        },
+        {
+          "text": "$= n^2 + n - n = n^2$.",
+          "rule": "Rút gọn"
+        },
+        {
+          "text": "Kiểm tra n = 10: $1 + 3 + \\cdots + 19 = 100 = 10^2$ ✓. (Cách khác: (số đầu + số cuối) × số số hạng / 2 $= (1 + 19) \\times 10 / 2 = 100$.)",
+          "rule": "Thay số kiểm tra"
+        }
+      ],
+      "result": "$\\sum_{i=1}^{n} (2i - 1) = n^2$ — tổng n số lẻ đầu tiên là một số chính phương."
+    },
+    {
+      "type": "formula",
+      "title": "Tổng bình phương (và tổng lũy thừa nói chung)",
+      "latex": "\\sum_{i=1}^{n} i^2 = \\frac{n(n+1)(2n+1)}{6} \\approx \\frac{n^3}{3} \\qquad \\sum_{i=1}^{n} i^k = \\Theta\\!\\left(n^{k+1}\\right)",
+      "reading": "đọc là: tổng bình phương từ 1 đến n bằng n(n+1)(2n+1) chia 6, cỡ n³/3. Tổng quát: cộng các lũy thừa bậc k cho kết quả cỡ n mũ (k + 1).",
+      "symbols": [
+        {
+          "sym": "n = 10",
+          "meaning": "$1 + 4 + 9 + \\cdots + 100 = \\frac{10 \\cdot 11 \\cdot 21}{6} = 385$."
+        },
+        {
+          "sym": "n^{k+1}",
+          "meaning": "Quy tắc ngón tay cái: mỗi tầng vòng lặp lồng nhau có số bước phụ thuộc biến ngoài sẽ nâng bậc lên 1 — giống lấy tích phân $\\int x^k dx = \\frac{x^{k+1}}{k+1}$."
+        }
+      ]
+    },
+    {
+      "type": "formula",
+      "title": "Cấp số nhân (geometric series)",
+      "latex": "\\begin{gathered} \\sum_{i=0}^{n-1} r^i = 1 + r + \\cdots + r^{n-1} = \\frac{r^n - 1}{r - 1} \\quad (r \\ne 1) \\\\ \\sum_{i=0}^{\\infty} r^i = \\frac{1}{1 - r} \\quad (|r| < 1) \\end{gathered}",
+      "reading": "đọc là: tổng n số hạng đầu của cấp số nhân công bội r bằng (r mũ n trừ 1) chia (r trừ 1); nếu trị tuyệt đối của r nhỏ hơn 1 thì tổng vô hạn hội tụ về 1 chia (1 trừ r).",
+      "symbols": [
+        {
+          "sym": "r",
+          "meaning": "công bội (common ratio) — tỉ số giữa hai số hạng liên tiếp. Với $|r| \\ge 1$, tổng vô hạn **phân kỳ** (divergent), không có giá trị hữu hạn."
+        },
+        {
+          "sym": "r = 2",
+          "meaning": "$1 + 2 + 4 + \\cdots + 2^k = 2^{k+1} - 1$: tổng mọi lũy thừa trước nhỏ hơn số kế tiếp. VD $1 + 2 + 4 + 8 = 15 = 16 - 1$."
+        },
+        {
+          "sym": "r = \\tfrac{1}{2}",
+          "meaning": "$1 + \\frac{1}{2} + \\frac{1}{4} + \\cdots = 2$, nên $n + \\frac{n}{2} + \\frac{n}{4} + \\cdots \\le 2n$."
+        },
+        {
+          "sym": "\\text{dominant term}",
+          "meaning": "Mẹo Big-O: với $r > 1$ cố định, tổng cùng bậc với **số hạng cuối**; với $r < 1$, tổng cùng bậc với **số hạng đầu**."
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Tổng riêng của $1 + \\tfrac{1}{2} + \\tfrac{1}{4} + \\cdots$ tiến về 2",
+      "functions": [
+        {
+          "fn": "2*(1 - 0.5^x)",
+          "color": "#ffe08a"
+        },
+        {
+          "fn": "2",
+          "color": "#ff9ecb"
+        }
+      ],
+      "xDomain": [
+        0,
+        10
+      ],
+      "yDomain": [
+        0,
+        2.5
+      ],
+      "caption": "Đường vàng là tổng của x số hạng đầu: $S(x) = 2\\left(1 - \\frac{1}{2^x}\\right)$. Nó tiến sát đường $y = 2$ (hồng) nhưng không bao giờ vượt qua. Mỗi số hạng mới chỉ lấp một nửa khoảng trống còn lại — đây là lý do $n + \\frac{n}{2} + \\frac{n}{4} + \\cdots$ luôn nhỏ hơn $2n$."
+    },
+    {
+      "type": "explanation",
+      "title": "Ứng dụng CS: mảng động nhân đôi có chi phí khấu hao O(1)",
+      "content": "Mảng động (dynamic array: `ArrayList` của Java, `vector` của C++, `list` của Python) khi đầy sẽ cấp phát mảng mới **gấp đôi** và chép toàn bộ phần tử sang. Một lần chép có thể tốn $O(n)$ — vậy `append` có chậm không?\n\nĐếm tổng: thêm n phần tử (bắt đầu với dung lượng 1) thì các lần chép có kích thước $1, 2, 4, \\ldots$ và lần lớn nhất nhỏ hơn n. Theo cấp số nhân: $1 + 2 + 4 + \\cdots + 2^k = 2^{k+1} - 1 < 2n$. Cộng thêm n lần ghi phần tử mới → tổng **dưới 3n** thao tác cho n lần `append`, tức trung bình mỗi lần **$O(1)$ khấu hao (amortized)**.\n\nSo sánh: nếu mỗi lần chỉ tăng thêm 10 ô, số phần tử phải chép là $10 + 20 + 30 + \\cdots \\approx \\frac{n^2}{20}$ — cấp số **cộng** → tổng $O(n^2)$, trung bình $O(n)$ mỗi lần. Tăng theo **tỉ lệ** (×2, ×1.5) chứ không tăng theo **hằng số** là chìa khóa.\n\nCùng ý tưởng: cây nhị phân đầy đủ cao h có $2^{h+1} - 1$ nút, hơn một nửa số đó là lá; thuật toán xử lý $n + \\frac{n}{2} + \\frac{n}{4} + \\cdots$ phần tử (như quickselect trong trường hợp chia đều) chỉ tốn $O(n)$."
+    },
+    {
+      "type": "formula",
+      "title": "Chuỗi điều hòa (harmonic series)",
+      "latex": "H_n = \\sum_{i=1}^{n} \\frac{1}{i} = 1 + \\frac{1}{2} + \\cdots + \\frac{1}{n} \\approx \\ln n + 0.577",
+      "reading": "đọc là: số điều hòa thứ n bằng tổng nghịch đảo các số từ 1 đến n, xấp xỉ ln n cộng hằng số Euler–Mascheroni khoảng 0.577.",
+      "symbols": [
+        {
+          "sym": "H_n",
+          "meaning": "tăng **rất chậm** nhưng **không bị chặn**: $H_{1000} \\approx 7.49$, $H_{10^6} \\approx 14.39$. Chuỗi vô hạn phân kỳ dù từng số hạng tiến về 0."
+        },
+        {
+          "sym": "\\gamma \\approx 0.577",
+          "meaning": "hằng số Euler–Mascheroni (Euler–Mascheroni constant) — phần chênh giữa $H_n$ và $\\ln n$ khi n lớn."
+        },
+        {
+          "sym": "\\Theta(\\log n)",
+          "meaning": "$H_n = \\Theta(\\log n)$, nên $n H_n = \\Theta(n \\log n)$."
+        }
+      ]
+    },
+    {
+      "type": "explanation",
+      "title": "Vì sao chuỗi điều hòa quan trọng trong CS",
+      "content": "- **Vòng lặp nhảy bước i:** `for i in 1..n: for j in range(0, n, i)` — vòng trong chạy khoảng $\\frac{n}{i}$ lần → tổng $\\sum \\frac{n}{i} = n H_n = O(n \\log n)$, không phải $O(n^2)$.\n- **Quicksort trung bình:** chọn pivot ngẫu nhiên, hai phần tử thứ i và thứ j (theo thứ tự sau khi sort) được so sánh với xác suất $\\frac{2}{j - i + 1}$. Cộng lại ra khoảng $2n H_n \\approx 2n \\ln n \\approx 1.39\\, n \\log_2 n$ phép so sánh → $O(n \\log n)$.\n- **Coupon collector (sưu tập phiếu):** muốn gặp đủ n loại phiếu (hoặc n server, n giá trị hash) khi mỗi lần lấy ngẫu nhiên đều, cần trung bình $n H_n \\approx n \\ln n$ lần. VD n = 50: khoảng 225 lần, gấp 4.5 lần n.\n\n**Ghi nhớ:** tổng của $\\frac{1}{i}$ cho ra **log**; tổng của $1$ cho ra **n**; tổng của $i$ cho ra **n²**; tổng của $2^i$ cho ra **số hạng cuối** (gấp đôi)."
+    },
+    {
+      "type": "explanation",
+      "title": "Đếm vòng lặp để ra Big-O",
+      "content": "Phương pháp chung: viết số bước của vòng trong theo biến vòng ngoài, rồi lấy Σ. Bảng tra nhanh:\n\n| Mẫu vòng lặp | Tổng | Big-O |\n|---|---|---|\n| j từ 0 đến i (tam giác) | $\\sum i \\approx \\frac{n^2}{2}$ | $O(n^2)$ |\n| cặp $i < j$ | $\\frac{n(n-1)}{2}$ | $O(n^2)$ |\n| ba vòng tam giác | $\\sum i^2 \\approx \\frac{n^3}{3}$ | $O(n^3)$ |\n| i nhân đôi, j từ 0 đến i | $1 + 2 + 4 + \\cdots + n$ | $O(n)$ |\n| j nhảy bước i | $n H_n$ | $O(n \\log n)$ |\n| i chia đôi, vòng trong O(1) | $\\log_2 n$ số hạng | $O(\\log n)$ |\n\nDòng thứ tư là một bẫy phỏng vấn kinh điển: `i = 1; while i < n: (vòng j chạy i lần); i *= 2` trông như hai vòng lồng nhau nhưng chỉ là $O(n)$, vì tổng là cấp số nhân bị chặn bởi $2n$."
+    },
+    {
+      "type": "diagram",
+      "title": "Nhận dạng tổng nhanh",
+      "mermaid": "graph TD\n  A[\"Số bước vòng trong theo i?\"] --> B[\"Hằng số c\"]\n  A --> C[\"Tỉ lệ với i\"]\n  A --> D[\"Gấp đôi mỗi vòng ngoài\"]\n  A --> E[\"Tỉ lệ với n chia i\"]\n  B --> B2[\"Tổng = cn: O(n)\"]\n  C --> C2[\"Cấp số cộng: O(n^2)\"]\n  D --> D2[\"Cấp số nhân: cỡ số hạng cuối\"]\n  E --> E2[\"Điều hòa: O(n log n)\"]",
+      "caption": "Hỏi: số bước của vòng trong phụ thuộc biến vòng ngoài thế nào? Câu trả lời quyết định loại tổng — và Big-O."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ 2: Đếm số cặp trong vòng lặp lồng nhau",
+      "problem": "Đoạn code `for i in range(n): for j in range(i + 1, n): compare(a[i], a[j])` gọi `compare` bao nhiêu lần? Với n = 1000 là bao nhiêu?",
+      "steps": [
+        {
+          "text": "Với mỗi i, j chạy từ $i + 1$ đến $n - 1$: tổng cộng $n - 1 - i$ lần.",
+          "rule": "Số số hạng từ m đến n là n − m + 1"
+        },
+        {
+          "text": "Tổng $= \\sum_{i=0}^{n-1} (n - 1 - i) = (n-1) + (n-2) + \\cdots + 1 + 0$.",
+          "rule": "Viết thành Σ"
+        },
+        {
+          "text": "Dời chỉ số $k = n - 1 - i$: $\\sum_{k=0}^{n-1} k = \\dfrac{n(n-1)}{2}$. Lỗi hay gặp: dùng nhầm $\\frac{n(n+1)}{2}$ (đếm thừa n lần).",
+          "isCommonMistake": true,
+          "rule": "$\\sum_{k=0}^{n-1} k = \\frac{n(n-1)}{2}$; $\\sum_{k=1}^{n} k = \\frac{n(n+1)}{2}$ — để ý cận"
+        },
+        {
+          "text": "n = 1000: $\\frac{1000 \\times 999}{2} = 499500$ lần — đúng bằng số cặp không thứ tự $\\binom{1000}{2}$.",
+          "rule": "Thay số"
+        }
+      ],
+      "result": "$\\dfrac{n(n-1)}{2}$ lần → $O(n^2)$; n = 1000 cho 499 500 lần."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Các lỗi hay gặp với tổng:**\n\n- **Lệch một (off-by-one):** từ m đến n có $n - m + 1$ số hạng. `range(n)` là 0..n−1, tức n số hạng.\n- **Quên nhân hằng số với n:** $\\sum_{i=1}^{n} 3 = 3n$, không phải 3.\n- **Tách tổng qua phép nhân:** $\\sum a_i b_i \\ne (\\sum a_i)(\\sum b_i)$.\n- **Dùng công thức tổng vô hạn khi $|r| \\ge 1$:** $1 + 2 + 4 + \\cdots$ không bằng $\\frac{1}{1 - 2} = -1$; nó phân kỳ.\n- **Nghĩ số hạng tiến về 0 thì tổng hữu hạn:** chuỗi điều hòa là phản ví dụ."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "$\\sum_{i=m}^{n} a_i$ giống một vòng for; có $n - m + 1$ số hạng. Tổng tuyến tính: tách tổng, đưa hằng số ra ngoài, $\\sum c = cn$.",
+        "Cấp số cộng: $1 + \\cdots + n = \\frac{n(n+1)}{2}$; số cặp $i < j$ là $\\frac{n(n-1)}{2}$ → $O(n^2)$.",
+        "Tổng bình phương $\\frac{n(n+1)(2n+1)}{6} \\approx \\frac{n^3}{3}$; tổng $i^k$ cỡ $n^{k+1}$.",
+        "Cấp số nhân: $\\frac{r^n - 1}{r - 1}$; vô hạn $\\frac{1}{1 - r}$ khi $|r| < 1$. $1 + 2 + \\cdots + 2^k = 2^{k+1} - 1$.",
+        "Mảng động nhân đôi: tổng chi phí chép < 2n → `append` khấu hao $O(1)$. Tăng theo hằng số thì thành $O(n^2)$.",
+        "Chuỗi điều hòa $H_n \\approx \\ln n$ — phía sau quicksort trung bình, coupon collector, vòng lặp nhảy bước i: $O(n \\log n)$."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-sum-notation",
+      "type": "definition",
+      "front": "$\\sum_{i=m}^{n} a_i$ nghĩa là gì và có bao nhiêu số hạng?",
+      "back": "$a_m + a_{m+1} + \\cdots + a_n$ — như vòng `for i in range(m, n + 1)`. Có $n - m + 1$ số hạng (tính cả hai đầu)."
+    },
+    {
+      "id": "fc-sum-linearity",
+      "type": "formula",
+      "front": "Tính tuyến tính của Σ: $\\sum (c\\,a_i + b_i) = ?$ và $\\sum_{i=1}^{n} c = ?$",
+      "back": "$c\\sum a_i + \\sum b_i$; và $\\sum_{i=1}^{n} c = cn$. Nhưng $\\sum a_i b_i \\ne (\\sum a_i)(\\sum b_i)$."
+    },
+    {
+      "id": "fc-sum-arithmetic",
+      "type": "formula",
+      "front": "$1 + 2 + \\cdots + n = ?$ Trực giác?",
+      "back": "$\\dfrac{n(n+1)}{2}$. Mẹo Gauss: ghép số đầu với số cuối, mỗi cặp bằng $n + 1$, có $n/2$ cặp. Tổng quát: (đầu + cuối) × số số hạng / 2."
+    },
+    {
+      "id": "fc-sum-pairs",
+      "type": "concept",
+      "front": "Vòng `for i in range(n): for j in range(i + 1, n)` chạy bao nhiêu lần?",
+      "back": "$\\dfrac{n(n-1)}{2} = \\binom{n}{2}$ — số cặp $i < j$. Vẫn là $O(n^2)$ dù chỉ khoảng một nửa của $n^2$."
+    },
+    {
+      "id": "fc-sum-squares",
+      "type": "formula",
+      "front": "$1^2 + 2^2 + \\cdots + n^2 = ?$",
+      "back": "$\\dfrac{n(n+1)(2n+1)}{6} \\approx \\dfrac{n^3}{3}$. VD n = 10: 385. Tổng quát $\\sum i^k = \\Theta(n^{k+1})$."
+    },
+    {
+      "id": "fc-sum-geometric-finite",
+      "type": "formula",
+      "front": "Tổng cấp số nhân hữu hạn $1 + r + r^2 + \\cdots + r^{n-1} = ?$",
+      "back": "$\\dfrac{r^n - 1}{r - 1}$ (với $r \\ne 1$). Có đúng n số hạng, từ $r^0$ đến $r^{n-1}$."
+    },
+    {
+      "id": "fc-sum-geometric-infinite",
+      "type": "formula",
+      "front": "Khi nào $1 + r + r^2 + \\cdots$ hội tụ, và bằng bao nhiêu?",
+      "back": "Khi $|r| < 1$: bằng $\\dfrac{1}{1 - r}$. VD $1 + \\frac{1}{2} + \\frac{1}{4} + \\cdots = 2$. Với $|r| \\ge 1$ thì phân kỳ."
+    },
+    {
+      "id": "fc-sum-powers-of-two",
+      "type": "formula",
+      "front": "$1 + 2 + 4 + \\cdots + 2^k = ?$",
+      "back": "$2^{k+1} - 1$ — tổng mọi lũy thừa của 2 trước đó nhỏ hơn lũy thừa kế tiếp. Số nút của cây nhị phân đầy đủ cao k."
+    },
+    {
+      "id": "fc-sum-amortized",
+      "type": "concept",
+      "front": "Vì sao `append` của mảng động nhân đôi dung lượng có chi phí khấu hao O(1)?",
+      "back": "Tổng phần tử phải chép qua các lần resize là $1 + 2 + 4 + \\cdots < 2n$ (cấp số nhân). Cả n lần append tốn < 3n → O(1) mỗi lần. Tăng thêm hằng số mỗi lần thì tổng thành $O(n^2)$."
+    },
+    {
+      "id": "fc-sum-harmonic",
+      "type": "formula",
+      "front": "Chuỗi điều hòa $H_n = 1 + \\frac{1}{2} + \\cdots + \\frac{1}{n} \\approx ?$ Xuất hiện ở đâu?",
+      "back": "$H_n \\approx \\ln n + 0.577 = \\Theta(\\log n)$, phân kỳ khi $n \\to \\infty$. Quicksort trung bình ($\\approx 2n \\ln n$ so sánh), coupon collector ($n H_n$), vòng lặp nhảy bước i ($O(n \\log n)$)."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-sum-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Tính $\\sum_{i=1}^{50} (2i + 3)$.",
+      "hints": [
+        "Tách thành hai tổng bằng tính tuyến tính.",
+        "$\\sum_{i=1}^{50} i = \\frac{50 \\times 51}{2}$.",
+        "$\\sum_{i=1}^{50} 3$ là cộng số 3 bao nhiêu lần?"
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\sum_{i=1}^{50} (2i + 3) = 2\\sum_{i=1}^{50} i + \\sum_{i=1}^{50} 3$.",
+          "rule": "Tuyến tính của Σ"
+        },
+        {
+          "text": "$\\sum_{i=1}^{50} i = \\dfrac{50 \\times 51}{2} = 1275$.",
+          "rule": "$\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$"
+        },
+        {
+          "text": "$\\sum_{i=1}^{50} 3 = 3 \\times 50 = 150$. Lỗi hay gặp: chỉ cộng 3 một lần.",
+          "isCommonMistake": true,
+          "rule": "$\\sum_{i=1}^{n} c = cn$"
+        },
+        {
+          "text": "Tổng $= 2 \\times 1275 + 150 = 2700$. (Kiểm tra: cấp số cộng 5, 7, …, 103 có 50 số hạng: $(5 + 103) \\times 50 / 2 = 2700$ ✓.)",
+          "rule": "(đầu + cuối) × số số hạng / 2"
+        }
+      ],
+      "answer": "2700",
+      "commonMistake": "Cộng hằng số 3 một lần (ra 2553) thay vì 50 lần.",
+      "relatedFlashcard": "fc-sum-linearity"
+    },
+    {
+      "id": "ex-sum-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "Tính $3 + 6 + 12 + 24 + \\cdots + 384$.",
+      "hints": [
+        "Đây là cấp số nhân với số hạng đầu 3, công bội 2.",
+        "$384 = 3 \\times 2^?$ — đếm số số hạng cẩn thận.",
+        "Đặt 3 ra ngoài: $3(1 + 2 + \\cdots + 2^k)$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$384 = 3 \\times 128 = 3 \\times 2^7$, nên tổng là $3 \\times (2^0 + 2^1 + \\cdots + 2^7)$ — gồm **8** số hạng.",
+          "rule": "Nhận dạng cấp số nhân, đếm số hạng"
+        },
+        {
+          "text": "$2^0 + \\cdots + 2^7 = 2^8 - 1 = 255$. Lỗi hay gặp: đếm 7 số hạng (quên $2^0$), ra $2^7 - 1 = 127$.",
+          "isCommonMistake": true,
+          "rule": "$1 + 2 + \\cdots + 2^k = 2^{k+1} - 1$"
+        },
+        {
+          "text": "Tổng $= 3 \\times 255 = 765$.",
+          "rule": "Nhân lại hằng số"
+        }
+      ],
+      "answer": "765",
+      "commonMistake": "Đếm thiếu số hạng đầu, ra $3 \\times 127 = 381$.",
+      "relatedFlashcard": "fc-sum-powers-of-two"
+    },
+    {
+      "id": "ex-sum-apply-1",
+      "difficulty": "apply",
+      "prompt": "Selection sort trên mảng n phần tử: ở vòng i (i = 0, 1, …, n − 2), nó so sánh để tìm phần tử nhỏ nhất trong $n - 1 - i$ phần tử còn lại (sau phần tử đầu đoạn). Tổng số phép so sánh là bao nhiêu? Với n = 1000? Big-O?",
+      "hints": [
+        "Viết tổng: $(n - 1) + (n - 2) + \\cdots + 1$.",
+        "Đây là tổng 1 đến n − 1.",
+        "Thay $n - 1$ vào công thức $\\frac{m(m+1)}{2}$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Tổng $= \\sum_{i=0}^{n-2} (n - 1 - i) = (n-1) + (n-2) + \\cdots + 1$.",
+          "rule": "Viết số bước thành Σ"
+        },
+        {
+          "text": "$= \\sum_{k=1}^{n-1} k = \\dfrac{(n-1)n}{2}$. Lỗi hay gặp: dùng $\\frac{n(n+1)}{2}$ vì quen tay.",
+          "isCommonMistake": true,
+          "rule": "Công thức $\\frac{m(m+1)}{2}$ với $m = n - 1$ — để ý cận trên"
+        },
+        {
+          "text": "n = 1000: $\\frac{999 \\times 1000}{2} = 499500$ phép so sánh → $O(n^2)$, và luôn đúng chừng đó dù mảng đã sắp xếp sẵn.",
+          "rule": "Bỏ hằng số và bậc thấp"
+        }
+      ],
+      "answer": "$\\dfrac{n(n-1)}{2}$; n = 1000 → 499 500; $O(n^2)$.",
+      "commonMistake": "Dùng $\\frac{n(n+1)}{2} = 500500$ (đếm thừa).",
+      "relatedFlashcard": "fc-sum-pairs"
+    },
+    {
+      "id": "ex-sum-apply-2",
+      "difficulty": "apply",
+      "prompt": "Đoạn code: `for i in range(1, n + 1): for j in range(0, n, i): work()`. Vòng trong chạy bao nhiêu lần với mỗi i? Tổng là $O(n^2)$, $O(n \\log n)$ hay $O(n)$? Ước lượng tổng với $n = 10^6$.",
+      "hints": [
+        "`range(0, n, i)` nhảy bước i — chạy khoảng n / i lần.",
+        "Tổng $\\sum_{i=1}^{n} \\frac{n}{i} = n \\sum \\frac{1}{i}$.",
+        "$H_n \\approx \\ln n + 0.577$; $\\ln 10^6 \\approx 13.8$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Với mỗi i, vòng trong chạy $\\lceil n / i \\rceil \\approx \\frac{n}{i}$ lần.",
+          "rule": "Đếm vòng lặp nhảy bước"
+        },
+        {
+          "text": "Tổng $\\approx \\sum_{i=1}^{n} \\frac{n}{i} = n H_n$.",
+          "rule": "Đưa hằng số n ra ngoài Σ"
+        },
+        {
+          "text": "$H_n \\approx \\ln n$ → tổng $= O(n \\log n)$. Lỗi hay gặp: thấy hai vòng lồng nhau, cả hai cận đều là n, rồi kết luận ngay $O(n^2)$.",
+          "isCommonMistake": true,
+          "rule": "Chuỗi điều hòa: $H_n = \\Theta(\\log n)$"
+        },
+        {
+          "text": "$n = 10^6$: $n H_n \\approx 10^6 \\times (13.8 + 0.58) \\approx 1.44 \\times 10^7$ (đếm chính xác với làm tròn lên khoảng $1.5 \\times 10^7$) — so với $10^{12}$ nếu là $O(n^2)$.",
+          "rule": "Thay số"
+        }
+      ],
+      "answer": "Khoảng $n / i$ lần mỗi i; tổng $\\approx n H_n$ → $O(n \\log n)$; với $n = 10^6$ khoảng $1.4$–$1.5 \\times 10^7$.",
+      "commonMistake": "Kết luận $O(n^2)$ chỉ vì có hai vòng lồng nhau.",
+      "relatedFlashcard": "fc-sum-harmonic"
+    },
+    {
+      "id": "ex-sum-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "Một mảng động bắt đầu với dung lượng 1 và **nhân đôi** khi đầy (chép mọi phần tử sang mảng mới). (a) Thêm lần lượt 1025 phần tử thì tổng số phần tử phải chép là bao nhiêu? Tổng số thao tác ghi (chép + ghi phần tử mới)? (b) So sánh với chiến lược bắt đầu từ 10 và mỗi lần đầy chỉ **tăng thêm 10** ô.",
+      "hints": [
+        "(a) Resize xảy ra khi thêm phần tử thứ 2, 3, 5, 9, …, 1025 — lúc đó mảng đang có 1, 2, 4, …, 1024 phần tử.",
+        "$1 + 2 + \\cdots + 1024 = 2^{11} - 1$.",
+        "(b) Resize khi mảng đang có 10, 20, …, 1020 phần tử — cấp số cộng."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) Số phần tử chép $= 1 + 2 + 4 + \\cdots + 1024 = 2^{11} - 1 = 2047$.",
+          "rule": "$1 + 2 + \\cdots + 2^k = 2^{k+1} - 1$"
+        },
+        {
+          "text": "Tổng thao tác ghi $= 1025 + 2047 = 3072 < 3 \\times 1025$ → trung bình khoảng 3 thao tác mỗi lần append: $O(1)$ khấu hao.",
+          "rule": "Chi phí khấu hao = tổng / số thao tác"
+        },
+        {
+          "text": "(b) Chép $10 + 20 + \\cdots + 1020 = 10 \\times (1 + 2 + \\cdots + 102) = 10 \\times 5253 = 52530$ phần tử — gấp khoảng 25 lần.",
+          "rule": "Cấp số cộng: $\\frac{m(m+1)}{2}$ với m = 102"
+        },
+        {
+          "text": "Tổng quát chiến lược +10: khoảng $\\frac{n^2}{20}$ → $O(n^2)$ tổng, $O(n)$ mỗi append. Lỗi hay gặp: nghĩ 'mỗi lần resize đều tốn O(n) nên nhân đôi cũng O(n) mỗi append' — quên rằng resize khi nhân đôi rất hiếm.",
+          "isCommonMistake": true,
+          "rule": "Cấp số nhân bị chặn bởi 2 lần số hạng cuối; cấp số cộng thì cỡ bình phương"
+        }
+      ],
+      "answer": "(a) Chép 2047 phần tử, tổng 3072 thao tác ghi → O(1) khấu hao mỗi append. (b) Tăng +10: chép 52 530 phần tử — $O(n^2)$ tổng, $O(n)$ mỗi append.",
+      "commonMistake": "Coi chi phí xấu nhất của một lần append (O(n)) là chi phí trung bình.",
+      "relatedFlashcard": "fc-sum-amortized"
+    },
+    {
+      "id": "ex-sum-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "(Coupon collector) Load balancer gửi mỗi request tới một trong n = 50 server một cách ngẫu nhiên đều. Trung bình cần bao nhiêu request để **mọi** server đều nhận được ít nhất một request? Gợi ý: nếu mỗi lần thử thành công với xác suất p thì trung bình cần $1/p$ lần thử.",
+      "hints": [
+        "Chia thành các giai đoạn: đã có k server được 'chạm', chờ server mới tiếp theo.",
+        "Khi đã có k server, xác suất request tiếp theo tới server MỚI là $\\frac{n - k}{n}$.",
+        "Cộng các kỳ vọng $\\frac{n}{n - k}$ với k = 0..n−1, rồi nhận ra chuỗi điều hòa."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Giai đoạn k (đã có k server được chạm): xác suất gặp server mới là $\\frac{n-k}{n}$ → trung bình cần $\\frac{n}{n-k}$ request.",
+          "rule": "Thử đến khi thành công: trung bình 1/p lần"
+        },
+        {
+          "text": "Tổng $= \\sum_{k=0}^{n-1} \\frac{n}{n-k} = n\\left(\\frac{1}{n} + \\frac{1}{n-1} + \\cdots + \\frac{1}{1}\\right) = n H_n$.",
+          "rule": "Dời chỉ số: đặt $m = n - k$ chạy từ n về 1"
+        },
+        {
+          "text": "$n = 50$: $H_{50} \\approx 4.50$ → khoảng $50 \\times 4.50 \\approx 225$ request. Lỗi hay gặp: đoán 50 (mỗi server một request) — bỏ qua việc trùng lặp, nhất là khi chỉ còn vài server chưa được chạm.",
+          "isCommonMistake": true,
+          "rule": "$H_n \\approx \\ln n + 0.577$: $\\ln 50 + 0.577 \\approx 4.49$"
+        },
+        {
+          "text": "Tổng quát $n H_n \\approx n \\ln n$ → cần $O(n \\log n)$ request. Giai đoạn cuối (còn 1 server) một mình đã tốn trung bình n request.",
+          "rule": "Số hạng lớn nhất của tổng là n/1"
+        }
+      ],
+      "answer": "$n H_n \\approx 225$ request (khoảng 4.5 lần số server); tổng quát $\\Theta(n \\log n)$.",
+      "commonMistake": "Trả lời n = 50, hoặc nhầm sang $n^2$.",
+      "relatedFlashcard": "fc-sum-harmonic"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-sum-1",
+      "type": "mcq",
+      "question": "$\\sum_{i=1}^{100} i$ bằng bao nhiêu?",
+      "options": [
+        "5000",
+        "5050",
+        "10100",
+        "4950"
+      ],
+      "correct": 1,
+      "explanation": "$\\frac{100 \\times 101}{2} = 5050$. (4950 là $\\sum_{i=0}^{99} i$ — đếm từ 0 đến 99.)"
+    },
+    {
+      "id": "q-sum-2",
+      "type": "mcq",
+      "question": "$1 + 2 + 4 + \\cdots + 2^{10}$ bằng bao nhiêu?",
+      "options": [
+        "1024",
+        "2048",
+        "1023",
+        "2047"
+      ],
+      "correct": 3,
+      "explanation": "$2^{11} - 1 = 2047$. Có 11 số hạng từ $2^0$ đến $2^{10}$."
+    },
+    {
+      "id": "q-sum-3",
+      "type": "mcq",
+      "question": "Tổng vô hạn $1 + \\frac{1}{3} + \\frac{1}{9} + \\frac{1}{27} + \\cdots$ bằng?",
+      "options": [
+        "$\\frac{3}{2}$",
+        "$\\frac{4}{3}$",
+        "3",
+        "Phân kỳ (vô hạn)"
+      ],
+      "correct": 0,
+      "explanation": "Cấp số nhân với $r = \\frac{1}{3}$, $|r| < 1$: tổng $= \\frac{1}{1 - 1/3} = \\frac{3}{2}$."
+    },
+    {
+      "id": "q-sum-4",
+      "type": "mcq",
+      "question": "Chuỗi điều hòa $H_n = 1 + \\frac{1}{2} + \\cdots + \\frac{1}{n}$ tăng như thế nào khi n lớn?",
+      "options": [
+        "Hội tụ về 2",
+        "Như $\\sqrt{n}$",
+        "Như $\\ln n$ (không bị chặn)",
+        "Như n"
+      ],
+      "correct": 2,
+      "explanation": "$H_n \\approx \\ln n + 0.577$: tăng rất chậm nhưng không bị chặn — chuỗi phân kỳ dù các số hạng tiến về 0."
+    },
+    {
+      "id": "q-sum-5",
+      "type": "mcq",
+      "question": "Mảng động nhân đôi dung lượng khi đầy. Chi phí khấu hao (amortized) của mỗi lần `append` là?",
+      "options": [
+        "$O(1)$",
+        "$O(\\log n)$",
+        "$O(n)$",
+        "$O(n^2)$"
+      ],
+      "correct": 0,
+      "explanation": "Tổng chi phí chép qua mọi lần resize là $1 + 2 + 4 + \\cdots < 2n$, nên n lần append tốn $O(n)$ — trung bình $O(1)$ mỗi lần, dù một lần riêng lẻ có thể tốn $O(n)$."
+    },
+    {
+      "id": "q-sum-6",
+      "type": "mcq",
+      "question": "Code: `i = 1; while i < n: for j in range(i): work(); i *= 2`. Tổng số lần gọi `work()` là?",
+      "options": [
+        "$O(\\log n)$",
+        "$O(n \\log n)$",
+        "$O(n)$",
+        "$O(n^2)$"
+      ],
+      "correct": 2,
+      "explanation": "Vòng trong chạy $1 + 2 + 4 + \\cdots$ (đến số lũy thừa của 2 lớn nhất nhỏ hơn n) $< 2n$ lần — cấp số nhân, nên $O(n)$, không phải $O(n \\log n)$."
+    },
+    {
+      "id": "q-sum-7",
+      "type": "mcq",
+      "question": "Ba vòng lặp: `for i in range(n): for j in range(i): for k in range(j)`. Bậc của tổng số bước là?",
+      "options": [
+        "$O(n^2)$",
+        "$O(n^3)$",
+        "$O(n^2 \\log n)$",
+        "$O(2^n)$"
+      ],
+      "correct": 1,
+      "explanation": "Tổng $\\sum_i \\sum_{j<i} j \\approx \\sum_i \\frac{i^2}{2} \\approx \\frac{n^3}{6}$ → $O(n^3)$. Mỗi tầng tổng phụ thuộc biến ngoài nâng bậc lên 1."
+    }
+  ]
+}
