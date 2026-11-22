@@ -223,6 +223,17 @@
               "file": "area5/bayes-theorem.json"
             }
           ]
+        },
+        {
+          "id": "a5u3",
+          "title": "Thống kê cho kỹ sư (Statistics for Engineers)",
+          "topics": [
+            {
+              "slug": "statistics-for-engineers",
+              "title": "Thống kê cho kỹ sư: Percentile, Latency & A/B Testing",
+              "file": "area5/statistics-for-engineers.json"
+            }
+          ]
         }
       ]
     },

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### New topic: Statistics for Engineers (2026-11-22)
+- `area5/statistics-for-engineers` in new unit `a5u3`: mean vs median vs percentile (nearest-rank),
+  right-skewed latency, tail latency & fan-out ($1 - 0.99^N$), why percentiles can't be averaged
+  (histograms / t-digest), SLI/SLO/SLA, nines & error budget, serial/parallel availability, Little's Law,
+  M/M/1 utilization blow-up, A/B z-test for two proportions, Lehr's sample-size rule, peeking &
+  multiple-comparison pitfalls. 17 sections, 12 flashcards, 6 exercises, 7 quiz questions.
+
 ### Content review, PWA & reading-first redesign (2026-10-26)
 - **Content audit (all 30 topics):** every claim/number recomputed; fixed ~80 factual errors (e.g. wrong
   quiz answers with two correct options, 2¹⁰⁰ mod 13 = 3 not 9, least-squares intercept 2/3, "apply A then B

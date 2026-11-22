@@ -1,0 +1,553 @@
+{
+  "id": "area5_statistics-for-engineers",
+  "title": "Thống kê cho kỹ sư: Percentile, Latency & A/B Testing (Statistics for Engineers)",
+  "area": 5,
+  "unit": "a5u3",
+  "order": 5,
+  "icon": "curve",
+  "tagline": "p50/p99, tail latency, SLO & error budget, Little's Law và A/B testing — phần thống kê xuất hiện nhiều nhất trong phỏng vấn system design.",
+  "readTime": "~30 min",
+  "prerequisites": [
+    "area5_expectation-variance"
+  ],
+  "sections": [
+    {
+      "type": "intro",
+      "content": "Mở dashboard của bất kỳ hệ thống production nào, bạn sẽ thấy các con số như **p50 = 12ms, p99 = 180ms, availability 99.95%**. Trong phỏng vấn system design, câu \"latency mục tiêu là bao nhiêu?\" gần như luôn được trả lời bằng **percentile**, không phải trung bình.\n\nBài này trang bị bộ công cụ thống kê thực dụng nhất cho kỹ sư:\n\n- **Mean vs median vs percentile** — vì sao trung bình đánh lừa với dữ liệu latency (phân phối lệch, đuôi dài).\n- **Tail latency & fan-out** — vì sao p99 của từng service trở thành \"trường hợp thường gặp\" của user.\n- **Không được lấy trung bình các percentile** — cách gộp số liệu đúng bằng histogram.\n- **SLI / SLO / SLA, \"số 9\" và error budget** — tính downtime cho phép.\n- **Little's Law** — ước lượng số request đồng thời, số worker cần thiết.\n- **A/B testing** — z-test hai tỷ lệ, p-value, cỡ mẫu, và các bẫy (peeking, nhiều metric).\n\nNền tảng cần có: kỳ vọng, phương sai, standard error $\\sigma/\\sqrt{n}$ và CLT từ bài trước."
+    },
+    {
+      "type": "analogy",
+      "title": "Percentile như thứ hạng trong kỳ thi",
+      "content": "Bạn đạt **percentile 90** trong kỳ thi nghĩa là: 90% thí sinh có điểm **≤** điểm của bạn. Không quan tâm điểm trung bình là bao nhiêu — chỉ quan tâm **thứ hạng**.\n\nVới latency thì ngược chiều \"tốt\": **p99 = 200ms** nghĩa là 99% request xong trong ≤ 200ms, và **1% request chậm hơn 200ms**.\n\nNghe 1% có vẻ ít? Một trang web 1 triệu request/ngày thì đó là **10.000 trải nghiệm chậm mỗi ngày** — và thường rơi vào chính những user quan trọng nhất (giỏ hàng lớn, nhiều dữ liệu, nhiều request nhất)."
+    },
+    {
+      "type": "explanation",
+      "title": "Mean, median, mode — và vì sao latency bị \"lệch phải\"",
+      "content": "| Thước đo | Định nghĩa | Nhạy với outlier? |\n|---|---|---|\n| **Mean** (trung bình) | tổng / số lượng | Rất nhạy |\n| **Median** (trung vị, p50) | giá trị ở giữa khi sắp xếp | Không nhạy |\n| **Mode** (yếu vị) | giá trị xuất hiện nhiều nhất | Không nhạy |\n\nLatency có **phân phối lệch phải (right-skewed)**: có cận dưới cứng (không thể nhanh hơn thời gian xử lý tối thiểu) nhưng đuôi bên phải kéo rất dài — GC pause, cache miss, retry, lock contention, network hiccup, disk I/O.\n\nVới phân phối lệch phải: **mode < median < mean**. Một vài request cực chậm kéo mean lên cao, trong khi median gần như không đổi.\n\n**Hệ quả:**\n- Mean không mô tả trải nghiệm \"điển hình\" (đó là median) và cũng không mô tả trải nghiệm tệ (đó là p99).\n- Mean vẫn có ích cho **tính tổng** — tổng CPU-time, chi phí, và Little's Law (phần dưới) đều dùng mean."
+    },
+    {
+      "type": "formula",
+      "title": "Percentile theo phương pháp nearest-rank",
+      "latex": "P_p = x_{(k)}, \\qquad k = \\left\\lceil \\frac{p}{100} \\cdot n \\right\\rceil",
+      "reading": "đọc là: \"percentile p là giá trị đứng ở vị trí k sau khi sắp xếp tăng dần, với k bằng p phần trăm của n làm tròn lên\".",
+      "symbols": [
+        {
+          "sym": "x_{(k)}",
+          "meaning": "giá trị nhỏ thứ k trong dữ liệu đã sắp xếp tăng dần (order statistic)"
+        },
+        {
+          "sym": "n",
+          "meaning": "số mẫu (số request đo được)"
+        },
+        {
+          "sym": "p",
+          "meaning": "mức percentile: 50, 90, 95, 99, 99.9 …"
+        },
+        {
+          "sym": "\\lceil \\cdot \\rceil",
+          "meaning": "làm tròn lên (ceiling)"
+        }
+      ],
+      "caption": "Các công cụ (numpy, Prometheus) thường nội suy tuyến tính giữa hai vị trí nên kết quả hơi khác với n nhỏ — với n lớn thì gần như trùng nhau."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: mean, p50, p90, p99 của 10 request",
+      "problem": "Latency (ms) của 10 request, đã sắp xếp: 12, 13, 14, 15, 15, 16, 18, 20, 45, 250. Tính mean, p50, p90, p99 và nhận xét.",
+      "steps": [
+        {
+          "text": "Tổng = 12 + 13 + 14 + 15 + 15 + 16 + 18 + 20 + 45 + 250 = 418, nên mean = 418 / 10 = **41.8ms**.",
+          "rule": "Mean = tổng / n"
+        },
+        {
+          "text": "p50: $k = \\lceil 0.5 \\cdot 10 \\rceil = 5$ → giá trị thứ 5 = **15ms**. (Nếu dùng nội suy: trung bình của vị trí 5 và 6 = 15.5ms.)",
+          "rule": "Nearest-rank"
+        },
+        {
+          "text": "p90: $k = \\lceil 0.9 \\cdot 10 \\rceil = 9$ → **45ms**. p99: $k = \\lceil 9.9 \\rceil = 10$ → **250ms** (chính là max).",
+          "rule": "Nearest-rank"
+        },
+        {
+          "text": "Mean 41.8ms lớn hơn **8 trên 10** request — nó không mô tả request điển hình nào cả, chỉ vì một request 250ms kéo lên.",
+          "rule": "Mean bị outlier chi phối",
+          "isCommonMistake": true
+        },
+        {
+          "text": "Với 10 mẫu, p99 chỉ là \"max\" — không có ý nghĩa thống kê. Muốn p99 đáng tin cần ít nhất vài trăm đến vài nghìn mẫu (có ≥ 10 mẫu nằm trong 1% đuôi).",
+          "rule": "Cỡ mẫu cho percentile cao"
+        }
+      ],
+      "result": "Mean = 41.8ms, p50 = 15ms, p90 = 45ms, p99 = 250ms — median mô tả request điển hình, p99 mô tả đuôi, mean không mô tả cả hai."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Độ lệch chuẩn và quy tắc 68–95–99.7 không dùng được cho latency.** Với 10 request ở trên, $\\sigma \\approx 70$ms, nên \"mean ± σ\" cho khoảng $[-28, 112]$ms — latency âm là vô nghĩa. Quy tắc 68–95–99.7 chỉ đúng cho phân phối chuẩn (đối xứng). Với dữ liệu lệch, hãy báo cáo trực tiếp các percentile."
+    },
+    {
+      "type": "explanation",
+      "title": "Tail latency & fan-out: p99 của service là chuyện thường ngày của user",
+      "content": "Một request của user thường **fan-out** tới nhiều backend song song (search gọi 100 shard, trang chủ gọi 30 microservice) và phải **chờ backend chậm nhất**.\n\nGiả sử mỗi backend độc lập, có xác suất q = 1% chậm hơn ngưỡng p99 của nó. Request của user nhanh chỉ khi **tất cả** N backend đều nhanh:\n\n$$P(\\text{user request slow}) = 1 - (1 - q)^N$$\n\n| N backend | P(user gặp ít nhất 1 backend chậm) |\n|---|---|\n| 1 | 1% |\n| 10 | 9.6% |\n| 50 | 39.5% |\n| 100 | 63.4% |\n\nVới N = 100, **gần 2/3 request của user** chạm đuôi p99 của ít nhất một backend! Đây là ý chính của bài báo *The Tail at Scale* (Google, 2013).\n\n**Cách giảm tail latency** (hay hỏi trong phỏng vấn):\n- **Hedged request:** gửi bản sao sang replica khác nếu chưa có phản hồi sau khoảng p95; nhận kết quả nào về trước.\n- **Timeout + retry có ngân sách**, tránh retry storm.\n- **Giảm fan-out**, trả kết quả một phần (partial results) khi vài shard chậm.\n- Đo và tối ưu **p99.9** của backend, không chỉ p99."
+    },
+    {
+      "type": "graph",
+      "title": "Xác suất request của user chạm đuôi p99 theo số backend fan-out",
+      "functions": [
+        {
+          "fn": "1 - 0.99^x",
+          "color": "#ff9ecb"
+        }
+      ],
+      "xDomain": [
+        0,
+        300
+      ],
+      "yDomain": [
+        0,
+        1
+      ],
+      "caption": "Trục x: số backend N gọi song song; trục y: $1 - 0.99^N$. Vượt 50% từ khoảng N ≈ 69 và gần 95% ở N = 300."
+    },
+    {
+      "type": "explanation",
+      "title": "Đừng lấy trung bình các percentile — gộp bằng histogram",
+      "content": "Bạn có 2 server:\n\n| Server | Số request | p99 |\n|---|---|---|\n| A | 9.900 | 100ms |\n| B | 100 | 2000ms |\n\nLấy trung bình (100 + 2000) / 2 = 1050ms là **sai**. p99 toàn hệ thống được quyết định bởi 1% chậm nhất của **toàn bộ** 10.000 request (100 request chậm nhất) — con số thật phụ thuộc vào phân phối đầy đủ, không suy ra được từ hai giá trị p99.\n\nLỗi tương tự: lấy trung bình p99 của 60 phút để ra \"p99 của giờ\".\n\n**Cách làm đúng:**\n- Mỗi server ghi **histogram** (đếm số request trong từng bucket latency: 0–5ms, 5–10ms, …). Histogram **cộng được**: cộng số đếm từng bucket rồi tính percentile trên histogram gộp. Prometheus `histogram_quantile`, HdrHistogram làm đúng việc này.\n- Hoặc dùng sketch có thể merge như **t-digest**, **DDSketch**.\n- **Mean thì gộp được** nếu có trọng số: mean toàn cục = tổng latency / tổng số request."
+    },
+    {
+      "type": "explanation",
+      "title": "SLI, SLO, SLA, \"số 9\" và error budget",
+      "content": "- **SLI** (Service Level Indicator): thứ được đo — VD tỷ lệ request thành công, tỷ lệ request < 300ms.\n- **SLO** (Objective): mục tiêu nội bộ — VD \"99.9% request thành công trong 30 ngày\", \"p99 < 300ms\".\n- **SLA** (Agreement): cam kết hợp đồng với khách hàng, có đền bù — thường lỏng hơn SLO.\n\n**Downtime cho phép theo số 9:**\n\n| Availability | Mỗi 30 ngày | Mỗi năm |\n|---|---|---|\n| 99% | 7.2 giờ | 3.65 ngày |\n| 99.9% | 43.2 phút | 8.76 giờ |\n| 99.95% | 21.6 phút | 4.38 giờ |\n| 99.99% | 4.32 phút | 52.6 phút |\n| 99.999% | 25.9 giây | 5.26 phút |\n\nCách tính: 30 ngày = 43.200 phút; 99.9% → được hỏng 0.1% × 43.200 = 43.2 phút.\n\n**Error budget** = 100% − SLO. Với SLO 99.9%, bạn có 0.1% để \"tiêu\": deploy rủi ro, thử nghiệm, sự cố. Hết budget → đóng băng release, ưu tiên reliability.\n\n**Phụ thuộc nối tiếp nhân availability:** request đi qua 3 service, mỗi cái 99.9%, thì availability tổng ≈ $0.999^3 \\approx 99.7\\%$. Thêm phụ thuộc = giảm số 9. Ngược lại, **2 replica dự phòng song song** (mỗi cái 99%, hỏng độc lập) cho $1 - 0.01^2 = 99.99\\%$."
+    },
+    {
+      "type": "formula",
+      "title": "Little's Law — số request đồng thời",
+      "latex": "L = \\lambda \\cdot W",
+      "reading": "đọc là: \"số request đang nằm trong hệ thống bằng tốc độ request đến nhân với thời gian trung bình mỗi request ở trong hệ thống\". Đúng cho mọi hệ thống ổn định, không cần giả định phân phối.",
+      "symbols": [
+        {
+          "sym": "L",
+          "meaning": "số request trung bình đang được xử lý đồng thời (in-flight / concurrency)"
+        },
+        {
+          "sym": "\\lambda",
+          "meaning": "throughput — số request đến mỗi giây (QPS / RPS)"
+        },
+        {
+          "sym": "W",
+          "meaning": "latency TRUNG BÌNH (mean) tính bằng giây — không phải p99"
+        }
+      ],
+      "caption": "Ví dụ: 2000 req/s × 0.05s = 100 request đồng thời → cần ≥ 100 thread/connection trong pool (cộng dư địa cho đỉnh tải)."
+    },
+    {
+      "type": "explanation",
+      "title": "Vì sao latency \"bùng nổ\" khi utilization gần 100%",
+      "content": "Mô hình hàng đợi đơn giản nhất (M/M/1: request đến ngẫu nhiên, một server xử lý) cho thời gian trung bình trong hệ thống:\n\n$$W = \\frac{1}{\\mu - \\lambda}$$\n\nvới $\\mu$ là năng lực xử lý (req/s) và $\\lambda$ là tải. Server xử lý được $\\mu = 100$ req/s:\n\n| Tải λ | Utilization | W |\n|---|---|---|\n| 50 req/s | 50% | 20ms |\n| 90 req/s | 90% | 100ms |\n| 99 req/s | 99% | 1000ms |\n\nTừ 50% lên 99% utilization, tải chỉ tăng gấp đôi nhưng latency tăng **50 lần**. Đây là lý do hệ thống thường được thiết kế chạy ở **50–70% utilization** và autoscale trước khi chạm ngưỡng — một điểm rất hay để nêu khi làm capacity planning trong phỏng vấn."
+    },
+    {
+      "type": "explanation",
+      "title": "A/B testing: z-test cho hai tỷ lệ",
+      "content": "Nhóm A (control) và B (biến thể) có tỷ lệ chuyển đổi đo được $\\hat{p}_A, \\hat{p}_B$. Câu hỏi: chênh lệch là thật hay chỉ là nhiễu ngẫu nhiên?\n\n- **Giả thuyết không (null hypothesis) $H_0$:** hai nhóm có cùng tỷ lệ thật.\n- **p-value:** nếu $H_0$ đúng, xác suất thấy chênh lệch lớn ít nhất như vậy là bao nhiêu. p-value **không phải** xác suất $H_0$ đúng.\n- **Mức ý nghĩa α** (thường 0.05): bác bỏ $H_0$ nếu p-value < α. Với kiểm định hai phía, tương đương $|z| > 1.96$.\n- **Power** (thường 80%): xác suất phát hiện được hiệu ứng nếu nó thật sự tồn tại.\n\nThống kê kiểm định (dùng tỷ lệ gộp $\\hat{p}$ của cả hai nhóm):\n\n$$z = \\frac{\\hat{p}_B - \\hat{p}_A}{\\sqrt{\\hat{p}(1 - \\hat{p})\\left(\\frac{1}{n_A} + \\frac{1}{n_B}\\right)}}$$\n\nTheo CLT, dưới $H_0$ thì z xấp xỉ phân phối chuẩn tắc, nên ta so sánh |z| với 1.96."
+    },
+    {
+      "type": "worked_example",
+      "title": "Ví dụ: tăng 0.8 điểm phần trăm có đáng tin không?",
+      "problem": "A: 10.000 user, 1.000 chuyển đổi (10%). B: 10.000 user, 1.080 chuyển đổi (10.8%). Với α = 0.05 hai phía, B có tốt hơn A một cách có ý nghĩa thống kê không?",
+      "steps": [
+        {
+          "text": "Tỷ lệ gộp $\\hat{p} = \\frac{1000 + 1080}{20000} = 0.104$.",
+          "rule": "Dưới H0 hai nhóm chung một tỷ lệ"
+        },
+        {
+          "text": "$SE = \\sqrt{0.104 \\times 0.896 \\times \\left(\\frac{1}{10000} + \\frac{1}{10000}\\right)} = \\sqrt{0.0000186} \\approx 0.00432$.",
+          "rule": "Standard error của hiệu hai tỷ lệ"
+        },
+        {
+          "text": "$z = \\frac{0.108 - 0.100}{0.00432} \\approx 1.85$.",
+          "rule": "z = chênh lệch / SE"
+        },
+        {
+          "text": "$|z| = 1.85 < 1.96$ → p-value ≈ 0.064 > 0.05 → **chưa đủ bằng chứng** để kết luận B tốt hơn. Không có nghĩa B không tốt hơn — chỉ là dữ liệu chưa đủ để phân biệt với nhiễu.",
+          "rule": "Không bác bỏ H0 ≠ chứng minh H0",
+          "isCommonMistake": true
+        }
+      ],
+      "result": "z ≈ 1.85, p ≈ 0.064 → chưa có ý nghĩa thống kê ở mức 5%. Cần thêm dữ liệu (theo cỡ mẫu tính trước) hoặc chấp nhận kết luận chưa chắc chắn."
+    },
+    {
+      "type": "formula",
+      "title": "Cỡ mẫu cần thiết — quy tắc nhanh (Lehr's rule)",
+      "latex": "n \\approx \\frac{16\\, \\sigma^2}{\\delta^2} = \\frac{16\\, p(1 - p)}{\\delta^2} \\quad \\text{per group}",
+      "reading": "đọc là: \"số user mỗi nhóm xấp xỉ 16 nhân phương sai chia bình phương hiệu ứng nhỏ nhất muốn phát hiện\" — cho α = 0.05 hai phía và power 80%.",
+      "symbols": [
+        {
+          "sym": "\\delta",
+          "meaning": "hiệu ứng nhỏ nhất muốn phát hiện (MDE), tính theo giá trị tuyệt đối — VD 0.01 = 1 điểm phần trăm"
+        },
+        {
+          "sym": "\\sigma^2 = p(1 - p)",
+          "meaning": "phương sai của một biến Bernoulli với tỷ lệ nền p"
+        },
+        {
+          "sym": "16",
+          "meaning": "$\\approx 2(1.96 + 0.84)^2$ — từ α = 0.05 hai phía và power 80%"
+        }
+      ],
+      "caption": "Ví dụ: p = 10%, muốn phát hiện tăng 1 điểm phần trăm → n ≈ 16 × 0.09 / 0.0001 = 14.400 user mỗi nhóm. Hiệu ứng nhỏ đi một nửa → cần gấp 4 lần."
+    },
+    {
+      "type": "callout",
+      "variant": "warning",
+      "content": "**Ba bẫy kinh điển của A/B testing:**\n\n1. **Peeking:** xem kết quả mỗi ngày và dừng ngay khi p < 0.05 làm tỷ lệ dương tính giả tăng vọt (có thể vượt 20%). Hãy cố định cỡ mẫu trước, hoặc dùng phương pháp sequential testing.\n2. **Nhiều metric / nhiều biến thể:** kiểm 20 metric độc lập ở α = 0.05 thì $P(\\text{at least one false positive}) = 1 - 0.95^{20} \\approx 64\\%$. Chọn trước một metric chính, hoặc hiệu chỉnh (Bonferroni: dùng α/20).\n3. **Có ý nghĩa thống kê ≠ có ý nghĩa thực tế:** với hàng triệu user, chênh 0.01% cũng có thể \"significant\" nhưng không đáng công triển khai."
+    },
+    {
+      "type": "key_takeaways",
+      "items": [
+        "Latency lệch phải: mode < median < mean. Báo cáo p50 (điển hình) và p99/p99.9 (đuôi), không chỉ mean.",
+        "Nearest-rank: $P_p = x_{(\\lceil pn/100 \\rceil)}$. p99 cần đủ mẫu — với 10 mẫu nó chỉ là max.",
+        "Fan-out N backend: $P(\\text{slow}) = 1 - 0.99^N$ — 100 backend thì 63% request của user chạm p99 của ai đó. Giảm bằng hedged request, partial results.",
+        "Không lấy trung bình các percentile; gộp histogram (cộng bucket) hoặc t-digest. Mean thì gộp được có trọng số.",
+        "99.9% = 43.2 phút/30 ngày, 99.99% = 4.32 phút. Nối tiếp nhân availability; dự phòng song song tăng availability.",
+        "Little's Law $L = \\lambda W$ (W là mean). Latency bùng nổ khi utilization → 100% ($W = 1/(\\mu - \\lambda)$).",
+        "A/B: $|z| > 1.96$ → có ý nghĩa ở α = 0.05; cỡ mẫu $n \\approx 16p(1-p)/\\delta^2$ mỗi nhóm; tránh peeking và nhiều metric."
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "fc-st-percentile",
+      "type": "definition",
+      "front": "p99 latency = 200ms nghĩa là gì?",
+      "back": "99% request xong trong ≤ 200ms, 1% request chậm hơn 200ms. Tính theo nearest-rank: sắp xếp n mẫu, lấy giá trị thứ $\\lceil 0.99n \\rceil$."
+    },
+    {
+      "id": "fc-st-skew",
+      "type": "concept",
+      "front": "Vì sao không dùng mean để mô tả latency?",
+      "back": "Latency lệch phải (đuôi dài): vài request rất chậm kéo mean lên, nên mean không phải request điển hình (median) cũng không phải request tệ (p99). Thứ tự: mode < median < mean."
+    },
+    {
+      "id": "fc-st-fanout",
+      "type": "formula",
+      "front": "Request fan-out tới N backend song song, mỗi backend có 1% chậm. Xác suất request của user bị chậm?",
+      "back": "$1 - 0.99^N$. N = 10 → 9.6%, N = 100 → 63.4%. Tail latency của từng backend trở thành trường hợp phổ biến ở quy mô lớn (The Tail at Scale)."
+    },
+    {
+      "id": "fc-st-avg-percentile",
+      "type": "concept",
+      "front": "Có được lấy trung bình p99 của nhiều server (hoặc nhiều phút) không?",
+      "back": "Không. Percentile không cộng/trung bình được. Gộp histogram (cộng số đếm từng bucket) hoặc dùng sketch merge được (t-digest, DDSketch) rồi mới tính percentile."
+    },
+    {
+      "id": "fc-st-nines",
+      "type": "formula",
+      "front": "Downtime cho phép của 99.9% và 99.99% trong 30 ngày?",
+      "back": "30 ngày = 43.200 phút. 99.9% → 43.2 phút; 99.99% → 4.32 phút; 99.999% → khoảng 26 giây. Mỗi năm: 99.9% ≈ 8.76 giờ, 99.99% ≈ 52.6 phút."
+    },
+    {
+      "id": "fc-st-sli-slo-sla",
+      "type": "definition",
+      "front": "Phân biệt SLI, SLO, SLA và error budget?",
+      "back": "SLI: chỉ số đo (tỷ lệ request thành công). SLO: mục tiêu nội bộ (99.9%/30 ngày). SLA: cam kết hợp đồng có đền bù. Error budget = 100% − SLO, phần được phép hỏng để deploy/thử nghiệm."
+    },
+    {
+      "id": "fc-st-serial",
+      "type": "formula",
+      "front": "Availability của 3 service nối tiếp (mỗi cái 99.9%)? Của 2 replica song song (mỗi cái 99%)?",
+      "back": "Nối tiếp: nhân lại, $0.999^3 \\approx 99.7\\%$. Song song (hỏng độc lập): $1 - 0.01^2 = 99.99\\%$."
+    },
+    {
+      "id": "fc-st-little",
+      "type": "formula",
+      "front": "Little's Law là gì? Dùng để làm gì?",
+      "back": "$L = \\lambda W$: số request đồng thời = throughput × latency trung bình. VD 2000 req/s × 50ms = 100 request in-flight → kích thước thread/connection pool tối thiểu."
+    },
+    {
+      "id": "fc-st-utilization",
+      "type": "concept",
+      "front": "Vì sao không chạy server ở 95–99% utilization?",
+      "back": "Thời gian chờ hàng đợi tăng phi tuyến: M/M/1 có $W = 1/(\\mu - \\lambda)$. Với μ = 100 req/s: 50% tải → 20ms, 90% → 100ms, 99% → 1s. Thường thiết kế ở 50–70% và autoscale sớm."
+    },
+    {
+      "id": "fc-st-ztest",
+      "type": "formula",
+      "front": "Kiểm định A/B cho hai tỷ lệ chuyển đổi?",
+      "back": "$z = (\\hat{p}_B - \\hat{p}_A) / \\sqrt{\\hat{p}(1-\\hat{p})(1/n_A + 1/n_B)}$ với $\\hat{p}$ là tỷ lệ gộp. $|z| > 1.96$ → có ý nghĩa ở α = 0.05 hai phía."
+    },
+    {
+      "id": "fc-st-sample-size",
+      "type": "formula",
+      "front": "Cỡ mẫu mỗi nhóm cho A/B test (α = 0.05, power 80%)?",
+      "back": "$n \\approx 16p(1-p)/\\delta^2$ (Lehr's rule). p = 10%, δ = 1 điểm phần trăm → 14.400 mỗi nhóm. Hiệu ứng nhỏ đi một nửa → gấp 4 lần mẫu."
+    },
+    {
+      "id": "fc-st-pitfalls",
+      "type": "concept",
+      "front": "Peeking và multiple comparisons trong A/B test là gì?",
+      "back": "Peeking: dừng test ngay khi p < 0.05 → tăng dương tính giả. Multiple comparisons: 20 metric ở α = 0.05 → $1 - 0.95^{20} \\approx 64\\%$ có ít nhất 1 dương tính giả. Cố định cỡ mẫu và metric chính trước."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "ex-st-warmup-1",
+      "difficulty": "warmup",
+      "prompt": "Latency (ms) của 8 request: 10, 11, 11, 12, 13, 14, 15, 200. Tính mean và median (median của số chẵn mẫu = trung bình hai giá trị giữa). Giá trị nào mô tả request \"điển hình\" tốt hơn?",
+      "hints": [
+        "Cộng tất cả rồi chia 8.",
+        "Hai giá trị giữa là vị trí thứ 4 và thứ 5."
+      ],
+      "solutionSteps": [
+        {
+          "text": "Tổng = 10 + 11 + 11 + 12 + 13 + 14 + 15 + 200 = 286 → mean = 286 / 8 = 35.75ms.",
+          "rule": "Mean = tổng / n"
+        },
+        {
+          "text": "Median = (12 + 13) / 2 = 12.5ms.",
+          "rule": "Trung vị của số chẵn mẫu"
+        },
+        {
+          "text": "7 trên 8 request nằm trong 10–15ms; mean 35.75ms lớn gấp gần 3 lần request điển hình vì một outlier 200ms.",
+          "rule": "Mean nhạy với outlier",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "Mean = 35.75ms, median = 12.5ms — median mô tả request điển hình tốt hơn",
+      "commonMistake": "Báo cáo mean như \"latency thông thường\" — với dữ liệu lệch phải, mean bị đuôi kéo lên.",
+      "relatedFlashcard": "fc-st-skew"
+    },
+    {
+      "id": "ex-st-warmup-2",
+      "difficulty": "warmup",
+      "prompt": "SLO availability là 99.95% trong cửa sổ 30 ngày. Hệ thống được phép down tối đa bao nhiêu phút? Nếu tháng này đã có một sự cố 15 phút, error budget còn lại bao nhiêu phút?",
+      "hints": [
+        "30 ngày = 30 × 24 × 60 phút.",
+        "Phần được phép hỏng là 100% − 99.95% = 0.05%."
+      ],
+      "solutionSteps": [
+        {
+          "text": "30 × 24 × 60 = 43.200 phút.",
+          "rule": "Đổi đơn vị"
+        },
+        {
+          "text": "Error budget = 0.05% × 43.200 = 0.0005 × 43.200 = 21.6 phút.",
+          "rule": "Error budget = (100% − SLO) × thời gian"
+        },
+        {
+          "text": "Còn lại 21.6 − 15 = 6.6 phút.",
+          "rule": "Trừ phần đã tiêu"
+        }
+      ],
+      "answer": "Tối đa 21.6 phút/30 ngày; còn lại 6.6 phút error budget",
+      "commonMistake": "Dùng 0.5% thay vì 0.05% (nhầm vị trí dấu thập phân) → ra 216 phút, gấp 10 lần.",
+      "relatedFlashcard": "fc-st-nines"
+    },
+    {
+      "id": "ex-st-apply-1",
+      "difficulty": "apply",
+      "prompt": "Bạn có 200 mẫu latency đã sắp xếp tăng dần. Theo nearest-rank, p95 là giá trị ở vị trí thứ mấy? p99 là vị trí thứ mấy, và có bao nhiêu mẫu chậm hơn p99?",
+      "hints": [
+        "$k = \\lceil p \\cdot n / 100 \\rceil$.",
+        "Các mẫu chậm hơn p99 là những mẫu đứng sau vị trí k."
+      ],
+      "solutionSteps": [
+        {
+          "text": "p95: $k = \\lceil 0.95 \\times 200 \\rceil = 190$ → giá trị thứ 190.",
+          "rule": "Nearest-rank"
+        },
+        {
+          "text": "p99: $k = \\lceil 0.99 \\times 200 \\rceil = 198$ → giá trị thứ 198.",
+          "rule": "Nearest-rank"
+        },
+        {
+          "text": "Có 200 − 198 = 2 mẫu đứng sau (chậm hơn hoặc bằng) p99 — p99 trên 200 mẫu chỉ dựa vào vài điểm dữ liệu đuôi nên còn nhiễu.",
+          "rule": "Đếm phần đuôi",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "p95 = giá trị thứ 190; p99 = giá trị thứ 198; còn 2 mẫu phía sau",
+      "commonMistake": "Lấy vị trí 0.99 × 200 = 198 nhưng đếm từ 0 (chỉ số mảng) — nearest-rank đếm từ 1; với mảng 0-indexed phải lấy phần tử index 197.",
+      "relatedFlashcard": "fc-st-percentile"
+    },
+    {
+      "id": "ex-st-apply-2",
+      "difficulty": "apply",
+      "prompt": "Một request của user gọi song song 50 backend và chờ tất cả. Mỗi backend độc lập có 1% request vượt 100ms. (a) Bao nhiêu phần trăm request của user vượt 100ms? (b) Để chỉ 1% request của user vượt 100ms, mỗi backend phải đạt percentile nào ≤ 100ms?",
+      "hints": [
+        "(a) User nhanh khi cả 50 backend đều nhanh: $0.99^{50}$.",
+        "(b) Cần $(1 - q)^{50} \\ge 0.99$, giải ra q.",
+        "$\\ln 0.99 \\approx -0.01005$."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) $0.99^{50} = e^{50 \\ln 0.99} \\approx e^{-0.5025} \\approx 0.605$ → $1 - 0.605 = 39.5\\%$ request của user vượt 100ms.",
+          "rule": "P(ít nhất 1 chậm) = 1 − P(tất cả nhanh)"
+        },
+        {
+          "text": "(b) $(1 - q)^{50} \\ge 0.99$ ⟺ $1 - q \\ge 0.99^{1/50} \\approx e^{-0.000201} \\approx 0.999799$.",
+          "rule": "Lấy căn bậc 50 hai vế"
+        },
+        {
+          "text": "$q \\le 0.0201\\%$ → mỗi backend phải có **p99.98** ≤ 100ms. Lưu ý: xấp xỉ nhanh q ≈ 1% / 50 = 0.02% cũng cho cùng kết quả.",
+          "rule": "Xấp xỉ $1 - (1-q)^N \\approx Nq$ khi Nq nhỏ",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "(a) ≈ 39.5%; (b) mỗi backend cần p99.98 ≤ 100ms (q ≤ 0.02%)",
+      "commonMistake": "Nghĩ rằng nếu mỗi backend đạt p99 ≤ 100ms thì user cũng đạt p99 ≤ 100ms — fan-out nhân xác suất chậm lên gần N lần.",
+      "relatedFlashcard": "fc-st-fanout"
+    },
+    {
+      "id": "ex-st-challenge-1",
+      "difficulty": "challenge",
+      "prompt": "[A/B test] A: 5.000 user, 400 chuyển đổi. B: 5.000 user, 460 chuyển đổi. (a) Tính z-score với tỷ lệ gộp. (b) Với α = 0.05 hai phía, kết luận gì? (c) Nếu team đã xem kết quả hằng ngày và dừng test ngay ngày đầu tiên thấy p < 0.05, kết luận còn đáng tin không?",
+      "hints": [
+        "$\\hat{p}_A = 0.08$, $\\hat{p}_B = 0.092$, tỷ lệ gộp = 860 / 10.000.",
+        "$SE = \\sqrt{\\hat{p}(1-\\hat{p})(1/n_A + 1/n_B)}$.",
+        "So sánh |z| với 1.96."
+      ],
+      "solutionSteps": [
+        {
+          "text": "$\\hat{p} = 860 / 10000 = 0.086$. $SE = \\sqrt{0.086 \\times 0.914 \\times \\frac{2}{5000}} = \\sqrt{0.0000314} \\approx 0.00561$.",
+          "rule": "Standard error dưới H0"
+        },
+        {
+          "text": "(a) $z = \\frac{0.092 - 0.080}{0.00561} \\approx 2.14$.",
+          "rule": "z = chênh lệch / SE"
+        },
+        {
+          "text": "(b) $|z| = 2.14 > 1.96$ → p ≈ 0.032 < 0.05 → bác bỏ H0: B có tỷ lệ chuyển đổi cao hơn có ý nghĩa thống kê (+1.2 điểm phần trăm, tăng tương đối 15%).",
+          "rule": "Quy tắc quyết định hai phía"
+        },
+        {
+          "text": "(c) Không đáng tin như con số 5% hứa hẹn: mỗi lần \"nhìn\" là thêm một cơ hội gặp dương tính giả, nên tỷ lệ dương tính giả thực tế cao hơn nhiều 5%. Phải cố định cỡ mẫu trước hoặc dùng sequential testing.",
+          "rule": "Peeking",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "(a) z ≈ 2.14; (b) có ý nghĩa ở α = 0.05 (p ≈ 0.032); (c) nếu dừng do peeking thì kết luận bị thổi phồng, cần chạy đủ cỡ mẫu định trước",
+      "commonMistake": "Diễn giải p = 0.032 là \"xác suất B không tốt hơn là 3.2%\" — p-value là xác suất thấy dữ liệu cực đoan như vậy NẾU H0 đúng, không phải xác suất H0 đúng.",
+      "relatedFlashcard": "fc-st-ztest"
+    },
+    {
+      "id": "ex-st-challenge-2",
+      "difficulty": "challenge",
+      "prompt": "[Capacity planning] API nhận đỉnh 3.000 req/s, latency trung bình 80ms, p99 400ms. Mỗi worker xử lý 1 request tại một thời điểm. (a) Theo Little's Law, trung bình có bao nhiêu request đồng thời? (b) Muốn chạy ở utilization 70%, cần bao nhiêu worker? (c) Một bạn đề xuất dùng p99 thay cho mean trong công thức để \"an toàn\". Đúng hay sai?",
+      "hints": [
+        "$L = \\lambda W$, nhớ đổi 80ms sang giây.",
+        "Số worker = L / utilization mục tiêu.",
+        "Little's Law dùng thời gian trung bình."
+      ],
+      "solutionSteps": [
+        {
+          "text": "(a) $L = 3000 \\times 0.08 = 240$ request đồng thời.",
+          "rule": "Little's Law"
+        },
+        {
+          "text": "(b) Worker cần ≈ 240 / 0.7 ≈ 343 worker (làm tròn lên).",
+          "rule": "Chừa dư địa để tránh vùng latency bùng nổ"
+        },
+        {
+          "text": "(c) Sai về công thức: Little's Law cho số đồng thời TRUNG BÌNH và dùng latency TRUNG BÌNH. Dùng p99 (400ms) ra 1.200 — gấp 5 lần, lãng phí. Cách đúng để \"an toàn\" là giữ utilization thấp (dư địa) và autoscale theo tải.",
+          "rule": "W trong Little's Law là mean",
+          "isCommonMistake": true
+        }
+      ],
+      "answer": "(a) 240 request đồng thời; (b) khoảng 343 worker; (c) sai — Little's Law dùng latency trung bình, dư địa nên đến từ mục tiêu utilization",
+      "commonMistake": "Quên đổi ms sang giây (3000 × 80 = 240.000) hoặc chạy sát 100% utilization (240 worker) — khi đó hàng đợi và latency tăng vọt.",
+      "relatedFlashcard": "fc-st-little"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "q-st-1",
+      "type": "mcq",
+      "question": "Vì sao SLO về latency thường đặt theo p99 thay vì latency trung bình?",
+      "options": [
+        "Vì p99 luôn nhỏ hơn trung bình nên dễ đạt hơn",
+        "Vì latency lệch phải, trung bình che giấu đuôi chậm mà một phần user gặp phải",
+        "Vì trung bình không tính được trên dữ liệu lớn",
+        "Vì p99 không bị ảnh hưởng bởi outlier"
+      ],
+      "correct": 1,
+      "explanation": "Với phân phối đuôi dài, mean có thể trông ổn trong khi 1% request rất chậm. p99 trực tiếp đo đuôi đó. p99 chính là đại lượng NHẠY với đuôi chậm, và thường lớn hơn mean nhiều."
+    },
+    {
+      "id": "q-st-2",
+      "type": "mcq",
+      "question": "Server A có p99 = 100ms, server B có p99 = 300ms, hai server nhận số request bằng nhau. p99 của toàn hệ thống là bao nhiêu?",
+      "options": [
+        "200ms (trung bình hai p99)",
+        "300ms (lấy max)",
+        "100ms (lấy min)",
+        "Không suy ra được từ hai con số này — cần histogram đầy đủ"
+      ],
+      "correct": 3,
+      "explanation": "Percentile không gộp được bằng trung bình hay max/min. p99 toàn cục phụ thuộc vào toàn bộ phân phối của cả hai server. Cần gộp histogram (cộng bucket) hoặc sketch như t-digest rồi mới tính."
+    },
+    {
+      "id": "q-st-3",
+      "type": "mcq",
+      "question": "Một request gọi song song 100 backend, mỗi backend độc lập có 1% request chậm. Khoảng bao nhiêu phần trăm request của user bị chậm?",
+      "options": [
+        "Khoảng 63%",
+        "1%",
+        "Khoảng 10%",
+        "100%"
+      ],
+      "correct": 0,
+      "explanation": "$1 - 0.99^{100} \\approx 1 - 0.366 = 63.4\\%$. Đây là hiện tượng tail latency amplification — lý do các hệ thống lớn tối ưu p99.9 và dùng hedged request."
+    },
+    {
+      "id": "q-st-4",
+      "type": "mcq",
+      "question": "SLO 99.9% trong 30 ngày cho phép bao nhiêu downtime?",
+      "options": [
+        "4.32 phút",
+        "7.2 giờ",
+        "43.2 phút",
+        "8.76 giờ"
+      ],
+      "correct": 2,
+      "explanation": "30 ngày = 43.200 phút; 0.1% × 43.200 = 43.2 phút. 4.32 phút là của 99.99%; 7.2 giờ là của 99%; 8.76 giờ là 99.9% tính theo cả năm."
+    },
+    {
+      "id": "q-st-5",
+      "type": "mcq",
+      "question": "A/B test cho z = 1.85 (kiểm định hai phía, α = 0.05). Kết luận đúng là gì?",
+      "options": [
+        "B chắc chắn không tốt hơn A",
+        "Chưa đủ bằng chứng để kết luận có khác biệt",
+        "B tốt hơn A với xác suất 95%",
+        "Phải giảm α xuống 0.01 để có kết quả"
+      ],
+      "correct": 1,
+      "explanation": "|z| = 1.85 < 1.96 → p ≈ 0.064 > 0.05 → không bác bỏ H0. Không bác bỏ không có nghĩa là chứng minh hai nhóm như nhau — có thể hiệu ứng thật nhưng mẫu chưa đủ lớn."
+    },
+    {
+      "id": "q-st-6",
+      "type": "mcq",
+      "question": "Service nhận 500 req/s, latency trung bình 200ms. Trung bình có bao nhiêu request đang được xử lý đồng thời?",
+      "options": [
+        "100",
+        "2.5",
+        "2.500",
+        "100.000"
+      ],
+      "correct": 0,
+      "explanation": "Little's Law: $L = \\lambda W = 500 \\times 0.2 = 100$. Đáp án 100.000 là bẫy quên đổi 200ms sang 0.2 giây."
+    },
+    {
+      "id": "q-st-7",
+      "type": "mcq",
+      "question": "Một A/B test theo dõi 20 metric độc lập, mỗi metric kiểm định ở α = 0.05, và thực tế biến thể không có tác dụng gì. Xác suất có ít nhất một metric \"có ý nghĩa thống kê\" là khoảng?",
+      "options": [
+        "5%",
+        "20%",
+        "100%",
+        "64%"
+      ],
+      "correct": 3,
+      "explanation": "$1 - 0.95^{20} \\approx 1 - 0.358 = 64\\%$. Đây là vấn đề multiple comparisons: hãy chọn trước một metric chính, hoặc hiệu chỉnh α (Bonferroni α/20)."
+    }
+  ]
+}
